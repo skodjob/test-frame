@@ -1,0 +1,143 @@
+package io.skodjob;
+
+import io.fabric8.kubernetes.client.dsl.MixedOperation;
+import io.fabric8.kubernetes.client.dsl.Resource;
+import io.fabric8.openshift.api.model.operatorhub.v1.OperatorGroup;
+import io.fabric8.openshift.api.model.operatorhub.v1.OperatorGroupList;
+import io.skodjob.clients.KubeClient;
+import io.skodjob.interfaces.NamespacedResourceType;
+
+import java.util.function.Consumer;
+
+public class OperatorGroupResource implements NamespacedResourceType<OperatorGroup, OperatorGroupList, Resource<OperatorGroup>> {
+
+    private final MixedOperation<OperatorGroup, OperatorGroupList, Resource<OperatorGroup>> client;
+
+    public OperatorGroupResource() {
+        this.client = KubeClient.getInstance().getOpenShiftClient().operatorHub().operatorGroups();
+    }
+
+    /**
+     * Returns client for resource {@link OperatorGroup}
+     *
+     * @return client of a MixedOperation<{@link OperatorGroup}, {@link OperatorGroupList}, Resource<{@link OperatorGroup}>> resource
+     */
+    @Override
+    public MixedOperation<OperatorGroup, OperatorGroupList, Resource<OperatorGroup>> getClient() {
+        return client;
+    }
+
+    /**
+     * Creates specific {@link OperatorGroup} resource
+     *
+     * @param resource {@link OperatorGroup} resource
+     */
+    @Override
+    public void create(OperatorGroup resource) {
+        client.resource(resource).create();
+    }
+
+    /**
+     * Updates specific {@link OperatorGroup} resource
+     *
+     * @param resource {@link OperatorGroup} resource that will be updated
+     */
+    @Override
+    public void update(OperatorGroup resource) {
+        client.resource(resource).update();
+    }
+
+    /**
+     * Deletes {@link OperatorGroup} resource from Namespace in current context
+     *
+     * @param resourceName name of the {@link OperatorGroup} that will be deleted
+     */
+    @Override
+    public void delete(String resourceName) {
+        client.withName(resourceName).delete();
+    }
+
+    /**
+     * Replaces {@link OperatorGroup} resource using {@link Consumer}
+     * from which is the current {@link OperatorGroup} resource updated
+     *
+     * @param resourceName name of the {@link OperatorGroup} that will be replaced
+     * @param editor       {@link Consumer} containing updates to the resource
+     */
+    @Override
+    public void replace(String resourceName, Consumer<OperatorGroup> editor) {
+        OperatorGroup toBeReplaced = client.withName(resourceName).get();
+        editor.accept(toBeReplaced);
+        update(toBeReplaced);
+    }
+
+    /**
+     * Waits for {@link OperatorGroup} to be ready (created/running)
+     *
+     * @param resource
+     * @return result of the readiness check
+     */
+    @Override
+    public boolean waitForReadiness(OperatorGroup resource) {
+        return resource != null;
+    }
+
+    /**
+     * Waits for {@link OperatorGroup} to be deleted
+     *
+     * @param resource
+     * @return result of the deletion
+     */
+    @Override
+    public boolean waitForDeletion(OperatorGroup resource) {
+        return resource == null;
+    }
+
+    /**
+     * Creates specific {@link OperatorGroup} resource in Namespace specified by user
+     *
+     * @param namespaceName Namespace, where the resource should be created
+     * @param resource      {@link OperatorGroup} resource
+     */
+    @Override
+    public void createInNamespace(String namespaceName, OperatorGroup resource) {
+        client.inNamespace(namespaceName).resource(resource).create();
+    }
+
+    /**
+     * Updates specific {@link OperatorGroup} resource in Namespace specified by user
+     *
+     * @param namespaceName Namespace, where the resource should be updated
+     * @param resource      {@link OperatorGroup} updated resource
+     */
+    @Override
+    public void updateInNamespace(String namespaceName, OperatorGroup resource) {
+        client.inNamespace(namespaceName).resource(resource).update();
+    }
+
+    /**
+     * Deletes {@link OperatorGroup} resource from Namespace specified by user
+     *
+     * @param namespaceName Namespace, where the resource should be deleted
+     * @param resourceName  name of the {@link OperatorGroup} that will be deleted
+     */
+    @Override
+    public void deleteFromNamespace(String namespaceName, String resourceName) {
+        client.inNamespace(namespaceName).withName(resourceName).delete();
+    }
+
+    /**
+     * Replaces {@link OperatorGroup} resource in Namespace specified by user, using {@link Consumer}
+     * from which is the current {@link OperatorGroup} resource updated
+     *
+     * @param namespaceName Namespace, where the resource should be replaced
+     * @param resourceName  name of the {@link OperatorGroup} that will be replaced
+     * @param editor        {@link Consumer} containing updates to the resource
+     */
+    @Override
+    public void replaceInNamespace(String namespaceName, String resourceName, Consumer<OperatorGroup> editor) {
+        OperatorGroup toBeReplaced = client.inNamespace(namespaceName).withName(resourceName).get();
+        editor.accept(toBeReplaced);
+        updateInNamespace(namespaceName, toBeReplaced);
+    }
+}

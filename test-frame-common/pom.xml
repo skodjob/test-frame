@@ -6,16 +6,20 @@
 
     <parent>
         <artifactId>test-frame</artifactId>
-        <groupId>io.lkral</groupId>
-        <version>1.0-SNAPSHOT</version>
+        <groupId>io.skodjob</groupId>
+        <version>0.1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>common</artifactId>
+    <artifactId>test-frame-common</artifactId>
 
     <dependencies>
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>kubernetes-client-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>openshift-client-api</artifactId>
         </dependency>
     </dependencies>
 </project>

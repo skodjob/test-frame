@@ -1,0 +1,143 @@
+package io.skodjob.resources;
+
+import io.fabric8.kubernetes.api.model.batch.v1.Job;
+import io.fabric8.kubernetes.api.model.batch.v1.JobList;
+import io.fabric8.kubernetes.client.dsl.MixedOperation;
+import io.fabric8.kubernetes.client.dsl.ScalableResource;
+import io.skodjob.clients.KubeClient;
+import io.skodjob.interfaces.NamespacedResourceType;
+
+import java.util.function.Consumer;
+
+public class JobResource implements NamespacedResourceType<Job, JobList, ScalableResource<Job>> {
+
+    private final MixedOperation<Job, JobList, ScalableResource<Job>> client;
+
+    public JobResource() {
+        this.client = KubeClient.getInstance().getClient().batch().v1().jobs();
+    }
+
+    /**
+     * Returns client for resource {@link Job}
+     *
+     * @return client of a MixedOperation<{@link Job}, {@link JobList}, Resource<{@link Job}>> resource
+     */
+    @Override
+    public MixedOperation<Job, JobList, ScalableResource<Job>> getClient() {
+        return client;
+    }
+
+    /**
+     * Creates specific {@link Job} resource in Namespace specified by user
+     *
+     * @param namespaceName Namespace, where the resource should be created
+     * @param resource      {@link Job} resource
+     */
+    @Override
+    public void createInNamespace(String namespaceName, Job resource) {
+        client.inNamespace(namespaceName).resource(resource).create();
+    }
+
+    /**
+     * Updates specific {@link Job} resource in Namespace specified by user
+     *
+     * @param namespaceName Namespace, where the resource should be updated
+     * @param resource      {@link Job} updated resource
+     */
+    @Override
+    public void updateInNamespace(String namespaceName, Job resource) {
+        client.inNamespace(namespaceName).resource(resource).update();
+    }
+
+    /**
+     * Deletes {@link Job} resource from Namespace specified by user
+     *
+     * @param namespaceName Namespace, where the resource should be deleted
+     * @param resourceName  name of the {@link Job} that will be deleted
+     */
+    @Override
+    public void deleteFromNamespace(String namespaceName, String resourceName) {
+        client.inNamespace(namespaceName).withName(resourceName).delete();
+    }
+
+    /**
+     * Replaces {@link Job} resource in Namespace specified by user, using {@link Consumer}
+     * from which is the current {@link Job} resource updated
+     *
+     * @param namespaceName Namespace, where the resource should be replaced
+     * @param resourceName  name of the {@link Job} that will be replaced
+     * @param editor        {@link Consumer} containing updates to the resource
+     */
+    @Override
+    public void replaceInNamespace(String namespaceName, String resourceName, Consumer<Job> editor) {
+        Job toBeUpdated = client.inNamespace(namespaceName).withName(resourceName).get();
+        editor.accept(toBeUpdated);
+        updateInNamespace(namespaceName, toBeUpdated);
+    }
+
+    /**
+     * Creates specific {@link Job} resource
+     *
+     * @param resource {@link Job} resource
+     */
+    @Override
+    public void create(Job resource) {
+        client.resource(resource).create();
+    }
+
+    /**
+     * Updates specific {@link Job} resource
+     *
+     * @param resource {@link Job} resource that will be updated
+     */
+    @Override
+    public void update(Job resource) {
+        client.resource(resource).update();
+    }
+
+    /**
+     * Deletes {@link Job} resource from Namespace in current context
+     *
+     * @param resourceName name of the {@link Job} that will be deleted
+     */
+    @Override
+    public void delete(String resourceName) {
+        client.withName(resourceName).delete();
+    }
+
+    /**
+     * Replaces {@link Job} resource using {@link Consumer}
+     * from which is the current {@link Job} resource updated
+     *
+     * @param resourceName name of the {@link Job} that will be replaced
+     * @param editor       {@link Consumer} containing updates to the resource
+     */
+    @Override
+    public void replace(String resourceName, Consumer<Job> editor) {
+        Job toBeUpdated = client.withName(resourceName).get();
+        editor.accept(toBeUpdated);
+        update(toBeUpdated);
+    }
+
+    /**
+     * Waits for {@link Job} to be ready (created/running)
+     *
+     * @param resource
+     * @return result of the readiness check
+     */
+    @Override
+    public boolean waitForReadiness(Job resource) {
+        return client.resource(resource).isReady();
+    }
+
+    /**
+     * Waits for {@link Job} to be deleted
+     *
+     * @param resource
+     * @return result of the deletion
+     */
+    @Override
+    public boolean waitForDeletion(Job resource) {
+        return resource == null;
+    }
+}

@@ -1,8 +1,9 @@
-package io.lkral;
+package io.skodjob.clients;
 
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientBuilder;
+import io.fabric8.openshift.client.OpenShiftClient;
 
 public class KubeClient {
 
@@ -22,5 +23,9 @@ public class KubeClient {
 
     public KubernetesClient getClient() {
         return client;
+    }
+
+    public OpenShiftClient getOpenShiftClient() {
+        return client.adapt(OpenShiftClient.class);
     }
 }
