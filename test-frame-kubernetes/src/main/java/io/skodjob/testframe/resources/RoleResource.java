@@ -1,11 +1,11 @@
-package io.skodjob.resources;
+package io.skodjob.testframe.resources;
 
 import io.fabric8.kubernetes.api.model.rbac.Role;
 import io.fabric8.kubernetes.api.model.rbac.RoleList;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
-import io.skodjob.clients.KubeClient;
-import io.skodjob.interfaces.NamespacedResourceType;
+import io.skodjob.testframe.clients.KubeClient;
+import io.skodjob.testframe.interfaces.NamespacedResourceType;
 
 import java.util.function.Consumer;
 

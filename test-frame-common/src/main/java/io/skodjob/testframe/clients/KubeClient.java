@@ -1,4 +1,4 @@
-package io.skodjob.clients;
+package io.skodjob.testframe.clients;
 
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.KubernetesClient;

@@ -1,4 +1,4 @@
-package io.skodjob.interfaces;
+package io.skodjob.testframe.interfaces;
 
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.KubernetesResourceList;
