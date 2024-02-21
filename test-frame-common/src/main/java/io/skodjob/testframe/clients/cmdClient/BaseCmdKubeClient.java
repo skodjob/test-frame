@@ -33,9 +33,7 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
     private static final String DELETE = "delete";
     private static final String REPLACE = "replace";
     private static final String PROCESS = "process";
-
-    public static final String STATEFUL_SET = "statefulset";
-    public static final String CM = "cm";
+    private static final String GET = "get";
 
     protected String config;
 
@@ -79,12 +77,12 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
 
     @Override
     public String get(String resource, String resourceName) {
-        return Exec.exec(namespacedCommand("get", resource, resourceName, "-o", "yaml")).out();
+        return Exec.exec(namespacedCommand(GET, resource, resourceName, "-o", "yaml")).out();
     }
 
     @Override
     public String getEvents() {
-        return Exec.exec(namespacedCommand("get", "events")).out();
+        return Exec.exec(namespacedCommand(GET, "events")).out();
     }
 
     @Override
@@ -275,12 +273,6 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
         return Exec.exec(null, namespacedCommand(commands), 0, logToOutput);
     }
 
-    enum ExType {
-        BREAK,
-        CONTINUE,
-        THROW
-    }
-
     @Override
     public String toString() {
         return cmd();
@@ -288,23 +280,23 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
 
     @Override
     public List<String> list(String resourceType) {
-        return Arrays.stream(Exec.exec(namespacedCommand("get", resourceType, "-o", "jsonpath={range .items[*]}{.metadata.name} ")).out().trim().split(" +"))
+        return Arrays.stream(Exec.exec(namespacedCommand(GET, resourceType, "-o", "jsonpath={range .items[*]}{.metadata.name} ")).out().trim().split(" +"))
                 .filter(s -> !s.trim().isEmpty()).collect(Collectors.toList());
     }
 
     @Override
     public String getResourceAsJson(String resourceType, String resourceName) {
-        return Exec.exec(namespacedCommand("get", resourceType, resourceName, "-o", "json")).out();
+        return Exec.exec(namespacedCommand(GET, resourceType, resourceName, "-o", "json")).out();
     }
 
     @Override
     public String getResourceAsYaml(String resourceType, String resourceName) {
-        return Exec.exec(namespacedCommand("get", resourceType, resourceName, "-o", "yaml")).out();
+        return Exec.exec(namespacedCommand(GET, resourceType, resourceName, "-o", "yaml")).out();
     }
 
     @Override
     public String getResourcesAsYaml(String resourceType) {
-        return Exec.exec(namespacedCommand("get", resourceType, "-o", "yaml")).out();
+        return Exec.exec(namespacedCommand(GET, resourceType, "-o", "yaml")).out();
     }
 
     @Override
@@ -367,7 +359,7 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
 
     @Override
     public List<String> listResourcesByLabel(String resourceType, String label) {
-        return asList(Exec.exec(namespacedCommand("get", resourceType, "-l", label, "-o", "jsonpath={range .items[*]}{.metadata.name} ")).out().split("\\s+"));
+        return asList(Exec.exec(namespacedCommand(GET, resourceType, "-l", label, "-o", "jsonpath={range .items[*]}{.metadata.name} ")).out().split("\\s+"));
     }
 
     private List<String> command(List<String> rest, boolean namespaced) {
