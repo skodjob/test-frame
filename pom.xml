@@ -15,12 +15,73 @@
         <module>test-frame-openshift</module>
     </modules>
 
+    <licenses>
+        <license>
+            <name>The Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <name>${project.groupId}:${project.artifactId}</name>
+    <description>Generates metadata for junit tests</description>
+    <url>https://github.com/skodjob/test-metadata-generator</url>
+
+    <scm>
+        <connection>scm:git:git:/github.com/skodjob/test-frame.git</connection>
+        <developerConnection>scm:git:ssh://github.com/skodjob/test-frame.git</developerConnection>
+        <url>https://github.com/skodjob/frame</url>
+    </scm>
+
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/skodjob/test-frame/issues</url>
+    </issueManagement>
+
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/skodjob/test-frame</url>
+        </repository>
+    </distributionManagement>
+
+    <developers>
+        <developer>
+            <id>im-konge</id>
+            <name>Lukáš Král</name>
+            <email>lukywill16@gmail.com</email>
+        </developer>
+        <developer>
+            <id>kornys</id>
+            <name>David Kornel</name>
+            <email>kornys@outlook.com</email>
+        </developer>
+        <developer>
+            <id>Frawless</id>
+            <name>Jakub Stejskal</name>
+            <email>xstejs24@gmail.com</email>
+        </developer>
+    </developers>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
 
         <fabric8.version>6.5.1</fabric8.version>
+
+        <maven.spotbugs.version>4.7.3.4</maven.spotbugs.version>
+        <maven.checkstyle.version>3.3.0</maven.checkstyle.version>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.source.plugin.version>3.3.0</maven.source.plugin.version>
+        <maven.deploy.plugin.version>3.1.1</maven.deploy.plugin.version>
+        <maven.gpg.version>3.1.0</maven.gpg.version>
+        <sonatype.nexus.central>0.3.0</sonatype.nexus.central>
+        <maven.javadoc.version>3.4.1</maven.javadoc.version>
+        <maven.assembly.version>3.4.2</maven.assembly.version>
+        <maven.plugin.plugin.version>3.9.0</maven.plugin.plugin.version>
     </properties>
 
     <dependencyManagement>
@@ -42,4 +103,129 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <build>
+        <plugins>
+<!--            <plugin>-->
+<!--                <groupId>org.apache.maven.plugins</groupId>-->
+<!--                <artifactId>maven-javadoc-plugin</artifactId>-->
+<!--                <version>${maven.javadoc.version}</version>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <id>attach-javadocs</id>-->
+<!--                        <goals>-->
+<!--                            <goal>jar</goal>-->
+<!--                        </goals>-->
+<!--                        <configuration>-->
+<!--                            <show>public</show>-->
+<!--                            <failOnError>true</failOnError>-->
+<!--                            <failOnWarnings>true</failOnWarnings>-->
+<!--                        </configuration>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--            </plugin>-->
+            <plugin>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>${maven.source.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <phase>deploy</phase>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>${maven.deploy.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>deploy</id>
+                        <phase>deploy</phase>
+                        <goals>
+                            <goal>deploy</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>ossrh</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <properties>
+                <!--suppress UnresolvedMavenProperty -->
+                <gpg.executable>${env.GPG_EXECUTABLE}</gpg.executable>
+                <!--suppress UnresolvedMavenProperty -->
+                <gpg.passphrase>${env.GPG_PASSPHRASE}</gpg.passphrase>
+                <!--suppress UnresolvedMavenProperty -->
+                <gpg.keyname>${env.GPG_KEYNAME}</gpg.keyname>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>${maven.gpg.version}</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>deploy</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                                <configuration>
+                                    <gpgArguments>
+                                        <arg>--batch</arg>
+                                        <arg>--pinentry-mode</arg>
+                                        <arg>loopback</arg>
+                                    </gpgArguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>${sonatype.nexus.central}</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <publishingServerId>central</publishingServerId>
+                            <tokenAuth>true</tokenAuth>
+                            <checksums>all</checksums>
+                            <autoPublish>true</autoPublish>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <version>${maven.assembly.version}</version>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                                <configuration>
+                                    <appendAssemblyId>false</appendAssemblyId>
+                                    <tarLongFileMode>posix</tarLongFileMode>
+                                    <descriptors>
+                                        <descriptor>test-frame-common/src/main/assembly/dist.xml</descriptor>
+                                        <descriptor>test-frame-kubernetes/src/main/assembly/dist.xml</descriptor>
+                                        <descriptor>test-frame-openshift/src/main/assembly/dist.xml</descriptor>
+                                    </descriptors>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

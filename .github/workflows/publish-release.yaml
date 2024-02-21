@@ -1,0 +1,37 @@
+name: Publish-release
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  publish-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          server-id: github
+          settings-path: ${{ github.workspace }}
+
+      - name: Cache m2 repo
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Publish to sonatype
+        run: ./github/scripts/push-to-nexus.sh
+        env:
+          BUILD_ENV: 'github-actions'
+          NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
+          NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
+          GPG_KEYNAME: ${{ secrets.GPG_KEYNAME }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+          GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}

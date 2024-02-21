@@ -1,4 +1,4 @@
-package io.skodjob;
+package io.skodjob.resources;
 
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
