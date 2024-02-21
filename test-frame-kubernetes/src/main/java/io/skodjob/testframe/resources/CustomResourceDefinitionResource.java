@@ -1,11 +1,11 @@
-package io.skodjob.resources;
+package io.skodjob.testframe.resources;
 
 import io.fabric8.kubernetes.api.model.apiextensions.v1.CustomResourceDefinition;
 import io.fabric8.kubernetes.api.model.apiextensions.v1.CustomResourceDefinitionList;
 import io.fabric8.kubernetes.client.dsl.NonNamespaceOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
-import io.skodjob.clients.KubeClient;
-import io.skodjob.interfaces.ResourceType;
+import io.skodjob.testframe.clients.KubeClient;
+import io.skodjob.testframe.interfaces.ResourceType;
 
 import java.util.function.Consumer;
 

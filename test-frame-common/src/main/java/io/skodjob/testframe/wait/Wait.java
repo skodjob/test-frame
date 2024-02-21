@@ -1,4 +1,4 @@
-package io.skodjob.wait;
+package io.skodjob.testframe.wait;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
