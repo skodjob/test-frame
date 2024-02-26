@@ -8,26 +8,25 @@ import io.fabric8.kubernetes.api.model.networking.v1.NetworkPolicy;
 import io.fabric8.kubernetes.api.model.networking.v1.NetworkPolicyList;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
-import io.skodjob.testframe.clients.KubeClient;
 import io.skodjob.testframe.interfaces.NamespacedResourceType;
 
 import java.util.function.Consumer;
 
-public class NetworkPolicyResource implements NamespacedResourceType<NetworkPolicy, NetworkPolicyList, Resource<NetworkPolicy>> {
+public class NetworkPolicyResource implements NamespacedResourceType<NetworkPolicy> {
 
     private final MixedOperation<NetworkPolicy, NetworkPolicyList, Resource<NetworkPolicy>> client;
 
     public NetworkPolicyResource() {
-        this.client = KubeClient.getInstance().getClient().network().networkPolicies();
+        this.client = ResourceManager.getKubeClient().getClient().network().networkPolicies();
     }
+
     /**
-     * Returns client for resource {@link NetworkPolicy}
-     *
-     * @return client of a MixedOperation<{@link NetworkPolicy}, {@link NetworkPolicyList}, Resource<{@link NetworkPolicy}>> resource
+     * Kind of api resource
+     * @return kind name
      */
     @Override
-    public MixedOperation<NetworkPolicy, NetworkPolicyList, Resource<NetworkPolicy>> getClient() {
-        return client;
+    public String getKind() {
+        return "NetworkPolicy";
     }
 
     /**

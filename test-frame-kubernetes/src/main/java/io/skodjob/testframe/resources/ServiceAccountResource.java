@@ -8,27 +8,25 @@ import io.fabric8.kubernetes.api.model.ServiceAccount;
 import io.fabric8.kubernetes.api.model.ServiceAccountList;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
-import io.skodjob.testframe.clients.KubeClient;
 import io.skodjob.testframe.interfaces.NamespacedResourceType;
 
 import java.util.function.Consumer;
 
-public class ServiceAccountResource implements NamespacedResourceType<ServiceAccount, ServiceAccountList, Resource<ServiceAccount>> {
+public class ServiceAccountResource implements NamespacedResourceType<ServiceAccount> {
 
     private final MixedOperation<ServiceAccount, ServiceAccountList, Resource<ServiceAccount>> client;
 
     public ServiceAccountResource() {
-        this.client = KubeClient.getInstance().getClient().serviceAccounts();
+        this.client = ResourceManager.getKubeClient().getClient().serviceAccounts();
     }
 
     /**
-     * Returns client for resource {@link ServiceAccount}
-     *
-     * @return client of a MixedOperation<{@link ServiceAccount}, {@link ServiceAccountList}, Resource<{@link ServiceAccount}>> resource
+     * Kind of api resource
+     * @return kind name
      */
     @Override
-    public MixedOperation<ServiceAccount, ServiceAccountList, Resource<ServiceAccount>> getClient() {
-        return client;
+    public String getKind() {
+        return "ServiceAccount";
     }
 
     /**

@@ -8,27 +8,25 @@ import io.fabric8.kubernetes.api.model.rbac.RoleBinding;
 import io.fabric8.kubernetes.api.model.rbac.RoleBindingList;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
-import io.skodjob.testframe.clients.KubeClient;
 import io.skodjob.testframe.interfaces.NamespacedResourceType;
 
 import java.util.function.Consumer;
 
-public class RoleBindingResource implements NamespacedResourceType<RoleBinding, RoleBindingList, Resource<RoleBinding>> {
+public class RoleBindingResource implements NamespacedResourceType<RoleBinding> {
 
     private final MixedOperation<RoleBinding, RoleBindingList, Resource<RoleBinding>> client;
 
     public RoleBindingResource() {
-        this.client = KubeClient.getInstance().getClient().rbac().roleBindings();
+        this.client = ResourceManager.getKubeClient().getClient().rbac().roleBindings();
     }
 
     /**
-     * Returns client for resource {@link RoleBinding}
-     *
-     * @return client of a MixedOperation<{@link RoleBinding}, {@link RoleBindingList}, Resource<{@link RoleBinding}>> resource
+     * Kind of api resource
+     * @return kind name
      */
     @Override
-    public MixedOperation<RoleBinding, RoleBindingList, Resource<RoleBinding>> getClient() {
-        return client;
+    public String getKind() {
+        return "RoleBinding";
     }
 
     /**

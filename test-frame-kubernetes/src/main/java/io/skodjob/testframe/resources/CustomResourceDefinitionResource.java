@@ -8,26 +8,25 @@ import io.fabric8.kubernetes.api.model.apiextensions.v1.CustomResourceDefinition
 import io.fabric8.kubernetes.api.model.apiextensions.v1.CustomResourceDefinitionList;
 import io.fabric8.kubernetes.client.dsl.NonNamespaceOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
-import io.skodjob.testframe.clients.KubeClient;
 import io.skodjob.testframe.interfaces.ResourceType;
 
 import java.util.function.Consumer;
 
-public class CustomResourceDefinitionResource implements ResourceType<CustomResourceDefinition, CustomResourceDefinitionList, Resource<CustomResourceDefinition>> {
+public class CustomResourceDefinitionResource implements ResourceType<CustomResourceDefinition> {
 
     private final NonNamespaceOperation<CustomResourceDefinition, CustomResourceDefinitionList, Resource<CustomResourceDefinition>> client;
 
     public CustomResourceDefinitionResource() {
-        this.client = KubeClient.getInstance().getClient().apiextensions().v1().customResourceDefinitions();
+        this.client = ResourceManager.getKubeClient().getClient().apiextensions().v1().customResourceDefinitions();
     }
+
     /**
-     * Returns client for resource {@link CustomResourceDefinition}
-     *
-     * @return client of a MixedOperation<{@link CustomResourceDefinition}, {@link CustomResourceDefinitionList}, Resource<{@link CustomResourceDefinition}>> resource
+     * Kind of api resource
+     * @return kind name
      */
     @Override
-    public NonNamespaceOperation<CustomResourceDefinition, CustomResourceDefinitionList, Resource<CustomResourceDefinition>> getClient() {
-        return client;
+    public String getKind() {
+        return "CustomResourceDefinition";
     }
 
     /**

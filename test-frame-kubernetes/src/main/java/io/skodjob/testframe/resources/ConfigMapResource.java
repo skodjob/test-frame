@@ -8,16 +8,24 @@ import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.api.model.ConfigMapList;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
-import io.skodjob.testframe.clients.KubeClient;
 import io.skodjob.testframe.interfaces.NamespacedResourceType;
 
 import java.util.function.Consumer;
 
-public class ConfigMapResource implements NamespacedResourceType<ConfigMap, ConfigMapList, Resource<ConfigMap>> {
+public class ConfigMapResource implements NamespacedResourceType<ConfigMap> {
     private final MixedOperation<ConfigMap, ConfigMapList, Resource<ConfigMap>> client;
 
     public ConfigMapResource() {
-        this.client = KubeClient.getInstance().getClient().configMaps();
+        this.client = ResourceManager.getKubeClient().getClient().configMaps();
+    }
+
+    /**
+     * Kind of api resource
+     * @return kind name
+     */
+    @Override
+    public String getKind() {
+        return "ConfigMap";
     }
 
     /**
@@ -66,16 +74,6 @@ public class ConfigMapResource implements NamespacedResourceType<ConfigMap, Conf
         ConfigMap toBeUpdated = client.inNamespace(namespaceName).withName(resourceName).get();
         editor.accept(toBeUpdated);
         updateInNamespace(namespaceName, toBeUpdated);
-    }
-
-    /**
-     * Returns client for resource {@link ConfigMap}
-     *
-     * @return client of a MixedOperation<{@link ConfigMap}, {@link ConfigMapList}, Resource<{@link ConfigMap}>> resource
-     */
-    @Override
-    public MixedOperation<ConfigMap, ConfigMapList, Resource<ConfigMap>> getClient() {
-        return client;
     }
 
     /**

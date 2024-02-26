@@ -69,5 +69,9 @@
             <groupId>io.fabric8</groupId>
             <artifactId>openshift-client-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+        </dependency>
     </dependencies>
 </project>

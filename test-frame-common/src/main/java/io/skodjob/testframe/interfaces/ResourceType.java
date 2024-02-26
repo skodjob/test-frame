@@ -5,27 +5,19 @@
 package io.skodjob.testframe.interfaces;
 
 import io.fabric8.kubernetes.api.model.HasMetadata;
-import io.fabric8.kubernetes.api.model.KubernetesResourceList;
-import io.fabric8.kubernetes.api.model.apiextensions.v1.CustomResourceDefinition;
-import io.fabric8.kubernetes.api.model.apiextensions.v1.CustomResourceDefinitionList;
-import io.fabric8.kubernetes.client.dsl.MixedOperation;
-import io.fabric8.kubernetes.client.dsl.NonNamespaceOperation;
-import io.fabric8.kubernetes.client.dsl.Resource;
 
 import java.util.function.Consumer;
 
 /**
  * Class for encapsulating methods related to {@link T} resource.
  * @param <T> resource type
- * @param <L> resource's list
  */
-public interface ResourceType<T extends HasMetadata, L extends KubernetesResourceList<T>, M extends Resource<T>> {
-
+public interface ResourceType<T extends HasMetadata> {
     /**
-     * Returns client for resource {@link T}
-     * @return client of a MixedOperation<{@link T}, {@link L}, Resource<{@link T}>> resource
+     * Kind of api resource
+     * @return kind name
      */
-    NonNamespaceOperation<T, L, M> getClient();
+    String getKind();
 
     /**
      * Creates specific {@link T} resource

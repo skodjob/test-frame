@@ -7,3 +7,8 @@ target/
 
 ### Mac OS ###
 **.DS_Store
+
+## Frame specific files
+**/*.kubeconfig
+*.env
+config.yaml

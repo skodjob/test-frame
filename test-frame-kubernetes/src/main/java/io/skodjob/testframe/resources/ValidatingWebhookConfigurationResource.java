@@ -8,28 +8,26 @@ import io.fabric8.kubernetes.api.model.admissionregistration.v1.ValidatingWebhoo
 import io.fabric8.kubernetes.api.model.admissionregistration.v1.ValidatingWebhookConfigurationList;
 import io.fabric8.kubernetes.client.dsl.NonNamespaceOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
-import io.skodjob.testframe.clients.KubeClient;
 import io.skodjob.testframe.interfaces.ResourceType;
 
 import java.util.function.Consumer;
 
-public class ValidatingWebhookConfigurationResource implements ResourceType<ValidatingWebhookConfiguration, ValidatingWebhookConfigurationList, Resource<ValidatingWebhookConfiguration>> {
+public class ValidatingWebhookConfigurationResource implements ResourceType<ValidatingWebhookConfiguration> {
 
 
     private final NonNamespaceOperation<ValidatingWebhookConfiguration, ValidatingWebhookConfigurationList, Resource<ValidatingWebhookConfiguration>> client;
 
     public ValidatingWebhookConfigurationResource() {
-        this.client = KubeClient.getInstance().getClient().admissionRegistration().v1().validatingWebhookConfigurations();
+        this.client = ResourceManager.getKubeClient().getClient().admissionRegistration().v1().validatingWebhookConfigurations();
     }
 
     /**
-     * Returns client for resource {@link ValidatingWebhookConfiguration}
-     *
-     * @return client of a MixedOperation<{@link ValidatingWebhookConfiguration}, {@link ValidatingWebhookConfigurationList}, Resource<{@link ValidatingWebhookConfiguration}>> resource
+     * Kind of api resource
+     * @return kind name
      */
     @Override
-    public NonNamespaceOperation<ValidatingWebhookConfiguration, ValidatingWebhookConfigurationList, Resource<ValidatingWebhookConfiguration>> getClient() {
-        return client;
+    public String getKind() {
+        return "ValidatingWebhookConfiguration";
     }
 
     /**

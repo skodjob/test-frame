@@ -7,27 +7,25 @@ package io.skodjob.testframe.resources;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceList;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
-import io.skodjob.testframe.clients.KubeClient;
 import io.skodjob.testframe.interfaces.NamespacedResourceType;
 
 import java.util.function.Consumer;
 
-public class ServiceResource implements NamespacedResourceType<Service, ServiceList, io.fabric8.kubernetes.client.dsl.ServiceResource<Service>> {
+public class ServiceResource implements NamespacedResourceType<Service> {
 
     private final MixedOperation<Service, ServiceList, io.fabric8.kubernetes.client.dsl.ServiceResource<Service>> client;
 
     public ServiceResource() {
-        this.client = KubeClient.getInstance().getClient().services();
+        this.client = ResourceManager.getKubeClient().getClient().services();
     }
 
     /**
-     * Returns client for resource {@link Service}
-     *
-     * @return client of a MixedOperation<{@link Service}, {@link ServiceList}, Resource<{@link Service}>> resource
+     * Kind of api resource
+     * @return kind name
      */
     @Override
-    public MixedOperation<Service, ServiceList, io.fabric8.kubernetes.client.dsl.ServiceResource<Service>> getClient() {
-        return client;
+    public String getKind() {
+        return "Service";
     }
 
     /**
