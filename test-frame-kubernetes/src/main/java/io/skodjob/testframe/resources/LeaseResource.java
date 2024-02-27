@@ -8,7 +8,6 @@ import io.fabric8.kubernetes.api.model.coordination.v1.Lease;
 import io.fabric8.kubernetes.api.model.coordination.v1.LeaseList;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
-import io.skodjob.testframe.clients.KubeClient;
 import io.skodjob.testframe.interfaces.NamespacedResourceType;
 
 import java.util.function.Consumer;
@@ -28,6 +27,15 @@ public class LeaseResource implements NamespacedResourceType<Lease> {
     @Override
     public String getKind() {
         return "Lease";
+    }
+
+    /**
+     * Get specific client for resoruce
+     * @return specific client
+     */
+    @Override
+    public MixedOperation<?, ?, ?> getClient() {
+        return client;
     }
 
     /**

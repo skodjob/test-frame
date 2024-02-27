@@ -24,8 +24,7 @@ public class KubeClient {
 
         this.client = new KubernetesClientBuilder()
                 .withConfig(config)
-                .build()
-                .adapt(OpenShiftClient.class);
+                .build();
     }
 
     public KubernetesClient getClient() {

@@ -30,6 +30,15 @@ public class RoleBindingResource implements NamespacedResourceType<RoleBinding> 
     }
 
     /**
+     * Get specific client for resoruce
+     * @return specific client
+     */
+    @Override
+    public MixedOperation<?, ?, ?> getClient() {
+        return client;
+    }
+
+    /**
      * Creates specific {@link RoleBinding} resource
      *
      * @param resource {@link RoleBinding} resource

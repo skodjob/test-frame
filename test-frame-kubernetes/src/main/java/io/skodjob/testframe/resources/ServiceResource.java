@@ -39,6 +39,15 @@ public class ServiceResource implements NamespacedResourceType<Service> {
     }
 
     /**
+     * Get specific client for resoruce
+     * @return specific client
+     */
+    @Override
+    public MixedOperation<?, ?, ?> getClient() {
+        return client;
+    }
+
+    /**
      * Updates specific {@link Service} resource
      *
      * @param resource {@link Service} resource that will be updated

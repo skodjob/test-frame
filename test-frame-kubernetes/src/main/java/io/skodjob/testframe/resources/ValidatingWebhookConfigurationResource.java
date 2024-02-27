@@ -31,6 +31,15 @@ public class ValidatingWebhookConfigurationResource implements ResourceType<Vali
     }
 
     /**
+     * Get specific client for resoruce
+     * @return specific client
+     */
+    @Override
+    public NonNamespaceOperation<?, ?, ?> getClient() {
+        return client;
+    }
+
+    /**
      * Creates specific {@link ValidatingWebhookConfiguration} resource
      *
      * @param resource {@link ValidatingWebhookConfiguration} resource

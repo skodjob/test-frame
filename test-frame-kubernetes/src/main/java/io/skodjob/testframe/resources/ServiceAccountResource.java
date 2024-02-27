@@ -40,6 +40,15 @@ public class ServiceAccountResource implements NamespacedResourceType<ServiceAcc
     }
 
     /**
+     * Get specific client for resoruce
+     * @return specific client
+     */
+    @Override
+    public MixedOperation<?, ?, ?> getClient() {
+        return client;
+    }
+
+    /**
      * Updates specific {@link ServiceAccount} resource
      *
      * @param resource {@link ServiceAccount} resource that will be updated

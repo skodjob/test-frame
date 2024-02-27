@@ -30,6 +30,15 @@ public class NetworkPolicyResource implements NamespacedResourceType<NetworkPoli
     }
 
     /**
+     * Get specific client for resoruce
+     * @return specific client
+     */
+    @Override
+    public MixedOperation<?, ?, ?> getClient() {
+        return client;
+    }
+
+    /**
      * Creates specific {@link NetworkPolicy} resource
      *
      * @param resource {@link NetworkPolicy} resource

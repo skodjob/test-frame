@@ -7,11 +7,13 @@ package io.skodjob.testframe.resources;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.skodjob.testframe.LoggerUtils;
 import io.skodjob.testframe.TestFrameConstants;
+import io.skodjob.testframe.TestFrameEnv;
 import io.skodjob.testframe.clients.KubeClient;
 import io.skodjob.testframe.clients.cmdClient.KubeCmdClient;
+import io.skodjob.testframe.clients.cmdClient.Kubectl;
 import io.skodjob.testframe.clients.cmdClient.Oc;
 import io.skodjob.testframe.interfaces.ResourceType;
-import io.skodjob.testframe.utils.TestFrameUtils;
+import io.skodjob.testframe.wait.Wait;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +41,11 @@ public class ResourceManager {
         if (instance == null) {
             instance = new ResourceManager();
             client = new KubeClient();
-            kubeCmdClient = new Oc(client.getKubeconfigPath()); //TODO do it for kubectl also
+            if (TestFrameEnv.CLIENT_TYPE.equals(TestFrameConstants.KUBERNETES)) {
+                kubeCmdClient = new Kubectl();
+            } else {
+                kubeCmdClient = new Oc(client.getKubeconfigPath());
+            }
         }
         return instance;
     }
@@ -185,7 +191,7 @@ public class ResourceManager {
         ResourceType<T> type = findResourceType(resource);
         boolean[] resourceReady = new boolean[1];
 
-        TestFrameUtils.waitFor("resource condition: " + condition.getConditionName() + " to be fulfilled for resource " + resource.getKind() + ":" + resource.getMetadata().getName(),
+        Wait.until("resource condition: " + condition.getConditionName() + " to be fulfilled for resource " + resource.getKind() + ":" + resource.getMetadata().getName(),
                 TestFrameConstants.GLOBAL_POLL_INTERVAL_MEDIUM, TestFrameConstants.GLOBAL_TIMEOUT,
                 () -> {
                     T res = getKubeClient().getClient().resource(resource).get();

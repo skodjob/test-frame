@@ -29,6 +29,15 @@ public class ConfigMapResource implements NamespacedResourceType<ConfigMap> {
     }
 
     /**
+     * Get specific client for resoruce
+     * @return specific client
+     */
+    @Override
+    public MixedOperation<?, ?, ?> getClient() {
+        return client;
+    }
+
+    /**
      * Creates specific {@link ConfigMap} resource in Namespace specified by user
      *
      * @param namespaceName Namespace, where the resource should be created

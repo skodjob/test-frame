@@ -30,6 +30,15 @@ public class OperatorGroupResource implements NamespacedResourceType<OperatorGro
     }
 
     /**
+     * Get specific client for resoruce
+     * @return specific client
+     */
+    @Override
+    public MixedOperation<?, ?, ?> getClient() {
+        return client;
+    }
+
+    /**
      * Creates specific {@link OperatorGroup} resource
      *
      * @param resource {@link OperatorGroup} resource

@@ -30,6 +30,15 @@ public class NamespaceResource implements ResourceType<Namespace> {
         return "Namespace";
     }
 
+    /**
+     * Get specific client for resoruce
+     * @return specific client
+     */
+    @Override
+    public NonNamespaceOperation<?, ?, ?> getClient() {
+        return client;
+    }
+
     public void create(String namespaceName) {
         Namespace namespace = new NamespaceBuilder()
             .withNewMetadata()

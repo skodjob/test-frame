@@ -5,6 +5,7 @@
 package io.skodjob.testframe.interfaces;
 
 import io.fabric8.kubernetes.api.model.HasMetadata;
+import io.fabric8.kubernetes.client.dsl.NonNamespaceOperation;
 
 import java.util.function.Consumer;
 
@@ -13,6 +14,14 @@ import java.util.function.Consumer;
  * @param <T> resource type
  */
 public interface ResourceType<T extends HasMetadata> {
+
+    /**
+     * Get specific client for resoruce
+     * @return specific client
+     */
+    NonNamespaceOperation<?, ?, ?> getClient();
+
+
     /**
      * Kind of api resource
      * @return kind name

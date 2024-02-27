@@ -40,6 +40,15 @@ public class RoleResource implements NamespacedResourceType<Role> {
     }
 
     /**
+     * Get specific client for resoruce
+     * @return specific client
+     */
+    @Override
+    public MixedOperation<?, ?, ?> getClient() {
+        return client;
+    }
+
+    /**
      * Updates specific {@link Role} resource
      *
      * @param resource {@link Role} resource that will be updated

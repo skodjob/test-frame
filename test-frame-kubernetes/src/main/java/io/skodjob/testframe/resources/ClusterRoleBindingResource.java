@@ -21,6 +21,15 @@ public class ClusterRoleBindingResource implements ResourceType<ClusterRoleBindi
     }
 
     /**
+     * Get specific client for resoruce
+     * @return specific client
+     */
+    @Override
+    public NonNamespaceOperation<?, ?, ?> getClient() {
+        return client;
+    }
+
+    /**
      * Kind of api resource
      * @return kind name
      */

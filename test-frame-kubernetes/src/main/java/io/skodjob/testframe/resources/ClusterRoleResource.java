@@ -30,6 +30,15 @@ public class ClusterRoleResource implements ResourceType<ClusterRole> {
     }
 
     /**
+     * Get specific client for resoruce
+     * @return specific client
+     */
+    @Override
+    public NonNamespaceOperation<?, ?, ?> getClient() {
+        return client;
+    }
+
+    /**
      * Creates specific {@link ClusterRole} resource
      *
      * @param resource {@link ClusterRole} resource

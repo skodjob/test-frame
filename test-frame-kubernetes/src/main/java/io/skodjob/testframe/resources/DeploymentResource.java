@@ -30,6 +30,15 @@ public class DeploymentResource implements NamespacedResourceType<Deployment> {
     }
 
     /**
+     * Get specific client for resoruce
+     * @return specific client
+     */
+    @Override
+    public  MixedOperation<?, ?, ?> getClient() {
+        return client;
+    }
+
+    /**
      * Creates specific {@link Deployment} resource
      *
      * @param resource {@link Deployment} resource

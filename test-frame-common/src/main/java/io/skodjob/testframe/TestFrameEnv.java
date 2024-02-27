@@ -29,6 +29,7 @@ public class TestFrameEnv {
     public static final String USER_PATH = System.getProperty("user.dir");
 
     private static final String CONFIG_FILE_PATH_ENV = "ENV_FILE";
+    private static final String CLIENT_TYPE_ENV = "CLIENT_TYPE";
     private static final String USERNAME_ENV = "KUBE_USERNAME";
     private static final String PASSWORD_ENV = "KUBE_PASSWORD";
     private static final String TOKEN_ENV = "KUBE_TOKEN";
@@ -37,6 +38,7 @@ public class TestFrameEnv {
     /**
      * Set values
      */
+    public static final String CLIENT_TYPE = getOrDefault(CLIENT_TYPE_ENV, TestFrameConstants.KUBERNETES);
     public static final String KUBE_USERNAME = getOrDefault(USERNAME_ENV, null);
     public static final String KUBE_PASSWORD = getOrDefault(PASSWORD_ENV, null);
     public static final String KUBE_TOKEN = getOrDefault(TOKEN_ENV, null);

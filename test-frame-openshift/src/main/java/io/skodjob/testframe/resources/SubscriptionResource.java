@@ -30,6 +30,15 @@ public class SubscriptionResource implements NamespacedResourceType<Subscription
     }
 
     /**
+     * Get specific client for resoruce
+     * @return specific client
+     */
+    @Override
+    public MixedOperation<?, ?, ?> getClient() {
+        return client;
+    }
+
+    /**
      * Creates specific {@link Subscription} resource
      *
      * @param resource {@link Subscription} resource

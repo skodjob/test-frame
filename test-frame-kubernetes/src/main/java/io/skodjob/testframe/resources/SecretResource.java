@@ -40,6 +40,15 @@ public class SecretResource implements NamespacedResourceType<Secret> {
     }
 
     /**
+     * Get specific client for resoruce
+     * @return specific client
+     */
+    @Override
+    public MixedOperation<?, ?, ?> getClient() {
+        return client;
+    }
+
+    /**
      * Creates specific {@link Secret} resource in specified namespace
      *
      * @param namespaceName name of Namespace, where the {@link Secret} should be created

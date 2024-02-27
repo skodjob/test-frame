@@ -30,6 +30,15 @@ public class CustomResourceDefinitionResource implements ResourceType<CustomReso
     }
 
     /**
+     * Get specific client for resoruce
+     * @return specific client
+     */
+    @Override
+    public NonNamespaceOperation<?, ?, ?> getClient() {
+        return client;
+    }
+
+    /**
      * Creates specific {@link CustomResourceDefinition} resource
      *
      * @param resource {@link CustomResourceDefinition} resource
