@@ -43,12 +43,7 @@ public class KubeClient {
         if (TestFrameEnv.KUBE_USERNAME != null
                 && TestFrameEnv.KUBE_PASSWORD != null
                 && TestFrameEnv.KUBE_URL != null) {
-            Exec.exec(Arrays.asList("oc", "login", "-u", TestFrameEnv.KUBE_USERNAME,
-                    "-p", TestFrameEnv.KUBE_PASSWORD,
-                    "--insecure-skip-tls-verify",
-                    "--kubeconfig", TestFrameEnv.USER_PATH + "/test.kubeconfig",
-                    TestFrameEnv.KUBE_URL));
-            kubeconfigPath = TestFrameEnv.USER_PATH + "/test.kubeconfig";
+            kubeconfigPath = createLocalKubeconfig(TestFrameEnv.KUBE_USERNAME, TestFrameEnv.KUBE_PASSWORD, TestFrameEnv.KUBE_URL);
             return new ConfigBuilder()
                     .withUsername(TestFrameEnv.KUBE_USERNAME)
                     .withPassword(TestFrameEnv.KUBE_PASSWORD)
@@ -58,11 +53,7 @@ public class KubeClient {
                     .build();
         } else if (TestFrameEnv.KUBE_URL != null
                 && TestFrameEnv.KUBE_TOKEN != null) {
-            Exec.exec(Arrays.asList("oc", "login", "--token", TestFrameEnv.KUBE_TOKEN,
-                    "--insecure-skip-tls-verify",
-                    "--kubeconfig", TestFrameEnv.USER_PATH + "/test.kubeconfig",
-                    TestFrameEnv.KUBE_URL));
-            kubeconfigPath = TestFrameEnv.USER_PATH + "/test.kubeconfig";
+            kubeconfigPath = createLocalKubeconfig(TestFrameEnv.KUBE_TOKEN, TestFrameEnv.KUBE_URL);
             return new ConfigBuilder()
                     .withOauthToken(TestFrameEnv.KUBE_TOKEN)
                     .withMasterUrl(TestFrameEnv.KUBE_URL)
@@ -72,6 +63,31 @@ public class KubeClient {
         } else {
             return Config.autoConfigure(System.getenv()
                     .getOrDefault("KUBE_CONTEXT", null));
+        }
+    }
+
+    private String createLocalKubeconfig(String username, String password, String apiUrl) {
+        try {
+            Exec.exec(null, Arrays.asList("oc", "login", "-u", username,
+                    "-p", password,
+                    "--insecure-skip-tls-verify",
+                    "--kubeconfig", TestFrameEnv.USER_PATH + "/test.kubeconfig",
+                    apiUrl), 0, false, true);
+            return TestFrameEnv.USER_PATH + "/test.kubeconfig";
+        } catch (Exception ex) {
+            return null;
+        }
+    }
+
+    private String createLocalKubeconfig(String token, String apiUrl) {
+        try {
+            Exec.exec(null, Arrays.asList("oc", "login", "--token", token,
+                    "--insecure-skip-tls-verify",
+                    "--kubeconfig", TestFrameEnv.USER_PATH + "/test.kubeconfig",
+                    apiUrl), 0, false, true);
+            return TestFrameEnv.USER_PATH + "/test.kubeconfig";
+        } catch (Exception ex) {
+            return null;
         }
     }
 }
