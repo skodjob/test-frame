@@ -8,26 +8,33 @@ import io.fabric8.kubernetes.api.model.rbac.ClusterRole;
 import io.fabric8.kubernetes.api.model.rbac.ClusterRoleList;
 import io.fabric8.kubernetes.client.dsl.NonNamespaceOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
-import io.skodjob.testframe.clients.KubeClient;
 import io.skodjob.testframe.interfaces.ResourceType;
 
 import java.util.function.Consumer;
 
-public class ClusterRoleResource implements ResourceType<ClusterRole, ClusterRoleList, Resource<ClusterRole>> {
+public class ClusterRoleResource implements ResourceType<ClusterRole> {
 
     private final NonNamespaceOperation<ClusterRole, ClusterRoleList, Resource<ClusterRole>> client;
 
     public ClusterRoleResource() {
-        this.client = KubeClient.getInstance().getClient().rbac().clusterRoles();
+        this.client = ResourceManager.getKubeClient().getClient().rbac().clusterRoles();
     }
 
     /**
-     * Returns client for resource {@link ClusterRole}
-     *
-     * @return client of a MixedOperation<{@link ClusterRole}, {@link ClusterRoleList}, Resource<{@link ClusterRole}>> resource
+     * Kind of api resource
+     * @return kind name
      */
     @Override
-    public NonNamespaceOperation<ClusterRole, ClusterRoleList, Resource<ClusterRole>> getClient() {
+    public String getKind() {
+        return "ClusterRole";
+    }
+
+    /**
+     * Get specific client for resoruce
+     * @return specific client
+     */
+    @Override
+    public NonNamespaceOperation<?, ?, ?> getClient() {
         return client;
     }
 

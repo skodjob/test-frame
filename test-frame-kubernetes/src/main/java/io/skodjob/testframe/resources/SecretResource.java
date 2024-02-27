@@ -8,27 +8,25 @@ import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.api.model.SecretList;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
-import io.skodjob.testframe.clients.KubeClient;
 import io.skodjob.testframe.interfaces.NamespacedResourceType;
 
 import java.util.function.Consumer;
 
-public class SecretResource implements NamespacedResourceType<Secret, SecretList, Resource<Secret>> {
+public class SecretResource implements NamespacedResourceType<Secret> {
 
     private final MixedOperation<Secret, SecretList, Resource<Secret>> client;
 
     public SecretResource() {
-        this.client = KubeClient.getInstance().getClient().secrets();
+        this.client = ResourceManager.getKubeClient().getClient().secrets();
     }
 
     /**
-     * Returns client for resource {@link Secret}
-     *
-     * @return client of a MixedOperation<{@link Secret}, {@link SecretList}, Resource<{@link Secret}>> resource
+     * Kind of api resource
+     * @return kind name
      */
     @Override
-    public MixedOperation<Secret, SecretList, Resource<Secret>> getClient() {
-        return client;
+    public String getKind() {
+        return "Secret";
     }
 
     /**
@@ -39,6 +37,15 @@ public class SecretResource implements NamespacedResourceType<Secret, SecretList
     @Override
     public void create(Secret resource) {
         client.resource(resource).create();
+    }
+
+    /**
+     * Get specific client for resoruce
+     * @return specific client
+     */
+    @Override
+    public MixedOperation<?, ?, ?> getClient() {
+        return client;
     }
 
     /**

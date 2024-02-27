@@ -5,19 +5,17 @@
 package io.skodjob.testframe.interfaces;
 
 import io.fabric8.kubernetes.api.model.HasMetadata;
-import io.fabric8.kubernetes.api.model.KubernetesResourceList;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
-import io.fabric8.kubernetes.client.dsl.Resource;
 
 import java.util.function.Consumer;
 
-public interface NamespacedResourceType<T extends HasMetadata, L extends KubernetesResourceList<T>, M extends Resource<T>> extends ResourceType<T, L, M> {
+public interface NamespacedResourceType<T extends HasMetadata> extends ResourceType<T> {
 
     /**
-     * Returns client for resource {@link T}
-     * @return client of a MixedOperation<{@link T}, {@link L}, Resource<{@link T}>> resource
+     * Get specific {@link T} client for resoruce
+     * @return specific client
      */
-    MixedOperation<T, L, M> getClient();
+    MixedOperation<?, ?, ?> getClient();
 
     /**
      * Creates specific {@link T} resource in Namespace specified by user

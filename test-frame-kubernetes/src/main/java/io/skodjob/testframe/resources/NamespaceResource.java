@@ -9,26 +9,33 @@ import io.fabric8.kubernetes.api.model.NamespaceList;
 import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.kubernetes.client.dsl.NonNamespaceOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
-import io.skodjob.testframe.clients.KubeClient;
 import io.skodjob.testframe.interfaces.ResourceType;
 
 import java.util.function.Consumer;
 
-public class NamespaceResource implements ResourceType<Namespace, NamespaceList, Resource<Namespace>> {
+public class NamespaceResource implements ResourceType<Namespace> {
 
     private final NonNamespaceOperation<Namespace, NamespaceList, Resource<Namespace>> client;
 
     public NamespaceResource() {
-        this.client = KubeClient.getInstance().getClient().namespaces();
+        this.client = ResourceManager.getKubeClient().getClient().namespaces();
     }
 
     /**
-     * Returns client for resource {@link Namespace}
-     *
-     * @return client of a MixedOperation<{@link Namespace}, {@link NamespaceList}, Resource<{@link Namespace}>> resource
+     * Kind of api resource
+     * @return kind name
      */
     @Override
-    public NonNamespaceOperation<Namespace, NamespaceList, Resource<Namespace>> getClient() {
+    public String getKind() {
+        return "Namespace";
+    }
+
+    /**
+     * Get specific client for resoruce
+     * @return specific client
+     */
+    @Override
+    public NonNamespaceOperation<?, ?, ?> getClient() {
         return client;
     }
 

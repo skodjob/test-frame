@@ -8,26 +8,33 @@ import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
 import io.fabric8.openshift.api.model.operatorhub.v1.OperatorGroup;
 import io.fabric8.openshift.api.model.operatorhub.v1.OperatorGroupList;
-import io.skodjob.testframe.clients.KubeClient;
 import io.skodjob.testframe.interfaces.NamespacedResourceType;
 
 import java.util.function.Consumer;
 
-public class OperatorGroupResource implements NamespacedResourceType<OperatorGroup, OperatorGroupList, Resource<OperatorGroup>> {
+public class OperatorGroupResource implements NamespacedResourceType<OperatorGroup> {
 
     private final MixedOperation<OperatorGroup, OperatorGroupList, Resource<OperatorGroup>> client;
 
     public OperatorGroupResource() {
-        this.client = KubeClient.getInstance().getOpenShiftClient().operatorHub().operatorGroups();
+        this.client = ResourceManager.getKubeClient().getOpenShiftClient().operatorHub().operatorGroups();
     }
 
     /**
-     * Returns client for resource {@link OperatorGroup}
-     *
-     * @return client of a MixedOperation<{@link OperatorGroup}, {@link OperatorGroupList}, Resource<{@link OperatorGroup}>> resource
+     * Kind of api resource
+     * @return kind name
      */
     @Override
-    public MixedOperation<OperatorGroup, OperatorGroupList, Resource<OperatorGroup>> getClient() {
+    public String getKind() {
+        return "OperatorGroup";
+    }
+
+    /**
+     * Get specific client for resoruce
+     * @return specific client
+     */
+    @Override
+    public MixedOperation<?, ?, ?> getClient() {
         return client;
     }
 

@@ -8,26 +8,33 @@ import io.fabric8.kubernetes.api.model.coordination.v1.Lease;
 import io.fabric8.kubernetes.api.model.coordination.v1.LeaseList;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
-import io.skodjob.testframe.clients.KubeClient;
 import io.skodjob.testframe.interfaces.NamespacedResourceType;
 
 import java.util.function.Consumer;
 
-public class LeaseResource implements NamespacedResourceType<Lease, LeaseList, Resource<Lease>> {
+public class LeaseResource implements NamespacedResourceType<Lease> {
 
     private MixedOperation<Lease, LeaseList, Resource<Lease>> client;
 
     public LeaseResource() {
-        this.client = KubeClient.getInstance().getClient().leases();
+        this.client = ResourceManager.getKubeClient().getClient().leases();
     }
 
     /**
-     * Returns client for resource {@link Lease}
-     *
-     * @return client of a MixedOperation<{@link Lease}, {@link LeaseList}, Resource<{@link Lease}>> resource
+     * Kind of api resource
+     * @return kind name
      */
     @Override
-    public MixedOperation<Lease, LeaseList, Resource<Lease>> getClient() {
+    public String getKind() {
+        return "Lease";
+    }
+
+    /**
+     * Get specific client for resoruce
+     * @return specific client
+     */
+    @Override
+    public MixedOperation<?, ?, ?> getClient() {
         return client;
     }
 

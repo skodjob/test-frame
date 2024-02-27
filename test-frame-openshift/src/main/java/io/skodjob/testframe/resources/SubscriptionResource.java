@@ -8,26 +8,33 @@ import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
 import io.fabric8.openshift.api.model.operatorhub.v1alpha1.Subscription;
 import io.fabric8.openshift.api.model.operatorhub.v1alpha1.SubscriptionList;
-import io.skodjob.testframe.clients.KubeClient;
 import io.skodjob.testframe.interfaces.NamespacedResourceType;
 
 import java.util.function.Consumer;
 
-public class SubscriptionResource implements NamespacedResourceType<Subscription, SubscriptionList, Resource<Subscription>> {
+public class SubscriptionResource implements NamespacedResourceType<Subscription> {
 
     private final MixedOperation<Subscription, SubscriptionList, Resource<Subscription>> client;
 
     public SubscriptionResource() {
-        this.client = KubeClient.getInstance().getOpenShiftClient().operatorHub().subscriptions();
+        this.client = ResourceManager.getKubeClient().getOpenShiftClient().operatorHub().subscriptions();
     }
 
     /**
-     * Returns client for resource {@link Subscription}
-     *
-     * @return client of a MixedOperation<{@link Subscription}, {@link SubscriptionList}, Resource<{@link Subscription}>> resource
+     * Kind of api resource
+     * @return kind name
      */
     @Override
-    public MixedOperation<Subscription, SubscriptionList, Resource<Subscription>> getClient() {
+    public String getKind() {
+        return "Subscription";
+    }
+
+    /**
+     * Get specific client for resoruce
+     * @return specific client
+     */
+    @Override
+    public MixedOperation<?, ?, ?> getClient() {
         return client;
     }
 

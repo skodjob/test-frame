@@ -8,26 +8,33 @@ import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.apps.DeploymentList;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.RollableScalableResource;
-import io.skodjob.testframe.clients.KubeClient;
 import io.skodjob.testframe.interfaces.NamespacedResourceType;
 
 import java.util.function.Consumer;
 
-public class DeploymentResource implements NamespacedResourceType<Deployment, DeploymentList, RollableScalableResource<Deployment>> {
+public class DeploymentResource implements NamespacedResourceType<Deployment> {
 
     private final MixedOperation<Deployment, DeploymentList, RollableScalableResource<Deployment>> client;
 
     public DeploymentResource() {
-        this.client = KubeClient.getInstance().getClient().apps().deployments();
+        this.client = ResourceManager.getKubeClient().getClient().apps().deployments();
     }
 
     /**
-     * Returns client for resource {@link Deployment}
-     *
-     * @return client of a MixedOperation<{@link Deployment}, {@link L}, Resource<{@link Deployment}>> resource
+     * Kind of api resource
+     * @return kind name
      */
     @Override
-    public MixedOperation<Deployment, DeploymentList, RollableScalableResource<Deployment>> getClient() {
+    public String getKind() {
+        return "Deployment";
+    }
+
+    /**
+     * Get specific client for resoruce
+     * @return specific client
+     */
+    @Override
+    public  MixedOperation<?, ?, ?> getClient() {
         return client;
     }
 

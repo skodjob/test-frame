@@ -8,26 +8,33 @@ import io.fabric8.kubernetes.api.model.batch.v1.Job;
 import io.fabric8.kubernetes.api.model.batch.v1.JobList;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.ScalableResource;
-import io.skodjob.testframe.clients.KubeClient;
 import io.skodjob.testframe.interfaces.NamespacedResourceType;
 
 import java.util.function.Consumer;
 
-public class JobResource implements NamespacedResourceType<Job, JobList, ScalableResource<Job>> {
+public class JobResource implements NamespacedResourceType<Job> {
 
     private final MixedOperation<Job, JobList, ScalableResource<Job>> client;
 
     public JobResource() {
-        this.client = KubeClient.getInstance().getClient().batch().v1().jobs();
+        this.client = ResourceManager.getKubeClient().getClient().batch().v1().jobs();
     }
 
     /**
-     * Returns client for resource {@link Job}
-     *
-     * @return client of a MixedOperation<{@link Job}, {@link JobList}, Resource<{@link Job}>> resource
+     * Kind of api resource
+     * @return kind name
      */
     @Override
-    public MixedOperation<Job, JobList, ScalableResource<Job>> getClient() {
+    public String getKind() {
+        return "Job";
+    }
+
+    /**
+     * Get specific client for resoruce
+     * @return specific client
+     */
+    @Override
+    public MixedOperation<?, ?, ?> getClient() {
         return client;
     }
 

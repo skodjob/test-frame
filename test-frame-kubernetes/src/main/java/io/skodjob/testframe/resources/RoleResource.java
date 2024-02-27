@@ -8,27 +8,25 @@ import io.fabric8.kubernetes.api.model.rbac.Role;
 import io.fabric8.kubernetes.api.model.rbac.RoleList;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
-import io.skodjob.testframe.clients.KubeClient;
 import io.skodjob.testframe.interfaces.NamespacedResourceType;
 
 import java.util.function.Consumer;
 
-public class RoleResource implements NamespacedResourceType<Role, RoleList, Resource<Role>> {
+public class RoleResource implements NamespacedResourceType<Role> {
 
     private final MixedOperation<Role, RoleList, Resource<Role>> client;
 
     public RoleResource() {
-        this.client = KubeClient.getInstance().getClient().rbac().roles();
+        this.client = ResourceManager.getKubeClient().getClient().rbac().roles();
     }
 
     /**
-     * Returns client for resource {@link Role}
-     *
-     * @return client of a MixedOperation<{@link Role}, {@link RoleList}, Resource<{@link Role}>> resource
+     * Kind of api resource
+     * @return kind name
      */
     @Override
-    public MixedOperation<Role, RoleList, Resource<Role>> getClient() {
-        return client;
+    public String getKind() {
+        return "Role";
     }
 
     /**
@@ -39,6 +37,15 @@ public class RoleResource implements NamespacedResourceType<Role, RoleList, Reso
     @Override
     public void create(Role resource) {
         client.resource(resource).create();
+    }
+
+    /**
+     * Get specific client for resoruce
+     * @return specific client
+     */
+    @Override
+    public MixedOperation<?, ?, ?> getClient() {
+        return client;
     }
 
     /**
