@@ -10,7 +10,7 @@ public class TestFrameConstants {
     public static final long GLOBAL_POLL_INTERVAL_SHORT = Duration.ofSeconds(5).toMillis();
     public static final long GLOBAL_POLL_INTERVAL_1_SEC = Duration.ofSeconds(1).toMillis();
     public static final long GLOBAL_TIMEOUT = Duration.ofMinutes(10).toMillis();
-    public static final String OPENSHIFT = "oc";
-    public static final String KUBERNETES = "kubectl";
+    public static final String OPENSHIFT_CLIENT = "oc";
+    public static final String KUBERNETES_CLIENT = "kubectl";
 
 }

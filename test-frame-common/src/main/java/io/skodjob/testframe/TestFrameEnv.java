@@ -38,7 +38,7 @@ public class TestFrameEnv {
     /**
      * Set values
      */
-    public static final String CLIENT_TYPE = getOrDefault(CLIENT_TYPE_ENV, TestFrameConstants.KUBERNETES);
+    public static final String CLIENT_TYPE = getOrDefault(CLIENT_TYPE_ENV, TestFrameConstants.KUBERNETES_CLIENT);
     public static final String KUBE_USERNAME = getOrDefault(USERNAME_ENV, null);
     public static final String KUBE_PASSWORD = getOrDefault(PASSWORD_ENV, null);
     public static final String KUBE_TOKEN = getOrDefault(TOKEN_ENV, null);

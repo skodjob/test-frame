@@ -14,6 +14,9 @@ public class LoggerUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(LoggerUtils.class);
     static final String SEPARATOR_CHAR = "#";
 
+    public static final String RESOURCE_LOGGER_PATTERN = "{} {}/{}";
+    public static final String RESOURCE_WITH_NAMESPACE_LOGGER_PATTERN = "{} {}/{} in {}";
+
     public static void logSeparator() {
         logSeparator(SEPARATOR_CHAR, 76);
     }

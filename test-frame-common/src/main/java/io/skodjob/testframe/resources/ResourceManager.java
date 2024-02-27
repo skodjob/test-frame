@@ -41,7 +41,7 @@ public class ResourceManager {
         if (instance == null) {
             instance = new ResourceManager();
             client = new KubeClient();
-            if (TestFrameEnv.CLIENT_TYPE.equals(TestFrameConstants.KUBERNETES)) {
+            if (TestFrameEnv.CLIENT_TYPE.equals(TestFrameConstants.KUBERNETES_CLIENT)) {
                 kubeCmdClient = new Kubectl();
             } else {
                 kubeCmdClient = new Oc(client.getKubeconfigPath());
@@ -107,11 +107,11 @@ public class ResourceManager {
             pushToStack(resource);
 
             if (resource.getMetadata().getNamespace() == null) {
-                LOGGER.info("Creating {} {}",
-                        resource.getKind(), resource.getMetadata().getName());
+                LOGGER.info(LoggerUtils.RESOURCE_LOGGER_PATTERN,
+                        "Creating", resource.getKind(), resource.getMetadata().getName());
             } else {
-                LOGGER.info("Creating {} {}/{}",
-                        resource.getKind(), resource.getMetadata().getNamespace(), resource.getMetadata().getName());
+                LOGGER.info(LoggerUtils.RESOURCE_WITH_NAMESPACE_LOGGER_PATTERN,
+                        "Creating", resource.getKind(), resource.getMetadata().getName(), resource.getMetadata().getNamespace());
             }
 
             if (type == null) {
@@ -125,14 +125,14 @@ public class ResourceManager {
                             return client.getClient().resource(resource) != null;
                         }
                     }, "ready")),
-                            String.format("Timed out waiting for %s %s/%s to be ready", resource.getKind(), resource.getMetadata().getNamespace(), resource.getMetadata().getName()));
+                            String.format("Timed out waiting for %s/%s in %s to be ready", resource.getKind(), resource.getMetadata().getName(), resource.getMetadata().getNamespace()));
                 }
             } else {
                 // Create for typed resource implementing ResourceType
                 type.create(resource);
                 if (waitReady) {
                     assertTrue(waitResourceCondition(resource, ResourceCondition.readiness(type)),
-                            String.format("Timed out waiting for %s %s/%s to be ready", resource.getKind(), resource.getMetadata().getNamespace(), resource.getMetadata().getName()));
+                            String.format("Timed out waiting for %s/%s in %s to be ready", resource.getKind(), resource.getMetadata().getName(), resource.getMetadata().getNamespace()));
                 }
             }
         }
@@ -143,27 +143,27 @@ public class ResourceManager {
         for (T resource : resources) {
             ResourceType<T> type = findResourceType(resource);
             if (resource.getMetadata().getNamespace() == null) {
-                LOGGER.info("Deleting of {} {}",
-                        resource.getKind(), resource.getMetadata().getName());
+                LOGGER.info(LoggerUtils.RESOURCE_LOGGER_PATTERN,
+                        "Deleting", resource.getKind(), resource.getMetadata().getName());
             } else {
-                LOGGER.info("Deleting of {} {}/{}",
-                        resource.getKind(), resource.getMetadata().getNamespace(), resource.getMetadata().getName());
+                LOGGER.info(LoggerUtils.RESOURCE_WITH_NAMESPACE_LOGGER_PATTERN,
+                        "Deleting", resource.getKind(), resource.getMetadata().getName(), resource.getMetadata().getNamespace());
             }
             try {
                 if (type == null) {
                     client.getClient().resource(resource).delete();
                     assertTrue(waitResourceCondition(resource, ResourceCondition.deletion()),
-                            String.format("Timed out deleting %s %s/%s", resource.getKind(), resource.getMetadata().getNamespace(), resource.getMetadata().getName()));
+                            String.format("Timed out deleting %s/%s in %s", resource.getKind(), resource.getMetadata().getName(), resource.getMetadata().getNamespace()));
                 } else {
                     type.delete(resource.getMetadata().getName());
                     assertTrue(waitResourceCondition(resource, ResourceCondition.deletion()),
-                            String.format("Timed out deleting %s %s/%s", resource.getKind(), resource.getMetadata().getNamespace(), resource.getMetadata().getName()));
+                            String.format("Timed out deleting %s/%s in %s", resource.getKind(), resource.getMetadata().getName(), resource.getMetadata().getNamespace()));
                 }
             } catch (Exception e) {
                 if (resource.getMetadata().getNamespace() == null) {
-                    LOGGER.error("Failed to delete {} {}", resource.getKind(), resource.getMetadata().getName(), e);
+                    LOGGER.error(LoggerUtils.RESOURCE_LOGGER_PATTERN, "Deleting", resource.getKind(), resource.getMetadata().getName(), e);
                 } else {
-                    LOGGER.error("Failed to delete {} {}/{}", resource.getKind(), resource.getMetadata().getNamespace(), resource.getMetadata().getName(), e);
+                    LOGGER.error(LoggerUtils.RESOURCE_WITH_NAMESPACE_LOGGER_PATTERN, "Deleting", resource.getKind(), resource.getMetadata().getName(), resource.getMetadata().getNamespace(), e);
                 }
             }
         }
@@ -172,8 +172,13 @@ public class ResourceManager {
     @SafeVarargs
     public final <T extends HasMetadata> void updateResource(T... resources) {
         for (T resource : resources) {
-            LOGGER.info("Updating of {} {}",
-                    resource.getKind(), resource.getMetadata().getName());
+            if (resource.getMetadata().getNamespace() == null) {
+                LOGGER.info(LoggerUtils.RESOURCE_LOGGER_PATTERN,
+                        "Updating", resource.getKind(), resource.getMetadata().getName());
+            } else {
+                LOGGER.info(LoggerUtils.RESOURCE_WITH_NAMESPACE_LOGGER_PATTERN,
+                        "Updating", resource.getKind(), resource.getMetadata().getName(), resource.getMetadata().getNamespace());
+            }
             ResourceType<T> type = findResourceType(resource);
             if (type != null) {
                 type.update(resource);
@@ -191,7 +196,7 @@ public class ResourceManager {
         ResourceType<T> type = findResourceType(resource);
         boolean[] resourceReady = new boolean[1];
 
-        Wait.until("resource condition: " + condition.getConditionName() + " to be fulfilled for resource " + resource.getKind() + ":" + resource.getMetadata().getName(),
+        Wait.until(String.format("Resource condition: %s  to be fulfilled for resource %s/%s", condition.getConditionName(), resource.getKind(), resource.getMetadata().getName()),
                 TestFrameConstants.GLOBAL_POLL_INTERVAL_MEDIUM, TestFrameConstants.GLOBAL_TIMEOUT,
                 () -> {
                     T res = getKubeClient().getClient().resource(resource).get();

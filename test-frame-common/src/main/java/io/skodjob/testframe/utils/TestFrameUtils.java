@@ -83,10 +83,10 @@ public final class TestFrameUtils {
     public static <T> T runUntilPass(int retry, Callable<T> fn) {
         for (int i = 0; i < retry; i++) {
             try {
-                LOGGER.debug("Running command, attempt: {}", i);
+                LOGGER.debug("Running Callable, attempt: {}", i);
                 return fn.call();
             } catch (Exception | Error ex) {
-                LOGGER.warn("Command failed: {}", ex.getMessage());
+                LOGGER.warn("Callable failed: {}", ex.getMessage());
             }
             try {
                 Thread.sleep(1000);
@@ -94,6 +94,6 @@ public final class TestFrameUtils {
                 throw new RuntimeException(e);
             }
         }
-        throw new IllegalStateException(String.format("Command wasn't pass in %s attempts", retry));
+        throw new IllegalStateException(String.format("Callable did not pass in %s attempts", retry));
     }
 }
