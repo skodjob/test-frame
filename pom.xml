@@ -223,6 +223,8 @@
                                     <tarLongFileMode>posix</tarLongFileMode>
                                     <descriptors>
                                         <descriptor>test-frame-common/src/main/assembly/dist.xml</descriptor>
+                                        <descriptor>test-frame-kubernetes/src/main/assembly/dist.xml</descriptor>
+                                        <descriptor>test-frame-openshift/src/main/assembly/dist.xml</descriptor>
                                     </descriptors>
                                 </configuration>
                             </execution>
