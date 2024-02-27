@@ -14,8 +14,8 @@ import org.slf4j.LoggerFactory;
 /**
  * jUnit5 specific class which listening on test callbacks
  */
-public class TestVisualSeparator implements BeforeEachCallback, AfterEachCallback {
-    Logger LOGGER = LoggerFactory.getLogger(TestVisualSeparator.class);
+public class TestVisualSeparatorExtension implements BeforeEachCallback, AfterEachCallback {
+    Logger LOGGER = LoggerFactory.getLogger(TestVisualSeparatorExtension.class);
     @Override
     public void beforeEach(ExtensionContext extensionContext) throws Exception {
         LoggerUtils.logSeparator();
