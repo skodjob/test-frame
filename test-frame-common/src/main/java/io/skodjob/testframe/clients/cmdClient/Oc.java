@@ -4,10 +4,10 @@
  */
 package io.skodjob.testframe.clients.cmdClient;
 
-import io.skodjob.testframe.executor.Exec;
-
 import java.util.List;
 import java.util.Map;
+
+import io.skodjob.testframe.executor.Exec;
 
 /**
  * A {@link KubeCmdClient} implementation wrapping {@code oc}.

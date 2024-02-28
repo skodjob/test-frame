@@ -4,6 +4,8 @@
  */
 package io.skodjob.testframe.clients;
 
+import java.util.Arrays;
+
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
@@ -12,8 +14,6 @@ import io.fabric8.openshift.client.OpenShiftClient;
 import io.skodjob.testframe.TestFrameConstants;
 import io.skodjob.testframe.TestFrameEnv;
 import io.skodjob.testframe.executor.Exec;
-
-import java.util.Arrays;
 
 public class KubeClient {
 
@@ -73,13 +73,15 @@ public class KubeClient {
                 if (TestFrameEnv.KUBE_URL != null && TestFrameEnv.KUBE_TOKEN != null) {
                     createLocalOcKubeconfig(TestFrameEnv.KUBE_TOKEN, TestFrameEnv.KUBE_URL);
                 } else {
-                    createLocalOcKubeconfig(TestFrameEnv.KUBE_USERNAME, TestFrameEnv.KUBE_PASSWORD, TestFrameEnv.KUBE_URL);
+                    createLocalOcKubeconfig(TestFrameEnv.KUBE_USERNAME, TestFrameEnv.KUBE_PASSWORD,
+                            TestFrameEnv.KUBE_URL);
                 }
             } else {
                 if (TestFrameEnv.KUBE_URL != null && TestFrameEnv.KUBE_TOKEN != null) {
                     createLocalKubectlContext(TestFrameEnv.KUBE_TOKEN, TestFrameEnv.KUBE_URL);
                 } else {
-                    createLocalKubectlContext(TestFrameEnv.KUBE_USERNAME, TestFrameEnv.KUBE_PASSWORD, TestFrameEnv.KUBE_URL);
+                    createLocalKubectlContext(TestFrameEnv.KUBE_USERNAME, TestFrameEnv.KUBE_PASSWORD,
+                            TestFrameEnv.KUBE_URL);
                 }
             }
             return TestFrameEnv.USER_PATH + "/test.kubeconfig";

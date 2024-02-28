@@ -14,26 +14,27 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 /**
  * jUnit5 specific class which listening on test callbacks
  */
-public class ResourceManagerExtension implements BeforeAllCallback, BeforeEachCallback, AfterAllCallback, AfterEachCallback {
+public class ResourceManagerExtension
+        implements BeforeAllCallback, BeforeEachCallback, AfterAllCallback, AfterEachCallback {
 
     @Override
-    public void beforeAll(ExtensionContext extensionContext) throws Exception {
+    public void beforeAll(ExtensionContext extensionContext) {
         ResourceManager.getInstance();
         ResourceManager.setTestContext(extensionContext);
     }
 
     @Override
-    public void beforeEach(ExtensionContext extensionContext) throws Exception {
+    public void beforeEach(ExtensionContext extensionContext) {
         ResourceManager.setTestContext(extensionContext);
     }
 
     @Override
-    public void afterAll(ExtensionContext extensionContext) throws Exception {
+    public void afterAll(ExtensionContext extensionContext) {
         ResourceManager.setTestContext(extensionContext);
     }
 
     @Override
-    public void afterEach(ExtensionContext extensionContext) throws Exception {
+    public void afterEach(ExtensionContext extensionContext) {
         ResourceManager.setTestContext(extensionContext);
     }
 }

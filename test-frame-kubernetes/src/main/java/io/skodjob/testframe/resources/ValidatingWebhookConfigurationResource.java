@@ -4,21 +4,25 @@
  */
 package io.skodjob.testframe.resources;
 
+import java.util.function.Consumer;
+
 import io.fabric8.kubernetes.api.model.admissionregistration.v1.ValidatingWebhookConfiguration;
 import io.fabric8.kubernetes.api.model.admissionregistration.v1.ValidatingWebhookConfigurationList;
 import io.fabric8.kubernetes.client.dsl.NonNamespaceOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
 import io.skodjob.testframe.interfaces.ResourceType;
 
-import java.util.function.Consumer;
-
 public class ValidatingWebhookConfigurationResource implements ResourceType<ValidatingWebhookConfiguration> {
 
 
-    private final NonNamespaceOperation<ValidatingWebhookConfiguration, ValidatingWebhookConfigurationList, Resource<ValidatingWebhookConfiguration>> client;
+    private final NonNamespaceOperation<ValidatingWebhookConfiguration, ValidatingWebhookConfigurationList,
+            Resource<ValidatingWebhookConfiguration>> client;
 
     public ValidatingWebhookConfigurationResource() {
-        this.client = ResourceManager.getKubeClient().getClient().admissionRegistration().v1().validatingWebhookConfigurations();
+        this.client = ResourceManager.getKubeClient().getClient()
+                .admissionRegistration()
+                .v1()
+                .validatingWebhookConfigurations();
     }
 
     /**

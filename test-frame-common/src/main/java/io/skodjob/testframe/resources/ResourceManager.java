@@ -4,6 +4,11 @@
  */
 package io.skodjob.testframe.resources;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Stack;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.skodjob.testframe.LoggerUtils;
 import io.skodjob.testframe.TestFrameConstants;
@@ -17,11 +22,6 @@ import io.skodjob.testframe.wait.Wait;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Stack;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -111,7 +111,8 @@ public class ResourceManager {
                         "Creating", resource.getKind(), resource.getMetadata().getName());
             } else {
                 LOGGER.info(LoggerUtils.RESOURCE_WITH_NAMESPACE_LOGGER_PATTERN,
-                        "Creating", resource.getKind(), resource.getMetadata().getName(), resource.getMetadata().getNamespace());
+                        "Creating", resource.getKind(), resource.getMetadata().getName(),
+                        resource.getMetadata().getNamespace());
             }
 
             if (type == null) {
@@ -125,14 +126,16 @@ public class ResourceManager {
                             return client.getClient().resource(resource) != null;
                         }
                     }, "ready")),
-                            String.format("Timed out waiting for %s/%s in %s to be ready", resource.getKind(), resource.getMetadata().getName(), resource.getMetadata().getNamespace()));
+                            String.format("Timed out waiting for %s/%s in %s to be ready", resource.getKind(),
+                                    resource.getMetadata().getName(), resource.getMetadata().getNamespace()));
                 }
             } else {
                 // Create for typed resource implementing ResourceType
                 type.create(resource);
                 if (waitReady) {
                     assertTrue(waitResourceCondition(resource, ResourceCondition.readiness(type)),
-                            String.format("Timed out waiting for %s/%s in %s to be ready", resource.getKind(), resource.getMetadata().getName(), resource.getMetadata().getNamespace()));
+                            String.format("Timed out waiting for %s/%s in %s to be ready", resource.getKind(),
+                                    resource.getMetadata().getName(), resource.getMetadata().getNamespace()));
                 }
             }
         }
@@ -147,23 +150,28 @@ public class ResourceManager {
                         "Deleting", resource.getKind(), resource.getMetadata().getName());
             } else {
                 LOGGER.info(LoggerUtils.RESOURCE_WITH_NAMESPACE_LOGGER_PATTERN,
-                        "Deleting", resource.getKind(), resource.getMetadata().getName(), resource.getMetadata().getNamespace());
+                        "Deleting", resource.getKind(), resource.getMetadata().getName(),
+                        resource.getMetadata().getNamespace());
             }
             try {
                 if (type == null) {
                     client.getClient().resource(resource).delete();
                     assertTrue(waitResourceCondition(resource, ResourceCondition.deletion()),
-                            String.format("Timed out deleting %s/%s in %s", resource.getKind(), resource.getMetadata().getName(), resource.getMetadata().getNamespace()));
+                            String.format("Timed out deleting %s/%s in %s", resource.getKind(),
+                                    resource.getMetadata().getName(), resource.getMetadata().getNamespace()));
                 } else {
                     type.delete(resource.getMetadata().getName());
                     assertTrue(waitResourceCondition(resource, ResourceCondition.deletion()),
-                            String.format("Timed out deleting %s/%s in %s", resource.getKind(), resource.getMetadata().getName(), resource.getMetadata().getNamespace()));
+                            String.format("Timed out deleting %s/%s in %s", resource.getKind(),
+                                    resource.getMetadata().getName(), resource.getMetadata().getNamespace()));
                 }
             } catch (Exception e) {
                 if (resource.getMetadata().getNamespace() == null) {
-                    LOGGER.error(LoggerUtils.RESOURCE_LOGGER_PATTERN, "Deleting", resource.getKind(), resource.getMetadata().getName(), e);
+                    LOGGER.error(LoggerUtils.RESOURCE_LOGGER_PATTERN, "Deleting", resource.getKind(),
+                            resource.getMetadata().getName(), e);
                 } else {
-                    LOGGER.error(LoggerUtils.RESOURCE_WITH_NAMESPACE_LOGGER_PATTERN, "Deleting", resource.getKind(), resource.getMetadata().getName(), resource.getMetadata().getNamespace(), e);
+                    LOGGER.error(LoggerUtils.RESOURCE_WITH_NAMESPACE_LOGGER_PATTERN, "Deleting",resource.getKind(),
+                            resource.getMetadata().getName(), resource.getMetadata().getNamespace(), e);
                 }
             }
         }
@@ -177,7 +185,8 @@ public class ResourceManager {
                         "Updating", resource.getKind(), resource.getMetadata().getName());
             } else {
                 LOGGER.info(LoggerUtils.RESOURCE_WITH_NAMESPACE_LOGGER_PATTERN,
-                        "Updating", resource.getKind(), resource.getMetadata().getName(), resource.getMetadata().getNamespace());
+                        "Updating", resource.getKind(), resource.getMetadata().getName(),
+                        resource.getMetadata().getNamespace());
             }
             ResourceType<T> type = findResourceType(resource);
             if (type != null) {
@@ -196,7 +205,8 @@ public class ResourceManager {
         ResourceType<T> type = findResourceType(resource);
         boolean[] resourceReady = new boolean[1];
 
-        Wait.until(String.format("Resource condition: %s  to be fulfilled for resource %s/%s", condition.getConditionName(), resource.getKind(), resource.getMetadata().getName()),
+        Wait.until(String.format("Resource condition: %s  to be fulfilled for resource %s/%s",
+                        condition.getConditionName(), resource.getKind(), resource.getMetadata().getName()),
                 TestFrameConstants.GLOBAL_POLL_INTERVAL_MEDIUM, TestFrameConstants.GLOBAL_TIMEOUT,
                 () -> {
                     T res = getKubeClient().getClient().resource(resource).get();
@@ -216,7 +226,8 @@ public class ResourceManager {
 
     public void deleteResources() {
         LoggerUtils.logSeparator();
-        if (!STORED_RESOURCES.containsKey(getTestContext().getDisplayName()) || STORED_RESOURCES.get(getTestContext().getDisplayName()).isEmpty()) {
+        if (!STORED_RESOURCES.containsKey(getTestContext().getDisplayName())
+                || STORED_RESOURCES.get(getTestContext().getDisplayName()).isEmpty()) {
             LOGGER.info("In context {} is everything deleted", getTestContext().getDisplayName());
         } else {
             LOGGER.info("Deleting all resources for {}", getTestContext().getDisplayName());

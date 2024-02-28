@@ -4,13 +4,13 @@
  */
 package io.skodjob.testframe.resources;
 
+import java.util.function.Consumer;
+
 import io.fabric8.kubernetes.api.model.rbac.ClusterRole;
 import io.fabric8.kubernetes.api.model.rbac.ClusterRoleList;
 import io.fabric8.kubernetes.client.dsl.NonNamespaceOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
 import io.skodjob.testframe.interfaces.ResourceType;
-
-import java.util.function.Consumer;
 
 public class ClusterRoleResource implements ResourceType<ClusterRole> {
 

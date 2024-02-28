@@ -4,10 +4,10 @@
  */
 package io.skodjob.testframe.interfaces;
 
+import java.util.function.Consumer;
+
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
-
-import java.util.function.Consumer;
 
 public interface NamespacedResourceType<T extends HasMetadata> extends ResourceType<T> {
 

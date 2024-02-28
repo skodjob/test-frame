@@ -4,14 +4,14 @@
  */
 package io.skodjob.testframe.resources;
 
+import java.util.function.Consumer;
+
+import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.kubernetes.api.model.NamespaceBuilder;
 import io.fabric8.kubernetes.api.model.NamespaceList;
-import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.kubernetes.client.dsl.NonNamespaceOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
 import io.skodjob.testframe.interfaces.ResourceType;
-
-import java.util.function.Consumer;
 
 public class NamespaceResource implements ResourceType<Namespace> {
 

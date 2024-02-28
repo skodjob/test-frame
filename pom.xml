@@ -61,6 +61,11 @@
             <name>Jakub Stejskal</name>
             <email>xstejs24@gmail.com</email>
         </developer>
+        <developer>
+            <id>obabec</id>
+            <name>Ondrej Babec</name>
+            <email>ond.babec@gmail.com</email>
+        </developer>
     </developers>
 
     <properties>
@@ -82,6 +87,7 @@
         <maven.javadoc.version>3.4.1</maven.javadoc.version>
         <maven.assembly.version>3.4.2</maven.assembly.version>
         <maven.plugin.plugin.version>3.9.0</maven.plugin.plugin.version>
+        <checkstyle.config.location>checkstyle.xml</checkstyle.config.location>
         <junit.jupiter.version>5.10.2</junit.jupiter.version>
     </properties>
 
@@ -150,6 +156,24 @@
 <!--                    </execution>-->
 <!--                </executions>-->
 <!--            </plugin>-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>${maven.checkstyle.version}</version>
+                <executions>
+                    <execution>
+                        <id>validate</id>
+                        <phase>validate</phase>
+                        <configuration>
+                            <consoleOutput>true</consoleOutput>
+                            <failsOnError>true</failsOnError>
+                        </configuration>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <artifactId>maven-source-plugin</artifactId>
                 <version>${maven.source.plugin.version}</version>

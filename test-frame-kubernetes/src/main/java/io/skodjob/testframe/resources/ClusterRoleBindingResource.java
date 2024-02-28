@@ -4,17 +4,18 @@
  */
 package io.skodjob.testframe.resources;
 
+import java.util.function.Consumer;
+
 import io.fabric8.kubernetes.api.model.rbac.ClusterRoleBinding;
 import io.fabric8.kubernetes.api.model.rbac.ClusterRoleBindingList;
 import io.fabric8.kubernetes.client.dsl.NonNamespaceOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
 import io.skodjob.testframe.interfaces.ResourceType;
 
-import java.util.function.Consumer;
-
 public class ClusterRoleBindingResource implements ResourceType<ClusterRoleBinding> {
 
-    private final NonNamespaceOperation<ClusterRoleBinding, ClusterRoleBindingList, Resource<ClusterRoleBinding>> client;
+    private final NonNamespaceOperation<ClusterRoleBinding, ClusterRoleBindingList,
+            Resource<ClusterRoleBinding>> client;
 
     public ClusterRoleBindingResource() {
         this.client = ResourceManager.getKubeClient().getClient().rbac().clusterRoleBindings();

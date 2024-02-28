@@ -4,12 +4,12 @@
  */
 package io.skodjob.testframe.clients.cmdClient;
 
-import io.skodjob.testframe.executor.ExecResult;
-
 import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+
+import io.skodjob.testframe.executor.ExecResult;
 
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
@@ -192,7 +192,8 @@ public interface KubeCmdClient<K extends KubeCmdClient<K>> {
      * @param grepPattern       Grep patterns for search
      * @return Grep result as string
      */
-    String searchInLog(String resourceType, String resourceName, String resourceContainer, long sinceSeconds, String... grepPattern);
+    String searchInLog(String resourceType, String resourceName, String resourceContainer,
+                       long sinceSeconds, String... grepPattern);
 
     String getResourceAsJson(String resourceType, String resourceName);
 

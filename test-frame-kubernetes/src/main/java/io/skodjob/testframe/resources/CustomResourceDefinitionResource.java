@@ -4,17 +4,18 @@
  */
 package io.skodjob.testframe.resources;
 
+import java.util.function.Consumer;
+
 import io.fabric8.kubernetes.api.model.apiextensions.v1.CustomResourceDefinition;
 import io.fabric8.kubernetes.api.model.apiextensions.v1.CustomResourceDefinitionList;
 import io.fabric8.kubernetes.client.dsl.NonNamespaceOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
 import io.skodjob.testframe.interfaces.ResourceType;
 
-import java.util.function.Consumer;
-
 public class CustomResourceDefinitionResource implements ResourceType<CustomResourceDefinition> {
 
-    private final NonNamespaceOperation<CustomResourceDefinition, CustomResourceDefinitionList, Resource<CustomResourceDefinition>> client;
+    private final NonNamespaceOperation<CustomResourceDefinition, CustomResourceDefinitionList,
+            Resource<CustomResourceDefinition>> client;
 
     public CustomResourceDefinitionResource() {
         this.client = ResourceManager.getKubeClient().getClient().apiextensions().v1().customResourceDefinitions();
