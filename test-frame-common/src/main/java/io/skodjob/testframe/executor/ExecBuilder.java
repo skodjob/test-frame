@@ -4,11 +4,11 @@
  */
 package io.skodjob.testframe.executor;
 
-import io.fabric8.kubernetes.api.model.EnvVar;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+
+import io.fabric8.kubernetes.api.model.EnvVar;
 
 public class ExecBuilder {
 

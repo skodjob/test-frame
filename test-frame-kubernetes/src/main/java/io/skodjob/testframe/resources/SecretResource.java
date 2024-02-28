@@ -4,13 +4,13 @@
  */
 package io.skodjob.testframe.resources;
 
+import java.util.function.Consumer;
+
 import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.api.model.SecretList;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
 import io.skodjob.testframe.interfaces.NamespacedResourceType;
-
-import java.util.function.Consumer;
 
 public class SecretResource implements NamespacedResourceType<Secret> {
 

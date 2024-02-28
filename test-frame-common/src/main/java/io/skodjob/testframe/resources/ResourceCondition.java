@@ -5,13 +5,11 @@
 
 package io.skodjob.testframe.resources;
 
-import io.fabric8.kubernetes.api.model.HasMetadata;
-import io.fabric8.kubernetes.api.model.KubernetesResourceList;
-import io.fabric8.kubernetes.client.dsl.Resource;
-import io.skodjob.testframe.interfaces.ResourceType;
-
 import java.util.Objects;
 import java.util.function.Predicate;
+
+import io.fabric8.kubernetes.api.model.HasMetadata;
+import io.skodjob.testframe.interfaces.ResourceType;
 
 public class ResourceCondition<T extends HasMetadata> {
     private final Predicate<T> predicate;

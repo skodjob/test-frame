@@ -4,10 +4,6 @@
  */
 package io.skodjob.testframe.wait;
 
-import io.skodjob.testframe.LoggerUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.Duration;
@@ -19,6 +15,9 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.BooleanSupplier;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Wait {
     private static final Logger LOGGER = LoggerFactory.getLogger(Wait.class);
@@ -51,9 +50,11 @@ public class Wait {
      * @param timeoutMs timeout specified in milliseconds
      * @param ready {@link BooleanSupplier} containing code, which should be executed each poll, verifying readiness
      *                                     of the particular thing
-     * @param onTimeout {@link Runnable} executed once timeout is reached and before the {@link WaitException} is thrown.
+     * @param onTimeout {@link Runnable} executed once timeout is reached and
+     *                                  before the {@link WaitException} is thrown.
      */
-    public static void until(String description, long pollIntervalMs, long timeoutMs, BooleanSupplier ready, Runnable onTimeout) {
+    public static void until(String description, long pollIntervalMs, long timeoutMs, BooleanSupplier ready,
+                             Runnable onTimeout) {
         System.out.println("Waiting for " + description);
         long deadline = System.currentTimeMillis() + timeoutMs;
 
@@ -62,7 +63,8 @@ public class Wait {
 
         // in case we are polling every 1s, we want to print exception after x tries, not on the first try
         // for minutes poll interval will 2 be enough
-        int exceptionAppearanceCount = Duration.ofMillis(pollIntervalMs).toMinutes() > 0 ? 2 : Math.max((int) (timeoutMs / pollIntervalMs) / 4, 2);
+        int exceptionAppearanceCount = Duration.ofMillis(pollIntervalMs).toMinutes() > 0
+                ? 2 : Math.max((int) (timeoutMs / pollIntervalMs) / 4, 2);
         int exceptionCount = 0;
         int newExceptionAppearance = 0;
 
@@ -75,11 +77,13 @@ public class Wait {
             } catch (Exception e) {
                 exceptionMessage = e.getMessage();
 
-                if (++exceptionCount == exceptionAppearanceCount && exceptionMessage != null && exceptionMessage.equals(previousExceptionMessage)) {
+                if (++exceptionCount == exceptionAppearanceCount && exceptionMessage != null
+                        && exceptionMessage.equals(previousExceptionMessage)) {
                     System.out.println("While waiting for " + description + " exception occurred: " + exceptionMessage);
                     // log the stacktrace
                     e.printStackTrace(new PrintWriter(stackTraceError));
-                } else if (exceptionMessage != null && !exceptionMessage.equals(previousExceptionMessage) && ++newExceptionAppearance == 2) {
+                } else if (exceptionMessage != null && !exceptionMessage.equals(previousExceptionMessage)
+                        && ++newExceptionAppearance == 2) {
                     previousExceptionMessage = exceptionMessage;
                 }
 
@@ -99,7 +103,8 @@ public class Wait {
                     }
                 }
                 onTimeout.run();
-                WaitException waitException = new WaitException("Timeout after " + timeoutMs + " ms waiting for " + description);
+                WaitException waitException = new WaitException("Timeout after " + timeoutMs
+                        + " ms waiting for " + description);
                 waitException.printStackTrace();
                 throw waitException;
             }
@@ -136,7 +141,8 @@ public class Wait {
      * @param ready {@link BooleanSupplier} containing code, which should be executed each poll, verifying readiness
      *                                     of the particular thing
      */
-    public static CompletableFuture<Void> untilAsync(String description, long pollIntervalMs, long timeoutMs, BooleanSupplier ready) {
+    public static CompletableFuture<Void> untilAsync(String description, long pollIntervalMs,
+                                                     long timeoutMs, BooleanSupplier ready) {
         LOGGER.info("Waiting for {}", description);
         long deadline = System.currentTimeMillis() + timeoutMs;
         CompletableFuture<Void> future = new CompletableFuture<>();
@@ -160,7 +166,8 @@ public class Wait {
                             }
                             delayed.execute(this);
                         } else {
-                            future.completeExceptionally(new TimeoutException(String.format("Waiting for %s timeout %s exceeded", description, timeoutMs)));
+                            future.completeExceptionally(new TimeoutException(
+                                    String.format("Waiting for %s timeout %s exceeded", description, timeoutMs)));
                         }
                     } else {
                         future.complete(null);

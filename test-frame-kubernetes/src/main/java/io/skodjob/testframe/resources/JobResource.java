@@ -4,13 +4,13 @@
  */
 package io.skodjob.testframe.resources;
 
+import java.util.function.Consumer;
+
 import io.fabric8.kubernetes.api.model.batch.v1.Job;
 import io.fabric8.kubernetes.api.model.batch.v1.JobList;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.ScalableResource;
 import io.skodjob.testframe.interfaces.NamespacedResourceType;
-
-import java.util.function.Consumer;
 
 public class JobResource implements NamespacedResourceType<Job> {
 

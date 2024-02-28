@@ -15,17 +15,17 @@ import org.slf4j.LoggerFactory;
  * jUnit5 specific class which listening on test callbacks
  */
 public class TestVisualSeparatorExtension implements BeforeEachCallback, AfterEachCallback {
-    Logger LOGGER = LoggerFactory.getLogger(TestVisualSeparatorExtension.class);
+    private final Logger logger = LoggerFactory.getLogger(TestVisualSeparatorExtension.class);
     @Override
-    public void beforeEach(ExtensionContext extensionContext) throws Exception {
+    public void beforeEach(ExtensionContext extensionContext) {
         LoggerUtils.logSeparator();
-        LOGGER.info(String.format("%s.%s-STARTED", extensionContext.getRequiredTestClass().getName(),
+        logger.info(String.format("%s.%s-STARTED", extensionContext.getRequiredTestClass().getName(),
                 extensionContext.getDisplayName().replace("()", "")));
     }
 
     @Override
-    public void afterEach(ExtensionContext extensionContext) throws Exception {
-        LOGGER.info(String.format("%s.%s-FINISHED", extensionContext.getRequiredTestClass().getName(),
+    public void afterEach(ExtensionContext extensionContext) {
+        logger.info(String.format("%s.%s-FINISHED", extensionContext.getRequiredTestClass().getName(),
                 extensionContext.getDisplayName().replace("()", "")));
         LoggerUtils.logSeparator();
     }

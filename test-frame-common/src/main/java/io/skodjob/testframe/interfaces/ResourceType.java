@@ -4,10 +4,10 @@
  */
 package io.skodjob.testframe.interfaces;
 
+import java.util.function.Consumer;
+
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.client.dsl.NonNamespaceOperation;
-
-import java.util.function.Consumer;
 
 /**
  * Class for encapsulating methods related to {@link T} resource.

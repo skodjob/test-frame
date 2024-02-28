@@ -4,11 +4,6 @@
  */
 package io.skodjob.testframe.executor;
 
-import io.fabric8.kubernetes.api.model.EnvVar;
-import io.skodjob.testframe.clients.KubeClusterException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,6 +27,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import io.fabric8.kubernetes.api.model.EnvVar;
+import io.skodjob.testframe.clients.KubeClusterException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static java.lang.String.join;
 
@@ -163,7 +163,8 @@ public class Exec {
      * @param throwErrors throw error if exec fail
      * @return results
      */
-    public static ExecResult exec(String input, List<String> command, int timeout, boolean logToOutput, boolean throwErrors) {
+    public static ExecResult exec(String input, List<String> command, int timeout, boolean logToOutput,
+                                  boolean throwErrors) {
         return exec(input, command, Collections.emptySet(), timeout, logToOutput, throwErrors);
     }
 
@@ -178,7 +179,8 @@ public class Exec {
      * @param throwErrors look for errors in output and throws exception if true
      * @return execution results
      */
-    public static ExecResult exec(String input, List<String> command, Set<EnvVar> envVars, int timeout, boolean logToOutput, boolean throwErrors) {
+    public static ExecResult exec(String input, List<String> command, Set<EnvVar> envVars, int timeout,
+                                  boolean logToOutput, boolean throwErrors) {
         int ret = 1;
         ExecResult execResult;
         try {
@@ -204,7 +206,9 @@ public class Exec {
             execResult = new ExecResult(ret, executor.out(), executor.err());
 
             if (throwErrors && ret != 0) {
-                String msg = "`" + join(" ", command) + "` got status code " + ret + " and stderr:\n------\n" + executor.stdErr + "\n------\nand stdout:\n------\n" + executor.stdOut + "\n------";
+                String msg = "`" + join(" ", command) + "` got status code " + ret
+                        + " and stderr:\n------\n" + executor.stdErr
+                        + "\n------\nand stdout:\n------\n" + executor.stdOut + "\n------";
 
                 Matcher matcher = ERROR_PATTERN.matcher(executor.err());
                 KubeClusterException t = null;
@@ -251,7 +255,8 @@ public class Exec {
      * @throws InterruptedException
      * @throws ExecutionException
      */
-    public int execute(String input, List<String> commands, Set<EnvVar> envVars, long timeoutMs) throws IOException, InterruptedException, ExecutionException {
+    public int execute(String input, List<String> commands, Set<EnvVar> envVars, long timeoutMs)
+            throws IOException, InterruptedException, ExecutionException {
         LOGGER.trace("Running command - " + join(" ", commands.toArray(new String[0])));
         ProcessBuilder builder = new ProcessBuilder();
         builder.command(commands);
@@ -368,7 +373,8 @@ public class Exec {
      */
     public static String cutExecutorLog(String log) {
         if (log.length() > MAXIMUM_EXEC_LOG_CHARACTER_SIZE) {
-            LOGGER.warn("Executor log is too long. Going to strip it and print only first {} characters", MAXIMUM_EXEC_LOG_CHARACTER_SIZE);
+            LOGGER.warn("Executor log is too long. Going to strip it and print only first {} characters",
+                    MAXIMUM_EXEC_LOG_CHARACTER_SIZE);
             return log.substring(0, MAXIMUM_EXEC_LOG_CHARACTER_SIZE);
         }
         return log;

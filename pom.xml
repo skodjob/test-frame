@@ -61,6 +61,11 @@
             <name>Jakub Stejskal</name>
             <email>xstejs24@gmail.com</email>
         </developer>
+        <developer>
+            <id>obabec</id>
+            <name>Ondrej Babec</name>
+            <email>ond.babec@gmail.com</email>
+        </developer>
     </developers>
 
     <properties>
@@ -151,6 +156,24 @@
 <!--                    </execution>-->
 <!--                </executions>-->
 <!--            </plugin>-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>${maven.checkstyle.version}</version>
+                <executions>
+                    <execution>
+                        <id>validate</id>
+                        <phase>validate</phase>
+                        <configuration>
+                            <consoleOutput>true</consoleOutput>
+                            <failsOnError>true</failsOnError>
+                        </configuration>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <artifactId>maven-source-plugin</artifactId>
                 <version>${maven.source.plugin.version}</version>
@@ -248,24 +271,6 @@
                                         <descriptor>test-frame-openshift/src/main/assembly/dist.xml</descriptor>
                                     </descriptors>
                                 </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-checkstyle-plugin</artifactId>
-                        <version>${maven.checkstyle.version}</version>
-                        <executions>
-                            <execution>
-                                <id>validate</id>
-                                <phase>validate</phase>
-                                <configuration>
-                                    <consoleOutput>true</consoleOutput>
-                                    <failsOnError>true</failsOnError>
-                                </configuration>
-                                <goals>
-                                    <goal>check</goal>
-                                </goals>
                             </execution>
                         </executions>
                     </plugin>
