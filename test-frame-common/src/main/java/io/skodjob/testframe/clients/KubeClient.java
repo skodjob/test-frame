@@ -4,8 +4,14 @@
  */
 package io.skodjob.testframe.clients;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.List;
 
+import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
@@ -38,6 +44,28 @@ public class KubeClient {
 
     public String getKubeconfigPath() {
         return kubeconfigPath;
+    }
+
+    /**
+     * Return kubernetes resources from yaml/json file
+     * @param file path
+     * @return list of the {@link HasMetadata} resources
+     * @throws IOException
+     */
+    public List<HasMetadata> readResourcesFromFile(Path file) throws IOException {
+        return readResourcesFromFile(Files.newInputStream(file));
+    }
+
+    /**
+     * Return kubernetes resources from yaml/json file
+     * @param is stream
+     * @return list of the {@link HasMetadata} resources
+     * @throws IOException
+     */
+    public List<HasMetadata> readResourcesFromFile(InputStream is) throws IOException {
+        try (is) {
+            return client.load(is).items();
+        }
     }
 
     private Config getConfig() {
