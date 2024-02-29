@@ -9,12 +9,12 @@ import java.util.function.Consumer;
 import io.fabric8.kubernetes.api.model.ServiceAccount;
 import io.fabric8.kubernetes.api.model.ServiceAccountList;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
-import io.fabric8.kubernetes.client.dsl.Resource;
 import io.skodjob.testframe.interfaces.NamespacedResourceType;
 
 public class ServiceAccountResource implements NamespacedResourceType<ServiceAccount> {
 
-    private final MixedOperation<ServiceAccount, ServiceAccountList, Resource<ServiceAccount>> client;
+    private final MixedOperation<ServiceAccount, ServiceAccountList,
+            io.fabric8.kubernetes.client.dsl.ServiceAccountResource> client;
 
     public ServiceAccountResource() {
         this.client = ResourceManager.getKubeClient().getClient().serviceAccounts();

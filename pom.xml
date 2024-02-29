@@ -13,6 +13,7 @@
         <module>test-frame-common</module>
         <module>test-frame-kubernetes</module>
         <module>test-frame-openshift</module>
+        <module>test-frame-test</module>
     </modules>
 
     <licenses>
@@ -73,7 +74,7 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
 
-        <fabric8.version>6.5.1</fabric8.version>
+        <fabric8.version>6.10.0</fabric8.version>
 
         <maven.spotbugs.version>4.7.3.4</maven.spotbugs.version>
         <maven.checkstyle.version>3.3.0</maven.checkstyle.version>
@@ -89,6 +90,8 @@
         <maven.plugin.plugin.version>3.9.0</maven.plugin.plugin.version>
         <checkstyle.config.location>checkstyle.xml</checkstyle.config.location>
         <junit.jupiter.version>5.10.2</junit.jupiter.version>
+        <junit.platform.version>1.10.2</junit.platform.version>
+        <maven.surefire.version>3.2.2</maven.surefire.version>
     </properties>
 
     <dependencyManagement>
@@ -129,9 +132,44 @@
                 <version>${fabric8.version}</version>
             </dependency>
             <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>kubernetes-server-mock</artifactId>
+                <version>${fabric8.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-api</artifactId>
                 <version>${junit.jupiter.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-engine</artifactId>
+                <version>${junit.jupiter.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-params</artifactId>
+                <version>${junit.jupiter.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.platform</groupId>
+                <artifactId>junit-platform-commons</artifactId>
+                <version>${junit.platform.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.platform</groupId>
+                <artifactId>junit-platform-launcher</artifactId>
+                <version>${junit.platform.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.platform</groupId>
+                <artifactId>junit-platform-engine</artifactId>
+                <version>${junit.platform.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>${maven.surefire.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
