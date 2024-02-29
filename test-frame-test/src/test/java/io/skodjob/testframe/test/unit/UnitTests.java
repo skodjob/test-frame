@@ -9,6 +9,7 @@ import io.fabric8.kubernetes.client.server.mock.EnableKubernetesMockClient;
 import io.fabric8.kubernetes.client.server.mock.KubernetesMockServer;
 import org.junit.jupiter.api.Test;
 
+//TODO Implement mock kube to be able to work with RM
 @EnableKubernetesMockClient(crud = true)
 public class UnitTests {
     private KubernetesClient kubernetesClient;
