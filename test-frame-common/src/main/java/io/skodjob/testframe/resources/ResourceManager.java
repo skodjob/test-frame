@@ -40,6 +40,7 @@ public class ResourceManager {
     public static synchronized ResourceManager getInstance() {
         if (instance == null) {
             instance = new ResourceManager();
+            instance.resourceTypes = new ResourceType[]{};
             client = new KubeClient();
             if (TestFrameEnv.CLIENT_TYPE.equals(TestFrameConstants.KUBERNETES_CLIENT)) {
                 kubeCmdClient = new Kubectl();
