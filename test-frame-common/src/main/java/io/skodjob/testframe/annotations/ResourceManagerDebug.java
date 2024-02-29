@@ -4,7 +4,6 @@
  */
 package io.skodjob.testframe.annotations;
 
-import io.skodjob.testframe.listeners.ResourceManagerCleanerExtension;
 import io.skodjob.testframe.listeners.ResourceManagerExtension;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -17,6 +16,5 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target(ElementType.TYPE)
 @Retention(RUNTIME)
 @ExtendWith(ResourceManagerExtension.class)
-@ExtendWith(ResourceManagerCleanerExtension.class)
-public @interface ResourceManagerWithClean {
+public @interface ResourceManagerDebug {
 }
