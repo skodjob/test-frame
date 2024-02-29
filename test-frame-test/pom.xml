@@ -119,16 +119,6 @@
 
     <profiles>
         <profile>
-            <id>none</id>
-            <properties>
-                <it.skip>true</it.skip>
-            </properties>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-        </profile>
-
-        <profile>
             <id>integration</id>
             <properties>
                 <it.skip>false</it.skip>

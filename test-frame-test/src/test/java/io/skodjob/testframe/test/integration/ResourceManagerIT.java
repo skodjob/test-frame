@@ -8,6 +8,7 @@ import io.fabric8.kubernetes.api.model.NamespaceBuilder;
 import io.skodjob.testframe.annotations.TestVisualSeparator;
 import io.skodjob.testframe.clients.KubeClusterException;
 import io.skodjob.testframe.resources.ResourceManager;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,6 +33,12 @@ public class ResourceManagerIT {
     void setupEach() {
         ResourceManager.getInstance().createResourceWithWait(
                 new NamespaceBuilder().withNewMetadata().withName("test2").endMetadata().build());
+    }
+
+    @AfterAll
+    void afterAll() {
+        assertNull(ResourceManager.getKubeClient().getClient().namespaces().withName("test2").get());
+        assertNull(ResourceManager.getKubeClient().getClient().namespaces().withName("test3").get());
     }
 
     @Test
