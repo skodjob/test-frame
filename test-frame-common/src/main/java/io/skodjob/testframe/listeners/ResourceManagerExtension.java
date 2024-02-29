@@ -4,7 +4,7 @@
  */
 package io.skodjob.testframe.listeners;
 
-import io.skodjob.testframe.resources.ResourceManager;
+import io.skodjob.testframe.resources.KubeResourceManager;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
@@ -19,22 +19,22 @@ public class ResourceManagerExtension
 
     @Override
     public void beforeAll(ExtensionContext extensionContext) {
-        ResourceManager.getInstance();
-        ResourceManager.setTestContext(extensionContext);
+        KubeResourceManager.getInstance();
+        KubeResourceManager.setTestContext(extensionContext);
     }
 
     @Override
     public void beforeEach(ExtensionContext extensionContext) {
-        ResourceManager.setTestContext(extensionContext);
+        KubeResourceManager.setTestContext(extensionContext);
     }
 
     @Override
     public void afterAll(ExtensionContext extensionContext) {
-        ResourceManager.setTestContext(extensionContext);
+        KubeResourceManager.setTestContext(extensionContext);
     }
 
     @Override
     public void afterEach(ExtensionContext extensionContext) {
-        ResourceManager.setTestContext(extensionContext);
+        KubeResourceManager.setTestContext(extensionContext);
     }
 }

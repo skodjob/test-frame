@@ -17,7 +17,7 @@ public class NetworkPolicyResource implements NamespacedResourceType<NetworkPoli
     private final MixedOperation<NetworkPolicy, NetworkPolicyList, Resource<NetworkPolicy>> client;
 
     public NetworkPolicyResource() {
-        this.client = ResourceManager.getKubeClient().getClient().network().networkPolicies();
+        this.client = KubeResourceManager.getKubeClient().getClient().network().networkPolicies();
     }
 
     /**

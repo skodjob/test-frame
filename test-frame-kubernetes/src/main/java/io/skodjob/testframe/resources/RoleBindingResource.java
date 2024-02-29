@@ -17,7 +17,7 @@ public class RoleBindingResource implements NamespacedResourceType<RoleBinding> 
     private final MixedOperation<RoleBinding, RoleBindingList, Resource<RoleBinding>> client;
 
     public RoleBindingResource() {
-        this.client = ResourceManager.getKubeClient().getClient().rbac().roleBindings();
+        this.client = KubeResourceManager.getKubeClient().getClient().rbac().roleBindings();
     }
 
     /**

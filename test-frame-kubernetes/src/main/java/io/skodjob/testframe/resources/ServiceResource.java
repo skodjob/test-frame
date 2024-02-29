@@ -17,7 +17,7 @@ public class ServiceResource implements NamespacedResourceType<Service> {
             io.fabric8.kubernetes.client.dsl.ServiceResource<Service>> client;
 
     public ServiceResource() {
-        this.client = ResourceManager.getKubeClient().getClient().services();
+        this.client = KubeResourceManager.getKubeClient().getClient().services();
     }
 
     /**

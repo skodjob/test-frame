@@ -18,7 +18,7 @@ public class ClusterRoleBindingResource implements ResourceType<ClusterRoleBindi
             Resource<ClusterRoleBinding>> client;
 
     public ClusterRoleBindingResource() {
-        this.client = ResourceManager.getKubeClient().getClient().rbac().clusterRoleBindings();
+        this.client = KubeResourceManager.getKubeClient().getClient().rbac().clusterRoleBindings();
     }
 
     /**

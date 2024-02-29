@@ -19,7 +19,7 @@ public class ValidatingWebhookConfigurationResource implements ResourceType<Vali
             Resource<ValidatingWebhookConfiguration>> client;
 
     public ValidatingWebhookConfigurationResource() {
-        this.client = ResourceManager.getKubeClient().getClient()
+        this.client = KubeResourceManager.getKubeClient().getClient()
                 .admissionRegistration()
                 .v1()
                 .validatingWebhookConfigurations();

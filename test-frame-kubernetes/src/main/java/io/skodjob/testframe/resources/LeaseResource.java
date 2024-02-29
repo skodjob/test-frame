@@ -17,7 +17,7 @@ public class LeaseResource implements NamespacedResourceType<Lease> {
     private MixedOperation<Lease, LeaseList, Resource<Lease>> client;
 
     public LeaseResource() {
-        this.client = ResourceManager.getKubeClient().getClient().leases();
+        this.client = KubeResourceManager.getKubeClient().getClient().leases();
     }
 
     /**

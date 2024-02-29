@@ -16,7 +16,7 @@ public class ConfigMapResource implements NamespacedResourceType<ConfigMap> {
     private final MixedOperation<ConfigMap, ConfigMapList, Resource<ConfigMap>> client;
 
     public ConfigMapResource() {
-        this.client = ResourceManager.getKubeClient().getClient().configMaps();
+        this.client = KubeResourceManager.getKubeClient().getClient().configMaps();
     }
 
     /**

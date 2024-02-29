@@ -18,7 +18,7 @@ public class CustomResourceDefinitionResource implements ResourceType<CustomReso
             Resource<CustomResourceDefinition>> client;
 
     public CustomResourceDefinitionResource() {
-        this.client = ResourceManager.getKubeClient().getClient().apiextensions().v1().customResourceDefinitions();
+        this.client = KubeResourceManager.getKubeClient().getClient().apiextensions().v1().customResourceDefinitions();
     }
 
     /**

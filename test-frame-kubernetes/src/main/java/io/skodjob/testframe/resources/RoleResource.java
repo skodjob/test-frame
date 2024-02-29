@@ -17,7 +17,7 @@ public class RoleResource implements NamespacedResourceType<Role> {
     private final MixedOperation<Role, RoleList, Resource<Role>> client;
 
     public RoleResource() {
-        this.client = ResourceManager.getKubeClient().getClient().rbac().roles();
+        this.client = KubeResourceManager.getKubeClient().getClient().rbac().roles();
     }
 
     /**

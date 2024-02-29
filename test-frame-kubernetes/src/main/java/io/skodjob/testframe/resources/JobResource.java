@@ -17,7 +17,7 @@ public class JobResource implements NamespacedResourceType<Job> {
     private final MixedOperation<Job, JobList, ScalableResource<Job>> client;
 
     public JobResource() {
-        this.client = ResourceManager.getKubeClient().getClient().batch().v1().jobs();
+        this.client = KubeResourceManager.getKubeClient().getClient().batch().v1().jobs();
     }
 
     /**

@@ -18,7 +18,7 @@ public class NamespaceResource implements ResourceType<Namespace> {
     private final NonNamespaceOperation<Namespace, NamespaceList, Resource<Namespace>> client;
 
     public NamespaceResource() {
-        this.client = ResourceManager.getKubeClient().getClient().namespaces();
+        this.client = KubeResourceManager.getKubeClient().getClient().namespaces();
     }
 
     /**

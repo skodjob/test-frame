@@ -17,7 +17,7 @@ public class SubscriptionResource implements NamespacedResourceType<Subscription
     private final MixedOperation<Subscription, SubscriptionList, Resource<Subscription>> client;
 
     public SubscriptionResource() {
-        this.client = ResourceManager.getKubeClient().getOpenShiftClient().operatorHub().subscriptions();
+        this.client = KubeResourceManager.getKubeClient().getOpenShiftClient().operatorHub().subscriptions();
     }
 
     /**
