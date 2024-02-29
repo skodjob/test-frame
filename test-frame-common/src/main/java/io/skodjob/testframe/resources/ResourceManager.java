@@ -212,14 +212,15 @@ public class ResourceManager {
                 () -> {
                     T res = getKubeClient().getClient().resource(resource).get();
                     resourceReady[0] = condition.getPredicate().test(res);
-                    if (!resourceReady[0]) {
-                        if (type == null) {
-                            client.getClient().resource(resource).delete();
-                        } else {
-                            type.delete(res.getMetadata().getName());
-                        }
-                    }
                     return resourceReady[0];
+                },
+                () -> {
+                    T res = getKubeClient().getClient().resource(resource).get();
+                    if (type == null) {
+                        client.getClient().resource(resource).delete();
+                    } else {
+                        type.delete(res.getMetadata().getName());
+                    }
                 });
 
         return resourceReady[0];
