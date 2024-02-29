@@ -13,6 +13,7 @@
         <module>test-frame-common</module>
         <module>test-frame-kubernetes</module>
         <module>test-frame-openshift</module>
+        <module>test-frame-test</module>
     </modules>
 
     <licenses>

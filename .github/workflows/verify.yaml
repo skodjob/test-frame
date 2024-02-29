@@ -1,11 +1,11 @@
-name: Build
+name: Verify
 
 on:
   pull_request:
     branches: [ main ]
 
 jobs:
-  build:
+  verify:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -23,5 +23,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      - name: Build
-        run: mvn --batch-mode install
+      - name: Create k8s Kind Cluster
+        uses: helm/kind-action@v1
+
+      - name: Verify
+        run: mvn verify -P integration
