@@ -17,7 +17,7 @@ public class ClusterRoleResource implements ResourceType<ClusterRole> {
     private final NonNamespaceOperation<ClusterRole, ClusterRoleList, Resource<ClusterRole>> client;
 
     public ClusterRoleResource() {
-        this.client = ResourceManager.getKubeClient().getClient().rbac().clusterRoles();
+        this.client = KubeResourceManager.getKubeClient().getClient().rbac().clusterRoles();
     }
 
     /**

@@ -26,10 +26,10 @@ import org.slf4j.LoggerFactory;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class ResourceManager {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ResourceManager.class);
+public class KubeResourceManager {
+    private static final Logger LOGGER = LoggerFactory.getLogger(KubeResourceManager.class);
 
-    private static ResourceManager instance;
+    private static KubeResourceManager instance;
     private static KubeClient client;
     private static KubeCmdClient kubeCmdClient;
 
@@ -37,9 +37,9 @@ public class ResourceManager {
 
     private static final Map<String, Stack<ResourceItem>> STORED_RESOURCES = new LinkedHashMap<>();
 
-    public static synchronized ResourceManager getInstance() {
+    public static synchronized KubeResourceManager getInstance() {
         if (instance == null) {
-            instance = new ResourceManager();
+            instance = new KubeResourceManager();
             instance.resourceTypes = new ResourceType[]{};
             client = new KubeClient();
             if (TestFrameEnv.CLIENT_TYPE.equals(TestFrameConstants.KUBERNETES_CLIENT)) {

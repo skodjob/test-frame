@@ -4,7 +4,7 @@
  */
 package io.skodjob.testframe.listeners;
 
-import io.skodjob.testframe.resources.ResourceManager;
+import io.skodjob.testframe.resources.KubeResourceManager;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -17,13 +17,13 @@ public class ResourceManagerCleanerExtension
 
     @Override
     public void afterAll(ExtensionContext extensionContext) {
-        ResourceManager.setTestContext(extensionContext);
-        ResourceManager.getInstance().deleteResources();
+        KubeResourceManager.setTestContext(extensionContext);
+        KubeResourceManager.getInstance().deleteResources();
     }
 
     @Override
     public void afterEach(ExtensionContext extensionContext) {
-        ResourceManager.setTestContext(extensionContext);
-        ResourceManager.getInstance().deleteResources();
+        KubeResourceManager.setTestContext(extensionContext);
+        KubeResourceManager.getInstance().deleteResources();
     }
 }

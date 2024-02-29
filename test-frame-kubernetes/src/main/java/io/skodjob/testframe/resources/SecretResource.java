@@ -17,7 +17,7 @@ public class SecretResource implements NamespacedResourceType<Secret> {
     private final MixedOperation<Secret, SecretList, Resource<Secret>> client;
 
     public SecretResource() {
-        this.client = ResourceManager.getKubeClient().getClient().secrets();
+        this.client = KubeResourceManager.getKubeClient().getClient().secrets();
     }
 
     /**

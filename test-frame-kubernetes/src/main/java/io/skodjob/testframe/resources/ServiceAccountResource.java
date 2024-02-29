@@ -17,7 +17,7 @@ public class ServiceAccountResource implements NamespacedResourceType<ServiceAcc
             io.fabric8.kubernetes.client.dsl.ServiceAccountResource> client;
 
     public ServiceAccountResource() {
-        this.client = ResourceManager.getKubeClient().getClient().serviceAccounts();
+        this.client = KubeResourceManager.getKubeClient().getClient().serviceAccounts();
     }
 
     /**

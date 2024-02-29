@@ -17,7 +17,7 @@ public class OperatorGroupResource implements NamespacedResourceType<OperatorGro
     private final MixedOperation<OperatorGroup, OperatorGroupList, Resource<OperatorGroup>> client;
 
     public OperatorGroupResource() {
-        this.client = ResourceManager.getKubeClient().getOpenShiftClient().operatorHub().operatorGroups();
+        this.client = KubeResourceManager.getKubeClient().getOpenShiftClient().operatorHub().operatorGroups();
     }
 
     /**

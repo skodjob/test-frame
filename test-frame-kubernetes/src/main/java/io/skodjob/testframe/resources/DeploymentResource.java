@@ -17,7 +17,7 @@ public class DeploymentResource implements NamespacedResourceType<Deployment> {
     private final MixedOperation<Deployment, DeploymentList, RollableScalableResource<Deployment>> client;
 
     public DeploymentResource() {
-        this.client = ResourceManager.getKubeClient().getClient().apps().deployments();
+        this.client = KubeResourceManager.getKubeClient().getClient().apps().deployments();
     }
 
     /**
