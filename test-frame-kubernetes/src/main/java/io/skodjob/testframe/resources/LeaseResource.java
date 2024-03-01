@@ -12,10 +12,16 @@ import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
 import io.skodjob.testframe.interfaces.NamespacedResourceType;
 
+/**
+ * Implementation of ResourceType for specific kubernetes resource
+ */
 public class LeaseResource implements NamespacedResourceType<Lease> {
 
     private MixedOperation<Lease, LeaseList, Resource<Lease>> client;
 
+    /**
+     * Constructor
+     */
     public LeaseResource() {
         this.client = KubeResourceManager.getKubeClient().getClient().leases();
     }
@@ -85,7 +91,7 @@ public class LeaseResource implements NamespacedResourceType<Lease> {
     /**
      * Waits for {@link Lease} to be ready (created/running)
      *
-     * @param resource
+     * @param resource resource
      * @return result of the readiness check
      */
     @Override
@@ -96,7 +102,7 @@ public class LeaseResource implements NamespacedResourceType<Lease> {
     /**
      * Waits for {@link Lease} to be deleted
      *
-     * @param resource
+     * @param resource resource
      * @return result of the deletion
      */
     @Override

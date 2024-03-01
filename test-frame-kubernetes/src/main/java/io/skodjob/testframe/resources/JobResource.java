@@ -12,10 +12,16 @@ import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.ScalableResource;
 import io.skodjob.testframe.interfaces.NamespacedResourceType;
 
+/**
+ * Implementation of ResourceType for specific kubernetes resource
+ */
 public class JobResource implements NamespacedResourceType<Job> {
 
     private final MixedOperation<Job, JobList, ScalableResource<Job>> client;
 
+    /**
+     * Constructor
+     */
     public JobResource() {
         this.client = KubeResourceManager.getKubeClient().getClient().batch().v1().jobs();
     }
@@ -133,7 +139,7 @@ public class JobResource implements NamespacedResourceType<Job> {
     /**
      * Waits for {@link Job} to be ready (created/running)
      *
-     * @param resource
+     * @param resource resource
      * @return result of the readiness check
      */
     @Override
@@ -144,7 +150,7 @@ public class JobResource implements NamespacedResourceType<Job> {
     /**
      * Waits for {@link Job} to be deleted
      *
-     * @param resource
+     * @param resource resource
      * @return result of the deletion
      */
     @Override

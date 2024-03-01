@@ -11,11 +11,17 @@ import io.fabric8.kubernetes.api.model.ServiceList;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.skodjob.testframe.interfaces.NamespacedResourceType;
 
+/**
+ * Implementation of ResourceType for specific kubernetes resource
+ */
 public class ServiceResource implements NamespacedResourceType<Service> {
 
     private final MixedOperation<Service, ServiceList,
             io.fabric8.kubernetes.client.dsl.ServiceResource<Service>> client;
 
+    /**
+     * Constructor
+     */
     public ServiceResource() {
         this.client = KubeResourceManager.getKubeClient().getClient().services();
     }
@@ -85,7 +91,7 @@ public class ServiceResource implements NamespacedResourceType<Service> {
     /**
      * Waits for {@link Service} to be ready (created/running)
      *
-     * @param resource
+     * @param resource resource
      * @return result of the readiness check
      */
     @Override
@@ -96,7 +102,7 @@ public class ServiceResource implements NamespacedResourceType<Service> {
     /**
      * Waits for {@link Service} to be deleted
      *
-     * @param resource
+     * @param resource resource
      * @return result of the deletion
      */
     @Override

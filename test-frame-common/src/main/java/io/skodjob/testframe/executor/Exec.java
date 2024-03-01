@@ -35,17 +35,21 @@ import org.slf4j.LoggerFactory;
 
 import static java.lang.String.join;
 
+/**
+ * Utility class for executing external commands.
+ */
 public class Exec {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Exec.class);
 
     private static final Pattern ERROR_PATTERN = Pattern.compile("Error from server \\(([a-zA-Z0-9]+)\\):");
-    private static final Pattern INVALID_PATTERN = Pattern.compile("The ([a-zA-Z0-9]+) \"([a-z0-9.-]+)\" is invalid:");
+    private static final Pattern INVALID_PATTERN = Pattern
+            .compile("The ([a-zA-Z0-9]+) \"([a-z0-9.-]+)\" is invalid:");
     private static final Pattern PATH_SPLITTER = Pattern.compile(System.getProperty("path.separator"));
     private static final int MAXIMUM_EXEC_LOG_CHARACTER_SIZE = 2000;
     private static final Object LOCK = new Object();
 
-    public Process process;
+    private Process process;
     private String stdOut;
     private String stdErr;
     private StreamGobbler stdOutReader;
@@ -53,23 +57,40 @@ public class Exec {
     private Path logPath;
     private final boolean appendLineSeparator;
 
+    /**
+     * Constructs a new Exec instance.
+     */
     public Exec() {
         this.appendLineSeparator = true;
     }
 
+    /**
+     * Constructs a new Exec instance with a log path.
+     *
+     * @param logPath The path to log the output.
+     */
     public Exec(Path logPath) {
         this.appendLineSeparator = true;
         this.logPath = logPath;
     }
 
+    /**
+     * Constructs a new Exec instance with the specified option to append line separator.
+     *
+     * @param appendLineSeparator {@code true} to append line separator, {@code false} otherwise.
+     */
     public Exec(boolean appendLineSeparator) {
         this.appendLineSeparator = appendLineSeparator;
     }
 
+    /**
+     * Creates a new ExecBuilder instance.
+     *
+     * @return A new ExecBuilder instance.
+     */
     public static ExecBuilder builder() {
         return new ExecBuilder();
     }
-
 
     /**
      * Getter for stdOutput
@@ -89,19 +110,6 @@ public class Exec {
         return stdErr;
     }
 
-    public boolean isRunning() {
-        return process.isAlive();
-    }
-
-    public int getRetCode() {
-        LOGGER.info("Process: {}", process);
-        if (isRunning()) {
-            return -1;
-        } else {
-            return process.exitValue();
-        }
-    }
-
     /**
      * Method executes external command
      *
@@ -115,6 +123,7 @@ public class Exec {
     /**
      * Method executes external command
      *
+     * @param logToOutput enable output logging
      * @param command arguments for command
      * @return execution results
      */
@@ -136,6 +145,7 @@ public class Exec {
     /**
      * Method executes external command
      *
+     * @param input log input
      * @param command arguments for command
      * @return execution results
      */
@@ -146,6 +156,7 @@ public class Exec {
     /**
      * Method executes external command
      *
+     * @param input log input
      * @param command     arguments for command
      * @param timeout     timeout for execution
      * @param logToOutput log output or not
@@ -168,12 +179,12 @@ public class Exec {
         return exec(input, command, Collections.emptySet(), timeout, logToOutput, throwErrors);
     }
 
-
     /**
      * Method executes external command
      *
+     * @param input log input
      * @param command     arguments for command
-     * @param envVars
+     * @param envVars     session environment
      * @param timeout     timeout for execution
      * @param logToOutput log output or not
      * @param throwErrors look for errors in output and throws exception if true
@@ -247,13 +258,14 @@ public class Exec {
     /**
      * Method executes external command
      *
+     * @param input log input
      * @param commands  arguments for command
-     * @param envVars
+     * @param envVars session environments
      * @param timeoutMs timeout in ms for kill
      * @return returns ecode of execution
-     * @throws IOException
-     * @throws InterruptedException
-     * @throws ExecutionException
+     * @throws IOException IOException
+     * @throws InterruptedException InterruptedException
+     * @throws ExecutionException ExecutionException
      */
     public int execute(String input, List<String> commands, Set<EnvVar> envVars, long timeoutMs)
             throws IOException, InterruptedException, ExecutionException {
@@ -342,8 +354,10 @@ public class Exec {
         if (logPath != null) {
             try {
                 Files.createDirectories(logPath);
-                Files.write(Paths.get(logPath.toString(), "stdOutput.log"), stdOut.getBytes(Charset.defaultCharset()));
-                Files.write(Paths.get(logPath.toString(), "stdError.log"), stdErr.getBytes(Charset.defaultCharset()));
+                Files.writeString(Paths.get(logPath.toString(), "stdOutput.log"),
+                        stdOut, Charset.defaultCharset());
+                Files.writeString(Paths.get(logPath.toString(), "stdError.log"),
+                        stdErr, Charset.defaultCharset());
             } catch (Exception ex) {
                 LOGGER.warn("Cannot save output of execution: " + ex.getMessage());
             }
@@ -412,7 +426,7 @@ public class Exec {
          */
         public Future<String> read() {
             return CompletableFuture.supplyAsync(() -> {
-                try (Scanner scanner = new Scanner(is, StandardCharsets.UTF_8.name())) {
+                try (Scanner scanner = new Scanner(is, StandardCharsets.UTF_8)) {
                     while (scanner.hasNextLine()) {
                         data.append(scanner.nextLine());
                         if (appendLineSeparator) {

@@ -14,12 +14,23 @@ import io.skodjob.testframe.executor.Exec;
  */
 public class Oc extends BaseCmdKubeClient<Oc> {
 
+    /**
+     * The command name for oc.
+     */
     private static final String OC = "oc";
 
+    /**
+     * Constructs a new Oc instance.
+     */
     public Oc() {
         this(null);
     }
 
+    /**
+     * Constructs a new Oc instance with the specified configuration.
+     *
+     * @param config The configuration to use.
+     */
     public Oc(String config) {
         super(config);
     }
@@ -29,26 +40,53 @@ public class Oc extends BaseCmdKubeClient<Oc> {
         namespace = futureNamespace;
     }
 
+    /**
+     * Gets the default namespace.
+     *
+     * @return The default namespace.
+     */
     @Override
     public String defaultNamespace() {
         return "myproject";
     }
 
+    /**
+     * Gets the default OLM (Operator Lifecycle Manager) namespace.
+     *
+     * @return The default OLM namespace.
+     */
     @Override
     public String defaultOlmNamespace() {
         return "openshift-marketplace";
     }
 
+    /**
+     * Sets the namespace for the Oc instance.
+     *
+     * @param namespace The namespace to set.
+     * @return A new Oc instance with the specified namespace.
+     */
     @Override
     public Oc namespace(String namespace) {
         return new Oc(namespace, config);
     }
 
+    /**
+     * Gets the current namespace of the Oc instance.
+     *
+     * @return The current namespace.
+     */
     @Override
     public String namespace() {
         return namespace;
     }
 
+    /**
+     * Creates a new namespace.
+     *
+     * @param name The name of the namespace to create.
+     * @return The Oc instance.
+     */
     @Override
     public Oc createNamespace(String name) {
         try (Context context = defaultContext()) {
@@ -57,6 +95,13 @@ public class Oc extends BaseCmdKubeClient<Oc> {
         return this;
     }
 
+    /**
+     * Creates a new application.
+     *
+     * @param template The template file.
+     * @param params   The parameters for the template.
+     * @return The Oc instance.
+     */
     public Oc newApp(String template, Map<String, String> params) {
         List<String> cmd = namespacedCommand("new-app", template);
         for (Map.Entry<String, String> entry : params.entrySet()) {
@@ -68,11 +113,21 @@ public class Oc extends BaseCmdKubeClient<Oc> {
         return this;
     }
 
+    /**
+     * Gets the command name for oc.
+     *
+     * @return The command name.
+     */
     @Override
     public String cmd() {
         return OC;
     }
 
+    /**
+     * Gets the username.
+     *
+     * @return The username.
+     */
     @Override
     public String getUsername() {
         return Exec.exec(cmd(), "whoami").out();

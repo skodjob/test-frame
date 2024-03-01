@@ -19,6 +19,9 @@ import java.util.function.BooleanSupplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Wait utils
+ */
 public class Wait {
     private static final Logger LOGGER = LoggerFactory.getLogger(Wait.class);
 
@@ -140,6 +143,7 @@ public class Wait {
      * @param timeoutMs timeout specified in milliseconds
      * @param ready {@link BooleanSupplier} containing code, which should be executed each poll, verifying readiness
      *                                     of the particular thing
+     * @return completable future for waiting
      */
     public static CompletableFuture<Void> untilAsync(String description, long pollIntervalMs,
                                                      long timeoutMs, BooleanSupplier ready) {

@@ -12,11 +12,17 @@ import io.fabric8.kubernetes.client.dsl.NonNamespaceOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
 import io.skodjob.testframe.interfaces.ResourceType;
 
+/**
+ * Implementation of ResourceType for specific kubernetes resource
+ */
 public class CustomResourceDefinitionResource implements ResourceType<CustomResourceDefinition> {
 
     private final NonNamespaceOperation<CustomResourceDefinition, CustomResourceDefinitionList,
             Resource<CustomResourceDefinition>> client;
 
+    /**
+     * Constructor
+     */
     public CustomResourceDefinitionResource() {
         this.client = KubeResourceManager.getKubeClient().getClient().apiextensions().v1().customResourceDefinitions();
     }
@@ -86,7 +92,7 @@ public class CustomResourceDefinitionResource implements ResourceType<CustomReso
     /**
      * Waits for {@link CustomResourceDefinition} to be ready (created/running)
      *
-     * @param resource
+     * @param resource resource
      * @return result of the readiness check
      */
     @Override
@@ -97,7 +103,7 @@ public class CustomResourceDefinitionResource implements ResourceType<CustomReso
     /**
      * Waits for {@link CustomResourceDefinition} to be deleted
      *
-     * @param resource
+     * @param resource resource
      * @return result of the deletion
      */
     @Override

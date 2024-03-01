@@ -26,17 +26,22 @@ import org.slf4j.LoggerFactory;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+/**
+ * Manages Kubernetes resources for testing purposes.
+ */
 public class KubeResourceManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(KubeResourceManager.class);
-
     private static KubeResourceManager instance;
     private static KubeClient client;
     private static KubeCmdClient kubeCmdClient;
-
     private static ThreadLocal<ExtensionContext> testContext = new ThreadLocal<>();
-
     private static final Map<String, Stack<ResourceItem>> STORED_RESOURCES = new LinkedHashMap<>();
+    private ResourceType<?>[] resourceTypes;
 
+    /**
+     * Retrieves the singleton instance of KubeResourceManager.
+     * @return The singleton instance of KubeResourceManager.
+     */
     public static synchronized KubeResourceManager getInstance() {
         if (instance == null) {
             instance = new KubeResourceManager();
@@ -51,28 +56,50 @@ public class KubeResourceManager {
         return instance;
     }
 
+    /**
+     * Retrieves the Kubernetes client.
+     * @return The Kubernetes client.
+     */
     public static KubeClient getKubeClient() {
         return client;
     }
 
+    /**
+     * Retrieves the Kubernetes command-line client.
+     * @return The Kubernetes command-line client.
+     */
     public static KubeCmdClient getKubeCmdClient() {
         return kubeCmdClient;
     }
 
-    private ResourceType<?>[] resourceTypes;
-
+    /**
+     * Sets the test context.
+     * @param context The extension context.
+     */
     public static void setTestContext(ExtensionContext context) {
         testContext.set(context);
     }
 
+    /**
+     * Retrieves the test context.
+     * @return The extension context.
+     */
     public static ExtensionContext getTestContext() {
         return testContext.get();
     }
 
+    /**
+     * Sets the resource types.
+     * @param types The resource types implementing {@link ResourceType}
+     */
     public final void setResourceTypes(ResourceType... types) {
         this.resourceTypes = types;
     }
 
+    /**
+     * Pushes a resource item to the stack.
+     * @param item The resource item to push.
+     */
     public final void pushToStack(ResourceItem item) {
         synchronized (this) {
             STORED_RESOURCES.computeIfAbsent(getTestContext().getDisplayName(), k -> new Stack<>());
@@ -80,6 +107,11 @@ public class KubeResourceManager {
         }
     }
 
+    /**
+     * Pushes a resource to the stack.
+     * @param resource The resource to push.
+     * @param <T> The type of the resource.
+     */
     public final <T extends HasMetadata> void pushToStack(T resource) {
         synchronized (this) {
             STORED_RESOURCES.computeIfAbsent(getTestContext().getDisplayName(), k -> new Stack<>());
@@ -91,16 +123,32 @@ public class KubeResourceManager {
         }
     }
 
+    /**
+     * Creates resources without waiting for readiness.
+     * @param resources The resources to create.
+     * @param <T> The type of the resources.
+     */
     @SafeVarargs
     public final <T extends HasMetadata> void createResourceWithoutWait(T... resources) {
         createResource(false, resources);
     }
 
+    /**
+     * Creates resources and waits for readiness.
+     * @param resources The resources to create.
+     * @param <T> The type of the resources.
+     */
     @SafeVarargs
     public final <T extends HasMetadata> void createResourceWithWait(T... resources) {
         createResource(true, resources);
     }
 
+    /**
+     * Creates resources with or without waiting for readiness.
+     * @param waitReady Flag indicating whether to wait for readiness.
+     * @param resources The resources to create.
+     * @param <T> The type of the resources.
+     */
     @SafeVarargs
     private <T extends HasMetadata> void createResource(boolean waitReady, T... resources) {
         for (T resource : resources) {
@@ -142,6 +190,11 @@ public class KubeResourceManager {
         }
     }
 
+    /**
+     * Deletes resources.
+     * @param resources The resources to delete.
+     * @param <T> The type of the resources.
+     */
     @SafeVarargs
     public final <T extends HasMetadata> void deleteResource(T... resources) {
         for (T resource : resources) {
@@ -178,6 +231,11 @@ public class KubeResourceManager {
         }
     }
 
+    /**
+     * Updates resources.
+     * @param resources The resources to update.
+     * @param <T> The type of the resources.
+     */
     @SafeVarargs
     public final <T extends HasMetadata> void updateResource(T... resources) {
         for (T resource : resources) {
@@ -198,6 +256,13 @@ public class KubeResourceManager {
         }
     }
 
+    /**
+     * Waits for a resource condition to be fulfilled.
+     * @param resource The resource to wait for.
+     * @param condition The condition to fulfill.
+     * @param <T> The type of the resource.
+     * @return True if the condition is fulfilled, false otherwise.
+     */
     public final <T extends HasMetadata> boolean waitResourceCondition(T resource, ResourceCondition<T> condition) {
         assertNotNull(resource);
         assertNotNull(resource.getMetadata());
@@ -226,6 +291,9 @@ public class KubeResourceManager {
         return resourceReady[0];
     }
 
+    /**
+     * Deletes all stored resources.
+     */
     public void deleteResources() {
         LoggerUtils.logSeparator();
         if (!STORED_RESOURCES.containsKey(getTestContext().getDisplayName())
@@ -258,6 +326,12 @@ public class KubeResourceManager {
         LoggerUtils.logSeparator();
     }
 
+    /**
+     * Return ResourceType implementation if it is specified in resourceTypes based on kind
+     * @param resource HasMetadata resource to find
+     * @return {@link ResourceType}
+     * @param <T> The type of the resource.
+     */
     private <T extends HasMetadata> ResourceType<T> findResourceType(T resource) {
         // other no conflicting types
         for (ResourceType<?> type : resourceTypes) {

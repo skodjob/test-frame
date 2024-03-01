@@ -13,6 +13,12 @@ import java.lang.annotation.Target;
 
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
+/**
+ * This annotation is used to manage resources in JUnit tests.
+ * It is applied at the class level.
+ * <p>
+ * It uses the {@link TestVisualSeparatorExtension}
+ */
 @Target(ElementType.TYPE)
 @Retention(RUNTIME)
 @ExtendWith(TestVisualSeparatorExtension.class)

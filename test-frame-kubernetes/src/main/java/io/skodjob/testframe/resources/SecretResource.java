@@ -12,10 +12,16 @@ import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
 import io.skodjob.testframe.interfaces.NamespacedResourceType;
 
+/**
+ * Implementation of ResourceType for specific kubernetes resource
+ */
 public class SecretResource implements NamespacedResourceType<Secret> {
 
     private final MixedOperation<Secret, SecretList, Resource<Secret>> client;
 
+    /**
+     * Constructor
+     */
     public SecretResource() {
         this.client = KubeResourceManager.getKubeClient().getClient().secrets();
     }
@@ -91,8 +97,8 @@ public class SecretResource implements NamespacedResourceType<Secret> {
     }
 
     /**
-     * @param resourceName
-     * @param editor
+     * @param resourceName name
+     * @param editor modifier
      */
     @Override
     public void replace(String resourceName, Consumer<Secret> editor) {
@@ -102,9 +108,9 @@ public class SecretResource implements NamespacedResourceType<Secret> {
     }
 
     /**
-     * Waits for {@link T} to be ready (created/running)
+     * Waits for resource to be ready (created/running)
      *
-     * @param resource
+     * @param resource resource
      * @return result of the readiness check
      */
     @Override
@@ -113,9 +119,9 @@ public class SecretResource implements NamespacedResourceType<Secret> {
     }
 
     /**
-     * Waits for {@link T} to be deleted
+     * Waits for resource to be deleted
      *
-     * @param resource
+     * @param resource resource
      * @return result of the deletion
      */
     @Override
@@ -135,9 +141,9 @@ public class SecretResource implements NamespacedResourceType<Secret> {
     }
 
     /**
-     * @param namespaceName
-     * @param resourceName
-     * @param editor
+     * @param namespaceName namespace
+     * @param resourceName resource
+     * @param editor modifier
      */
     @Override
     public void replaceInNamespace(String namespaceName, String resourceName, Consumer<Secret> editor) {

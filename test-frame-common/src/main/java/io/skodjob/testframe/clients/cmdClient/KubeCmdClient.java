@@ -5,203 +5,392 @@
 package io.skodjob.testframe.clients.cmdClient;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
 import io.skodjob.testframe.executor.ExecResult;
 
-import static java.util.Arrays.asList;
-import static java.util.stream.Collectors.toList;
-
 /**
- * Abstraction for a kubernetes client.
+ * Abstraction for a Kubernetes client.
  *
  * @param <K> The subtype of KubeClient, for fluency.
  */
 public interface KubeCmdClient<K extends KubeCmdClient<K>> {
 
+    /**
+     * Retrieves the default namespace for the Kubernetes client.
+     *
+     * @return The default namespace.
+     */
     String defaultNamespace();
 
+    /**
+     * Retrieves the default OLM (Operator Lifecycle Manager) namespace for the Kubernetes client.
+     *
+     * @return The default OLM namespace.
+     */
     String defaultOlmNamespace();
 
     /**
-     * Deletes the resources by resource name.
+     * Deletes resources by resource name.
+     *
+     * @param resourceType The type of the resource to delete.
+     * @param resourceName The name of the resource to delete.
+     * @return This kube client.
      */
     K deleteByName(String resourceType, String resourceName);
 
+    /**
+     * Sets the namespace for subsequent operations.
+     *
+     * @param namespace The namespace to set.
+     * @return This kube client.
+     */
     KubeCmdClient<K> namespace(String namespace);
 
     /**
-     * Returns namespace for cluster
+     * Retrieves the currently set namespace for the Kubernetes client.
+     *
+     * @return The currently set namespace.
      */
     String namespace();
 
     /**
-     * Creates the resources in the given files.
+     * Creates resources from the provided files.
+     *
+     * @param files The files containing resource definitions.
+     * @return This kube client.
      */
     K create(File... files);
 
     /**
-     * Creates the resources in the given files.
+     * Applies resource changes from the provided files.
+     *
+     * @param files The files containing resource changes.
+     * @return This kube client.
      */
     K apply(File... files);
 
     /**
-     * Deletes the resources in the given files.
+     * Deletes resources specified in the provided files.
+     *
+     * @param files The files containing resources to delete.
+     * @return This kube client.
      */
     K delete(File... files);
 
+    /**
+     * Creates resources from YAML files specified by file paths.
+     *
+     * @param files The paths to YAML files containing resource definitions.
+     * @return This kube client.
+     */
     default K create(String... files) {
-        return create(asList(files).stream().map(File::new).collect(toList()).toArray(new File[0]));
-    }
-
-    default K apply(String... files) {
-        return apply(asList(files).stream().map(File::new).collect(toList()).toArray(new File[0]));
-    }
-
-    default K delete(String... files) {
-        return delete(asList(files).stream().map(File::new).collect(toList()).toArray(new File[0]));
+        return create(Arrays.stream(files).map(File::new).toArray(File[]::new));
     }
 
     /**
-     * Replaces the resources in the given files.
+     * Applies resource changes from YAML files specified by file paths.
+     *
+     * @param files The paths to YAML files containing resource changes.
+     * @return This kube client.
+     */
+    default K apply(String... files) {
+        return apply(Arrays.stream(files).map(File::new).toArray(File[]::new));
+    }
+
+    /**
+     * Deletes resources specified in YAML files specified by file paths.
+     *
+     * @param files The paths to YAML files containing resources to delete.
+     * @return This kube client.
+     */
+    default K delete(String... files) {
+        return delete(Arrays.stream(files).map(File::new).toArray(File[]::new));
+    }
+
+    /**
+     * Replaces resources with the contents of the provided files.
+     *
+     * @param files The files containing resources to replace.
+     * @return This kube client.
      */
     K replace(File... files);
 
+    /**
+     * Applies resource content within the current namespace.
+     *
+     * @param yamlContent The YAML content representing the resources.
+     * @return This kube client.
+     */
     K applyContentInNamespace(String yamlContent);
 
+    /**
+     * Deletes resource content within the current namespace.
+     *
+     * @param yamlContent The YAML content representing the resources to delete.
+     * @return This kube client.
+     */
     K deleteContentInNamespace(String yamlContent);
 
+    /**
+     * Applies resource content.
+     *
+     * @param yamlContent The YAML content representing the resources.
+     * @return This kube client.
+     */
     K applyContent(String yamlContent);
 
+    /**
+     * Deletes resource content.
+     *
+     * @param yamlContent The YAML content representing the resources to delete.
+     * @return This kube client.
+     */
     K deleteContent(String yamlContent);
 
+    /**
+     * Creates a namespace with the given name.
+     *
+     * @param name The name of the namespace to create.
+     * @return This kube client.
+     */
     K createNamespace(String name);
 
+    /**
+     * Deletes the namespace with the given name.
+     *
+     * @param name The name of the namespace to delete.
+     * @return This kube client.
+     */
     K deleteNamespace(String name);
 
     /**
-     * Scale resource using the scale subresource
+     * Scales a resource by its kind and name.
      *
-     * @param kind     Kind of the resource which should be scaled
-     * @param name     Name of the resource which should be scaled
-     * @param replicas Number of replicas to which the resource should be scaled
-     * @return This kube client
+     * @param kind     The kind of the resource.
+     * @param name     The name of the resource.
+     * @param replicas The number of replicas.
+     * @return This kube client.
      */
     K scaleByName(String kind, String name, int replicas);
 
     /**
-     * Execute the given {@code command} in the given {@code pod}.
+     * Executes a command within a pod.
      *
-     * @param pod     The pod
-     * @param command The command
-     * @return The process result.
+     * @param pod     The name of the pod.
+     * @param command The command to execute.
+     * @return The execution result.
      */
     ExecResult execInPod(String pod, String... command);
 
+    /**
+     * Executes a command within the current namespace.
+     *
+     * @param commands The commands to execute.
+     * @return The execution result.
+     */
     ExecResult execInCurrentNamespace(String... commands);
 
+    /**
+     * Executes a command within the current namespace with logging to output control.
+     *
+     * @param logToOutput Determines if the output should be logged.
+     * @param commands    The commands to execute.
+     * @return The execution result.
+     */
     ExecResult execInCurrentNamespace(boolean logToOutput, String... commands);
 
     /**
-     * Execute the given {@code command} in the given {@code container} which is deployed in {@code pod}.
+     * Executes a command within a pod container.
      *
-     * @param pod       The pod
-     * @param container The container
-     * @param command   The command
-     * @return The process result.
+     * @param pod       The name of the pod.
+     * @param container The name of the container.
+     * @param command   The command to execute.
+     * @return The execution result.
      */
     ExecResult execInPodContainer(String pod, String container, String... command);
 
+    /**
+     * Executes a command within a pod container with logging to output control.
+     *
+     * @param logToOutput Determines if the output should be logged.
+     * @param pod         The name of the pod.
+     * @param container   The name of the container.
+     * @param command     The command to execute.
+     * @return The execution result.
+     */
     ExecResult execInPodContainer(boolean logToOutput, String pod, String container, String... command);
 
     /**
-     * Execute the given {@code command}.
+     * Executes a command.
      *
-     * @param command The command
-     * @return The process result.
+     * @param command The command to execute.
+     * @return The execution result.
      */
     ExecResult exec(String... command);
 
     /**
-     * Execute the given {@code command}. You can specify if potential failure will thrown the exception or not.
+     * Executes a command with control over throwing exceptions on failure.
      *
-     * @param throwError parameter which control thrown exception in case of failure
-     * @param command    The command
-     * @return The process result.
+     * @param throwError Determines if an exception should be thrown on failure.
+     * @param command    The command to execute.
+     * @return The execution result.
      */
     ExecResult exec(boolean throwError, String... command);
 
     /**
-     * Execute the given {@code command}. You can specify if potential failure will thrown the exception or not.
+     * Executes a command with control over throwing exceptions on failure and logging to output control.
      *
-     * @param throwError  parameter which control thrown exception in case of failure
-     * @param command     The command
-     * @param logToOutput determines if we want to print whole output of command
-     * @return The process result.
+     * @param throwError  Determines if an exception should be thrown on failure.
+     * @param logToOutput Determines if the output should be logged.
+     * @param command     The command to execute.
+     * @return The execution result.
      */
     ExecResult exec(boolean throwError, boolean logToOutput, String... command);
 
     /**
-     * Get the content of the given {@code resource} with the given {@code name} as YAML.
+     * Retrieves the YAML content of a resource.
      *
-     * @param resource     The type of resource (e.g. "cm").
+     * @param resource     The type of the resource.
      * @param resourceName The name of the resource.
-     * @return The resource YAML.
+     * @return The YAML content of the resource.
      */
     String get(String resource, String resourceName);
 
     /**
-     * Get a list of events in a given namespace
+     * Retrieves a list of events within the current namespace.
      *
-     * @return List of events
+     * @return The list of events.
      */
     String getEvents();
 
+    /**
+     * Retrieves a list of resources by type.
+     *
+     * @param resourceType The type of the resources.
+     * @return The list of resources.
+     */
     List<String> list(String resourceType);
 
+    /**
+     * Retrieves the YAML content of a resource by type and name.
+     *
+     * @param resourceType The type of the resource.
+     * @param resourceName The name of the resource.
+     * @return The YAML content of the resource.
+     */
     String getResourceAsYaml(String resourceType, String resourceName);
 
+    /**
+     * Retrieves the YAML content of resources by type.
+     *
+     * @param resourceType The type of the resources.
+     * @return The YAML content of the resources.
+     */
     String getResourcesAsYaml(String resourceType);
 
+    /**
+     * Creates a resource from a template and applies it.
+     *
+     * @param template The template for the resource.
+     * @param params   The parameters for the template.
+     */
     void createResourceAndApply(String template, Map<String, String> params);
 
+    /**
+     * Retrieves a description of a resource.
+     *
+     * @param resourceType The type of the resource.
+     * @param resourceName The name of the resource.
+     * @return The description of the resource.
+     */
     String describe(String resourceType, String resourceName);
 
+    /**
+     * Retrieves logs for a pod.
+     *
+     * @param pod The name of the pod.
+     * @return The logs for the pod.
+     */
     default String logs(String pod) {
         return logs(pod, null);
     }
 
+    /**
+     * Retrieves logs for a pod container.
+     *
+     * @param pod       The name of the pod.
+     * @param container The name of the container.
+     * @return The logs for the pod container.
+     */
     String logs(String pod, String container);
 
     /**
-     * @param resourceType The type of resource
-     * @param resourceName The name of resource
-     * @param sinceSeconds Return logs newer than a relative duration like 5s, 2m, or 3h.
-     * @param grepPattern  Grep patterns for search
-     * @return Grep result as string
+     * Searches for patterns in the logs of a resource.
+     *
+     * @param resourceType The type of the resource.
+     * @param resourceName The name of the resource.
+     * @param sinceSeconds The duration for the logs (e.g., "5s" for 5 seconds).
+     * @param grepPattern  The patterns to search for.
+     * @return The search result.
      */
     String searchInLog(String resourceType, String resourceName, long sinceSeconds, String... grepPattern);
 
     /**
-     * @param resourceType      The type of resource
-     * @param resourceName      The name of resource
-     * @param resourceContainer The name of resource container
-     * @param sinceSeconds      Return logs newer than a relative duration like 5s, 2m, or 3h.
-     * @param grepPattern       Grep patterns for search
-     * @return Grep result as string
+     * Searches for patterns in the logs of a resource container.
+     *
+     * @param resourceType      The type of the resource.
+     * @param resourceName      The name of the resource.
+     * @param resourceContainer The name of the resource container.
+     * @param sinceSeconds      The duration for the logs (e.g., "5s" for 5 seconds).
+     * @param grepPattern       The patterns to search for.
+     * @return The search result.
      */
     String searchInLog(String resourceType, String resourceName, String resourceContainer,
                        long sinceSeconds, String... grepPattern);
 
+    /**
+     * Retrieves the JSON content of a resource.
+     *
+     * @param resourceType The type of the resource.
+     * @param resourceName The name of the resource.
+     * @return The JSON content of the resource.
+     */
     String getResourceAsJson(String resourceType, String resourceName);
 
+    /**
+     * Retrieves a list of resources by label.
+     *
+     * @param resourceType The type of the resources.
+     * @param label        The label to filter by.
+     * @return The list of resources.
+     */
     List<String> listResourcesByLabel(String resourceType, String label);
 
+    /**
+     * Retrieves the command associated with the Kubernetes client.
+     *
+     * @return The command string.
+     */
     String cmd();
 
+    /**
+     * Processes a file with specific domain logic.
+     *
+     * @param domain The domain specific parameters.
+     * @param file   The file to process.
+     * @param c      The consumer to handle processing.
+     * @return This kube client.
+     */
     K process(Map<String, String> domain, String file, Consumer<String> c);
 
+    /**
+     * Retrieves the username associated with the Kubernetes client.
+     *
+     * @return The username.
+     */
     String getUsername();
 }

@@ -15,6 +15,9 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Utility methods for TestFrame.
+ */
 @SuppressWarnings({"checkstyle:ClassFanOutComplexity"})
 public final class TestFrameUtils {
 
@@ -31,11 +34,16 @@ public final class TestFrameUtils {
     public static final TimeUnit DEFAULT_TIMEOUT_UNIT = TimeUnit.SECONDS;
 
     private TestFrameUtils() {
-        // All static methods
     }
 
+    /**
+     * Retrieves a file from the classpath as an input stream.
+     *
+     * @param fileName The name of the file.
+     * @return An input stream for the file.
+     * @throws IllegalArgumentException if the file is not found.
+     */
     public static InputStream getFileFromResourceAsStream(String fileName) {
-
         // The class loader that loaded the class
         ClassLoader classLoader = TestFrameUtils.class.getClassLoader();
         InputStream inputStream = classLoader.getResourceAsStream(fileName);
@@ -46,9 +54,18 @@ public final class TestFrameUtils {
         } else {
             return inputStream;
         }
-
     }
 
+    /**
+     * Parses YAML configuration into an object.
+     *
+     * @param yamlFile The YAML file content.
+     * @param c        The class of the object to parse into.
+     * @param <T>      The type of the object.
+     * @return The parsed object.
+     * @throws IllegalArgumentException if the YAML is invalid.
+     * @throws RuntimeException         if an I/O error occurs.
+     */
     public static <T> T configFromYaml(String yamlFile, Class<T> c) {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         try {
@@ -61,11 +78,13 @@ public final class TestFrameUtils {
     }
 
     /**
-     * Repeat command n-times
+     * Runs a callable function until it passes or the maximum number of retries is reached.
      *
-     * @param retry count of remaining retries
-     * @param fn request function
-     * @return The value from the first successful call to the callable
+     * @param retry The maximum number of retries.
+     * @param fn    The callable function.
+     * @param <T>   The return type of the callable.
+     * @return The value from the first successful call to the callable.
+     * @throws IllegalStateException if the callable does not pass after all retries.
      */
     public static <T> T runUntilPass(int retry, Callable<T> fn) {
         for (int i = 0; i < retry; i++) {

@@ -12,10 +12,16 @@ import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
 import io.skodjob.testframe.interfaces.NamespacedResourceType;
 
+/**
+ * Implementation of ResourceType for specific kubernetes resource
+ */
 public class RoleResource implements NamespacedResourceType<Role> {
 
     private final MixedOperation<Role, RoleList, Resource<Role>> client;
 
+    /**
+     * Constructor
+     */
     public RoleResource() {
         this.client = KubeResourceManager.getKubeClient().getClient().rbac().roles();
     }
@@ -85,7 +91,7 @@ public class RoleResource implements NamespacedResourceType<Role> {
     /**
      * Waits for {@link Role} to be ready (created/running)
      *
-     * @param resource
+     * @param resource resource
      * @return result of the readiness check
      */
     @Override
@@ -96,7 +102,7 @@ public class RoleResource implements NamespacedResourceType<Role> {
     /**
      * Waits for {@link Role} to be deleted
      *
-     * @param resource
+     * @param resource resource
      * @return result of the deletion
      */
     @Override

@@ -12,10 +12,16 @@ import io.fabric8.kubernetes.client.dsl.NonNamespaceOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
 import io.skodjob.testframe.interfaces.ResourceType;
 
+/**
+ * Implementation of ResourceType for specific kubernetes resource
+ */
 public class ClusterRoleResource implements ResourceType<ClusterRole> {
 
     private final NonNamespaceOperation<ClusterRole, ClusterRoleList, Resource<ClusterRole>> client;
 
+    /**
+     * Constructor
+     */
     public ClusterRoleResource() {
         this.client = KubeResourceManager.getKubeClient().getClient().rbac().clusterRoles();
     }
@@ -85,7 +91,7 @@ public class ClusterRoleResource implements ResourceType<ClusterRole> {
     /**
      * Waits for {@link ClusterRole} to be ready (created/running)
      *
-     * @param resource
+     * @param resource resource
      * @return result of the readiness check
      */
     @Override
@@ -96,7 +102,7 @@ public class ClusterRoleResource implements ResourceType<ClusterRole> {
     /**
      * Waits for {@link ClusterRole} to be deleted
      *
-     * @param resource
+     * @param resource resource
      * @return result of the deletion
      */
     @Override
