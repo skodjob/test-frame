@@ -9,12 +9,23 @@ package io.skodjob.testframe.clients.cmdClient;
  */
 public class Kubectl extends BaseCmdKubeClient<Kubectl> {
 
+    /**
+     * The command name for kubectl.
+     */
     public static final String KUBECTL = "kubectl";
 
+    /**
+     * Constructs a new Kubectl instance.
+     */
     public Kubectl() {
         this(null);
     }
 
+    /**
+     * Constructs a new Kubectl instance with the specified configuration.
+     *
+     * @param config The configuration to use.
+     */
     public Kubectl(String config) {
         super(config);
     }
@@ -24,31 +35,62 @@ public class Kubectl extends BaseCmdKubeClient<Kubectl> {
         namespace = futureNamespace;
     }
 
+    /**
+     * Sets the namespace for the Kubectl instance.
+     *
+     * @param namespace The namespace to set.
+     * @return A new Kubectl instance with the specified namespace.
+     */
     @Override
     public Kubectl namespace(String namespace) {
         return new Kubectl(namespace, config);
     }
 
+    /**
+     * Gets the current namespace of the Kubectl instance.
+     *
+     * @return The current namespace.
+     */
     @Override
     public String namespace() {
         return namespace;
     }
 
+    /**
+     * Gets the default namespace.
+     *
+     * @return The default namespace.
+     */
     @Override
     public String defaultNamespace() {
         return "default";
     }
 
+    /**
+     * Gets the default OLM (Operator Lifecycle Manager) namespace.
+     *
+     * @return The default OLM namespace.
+     */
     @Override
     public String defaultOlmNamespace() {
         return "operators";
     }
 
+    /**
+     * Gets the command name for kubectl.
+     *
+     * @return The command name.
+     */
     @Override
     public String cmd() {
         return KUBECTL;
     }
 
+    /**
+     * Gets the username.
+     *
+     * @return The username.
+     */
     @Override
     public String getUsername() {
         // TODO - implement this!

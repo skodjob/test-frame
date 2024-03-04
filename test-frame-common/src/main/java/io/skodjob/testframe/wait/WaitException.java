@@ -4,7 +4,16 @@
  */
 package io.skodjob.testframe.wait;
 
+/**
+ * An exception indicating a failure while waiting.
+ */
 public class WaitException extends RuntimeException {
+
+    /**
+     * Constructs a new WaitException with the specified detail message.
+     *
+     * @param message The detail message.
+     */
     public WaitException(String message) {
         super(message);
     }

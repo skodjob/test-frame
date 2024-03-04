@@ -12,10 +12,16 @@ import io.skodjob.testframe.interfaces.NamespacedResourceType;
 
 import java.util.function.Consumer;
 
+/**
+ * Implementation of ResourceType for specific kubernetes resource
+ */
 public class SubscriptionResource implements NamespacedResourceType<Subscription> {
 
     private final MixedOperation<Subscription, SubscriptionList, Resource<Subscription>> client;
 
+    /**
+     * Constructor
+     */
     public SubscriptionResource() {
         this.client = KubeResourceManager.getKubeClient().getOpenShiftClient().operatorHub().subscriptions();
     }
@@ -85,7 +91,7 @@ public class SubscriptionResource implements NamespacedResourceType<Subscription
     /**
      * Waits for {@link Subscription} to be ready (created/running)
      *
-     * @param resource
+     * @param resource resource
      * @return result of the readiness check
      */
     @Override
@@ -96,7 +102,7 @@ public class SubscriptionResource implements NamespacedResourceType<Subscription
     /**
      * Waits for {@link Subscription} to be deleted
      *
-     * @param resource
+     * @param resource resource
      * @return result of the deletion
      */
     @Override

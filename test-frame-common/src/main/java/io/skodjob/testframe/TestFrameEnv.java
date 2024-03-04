@@ -26,7 +26,6 @@ public class TestFrameEnv {
     private static final Logger LOGGER = LoggerFactory.getLogger(TestFrameEnv.class);
     private static final Map<String, String> VALUES = new HashMap<>();
     private static final Map<String, Object> YAML_DATA = loadConfigurationFile();
-    public static final String USER_PATH = System.getProperty("user.dir");
 
     private static final String CONFIG_FILE_PATH_ENV = "ENV_FILE";
     private static final String CLIENT_TYPE_ENV = "CLIENT_TYPE";
@@ -36,15 +35,36 @@ public class TestFrameEnv {
     private static final String URL_ENV = "KUBE_URL";
 
     /**
-     * Set values
+     * Default user dir of exec process
+     */
+    public static final String USER_PATH = System.getProperty("user.dir");
+    /**
+     * The type of client.
      */
     public static final String CLIENT_TYPE = getOrDefault(CLIENT_TYPE_ENV, TestFrameConstants.KUBERNETES_CLIENT);
+
+    /**
+     * The username for accessing the Kubernetes cluster.
+     */
     public static final String KUBE_USERNAME = getOrDefault(USERNAME_ENV, null);
+
+    /**
+     * The password for accessing the Kubernetes cluster.
+     */
     public static final String KUBE_PASSWORD = getOrDefault(PASSWORD_ENV, null);
+
+    /**
+     * The token for accessing the Kubernetes cluster.
+     */
     public static final String KUBE_TOKEN = getOrDefault(TOKEN_ENV, null);
+
+    /**
+     * The URL for accessing the Kubernetes cluster.
+     */
     public static final String KUBE_URL = getOrDefault(URL_ENV, null);
 
     private TestFrameEnv() {
+        // Private constructor to prevent instantiation
     }
 
     static {
@@ -61,7 +81,11 @@ public class TestFrameEnv {
         LoggerUtils.logSeparator("-", 30);
     }
 
+    /**
+     * Print method.
+     */
     public static void print() {
+        // Method implementation
     }
 
     private static String getOrDefault(String varName, String defaultValue) {
@@ -90,7 +114,7 @@ public class TestFrameEnv {
             File yamlFile = new File(config).getAbsoluteFile();
             return yaml.load(new FileInputStream(yamlFile));
         } catch (IOException ex) {
-            LOGGER.info("Yaml configuration not provider or not exists");
+            LOGGER.info("Yaml configuration not provided or does not exist");
             return Collections.emptyMap();
         }
     }

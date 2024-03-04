@@ -12,10 +12,16 @@ import io.skodjob.testframe.interfaces.NamespacedResourceType;
 
 import java.util.function.Consumer;
 
+/**
+ * Implementation of ResourceType for specific kubernetes resource
+ */
 public class OperatorGroupResource implements NamespacedResourceType<OperatorGroup> {
 
     private final MixedOperation<OperatorGroup, OperatorGroupList, Resource<OperatorGroup>> client;
 
+    /**
+     * Constructor
+     */
     public OperatorGroupResource() {
         this.client = KubeResourceManager.getKubeClient().getOpenShiftClient().operatorHub().operatorGroups();
     }
@@ -85,7 +91,7 @@ public class OperatorGroupResource implements NamespacedResourceType<OperatorGro
     /**
      * Waits for {@link OperatorGroup} to be ready (created/running)
      *
-     * @param resource
+     * @param resource resource
      * @return result of the readiness check
      */
     @Override
@@ -96,7 +102,7 @@ public class OperatorGroupResource implements NamespacedResourceType<OperatorGro
     /**
      * Waits for {@link OperatorGroup} to be deleted
      *
-     * @param resource
+     * @param resource resource
      * @return result of the deletion
      */
     @Override

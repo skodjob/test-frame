@@ -13,10 +13,16 @@ import io.fabric8.kubernetes.client.dsl.NonNamespaceOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
 import io.skodjob.testframe.interfaces.ResourceType;
 
+/**
+ * Implementation of ResourceType for specific kubernetes resource
+ */
 public class NamespaceResource implements ResourceType<Namespace> {
 
     private final NonNamespaceOperation<Namespace, NamespaceList, Resource<Namespace>> client;
 
+    /**
+     * Constructor
+     */
     public NamespaceResource() {
         this.client = KubeResourceManager.getKubeClient().getClient().namespaces();
     }
@@ -39,6 +45,11 @@ public class NamespaceResource implements ResourceType<Namespace> {
         return client;
     }
 
+    /**
+     * Creates namespace object and create
+     *
+     * @param namespaceName name of the namespace
+     */
     public void create(String namespaceName) {
         Namespace namespace = new NamespaceBuilder()
             .withNewMetadata()
@@ -96,7 +107,7 @@ public class NamespaceResource implements ResourceType<Namespace> {
     /**
      * Waits for {@link Namespace} to be ready (created/running)
      *
-     * @param resource
+     * @param resource resource
      * @return result of the readiness check
      */
     @Override
@@ -107,7 +118,7 @@ public class NamespaceResource implements ResourceType<Namespace> {
     /**
      * Waits for {@link Namespace} to be deleted
      *
-     * @param resource
+     * @param resource resource
      * @return result of the deletion
      */
     @Override

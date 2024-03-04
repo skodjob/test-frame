@@ -12,10 +12,16 @@ import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.RollableScalableResource;
 import io.skodjob.testframe.interfaces.NamespacedResourceType;
 
+/**
+ * Implementation of ResourceType for specific kubernetes resource
+ */
 public class DeploymentResource implements NamespacedResourceType<Deployment> {
 
     private final MixedOperation<Deployment, DeploymentList, RollableScalableResource<Deployment>> client;
 
+    /**
+     * Constructor
+     */
     public DeploymentResource() {
         this.client = KubeResourceManager.getKubeClient().getClient().apps().deployments();
     }
@@ -85,7 +91,7 @@ public class DeploymentResource implements NamespacedResourceType<Deployment> {
     /**
      * Waits for {@link Deployment} to be ready (created/running)
      *
-     * @param resource
+     * @param resource resource
      * @return result of the readiness check
      */
     @Override
@@ -96,7 +102,7 @@ public class DeploymentResource implements NamespacedResourceType<Deployment> {
     /**
      * Waits for {@link Deployment} to be deleted
      *
-     * @param resource
+     * @param resource resource
      * @return result of the deletion
      */
     @Override

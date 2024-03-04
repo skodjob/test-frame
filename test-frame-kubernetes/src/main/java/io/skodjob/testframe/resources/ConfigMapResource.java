@@ -12,9 +12,15 @@ import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
 import io.skodjob.testframe.interfaces.NamespacedResourceType;
 
+/**
+ * Implementation of ResourceType for specific kubernetes resource
+ */
 public class ConfigMapResource implements NamespacedResourceType<ConfigMap> {
     private final MixedOperation<ConfigMap, ConfigMapList, Resource<ConfigMap>> client;
 
+    /**
+     * Constructor
+     */
     public ConfigMapResource() {
         this.client = KubeResourceManager.getKubeClient().getClient().configMaps();
     }
@@ -132,7 +138,7 @@ public class ConfigMapResource implements NamespacedResourceType<ConfigMap> {
     /**
      * Waits for {@link ConfigMap} to be ready (created/running)
      *
-     * @param resource
+     * @param resource resource
      * @return result of the readiness check
      */
     @Override
@@ -143,7 +149,7 @@ public class ConfigMapResource implements NamespacedResourceType<ConfigMap> {
     /**
      * Waits for {@link ConfigMap} to be deleted
      *
-     * @param resource
+     * @param resource resource
      * @return result of the deletion
      */
     @Override

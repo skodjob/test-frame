@@ -4,7 +4,15 @@
  */
 package io.skodjob.testframe.interfaces;
 
+/**
+ * A functional interface that represents a block of code that can throw an exception.
+ */
 @FunctionalInterface
 public interface ThrowableRunner {
+    /**
+     * Executes the block of code.
+     *
+     * @throws Exception if an error occurs while executing the code block.
+     */
     void run() throws Exception;
 }

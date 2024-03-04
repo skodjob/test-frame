@@ -12,12 +12,18 @@ import io.fabric8.kubernetes.client.dsl.NonNamespaceOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
 import io.skodjob.testframe.interfaces.ResourceType;
 
+/**
+ * Implementation of ResourceType for specific kubernetes resource
+ */
 public class ValidatingWebhookConfigurationResource implements ResourceType<ValidatingWebhookConfiguration> {
 
 
     private final NonNamespaceOperation<ValidatingWebhookConfiguration, ValidatingWebhookConfigurationList,
             Resource<ValidatingWebhookConfiguration>> client;
 
+    /**
+     * Constructor
+     */
     public ValidatingWebhookConfigurationResource() {
         this.client = KubeResourceManager.getKubeClient().getClient()
                 .admissionRegistration()
@@ -90,7 +96,7 @@ public class ValidatingWebhookConfigurationResource implements ResourceType<Vali
     /**
      * Waits for {@link ValidatingWebhookConfiguration} to be ready (created/running)
      *
-     * @param resource
+     * @param resource resource
      * @return result of the readiness check
      */
     @Override
@@ -101,7 +107,7 @@ public class ValidatingWebhookConfigurationResource implements ResourceType<Vali
     /**
      * Waits for {@link ValidatingWebhookConfiguration} to be deleted
      *
-     * @param resource
+     * @param resource resource
      * @return result of the deletion
      */
     @Override

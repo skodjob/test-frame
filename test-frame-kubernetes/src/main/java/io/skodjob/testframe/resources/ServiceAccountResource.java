@@ -11,11 +11,17 @@ import io.fabric8.kubernetes.api.model.ServiceAccountList;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.skodjob.testframe.interfaces.NamespacedResourceType;
 
+/**
+ * Implementation of ResourceType for specific kubernetes resource
+ */
 public class ServiceAccountResource implements NamespacedResourceType<ServiceAccount> {
 
     private final MixedOperation<ServiceAccount, ServiceAccountList,
             io.fabric8.kubernetes.client.dsl.ServiceAccountResource> client;
 
+    /**
+     * Constructor
+     */
     public ServiceAccountResource() {
         this.client = KubeResourceManager.getKubeClient().getClient().serviceAccounts();
     }
@@ -85,7 +91,7 @@ public class ServiceAccountResource implements NamespacedResourceType<ServiceAcc
     /**
      * Waits for {@link ServiceAccount} to be ready (created/running)
      *
-     * @param resource
+     * @param resource resource
      * @return result of the readiness check
      */
     @Override
@@ -96,7 +102,7 @@ public class ServiceAccountResource implements NamespacedResourceType<ServiceAcc
     /**
      * Waits for {@link ServiceAccount} to be deleted
      *
-     * @param resource
+     * @param resource resource
      * @return result of the deletion
      */
     @Override
