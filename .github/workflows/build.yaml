@@ -25,3 +25,6 @@ jobs:
 
       - name: Build
         run: mvn --batch-mode install
+
+      - name: Run spotbugs check
+        run: mvn spotbugs:spotbugs
