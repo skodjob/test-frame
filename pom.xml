@@ -77,11 +77,11 @@
         <fabric8.version>6.10.0</fabric8.version>
         <logback.version>1.4.12</logback.version>
 
+        <!--   Build tools' properties     -->
+        <spotbugs.version>4.7.3</spotbugs.version>
         <maven.spotbugs.version>4.7.3.4</maven.spotbugs.version>
         <maven.checkstyle.version>3.3.0</maven.checkstyle.version>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
         <maven.source.plugin.version>3.3.0</maven.source.plugin.version>
         <maven.deploy.plugin.version>3.1.1</maven.deploy.plugin.version>
         <maven.gpg.version>3.1.0</maven.gpg.version>
@@ -184,6 +184,26 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
+                <version>${maven.spotbugs.version}</version><dependencies>
+                <!-- overwrite dependency on spotbugs if you want to specify the version of˓→spotbugs -->
+                <dependency>
+                    <groupId>com.github.spotbugs</groupId>
+                    <artifactId>spotbugs</artifactId>
+                    <version>${spotbugs.version}</version>
+                </dependency></dependencies>
+                <configuration>
+                    <effort>Max</effort>
+                    <!-- Reports all bugs (other values are medium and max) -->
+                    <threshold>Low</threshold>
+                    <!-- Produces XML report -->
+                    <xmlOutput>true</xmlOutput>
+                    <!-- Configures the directory in which the XML report is created -->
+                    <spotbugsXmlOutputDirectory>${project.build.directory}/spotbugs</spotbugsXmlOutputDirectory>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
