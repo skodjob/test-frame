@@ -271,7 +271,7 @@ public class KubeResourceManager {
         ResourceType<T> type = findResourceType(resource);
         boolean[] resourceReady = new boolean[1];
 
-        Wait.until(String.format("Resource condition: %s  to be fulfilled for resource %s/%s",
+        Wait.until(String.format("Resource condition: %s to be fulfilled for resource %s/%s",
                         condition.getConditionName(), resource.getKind(), resource.getMetadata().getName()),
                 TestFrameConstants.GLOBAL_POLL_INTERVAL_MEDIUM, TestFrameConstants.GLOBAL_TIMEOUT,
                 () -> {

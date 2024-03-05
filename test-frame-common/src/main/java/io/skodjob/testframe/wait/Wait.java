@@ -58,7 +58,7 @@ public class Wait {
      */
     public static void until(String description, long pollIntervalMs, long timeoutMs, BooleanSupplier ready,
                              Runnable onTimeout) {
-        System.out.println("Waiting for " + description);
+        LOGGER.info("Waiting for: {}", description);
         long deadline = System.currentTimeMillis() + timeoutMs;
 
         String exceptionMessage = null;
@@ -82,7 +82,7 @@ public class Wait {
 
                 if (++exceptionCount == exceptionAppearanceCount && exceptionMessage != null
                         && exceptionMessage.equals(previousExceptionMessage)) {
-                    System.out.println("While waiting for " + description + " exception occurred: " + exceptionMessage);
+                    LOGGER.info("While waiting for: {} exception occurred: {}", description, exceptionMessage);
                     // log the stacktrace
                     e.printStackTrace(new PrintWriter(stackTraceError));
                 } else if (exceptionMessage != null && !exceptionMessage.equals(previousExceptionMessage)
@@ -98,11 +98,11 @@ public class Wait {
             }
             if (timeLeft <= 0) {
                 if (exceptionCount > 1) {
-                    System.out.println("Exception waiting for " + description + ", " + exceptionMessage);
+                    LOGGER.error("Exception waiting for: {}, {}", description, exceptionMessage);
 
                     if (!stackTraceError.toString().isEmpty()) {
                         // printing handled stacktrace
-                        System.out.println(stackTraceError);
+                        LOGGER.error(String.valueOf(stackTraceError));
                     }
                 }
                 onTimeout.run();

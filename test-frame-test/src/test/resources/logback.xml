@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE xml>
+<configuration>
+
+    <property name="LOG_DIR" value="${ARTIFACTS_DIR:-/tmp/logs}" />
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd'T'HH:mm:ss,GMT} %highlight(%-5p) [%c{0}:%L] %m%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file>${LOG_DIR}/testFile.log</file>
+        <append>true</append>
+        <immediateFlush>true</immediateFlush>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd'T'HH:mm:ss.SSS'Z',GMT} [%thread] %-5p [%c{0}:%L] %m%n</pattern>
+        </encoder>
+    </appender>
+
+
+    <root level="${LOG_LEVEL:-info}">
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="FILE"/>
+    </root>
+
+    <logger name="io.fabric8.kubernetes.client" level="OFF"/>
+
+    <statusListener class="ch.qos.logback.core.status.NopStatusListener" />
+</configuration>
