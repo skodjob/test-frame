@@ -8,16 +8,16 @@ Library for easy testing of Kubernetes deployments and operators using Fabric8 A
 ## Provided functionality
 ### Kubernetes resource manager
 [KubeResoruceManager](test-frame-common/src/main/java/io/skodjob/testframe/resources/KubeResourceManager.java) provides management of resources created during test phases.
-Every Kubernetes resource created by `KubeResoruceManager` is automatically deleted after at the end of the test - no matter if the test passed or failed.
+Every Kubernetes resource created by `KubeResoruceManager` is automatically deleted at the end of the test, whether the test passed or failed.
 So the Kubernetes environment is clean before and after every test run and user do not need to handle it.
 Working with Kubernetes resources using `KubeResoruceManager` also provides proper wait for resource readiness.
 
 ### Fabric8 Kubernetes client and CMD client
 Instance of `KubeResoruceManager` contains accessible fabric8 kubernetes client and kubernetes cmd client.
-These clients are initialized and connected to the test cluster based on configuration provided by env file, env variables or kubeconfig.
+These clients are initialized and connected to the test cluster based on the configuration provided by the env file, env variables, or kubeconfig.
 
 ### Test visual separation
-For better reading test logs library provides ASCII vial separation of tests and test classes.
+For better clarity regarding the test logs, `TestFrame` library provides ASCII vial separation of tests and test classes.
 
 ### Utils
 `TestFrame` contains also tweaks and utils for better working with kubernetes cluster.
