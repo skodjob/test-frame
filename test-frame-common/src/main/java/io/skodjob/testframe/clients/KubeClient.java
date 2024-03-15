@@ -48,6 +48,15 @@ public class KubeClient {
     }
 
     /**
+     * Test method only
+     * Reconnect client with new config
+     * @param config kubernetes config
+     */
+    void testReconnect(Config config) {
+        this.client = new KubernetesClientBuilder().withConfig(config).build();
+    }
+
+    /**
      * Adapts the Kubernetes client to an OpenShift client.
      *
      * @return An instance of OpenShiftClient.
