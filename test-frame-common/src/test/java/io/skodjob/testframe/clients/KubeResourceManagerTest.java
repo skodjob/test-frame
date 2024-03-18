@@ -9,6 +9,7 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.server.mock.EnableKubernetesMockClient;
 import io.fabric8.kubernetes.client.server.mock.KubernetesMockServer;
 import io.skodjob.testframe.annotations.ResourceManager;
+import io.skodjob.testframe.annotations.TestVisualSeparator;
 import io.skodjob.testframe.resources.KubeResourceManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 @EnableKubernetesMockClient(crud = true)
 @ResourceManager
+@TestVisualSeparator
 public class KubeResourceManagerTest {
     private KubernetesClient kubernetesClient;
     private KubernetesMockServer server;
