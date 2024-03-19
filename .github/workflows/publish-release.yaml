@@ -27,7 +27,7 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Publish to sonatype
-        run: ./github/scripts/push-to-nexus.sh
+        run: ./.github/scripts/push-to-nexus.sh
         env:
           BUILD_ENV: 'github-actions'
           NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
