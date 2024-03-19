@@ -11,6 +11,10 @@
 
     <artifactId>test-frame-test</artifactId>
 
+    <name>${project.groupId}:${project.artifactId}</name>
+    <description>Kubernetes test library</description>
+    <url>https://github.com/skodjob/test-frame</url>
+
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
@@ -106,14 +110,6 @@
                             junit.jupiter.extensions.autodetection.enabled = true
                         </configurationParameters>
                     </properties>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-deploy-plugin</artifactId>
-                <version>${maven.deploy.plugin.version}</version>
-                <configuration>
-                    <skip>true</skip>
                 </configuration>
             </plugin>
         </plugins>

@@ -275,6 +275,11 @@
             <activation>
                 <activeByDefault>false</activeByDefault>
             </activation>
+            <modules>
+                <module>test-frame-common</module>
+                <module>test-frame-kubernetes</module>
+                <module>test-frame-openshift</module>
+            </modules>
             <properties>
                 <!--suppress UnresolvedMavenProperty -->
                 <gpg.executable>${env.GPG_EXECUTABLE}</gpg.executable>
