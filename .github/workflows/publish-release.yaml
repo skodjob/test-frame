@@ -26,6 +26,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
+      - name: Build
+        run: mvn clean install
+
       - name: Publish to sonatype
         run: ./.github/scripts/push-to-nexus.sh
         env:
