@@ -5,7 +5,7 @@ export GPG_TTY=$(tty)
 echo $GPG_SIGNING_KEY | base64 -d > signing.gpg
 gpg --batch --import signing.gpg
 
-GPG_EXECUTABLE=gpg mvn $MVN_ARGS -DskipTests -s ./settings.xml -P ossrh clean deploy
+GPG_EXECUTABLE=gpg mvn -DskipTests -s ./.github/scripts/settings.xml -P ossrh clean deploy
 
 rm -rf signing.gpg
 gpg --delete-keys
