@@ -24,8 +24,8 @@
     </licenses>
 
     <name>${project.groupId}:${project.artifactId}</name>
-    <description>Generates metadata for junit tests</description>
-    <url>https://github.com/skodjob/test-metadata-generator</url>
+    <description>Kubernetes test library</description>
+    <url>https://github.com/skodjob/test-frame</url>
 
     <scm>
         <connection>scm:git:git:/github.com/skodjob/test-frame.git</connection>
