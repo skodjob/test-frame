@@ -4,7 +4,11 @@
  */
 package io.skodjob.testframe.resources;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -94,6 +98,28 @@ public class KubeResourceManager {
      */
     public final void setResourceTypes(ResourceType... types) {
         this.resourceTypes = types;
+    }
+
+    /**
+     * Reads Kubernetes resources from a file at the specified path.
+     *
+     * @param file The path to the file containing Kubernetes resources.
+     * @return A list of {@link HasMetadata} resources defined in the file.
+     * @throws IOException If an I/O error occurs reading from the file.
+     */
+    public List<HasMetadata> readResourcesFromFile(Path file) throws IOException {
+        return client.readResourcesFromFile(file);
+    }
+
+    /**
+     * Reads Kubernetes resources from an InputStream.
+     *
+     * @param is The InputStream containing Kubernetes resources.
+     * @return A list of {@link HasMetadata} resources defined in the stream.
+     * @throws IOException If an I/O error occurs.
+     */
+    public List<HasMetadata> readResourcesFromFile(InputStream is) throws IOException {
+        return client.readResourcesFromFile(is);
     }
 
     /**
