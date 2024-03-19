@@ -271,6 +271,18 @@
 
     <profiles>
         <profile>
+            <id>default</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>test-frame-common</module>
+                <module>test-frame-kubernetes</module>
+                <module>test-frame-openshift</module>
+                <module>test-frame-test</module>
+            </modules>
+        </profile>
+        <profile>
             <id>ossrh</id>
             <activation>
                 <activeByDefault>false</activeByDefault>
