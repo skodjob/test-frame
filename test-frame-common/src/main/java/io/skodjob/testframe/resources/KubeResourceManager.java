@@ -96,6 +96,7 @@ public class KubeResourceManager {
      * Sets the resource types.
      * @param types The resource types implementing {@link ResourceType}
      */
+    @SuppressWarnings("unchecked")
     public final void setResourceTypes(ResourceType... types) {
         this.resourceTypes = types;
     }
@@ -126,6 +127,7 @@ public class KubeResourceManager {
      * Pushes a resource item to the stack.
      * @param item The resource item to push.
      */
+    @SuppressWarnings("unchecked")
     public final void pushToStack(ResourceItem item) {
         synchronized (this) {
             STORED_RESOURCES.computeIfAbsent(getTestContext().getDisplayName(), k -> new Stack<>());
@@ -358,6 +360,7 @@ public class KubeResourceManager {
      * @return {@link ResourceType}
      * @param <T> The type of the resource.
      */
+    @SuppressWarnings("unchecked")
     private <T extends HasMetadata> ResourceType<T> findResourceType(T resource) {
         // other no conflicting types
         for (ResourceType<?> type : resourceTypes) {
