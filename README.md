@@ -60,7 +60,5 @@ Examples are stored in [test-frame-test](test-frame-test/src/test/java/io/skodjo
 
 ## Config environment variables
 * **ENV_FILE** - path to YAML file with env variables values
-* **KUBE_USERNAME** - user of the cluster
-* **KUBE_PASSWORD** - password of Kube user
 * **KUBE_TOKEN** - token of Kube access (use instead of username/password)
 * **KUBE_URL** - URL of the cluster (API URL)

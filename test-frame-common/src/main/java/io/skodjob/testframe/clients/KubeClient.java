@@ -104,16 +104,7 @@ public class KubeClient {
      * @return Config The Kubernetes client configuration.
      */
     private Config getConfig() {
-        if (TestFrameEnv.KUBE_USERNAME != null && TestFrameEnv.KUBE_PASSWORD != null && TestFrameEnv.KUBE_URL != null) {
-            kubeconfigPath = createLocalKubeconfig();
-            return new ConfigBuilder()
-                    .withUsername(TestFrameEnv.KUBE_USERNAME)
-                    .withPassword(TestFrameEnv.KUBE_PASSWORD)
-                    .withMasterUrl(TestFrameEnv.KUBE_URL)
-                    .withDisableHostnameVerification(true)
-                    .withTrustCerts(true)
-                    .build();
-        } else if (TestFrameEnv.KUBE_URL != null && TestFrameEnv.KUBE_TOKEN != null) {
+        if (TestFrameEnv.KUBE_URL != null && TestFrameEnv.KUBE_TOKEN != null) {
             kubeconfigPath = createLocalKubeconfig();
             return new ConfigBuilder()
                     .withOauthToken(TestFrameEnv.KUBE_TOKEN)
@@ -134,41 +125,15 @@ public class KubeClient {
     private String createLocalKubeconfig() {
         try {
             if (TestFrameEnv.CLIENT_TYPE.equals(TestFrameConstants.OPENSHIFT_CLIENT)) {
-                if (TestFrameEnv.KUBE_URL != null && TestFrameEnv.KUBE_TOKEN != null) {
-                    createLocalOcKubeconfig(TestFrameEnv.KUBE_TOKEN, TestFrameEnv.KUBE_URL);
-                } else {
-                    createLocalOcKubeconfig(
-                            TestFrameEnv.KUBE_USERNAME, TestFrameEnv.KUBE_PASSWORD, TestFrameEnv.KUBE_URL);
-                }
+                createLocalOcKubeconfig(TestFrameEnv.KUBE_TOKEN, TestFrameEnv.KUBE_URL);
             } else {
-                if (TestFrameEnv.KUBE_URL != null && TestFrameEnv.KUBE_TOKEN != null) {
-                    createLocalKubectlContext(TestFrameEnv.KUBE_TOKEN, TestFrameEnv.KUBE_URL);
-                } else {
-                    createLocalKubectlContext(
-                            TestFrameEnv.KUBE_USERNAME, TestFrameEnv.KUBE_PASSWORD, TestFrameEnv.KUBE_URL);
-                }
+                createLocalKubectlContext(TestFrameEnv.KUBE_TOKEN, TestFrameEnv.KUBE_URL);
             }
             return TestFrameEnv.USER_PATH + "/test.kubeconfig";
         } catch (Exception ex) {
             ex.printStackTrace();
             return null;
         }
-    }
-
-    /**
-     * Configures a local kubeconfig for OpenShift using oc login with username and password.
-     *
-     * @param username The username for OpenShift login.
-     * @param password The password for OpenShift login.
-     * @param apiUrl   The URL of the OpenShift cluster API.
-     */
-    private void createLocalOcKubeconfig(String username, String password, String apiUrl) {
-        Exec.exec(null, Arrays.asList("oc", "login",
-                "-u", username,
-                "-p", password,
-                "--insecure-skip-tls-verify",
-                "--kubeconfig", TestFrameEnv.USER_PATH + "/test.kubeconfig",
-                apiUrl), 0, false, true);
     }
 
     /**
@@ -182,23 +147,6 @@ public class KubeClient {
                 "--insecure-skip-tls-verify",
                 "--kubeconfig", TestFrameEnv.USER_PATH + "/test.kubeconfig",
                 apiUrl), 0, false, true);
-    }
-
-    /**
-     * Configures a local kubeconfig for Kubernetes using kubectl to set credentials with username and password.
-     *
-     * @param username The username for Kubernetes cluster.
-     * @param password The password for Kubernetes cluster.
-     * @param apiUrl   The URL of the Kubernetes cluster API.
-     */
-    private void createLocalKubectlContext(String username, String password, String apiUrl) {
-        Exec.exec(null, Arrays.asList("kubectl", "config",
-                        "set-credentials", "test-user",
-                        "--username", username,
-                        "--password", password,
-                        "--kubeconfig", TestFrameEnv.USER_PATH + "/test.kubeconfig"),
-                0, false, true);
-        buildKubectlContext(apiUrl);
     }
 
     /**

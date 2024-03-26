@@ -29,8 +29,6 @@ public class TestFrameEnv {
 
     private static final String CONFIG_FILE_PATH_ENV = "ENV_FILE";
     private static final String CLIENT_TYPE_ENV = "CLIENT_TYPE";
-    private static final String USERNAME_ENV = "KUBE_USERNAME";
-    private static final String PASSWORD_ENV = "KUBE_PASSWORD";
     private static final String TOKEN_ENV = "KUBE_TOKEN";
     private static final String URL_ENV = "KUBE_URL";
 
@@ -43,15 +41,6 @@ public class TestFrameEnv {
      */
     public static final String CLIENT_TYPE = getOrDefault(CLIENT_TYPE_ENV, TestFrameConstants.KUBERNETES_CLIENT);
 
-    /**
-     * The username for accessing the Kubernetes cluster.
-     */
-    public static final String KUBE_USERNAME = getOrDefault(USERNAME_ENV, null);
-
-    /**
-     * The password for accessing the Kubernetes cluster.
-     */
-    public static final String KUBE_PASSWORD = getOrDefault(PASSWORD_ENV, null);
 
     /**
      * The token for accessing the Kubernetes cluster.
