@@ -52,7 +52,7 @@ public class KubeResourceManager {
             instance.resourceTypes = new ResourceType[]{};
             client = new KubeClient();
             if (TestFrameEnv.CLIENT_TYPE.equals(TestFrameConstants.KUBERNETES_CLIENT)) {
-                kubeCmdClient = new Kubectl();
+                kubeCmdClient = new Kubectl(client.getKubeconfigPath());
             } else {
                 kubeCmdClient = new Oc(client.getKubeconfigPath());
             }
