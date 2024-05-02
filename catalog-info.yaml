@@ -11,12 +11,8 @@ metadata:
     github.com/project-slug: 'skodjob/test-frame'
   tags:
     - java
-    - fabric8
-    - kubernetes
     - openshift
-    - maven
-    - operator-framework
-    - junit5
+    - test-framework
   links:
     - title: Help
       url: https://github.com/skodjob/test-frame/blob/main/README.md
