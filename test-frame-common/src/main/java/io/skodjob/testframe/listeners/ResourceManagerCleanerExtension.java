@@ -4,26 +4,42 @@
  */
 package io.skodjob.testframe.listeners;
 
+import io.skodjob.testframe.annotations.ResourceManager;
 import io.skodjob.testframe.resources.KubeResourceManager;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 
 /**
- * jUnit5 specific class which listening on test callbacks
+ * Enables cleaner extension based on cleanResources value
  */
-public class ResourceManagerCleanerExtension
-        implements AfterAllCallback, AfterEachCallback {
+public class ResourceManagerCleanerExtension implements AfterAllCallback, AfterEachCallback {
 
+    /**
+     * Enables ResourceManagerCleanerExtension for afterAll callback
+     * @param extensionContext context
+     */
     @Override
     public void afterAll(ExtensionContext extensionContext) {
-        KubeResourceManager.setTestContext(extensionContext);
-        KubeResourceManager.getInstance().deleteResources();
+        Class<?> testClass = extensionContext.getRequiredTestClass();
+        ResourceManager annotation = testClass.getAnnotation(ResourceManager.class);
+        if (annotation != null && annotation.cleanResources()) {
+            KubeResourceManager.setTestContext(extensionContext);
+            KubeResourceManager.getInstance().deleteResources();
+        }
     }
 
+    /**
+     * Enables ResourceManagerCleanerExtension for afterEach callback
+     * @param extensionContext context
+     */
     @Override
     public void afterEach(ExtensionContext extensionContext) {
-        KubeResourceManager.setTestContext(extensionContext);
-        KubeResourceManager.getInstance().deleteResources();
+        Class<?> testClass = extensionContext.getRequiredTestClass();
+        ResourceManager annotation = testClass.getAnnotation(ResourceManager.class);
+        if (annotation != null && annotation.cleanResources()) {
+            KubeResourceManager.setTestContext(extensionContext);
+            KubeResourceManager.getInstance().deleteResources();
+        }
     }
 }
