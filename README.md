@@ -40,7 +40,17 @@ class Test {
 }
 //...
 ```
-3. Work with `KubeResourceManager` and clients
+3. To disable `KubeResourceManager` clean resources functionality
+```java
+//...
+@ResourceManager(cleanResources = false)
+@TestVisualSeparator
+class Test {
+    //...
+}
+//...
+```
+4. Work with `KubeResourceManager` and clients
 ```java
 //...
 @ResourceManager

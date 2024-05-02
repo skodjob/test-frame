@@ -18,7 +18,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * This annotation is used to manage resources in JUnit tests.
  * It is applied at the class level.
  * <p>
- * It uses the {@link ResourceManagerExtension} and {@link ResourceManagerCleanerExtension}
+ * It uses the {@link ResourceManagerExtension}
  * to set up and clean up resources before and after each test.
  */
 @Target(ElementType.TYPE)
@@ -26,4 +26,9 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @ExtendWith(ResourceManagerExtension.class)
 @ExtendWith(ResourceManagerCleanerExtension.class)
 public @interface ResourceManager {
+    /**
+     * Enables cleaner extension for resource manager
+     * @return enable/disable cleaner
+     */
+    boolean cleanResources() default true;
 }
