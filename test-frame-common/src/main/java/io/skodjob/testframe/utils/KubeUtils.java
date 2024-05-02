@@ -58,7 +58,7 @@ public class KubeUtils {
      * @param csvPrefix     prefix of install plans
      * @return list of not approved install-plans
      */
-    public InstallPlan getNonApprovedInstallPlan(String namespaceName, String csvPrefix) {
+    public static InstallPlan getNonApprovedInstallPlan(String namespaceName, String csvPrefix) {
         return KubeResourceManager.getKubeClient().getOpenShiftClient().operatorHub().installPlans()
                 .inNamespace(namespaceName).list().getItems().stream()
                 .filter(installPlan -> !installPlan.getSpec().getApproved()
