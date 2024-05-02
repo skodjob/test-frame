@@ -39,7 +39,7 @@ public class KubeUtils {
                                 .getOpenShiftClient().operatorHub().installPlans()
                                 .inNamespace(namespaceName).withName(installPlanName).get())
                                 .editSpec()
-                                .withApproved()
+                                    .withApproved()
                                 .endSpec()
                                 .build();
 
@@ -82,7 +82,7 @@ public class KubeUtils {
                     KubeResourceManager.getKubeClient().getClient().namespaces().withName(namespace).edit(n ->
                             new NamespaceBuilder(n)
                                     .editMetadata()
-                                    .addToLabels(key, value)
+                                        .addToLabels(key, value)
                                     .endMetadata()
                                     .build());
                 } catch (Exception ex) {

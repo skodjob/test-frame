@@ -116,97 +116,96 @@ public class KubeClient {
     }
 
     /**
-     * Create resources from file and apply modifier
-     * @param namespace dest namespace
-     * @param is stream of data
-     * @param modifier modifier method
-     * @throws IOException exception
+     * Creates resource and apply modifier
+     * @param resources resources
+     * @param modifier modifier
      */
-    public void create(String namespace, InputStream is, Function<HasMetadata, HasMetadata> modifier)
-            throws IOException {
-        try (is) {
-            client.load(is).get().forEach(i -> {
-                HasMetadata h = modifier.apply(i);
-                if (h != null) {
-                    if (client.resource(h).inNamespace(namespace).get() == null) {
-                        LOGGER.debug(LoggerUtils.RESOURCE_LOGGER_PATTERN,
-                                "Creating", h.getKind(), h.getMetadata().getName());
-                        client.resource(h).inNamespace(namespace).create();
-                    } else {
-                        LOGGER.debug(LoggerUtils.RESOURCE_LOGGER_PATTERN,
-                                "Updating", h.getKind(), h.getMetadata().getName());
-                        client.resource(h).inNamespace(namespace).update();
-                    }
-                }
-            });
-        }
+    public void create(List<HasMetadata> resources, Function<HasMetadata, HasMetadata> modifier) {
+        create(null, resources, modifier);
     }
 
     /**
-     * Create resources from file and apply modifier
-     * @param is stream of data
-     * @param modifier modifier method
-     * @throws IOException exception
+     * Updates resources and apply modifier
+     * @param resources resources
+     * @param modifier modifier
      */
-    public void create(InputStream is, Function<HasMetadata, HasMetadata> modifier) throws IOException {
-        try (is) {
-            client.load(is).get().forEach(i -> {
-                HasMetadata h = modifier.apply(i);
-                if (h != null) {
-                    if (client.resource(h).get() == null) {
-                        LOGGER.debug(LoggerUtils.RESOURCE_WITH_NAMESPACE_LOGGER_PATTERN,
-                                "Creating", h.getKind(), h.getMetadata().getName(), h.getMetadata().getNamespace());
-                        client.resource(h).create();
-                    } else {
-                        LOGGER.debug(LoggerUtils.RESOURCE_WITH_NAMESPACE_LOGGER_PATTERN,
-                                "Updating", h.getKind(), h.getMetadata().getName(), h.getMetadata().getNamespace());
-                        client.resource(h).update();
-                    }
-                }
-            });
-        }
+    public void update(List<HasMetadata> resources, Function<HasMetadata, HasMetadata> modifier) {
+        update(null, resources, modifier);
     }
 
     /**
-     * Create resources from file and apply modifier
-     * @param namespace dest namesapce
-     * @param resources loaded resources
-     * @param modifier modifier method
+     * Creates resource and apply modifier
+     * @param namespace namespace
+     * @param resources resources
+     * @param modifier modifier
      */
     public void create(String namespace, List<HasMetadata> resources, Function<HasMetadata, HasMetadata> modifier) {
-        resources.forEach(i -> {
-            HasMetadata h = modifier.apply(i);
-            if (h != null) {
-                if (client.resource(h).inNamespace(namespace).get() == null) {
-                    LOGGER.debug(LoggerUtils.RESOURCE_WITH_NAMESPACE_LOGGER_PATTERN,
-                            "Creating", h.getKind(), h.getMetadata().getName(), namespace);
-                    client.resource(h).inNamespace(namespace).create();
-                } else {
-                    LOGGER.debug(LoggerUtils.RESOURCE_WITH_NAMESPACE_LOGGER_PATTERN,
-                            "Updating", h.getKind(), h.getMetadata().getName(), namespace);
-                    client.resource(h).inNamespace(namespace).update();
-                }
+        resources.forEach(res -> {
+            HasMetadata h = modifier.apply(res);
+            LOGGER.debug(LoggerUtils.RESOURCE_WITH_NAMESPACE_LOGGER_PATTERN,
+                    "Creating", h.getKind(), h.getMetadata().getName(), namespace);
+            if (namespace == null) {
+                client.resource(h).create();
+            } else {
+                client.resource(h).inNamespace(namespace).create();
             }
         });
     }
 
     /**
-     * Create resources from file and apply modifier
+     * Updates resources and apply modifier
+     * @param namespace namespace
+     * @param resources resources
+     * @param modifier modifier
+     */
+    public void update(String namespace, List<HasMetadata> resources, Function<HasMetadata, HasMetadata> modifier) {
+        resources.forEach(res -> {
+            HasMetadata h = modifier.apply(res);
+            LOGGER.debug(LoggerUtils.RESOURCE_WITH_NAMESPACE_LOGGER_PATTERN,
+                    "Updating", h.getKind(), h.getMetadata().getName(), namespace);
+            if (namespace == null) {
+                client.resource(h).update();
+            } else {
+                client.resource(h).inNamespace(namespace).update();
+            }
+        });
+    }
+
+    /**
+     * Create or update resources from file and apply modifier
      * @param resources resources
      * @param modifier modifier method
      */
-    public void create(List<HasMetadata> resources, Function<HasMetadata, HasMetadata> modifier) {
+    public void createOrUpdate(List<HasMetadata> resources, Function<HasMetadata, HasMetadata> modifier) {
+        createOrUpdate(null, resources, modifier);
+    }
+
+    /**
+     * Create or update resources from file and apply modifier
+     * @param ns namespace
+     * @param resources resources
+     * @param modifier modifier method
+     */
+    public void createOrUpdate(String ns, List<HasMetadata> resources, Function<HasMetadata, HasMetadata> modifier) {
         resources.forEach(i -> {
             HasMetadata h = modifier.apply(i);
             if (h != null) {
                 if (client.resource(h).get() == null) {
                     LOGGER.debug(LoggerUtils.RESOURCE_WITH_NAMESPACE_LOGGER_PATTERN,
                             "Creating", h.getKind(), h.getMetadata().getName(), h.getMetadata().getNamespace());
-                    client.resource(h).create();
+                    if (ns == null) {
+                        client.resource(h).create();
+                    } else {
+                        client.resource(h).inNamespace(ns).create();
+                    }
                 } else {
                     LOGGER.debug(LoggerUtils.RESOURCE_WITH_NAMESPACE_LOGGER_PATTERN,
                             "Updating", h.getKind(), h.getMetadata().getName(), h.getMetadata().getNamespace());
-                    client.resource(h).update();
+                    if (ns == null) {
+                        client.resource(h).update();
+                    } else {
+                        client.resource(h).inNamespace(ns).update();
+                    }
                 }
             }
         });
