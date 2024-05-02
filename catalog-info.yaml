@@ -1,0 +1,28 @@
+---
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: test-frame
+  title: Test Frame
+  namespace: quality-community
+  description: |
+    Java library for easy testing of kubernetes deployments and operators using fabric8 api
+  annotations:
+    github.com/project-slug: 'skodjob/test-frame'
+  tags:
+    - java
+    - fabric8
+    - kubernetes
+    - openshift
+    - maven
+    - operator-framework
+    - junit5
+  links:
+    - title: Help
+      url: https://github.com/skodjob/test-frame/blob/main/README.md
+      icon: help
+    - title: Blogpost
+      url: https://skodjob.io/tools/test-frame-introduction/
+spec:
+  owner: group:redhat/skodjob
+  domain: quality-community/quality-community
