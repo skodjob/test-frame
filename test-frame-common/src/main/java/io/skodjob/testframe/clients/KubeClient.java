@@ -11,8 +11,11 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import io.fabric8.kubernetes.api.model.HasMetadata;
+import io.fabric8.kubernetes.api.model.LabelSelector;
+import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.ConfigBuilder;
@@ -107,6 +110,7 @@ public class KubeClient {
 
     /**
      * Check if namespace exists in current cluster
+     *
      * @param namespace namespace name
      * @return true if namespace exists
      */
@@ -117,6 +121,7 @@ public class KubeClient {
 
     /**
      * Creates resource and apply modifier
+     *
      * @param resources resources
      * @param modifier modifier
      */
@@ -126,6 +131,7 @@ public class KubeClient {
 
     /**
      * Updates resources and apply modifier
+     *
      * @param resources resources
      * @param modifier modifier
      */
@@ -135,6 +141,7 @@ public class KubeClient {
 
     /**
      * Creates resource and apply modifier
+     *
      * @param namespace namespace
      * @param resources resources
      * @param modifier modifier
@@ -154,6 +161,7 @@ public class KubeClient {
 
     /**
      * Updates resources and apply modifier
+     *
      * @param namespace namespace
      * @param resources resources
      * @param modifier modifier
@@ -173,6 +181,7 @@ public class KubeClient {
 
     /**
      * Create or update resources from file and apply modifier
+     *
      * @param resources resources
      * @param modifier modifier method
      */
@@ -182,6 +191,7 @@ public class KubeClient {
 
     /**
      * Create or update resources from file and apply modifier
+     *
      * @param ns namespace
      * @param resources resources
      * @param modifier modifier method
@@ -212,7 +222,8 @@ public class KubeClient {
     }
 
     /**
-     * Deletes resoruces
+     * Deletes resources
+     *
      * @param resources resources
      */
     public void delete(List<HasMetadata> resources) {
@@ -229,6 +240,7 @@ public class KubeClient {
 
     /**
      * Delete resources
+     *
      * @param resources resources
      * @param namespace namespace
      */
@@ -245,7 +257,42 @@ public class KubeClient {
     }
 
     /**
+     * Get all pods from namespace
+     *
+     * @param namespaceName namespace
+     * @return list of pods
+     */
+    public List<Pod> listPods(String namespaceName) {
+        return client.pods().inNamespace(namespaceName).list().getItems();
+    }
+
+    /**
+     * Get all pods with prefix nanme
+     *
+     * @param namespaceName namespace
+     * @param selector prefix
+     * @return lust of pods
+     */
+    public List<Pod> listPods(String namespaceName, LabelSelector selector) {
+        return client.pods().inNamespace(namespaceName).withLabelSelector(selector).list().getItems();
+    }
+
+    /**
+     * Returns list of pods by prefix in pod name
+     *
+     * @param namespaceName Namespace name
+     * @param podNamePrefix prefix with which the name should begin
+     * @return List of pods
+     */
+    public List<Pod> listPodsByPrefixInName(String namespaceName, String podNamePrefix) {
+        return listPods(namespaceName)
+                .stream().filter(p -> p.getMetadata().getName().startsWith(podNamePrefix))
+                .collect(Collectors.toList());
+    }
+
+    /**
      * Return log from pod with one container
+     *
      * @param namespaceName namespace of the pod
      * @param podName pod name
      * @return logs
@@ -256,6 +303,7 @@ public class KubeClient {
 
     /**
      * Return log from pods specific container
+     *
      * @param namespaceName namespace of the pod
      * @param podName pod name
      * @param containerName container name
@@ -267,6 +315,7 @@ public class KubeClient {
 
     /**
      * Returns list of deployments with prefix name
+     *
      * @param namespace namespace
      * @param namePrefix prefix
      * @return list of deployments
