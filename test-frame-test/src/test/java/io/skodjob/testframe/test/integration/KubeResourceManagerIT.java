@@ -28,6 +28,8 @@ public class KubeResourceManagerIT {
 
     @AfterEach
     void afterEach() {
+        assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName("test").get());
+        assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName("test2").get());
         KubeResourceManager.getInstance().deleteResources();
     }
 
