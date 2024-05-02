@@ -418,6 +418,21 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
     }
 
     /**
+     * Executes a command with the option to throw errors and log to output.
+     *
+     * @param throwError  Whether to throw errors.
+     * @param logToOutput Whether to log the output.
+     * @param timeout timeout in milis
+     * @param command     The command to execute.
+     * @return The execution result.
+     */
+    @Override
+    public ExecResult exec(boolean throwError, boolean logToOutput, int timeout, String... command) {
+        List<String> cmd = command(asList(command), false);
+        return Exec.exec(null, cmd, timeout, logToOutput, throwError);
+    }
+
+    /**
      * Executes a command in the current namespace.
      *
      * @param commands The commands to execute.
