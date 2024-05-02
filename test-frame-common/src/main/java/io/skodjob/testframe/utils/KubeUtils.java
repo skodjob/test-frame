@@ -4,6 +4,8 @@
  */
 package io.skodjob.testframe.utils;
 
+import io.fabric8.kubernetes.api.model.Namespace;
+import io.fabric8.kubernetes.api.model.NamespaceBuilder;
 import io.fabric8.openshift.api.model.operatorhub.v1alpha1.InstallPlan;
 import io.fabric8.openshift.api.model.operatorhub.v1alpha1.InstallPlanBuilder;
 import io.skodjob.testframe.TestFrameConstants;
@@ -64,5 +66,34 @@ public class KubeUtils {
                 .filter(installPlan -> !installPlan.getSpec().getApproved()
                         && installPlan.getSpec().getClusterServiceVersionNames().toString().contains(csvPrefix))
                 .findFirst().get();
+    }
+
+    /**
+     * Apply label to namespace and wait for propagation
+     * @param namespace namespace name
+     * @param key label key
+     * @param value label value
+     */
+    public static void labelNamespace(String namespace, String key, String value) {
+        if (KubeResourceManager.getKubeClient().namespaceExists(namespace)) {
+            Wait.until(String.format("Namespace %s has label: %s", namespace, key),
+                    TestFrameConstants.GLOBAL_POLL_INTERVAL_1_SEC, TestFrameConstants.GLOBAL_STABILITY_TIME, () -> {
+                try {
+                    KubeResourceManager.getKubeClient().getClient().namespaces().withName(namespace).edit(n ->
+                            new NamespaceBuilder(n)
+                                    .editMetadata()
+                                    .addToLabels(key, value)
+                                    .endMetadata()
+                                    .build());
+                } catch (Exception ex) {
+                    return false;
+                }
+                Namespace n = KubeResourceManager.getKubeClient().getClient().namespaces().withName(namespace).get();
+                if (n != null) {
+                    return n.getMetadata().getLabels().get(key) != null;
+                }
+                return false;
+            });
+        }
     }
 }

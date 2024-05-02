@@ -40,6 +40,12 @@ public class TestFrameConstants {
     public static final long GLOBAL_TIMEOUT = Duration.ofMinutes(10).toMillis();
 
     /**
+     * Stability timeout in milliseconds
+     */
+    public static final long GLOBAL_STABILITY_TIME = Duration.ofMinutes(1).toMillis();
+
+
+    /**
      * OpenShift client type.
      */
     public static final String OPENSHIFT_CLIENT = "oc";
