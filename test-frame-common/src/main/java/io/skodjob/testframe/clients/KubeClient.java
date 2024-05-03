@@ -115,8 +115,8 @@ public class KubeClient {
      * @return true if namespace exists
      */
     public boolean namespaceExists(String namespace) {
-        return client.namespaces().list().getItems().stream().map(n -> n.getMetadata().getName())
-                .toList().contains(namespace);
+        return client.namespaces().list().getItems().stream()
+                .anyMatch(n -> n.getMetadata().getName().equals(namespace));
     }
 
     /**
