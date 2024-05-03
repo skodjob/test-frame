@@ -44,7 +44,6 @@ public class TestFrameConstants {
      */
     public static final long GLOBAL_STABILITY_TIME = Duration.ofMinutes(1).toMillis();
 
-
     /**
      * OpenShift client type.
      */
