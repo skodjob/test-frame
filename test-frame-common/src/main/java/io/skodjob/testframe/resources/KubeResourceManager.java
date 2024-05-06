@@ -199,7 +199,9 @@ public class KubeResourceManager {
      * @param <T> The type of the resources.
      */
     @SafeVarargs
-    private <T extends HasMetadata> void createOrUpdateResource(boolean waitReady, boolean allowUpdate, T... resources) {
+    private <T extends HasMetadata> void createOrUpdateResource(boolean waitReady,
+                                                                boolean allowUpdate,
+                                                                T... resources) {
         for (T resource : resources) {
             ResourceType<T> type = findResourceType(resource);
             pushToStack(resource);
