@@ -206,21 +206,13 @@ public class KubeResourceManager {
             ResourceType<T> type = findResourceType(resource);
             pushToStack(resource);
 
-            if (resource.getMetadata().getNamespace() == null) {
-                LOGGER.info(LoggerUtils.RESOURCE_LOGGER_PATTERN,
-                        allowUpdate ? "Creating or Updating" : "Creating", resource.getKind(),
-                        resource.getMetadata().getName());
-            } else {
-                LOGGER.info(LoggerUtils.RESOURCE_WITH_NAMESPACE_LOGGER_PATTERN,
-                        allowUpdate ? "Creating or Updating" : "Creating",
-                        resource.getKind(), resource.getMetadata().getName(), resource.getMetadata().getNamespace());
-            }
-
             if (type == null) {
                 // Generic create for any resource
                 if (allowUpdate && client.getClient().resource(resource).get() != null) {
+                    LoggerUtils.logResource("Updating", resource);
                     client.getClient().resource(resource).update();
                 } else {
+                    LoggerUtils.logResource("Creating", resource);
                     client.getClient().resource(resource).create();
                 }
                 if (waitReady) {
@@ -237,8 +229,10 @@ public class KubeResourceManager {
             } else {
                 // Create for typed resource implementing ResourceType
                 if (allowUpdate && client.getClient().resource(resource).get() != null) {
+                    LoggerUtils.logResource("Updating", resource);
                     type.update(resource);
                 } else {
+                    LoggerUtils.logResource("Creating", resource);
                     type.create(resource);
                 }
                 if (waitReady) {
@@ -259,14 +253,7 @@ public class KubeResourceManager {
     public final <T extends HasMetadata> void deleteResource(T... resources) {
         for (T resource : resources) {
             ResourceType<T> type = findResourceType(resource);
-            if (resource.getMetadata().getNamespace() == null) {
-                LOGGER.info(LoggerUtils.RESOURCE_LOGGER_PATTERN,
-                        "Deleting", resource.getKind(), resource.getMetadata().getName());
-            } else {
-                LOGGER.info(LoggerUtils.RESOURCE_WITH_NAMESPACE_LOGGER_PATTERN,
-                        "Deleting", resource.getKind(), resource.getMetadata().getName(),
-                        resource.getMetadata().getNamespace());
-            }
+            LoggerUtils.logResource("Deleting", resource);
             try {
                 if (type == null) {
                     client.getClient().resource(resource).delete();
@@ -299,14 +286,7 @@ public class KubeResourceManager {
     @SafeVarargs
     public final <T extends HasMetadata> void updateResource(T... resources) {
         for (T resource : resources) {
-            if (resource.getMetadata().getNamespace() == null) {
-                LOGGER.info(LoggerUtils.RESOURCE_LOGGER_PATTERN,
-                        "Updating", resource.getKind(), resource.getMetadata().getName());
-            } else {
-                LOGGER.info(LoggerUtils.RESOURCE_WITH_NAMESPACE_LOGGER_PATTERN,
-                        "Updating", resource.getKind(), resource.getMetadata().getName(),
-                        resource.getMetadata().getNamespace());
-            }
+            LoggerUtils.logResource("Updating", resource);
             ResourceType<T> type = findResourceType(resource);
             if (type != null) {
                 type.update(resource);
