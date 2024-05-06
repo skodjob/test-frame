@@ -4,6 +4,7 @@
  */
 package io.skodjob.testframe.test.integration;
 
+import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.kubernetes.api.model.NamespaceBuilder;
 import io.skodjob.testframe.annotations.ResourceManager;
 import io.skodjob.testframe.annotations.TestVisualSeparator;
@@ -44,8 +45,9 @@ public class KubeResourceManagerCleanerIT {
 
     @Test
     void createResource() {
-        KubeResourceManager.getInstance().createResourceWithWait(
-                new NamespaceBuilder().withNewMetadata().withName("test3").endMetadata().build());
+        Namespace ns = new NamespaceBuilder().withNewMetadata().withName("test3").endMetadata().build();
+        KubeResourceManager.getInstance().createResourceWithWait(ns);
+        KubeResourceManager.getInstance().createOrUpdateResourceWithWait(ns);
     }
 
     @Test

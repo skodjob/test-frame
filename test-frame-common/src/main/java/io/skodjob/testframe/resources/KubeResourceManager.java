@@ -158,7 +158,7 @@ public class KubeResourceManager {
      */
     @SafeVarargs
     public final <T extends HasMetadata> void createResourceWithoutWait(T... resources) {
-        createResource(false, resources);
+        createResource(false, false, resources);
     }
 
     /**
@@ -168,33 +168,59 @@ public class KubeResourceManager {
      */
     @SafeVarargs
     public final <T extends HasMetadata> void createResourceWithWait(T... resources) {
-        createResource(true, resources);
+        createResource(true, false, resources);
+    }
+
+    /**
+     * Creates or updates resources and waits for readiness.
+     * @param resources The resources to create.
+     * @param <T> The type of the resources.
+     */
+    @SafeVarargs
+    public final <T extends HasMetadata> void createOrUpdateResourceWithWait(T... resources) {
+        createResource(true, true, resources);
+    }
+
+    /**
+     * Creates or updates resources.
+     * @param resources The resources to create.
+     * @param <T> The type of the resources.
+     */
+    @SafeVarargs
+    public final <T extends HasMetadata> void createOrUpdateResourceWithoutWait(T... resources) {
+        createResource(false, true, resources);
     }
 
     /**
      * Creates resources with or without waiting for readiness.
      * @param waitReady Flag indicating whether to wait for readiness.
+     * @param allowUpdate Flag indicating if update resource is allowed
      * @param resources The resources to create.
      * @param <T> The type of the resources.
      */
     @SafeVarargs
-    private <T extends HasMetadata> void createResource(boolean waitReady, T... resources) {
+    private <T extends HasMetadata> void createResource(boolean waitReady, boolean allowUpdate, T... resources) {
         for (T resource : resources) {
             ResourceType<T> type = findResourceType(resource);
             pushToStack(resource);
 
             if (resource.getMetadata().getNamespace() == null) {
                 LOGGER.info(LoggerUtils.RESOURCE_LOGGER_PATTERN,
-                        "Creating", resource.getKind(), resource.getMetadata().getName());
+                        allowUpdate ? "Creating or Updating" : "Creating", resource.getKind(),
+                        resource.getMetadata().getName());
             } else {
                 LOGGER.info(LoggerUtils.RESOURCE_WITH_NAMESPACE_LOGGER_PATTERN,
-                        "Creating", resource.getKind(), resource.getMetadata().getName(),
-                        resource.getMetadata().getNamespace());
+                        allowUpdate ? "Creating or Updating" : "Creating",
+                        resource.getKind(), resource.getMetadata().getName(), resource.getMetadata().getNamespace());
             }
 
             if (type == null) {
                 // Generic create for any resource
-                client.getClient().resource(resource).create();
+                if (allowUpdate && client.getClient().resource(resource).get() != null) {
+                    client.getClient().resource(resource).update();
+                } else {
+                    client.getClient().resource(resource).create();
+                }
                 if (waitReady) {
                     assertTrue(waitResourceCondition(resource, new ResourceCondition<>(p -> {
                         try {
@@ -208,7 +234,11 @@ public class KubeResourceManager {
                 }
             } else {
                 // Create for typed resource implementing ResourceType
-                type.create(resource);
+                if (allowUpdate && client.getClient().resource(resource).get() != null) {
+                    type.update(resource);
+                } else {
+                    type.create(resource);
+                }
                 if (waitReady) {
                     assertTrue(waitResourceCondition(resource, ResourceCondition.readiness(type)),
                             String.format("Timed out waiting for %s/%s in %s to be ready", resource.getKind(),
