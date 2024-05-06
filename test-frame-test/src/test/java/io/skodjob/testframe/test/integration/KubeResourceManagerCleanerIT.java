@@ -6,7 +6,6 @@ package io.skodjob.testframe.test.integration;
 
 import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.kubernetes.api.model.NamespaceBuilder;
-import io.skodjob.testframe.annotations.ResourceManager;
 import io.skodjob.testframe.annotations.TestVisualSeparator;
 import io.skodjob.testframe.clients.KubeClusterException;
 import io.skodjob.testframe.resources.KubeResourceManager;
@@ -20,15 +19,14 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@ResourceManager
 @TestVisualSeparator
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class KubeResourceManagerCleanerIT {
+public class KubeResourceManagerCleanerIT extends AbstractIT {
 
     @BeforeAll
     void setupAll() {
         KubeResourceManager.getInstance().createResourceWithWait(
-                new NamespaceBuilder().withNewMetadata().withName("test").endMetadata().build());
+                new NamespaceBuilder().withNewMetadata().withName(nsName).endMetadata().build());
     }
 
     @BeforeEach
