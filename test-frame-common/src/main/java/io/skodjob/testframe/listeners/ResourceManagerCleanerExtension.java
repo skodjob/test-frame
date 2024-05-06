@@ -10,20 +10,25 @@ import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 
+import java.util.Optional;
+
+import static org.junit.platform.commons.support.AnnotationSupport.findAnnotation;
+
 /**
  * Enables cleaner extension based on cleanResources value
  */
 public class ResourceManagerCleanerExtension implements AfterAllCallback, AfterEachCallback {
 
     /**
-     * Enables ResourceManagerCleanerExtension for afterAll callback
+     * Enables ResourceManagerCleanerExtension for after All callback
      * @param extensionContext context
      */
     @Override
     public void afterAll(ExtensionContext extensionContext) {
-        Class<?> testClass = extensionContext.getRequiredTestClass();
-        ResourceManager annotation = testClass.getAnnotation(ResourceManager.class);
-        if (annotation != null && annotation.cleanResources()) {
+        Optional<ResourceManager> annotation =
+                findAnnotation(extensionContext.getRequiredTestClass(), ResourceManager.class);
+
+        if (annotation.isPresent() && annotation.get().cleanResources()) {
             KubeResourceManager.setTestContext(extensionContext);
             KubeResourceManager.getInstance().deleteResources();
         }
@@ -35,9 +40,10 @@ public class ResourceManagerCleanerExtension implements AfterAllCallback, AfterE
      */
     @Override
     public void afterEach(ExtensionContext extensionContext) {
-        Class<?> testClass = extensionContext.getRequiredTestClass();
-        ResourceManager annotation = testClass.getAnnotation(ResourceManager.class);
-        if (annotation != null && annotation.cleanResources()) {
+        Optional<ResourceManager> annotation =
+                findAnnotation(extensionContext.getRequiredTestClass(), ResourceManager.class);
+
+        if (annotation.isPresent() && annotation.get().cleanResources()) {
             KubeResourceManager.setTestContext(extensionContext);
             KubeResourceManager.getInstance().deleteResources();
         }
