@@ -158,7 +158,7 @@ public class KubeResourceManager {
      */
     @SafeVarargs
     public final <T extends HasMetadata> void createResourceWithoutWait(T... resources) {
-        createResource(false, false, resources);
+        createOrUpdateResource(false, false, resources);
     }
 
     /**
@@ -168,7 +168,7 @@ public class KubeResourceManager {
      */
     @SafeVarargs
     public final <T extends HasMetadata> void createResourceWithWait(T... resources) {
-        createResource(true, false, resources);
+        createOrUpdateResource(true, false, resources);
     }
 
     /**
@@ -178,7 +178,7 @@ public class KubeResourceManager {
      */
     @SafeVarargs
     public final <T extends HasMetadata> void createOrUpdateResourceWithWait(T... resources) {
-        createResource(true, true, resources);
+        createOrUpdateResource(true, true, resources);
     }
 
     /**
@@ -188,7 +188,7 @@ public class KubeResourceManager {
      */
     @SafeVarargs
     public final <T extends HasMetadata> void createOrUpdateResourceWithoutWait(T... resources) {
-        createResource(false, true, resources);
+        createOrUpdateResource(false, true, resources);
     }
 
     /**
@@ -199,7 +199,7 @@ public class KubeResourceManager {
      * @param <T> The type of the resources.
      */
     @SafeVarargs
-    private <T extends HasMetadata> void createResource(boolean waitReady, boolean allowUpdate, T... resources) {
+    private <T extends HasMetadata> void createOrUpdateResource(boolean waitReady, boolean allowUpdate, T... resources) {
         for (T resource : resources) {
             ResourceType<T> type = findResourceType(resource);
             pushToStack(resource);
