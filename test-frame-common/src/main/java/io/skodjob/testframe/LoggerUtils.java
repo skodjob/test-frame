@@ -6,6 +6,7 @@ package io.skodjob.testframe;
 
 import java.util.Collections;
 
+import io.fabric8.kubernetes.api.model.HasMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,5 +47,24 @@ public class LoggerUtils {
      */
     public static void logSeparator(String delimiterChar, int length) {
         LOGGER.info(String.join("", Collections.nCopies(length, delimiterChar)));
+    }
+
+    /**
+     * Log resource with correct format
+     *
+     * @param operation operation with resource
+     * @param resource resource
+     * @param <T> The type of the resources.
+     */
+    public static <T extends HasMetadata>  void  logResource(String operation, T resource) {
+        if (resource.getMetadata().getNamespace() == null) {
+            LOGGER.info(LoggerUtils.RESOURCE_LOGGER_PATTERN,
+                    operation, resource.getKind(),
+                    resource.getMetadata().getName());
+        } else {
+            LOGGER.info(LoggerUtils.RESOURCE_WITH_NAMESPACE_LOGGER_PATTERN,
+                    operation,
+                    resource.getKind(), resource.getMetadata().getName(), resource.getMetadata().getNamespace());
+        }
     }
 }
