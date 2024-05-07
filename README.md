@@ -4,6 +4,8 @@ Library for easy testing of Kubernetes deployments and operators using Fabric8 A
 [![Build](https://github.com/skodjob/test-frame/actions/workflows/build.yaml/badge.svg?branch=main)](https://github.com/skodjob/test-frame/actions/workflows/build.yaml)
 [![Publish-snapshot](https://github.com/skodjob/test-frame/actions/workflows/publish-snapshot.yaml/badge.svg?branch=main)](https://github.com/skodjob/test-frame/actions/workflows/publish-snapshot.yaml)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![GitHub Release](https://img.shields.io/github/v/release/skodjob/test-frame)](https://github.com/skodjob/test-frame/releases)
+[![Maven Central Version](https://img.shields.io/maven-central/v/io.skodjob/test-frame)](https://central.sonatype.com/search?q=io.skodjob.test-frame)
 
 ## Provided functionality
 ### Kubernetes resource manager
@@ -72,3 +74,4 @@ Examples are stored in [test-frame-test](test-frame-test/src/test/java/io/skodjo
 * **ENV_FILE** - path to YAML file with env variables values
 * **KUBE_TOKEN** - token of Kube access (use instead of username/password)
 * **KUBE_URL** - URL of the cluster (API URL)
+* **CLIENT_TYPE** - Switch between `kubectl` or `oc` cmd client
