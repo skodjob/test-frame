@@ -8,10 +8,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.skodjob.testframe.LoggerUtils;
@@ -38,10 +40,11 @@ public class KubeResourceManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(KubeResourceManager.class);
     private static KubeResourceManager instance;
     private static KubeClient client;
-    private static KubeCmdClient kubeCmdClient;
+    private static KubeCmdClient<?> kubeCmdClient;
     private static ThreadLocal<ExtensionContext> testContext = new ThreadLocal<>();
-    private static final Map<String, Stack<ResourceItem>> STORED_RESOURCES = new LinkedHashMap<>();
+    private static final Map<String, Stack<ResourceItem<?>>> STORED_RESOURCES = new LinkedHashMap<>();
     private ResourceType<?>[] resourceTypes;
+    private List<Consumer<HasMetadata>> createCallbacks = new LinkedList<>();
 
     /**
      * Retrieves the singleton instance of KubeResourceManager.
@@ -73,7 +76,7 @@ public class KubeResourceManager {
      * Retrieves the Kubernetes command-line client.
      * @return The Kubernetes command-line client.
      */
-    public static KubeCmdClient getKubeCmdClient() {
+    public static KubeCmdClient<?> getKubeCmdClient() {
         return kubeCmdClient;
     }
 
@@ -98,8 +101,17 @@ public class KubeResourceManager {
      * @param types The resource types implementing {@link ResourceType}
      */
     @SuppressWarnings("unchecked")
-    public final void setResourceTypes(ResourceType... types) {
+    public final void setResourceTypes(ResourceType<?>... types) {
         this.resourceTypes = types;
+    }
+
+    /**
+     * Add callback function which is called after creation of every resource
+     *
+     * @param callback function
+     */
+    public final void addCreateCallback(Consumer<HasMetadata> callback) {
+        this.createCallbacks.add(callback);
     }
 
     /**
@@ -129,7 +141,7 @@ public class KubeResourceManager {
      * @param item The resource item to push.
      */
     @SuppressWarnings("unchecked")
-    public final void pushToStack(ResourceItem item) {
+    public final void pushToStack(ResourceItem<?> item) {
         synchronized (this) {
             STORED_RESOURCES.computeIfAbsent(getTestContext().getDisplayName(), k -> new Stack<>());
             STORED_RESOURCES.get(getTestContext().getDisplayName()).push(item);
@@ -242,6 +254,7 @@ public class KubeResourceManager {
                                     resource.getMetadata().getName(), resource.getMetadata().getNamespace()));
                 }
             }
+            createCallbacks.forEach(callback -> callback.accept(resource));
         }
     }
 
@@ -360,10 +373,10 @@ public class KubeResourceManager {
                 // stack has no elements
                 new AtomicInteger(0);
         while (STORED_RESOURCES.containsKey(getTestContext().getDisplayName()) && numberOfResources.get() > 0) {
-            Stack<ResourceItem> s = STORED_RESOURCES.get(getTestContext().getDisplayName());
+            Stack<ResourceItem<?>> s = STORED_RESOURCES.get(getTestContext().getDisplayName());
 
             while (!s.isEmpty()) {
-                ResourceItem resourceItem = s.pop();
+                ResourceItem<?> resourceItem = s.pop();
 
                 try {
                     resourceItem.getThrowableRunner().run();
