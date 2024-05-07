@@ -21,6 +21,7 @@ import io.skodjob.testframe.clients.KubeClient;
 import io.skodjob.testframe.clients.cmdClient.KubeCmdClient;
 import io.skodjob.testframe.clients.cmdClient.Kubectl;
 import io.skodjob.testframe.clients.cmdClient.Oc;
+import io.skodjob.testframe.interfaces.NamespacedResourceType;
 import io.skodjob.testframe.interfaces.ResourceType;
 import io.skodjob.testframe.wait.Wait;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -261,7 +262,12 @@ public class KubeResourceManager {
                             String.format("Timed out deleting %s/%s in %s", resource.getKind(),
                                     resource.getMetadata().getName(), resource.getMetadata().getNamespace()));
                 } else {
-                    type.delete(resource.getMetadata().getName());
+                    if (type instanceof NamespacedResourceType<T>) {
+                        ((NamespacedResourceType<T>) type).deleteFromNamespace(resource.getMetadata().getNamespace(),
+                                resource.getMetadata().getName());
+                    } else {
+                        type.delete(resource.getMetadata().getName());
+                    }
                     assertTrue(waitResourceCondition(resource, ResourceCondition.deletion()),
                             String.format("Timed out deleting %s/%s in %s", resource.getKind(),
                                     resource.getMetadata().getName(), resource.getMetadata().getNamespace()));
@@ -289,7 +295,12 @@ public class KubeResourceManager {
             LoggerUtils.logResource("Updating", resource);
             ResourceType<T> type = findResourceType(resource);
             if (type != null) {
-                type.update(resource);
+                if (type instanceof NamespacedResourceType<T>) {
+                    ((NamespacedResourceType<T>) type).updateInNamespace(resource.getMetadata().getNamespace(),
+                            resource);
+                } else {
+                    type.update(resource);
+                }
             } else {
                 client.getClient().resource(resource).update();
             }
