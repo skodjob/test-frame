@@ -42,7 +42,7 @@ public class Kubectl extends BaseCmdKubeClient<Kubectl> {
      * @return A new Kubectl instance with the specified namespace.
      */
     @Override
-    public Kubectl namespace(String namespace) {
+    public Kubectl inNamespace(String namespace) {
         return new Kubectl(namespace, config);
     }
 
@@ -52,7 +52,7 @@ public class Kubectl extends BaseCmdKubeClient<Kubectl> {
      * @return The current namespace.
      */
     @Override
-    public String namespace() {
+    public String getCurrentNamespace() {
         return namespace;
     }
 
