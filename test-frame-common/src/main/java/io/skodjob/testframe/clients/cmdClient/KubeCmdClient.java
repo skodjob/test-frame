@@ -48,14 +48,14 @@ public interface KubeCmdClient<K extends KubeCmdClient<K>> {
      * @param namespace The namespace to set.
      * @return This kube client.
      */
-    KubeCmdClient<K> namespace(String namespace);
+    KubeCmdClient<K> inNamespace(String namespace);
 
     /**
      * Retrieves the currently set namespace for the Kubernetes client.
      *
      * @return The currently set namespace.
      */
-    String namespace();
+    String getCurrentNamespace();
 
     /**
      * Creates resources from the provided files.

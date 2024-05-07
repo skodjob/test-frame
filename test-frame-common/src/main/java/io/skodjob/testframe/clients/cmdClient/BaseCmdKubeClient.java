@@ -95,7 +95,11 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
     }
 
     protected List<String> namespacedCommand(String... rest) {
-        return command(asList(rest), true);
+        List<String> result = command(asList(rest));
+        result.add("--namespace");
+        result.add(namespace);
+
+        return result;
     }
 
     /**
@@ -268,7 +272,7 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
     @SuppressWarnings("unchecked")
     public K applyContent(String yamlContent) {
         try (Context context = defaultContext()) {
-            Exec.exec(yamlContent, command(Arrays.asList(APPLY, "-f", "-"), false), 0,
+            Exec.exec(yamlContent, command(Arrays.asList(APPLY, "-f", "-")), 0,
                     true, true);
             return (K) this;
         }
@@ -284,7 +288,7 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
     @SuppressWarnings("unchecked")
     public K deleteContent(String yamlContent) {
         try (Context context = defaultContext()) {
-            Exec.exec(yamlContent, command(Arrays.asList(DELETE, "-f", "-"), false), 0,
+            Exec.exec(yamlContent, command(Arrays.asList(DELETE, "-f", "-")), 0,
                     true, false);
             return (K) this;
         }
@@ -413,7 +417,7 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
      */
     @Override
     public ExecResult exec(boolean throwError, boolean logToOutput, String... command) {
-        List<String> cmd = command(asList(command), false);
+        List<String> cmd = command(asList(command));
         return Exec.exec(null, cmd, 0, logToOutput, throwError);
     }
 
@@ -428,7 +432,7 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
      */
     @Override
     public ExecResult exec(boolean throwError, boolean logToOutput, int timeout, String... command) {
-        List<String> cmd = command(asList(command), false);
+        List<String> cmd = command(asList(command));
         return Exec.exec(null, cmd, timeout, logToOutput, throwError);
     }
 
@@ -630,17 +634,15 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
                 .out().split("\\s+"));
     }
 
-    private List<String> command(List<String> rest, boolean namespaced) {
+    private List<String> command(List<String> rest) {
         List<String> result = new ArrayList<>();
         result.add(cmd());
+
         if (config != null) {
             result.add("--kubeconfig");
             result.add(config);
         }
-        if (namespaced) {
-            result.add("--namespace");
-            result.add(namespace);
-        }
+
         result.addAll(rest);
         return result;
     }
@@ -656,10 +658,11 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
     @Override
     @SuppressWarnings("unchecked")
     public K process(Map<String, String> parameters, String file, Consumer<String> c) {
-        List<String> command = command(asList(PROCESS, "-f", file), false);
+        List<String> command = command(asList(PROCESS, "-f", file));
         command.addAll(parameters.entrySet().stream()
                 .map(e -> "-p " + e.getKey() + "=" + e.getValue())
-                .collect(Collectors.toList()));
+                .toList());
+
         c.accept(Exec.exec(null, command, 0, false).out());
         return (K) this;
     }

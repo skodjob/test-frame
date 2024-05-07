@@ -56,7 +56,7 @@ public class LoggerUtils {
      * @param resource resource
      * @param <T> The type of the resources.
      */
-    public static <T extends HasMetadata>  void  logResource(String operation, T resource) {
+    public static <T extends HasMetadata> void logResource(String operation, T resource) {
         if (resource.getMetadata().getNamespace() == null) {
             LOGGER.info(LoggerUtils.RESOURCE_LOGGER_PATTERN,
                     operation, resource.getKind(),

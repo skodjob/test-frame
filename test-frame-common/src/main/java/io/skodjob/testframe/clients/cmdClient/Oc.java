@@ -67,7 +67,7 @@ public class Oc extends BaseCmdKubeClient<Oc> {
      * @return A new Oc instance with the specified namespace.
      */
     @Override
-    public Oc namespace(String namespace) {
+    public Oc inNamespace(String namespace) {
         return new Oc(namespace, config);
     }
 
@@ -77,7 +77,7 @@ public class Oc extends BaseCmdKubeClient<Oc> {
      * @return The current namespace.
      */
     @Override
-    public String namespace() {
+    public String getCurrentNamespace() {
         return namespace;
     }
 
