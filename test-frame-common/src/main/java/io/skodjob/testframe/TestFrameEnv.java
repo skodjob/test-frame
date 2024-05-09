@@ -21,7 +21,7 @@ import org.yaml.snakeyaml.Yaml;
 /**
  * Class which holds environment variables for system tests.
  */
-public class TestFrameEnv {
+public final class TestFrameEnv {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestFrameEnv.class);
     private static final Map<String, String> VALUES = new HashMap<>();

@@ -18,18 +18,18 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @ResourceManager(cleanResources = false)
 @TestVisualSeparator
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class KubeResourceManagerIT {
+public final class KubeResourceManagerIT extends AbstractIT {
 
     @BeforeEach
     void setupEach() {
         KubeResourceManager.getInstance().createResourceWithWait(
-                new NamespaceBuilder().withNewMetadata().withName("test").endMetadata().build());
+                new NamespaceBuilder().withNewMetadata().withName(nsName1).endMetadata().build());
     }
 
     @AfterEach
     void afterEach() {
-        assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName("test").get());
-        assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName("test2").get());
+        assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName(nsName1).get());
+        assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName(nsName2).get());
         KubeResourceManager.getInstance().deleteResources();
     }
 
@@ -37,7 +37,7 @@ public class KubeResourceManagerIT {
     void createResource() {
         KubeResourceManager.getInstance().createResourceWithWait(
                 new NamespaceBuilder().withNewMetadata().withName("test2").endMetadata().build());
-        assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName("test").get());
-        assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName("test2").get());
+        assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName(nsName1).get());
+        assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName(nsName2).get());
     }
 }

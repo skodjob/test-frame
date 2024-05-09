@@ -7,7 +7,7 @@ import io.skodjob.testframe.resources.ServiceAccountResource;
 import io.skodjob.testframe.utils.KubeUtils;
 
 @ResourceManager
-public class AbstractIT {
+public abstract class AbstractIT {
     static {
         KubeResourceManager.getInstance().setResourceTypes(
                 new NamespaceResource(),
@@ -20,5 +20,8 @@ public class AbstractIT {
         });
     }
 
-    protected String nsName = "test";
+    protected String nsName1 = "test";
+    protected String nsName2 = "test2";
+    protected String nsName3 = "test3";
+    protected String nsName4 = "test4";
 }

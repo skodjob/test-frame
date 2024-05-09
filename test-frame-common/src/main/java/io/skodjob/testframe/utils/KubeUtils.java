@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Utility methods for Kubernetes and Openshift clusters.
  */
-public class KubeUtils {
+public final class KubeUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KubeUtils.class);
 
