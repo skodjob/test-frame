@@ -5,7 +5,6 @@
 package io.skodjob.testframe.test.integration;
 
 import io.fabric8.kubernetes.api.model.HasMetadata;
-import io.skodjob.testframe.annotations.TestVisualSeparator;
 import io.skodjob.testframe.resources.KubeResourceManager;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -15,7 +14,6 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@TestVisualSeparator
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public final class KubeClientIT extends AbstractIT {
 

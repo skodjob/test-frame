@@ -1,12 +1,14 @@
 package io.skodjob.testframe.test.integration;
 
 import io.skodjob.testframe.annotations.ResourceManager;
+import io.skodjob.testframe.annotations.TestVisualSeparator;
 import io.skodjob.testframe.resources.KubeResourceManager;
 import io.skodjob.testframe.resources.NamespaceResource;
 import io.skodjob.testframe.resources.ServiceAccountResource;
 import io.skodjob.testframe.utils.KubeUtils;
 
 @ResourceManager
+@TestVisualSeparator
 public abstract class AbstractIT {
     static {
         KubeResourceManager.getInstance().setResourceTypes(

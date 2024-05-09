@@ -6,7 +6,6 @@ package io.skodjob.testframe.test.integration;
 
 import io.fabric8.kubernetes.api.model.NamespaceBuilder;
 import io.skodjob.testframe.annotations.ResourceManager;
-import io.skodjob.testframe.annotations.TestVisualSeparator;
 import io.skodjob.testframe.resources.KubeResourceManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,8 +14,7 @@ import org.junit.jupiter.api.TestInstance;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@ResourceManager(cleanResources = false)
-@TestVisualSeparator
+@ResourceManager(cleanResources = false) // override default behavior and do not clean resources
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public final class KubeResourceManagerIT extends AbstractIT {
 
