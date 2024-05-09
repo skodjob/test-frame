@@ -75,3 +75,11 @@ Examples are stored in [test-frame-test](test-frame-test/src/test/java/io/skodjo
 * **KUBE_TOKEN** - token of Kube access (use instead of username/password)
 * **KUBE_URL** - URL of the cluster (API URL)
 * **CLIENT_TYPE** - Switch between `kubectl` or `oc` cmd client
+
+## Adopters
+* [opendatahub.io](https://github.com/opendatahub-io/opendatahub-operator) operator test suite - [odh-e2e](https://github.com/skodjob/odh-e2e)
+
+## Maintainers
+* [David Kornel](https://github.com/kornys) <kornys@outlook.com>
+* [Lukas Kral](https://github.com/im-konge) <lukywill16@gmail.com>
+* [Jakub Stejskal](https://github.com/Frawless) <xstejs24@gmail.com>
