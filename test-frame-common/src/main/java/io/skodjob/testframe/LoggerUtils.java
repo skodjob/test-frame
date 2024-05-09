@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Utility methods for logging.
  */
-public class LoggerUtils {
+public final class LoggerUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LoggerUtils.class);
     static final String SEPARATOR_CHAR = "#";

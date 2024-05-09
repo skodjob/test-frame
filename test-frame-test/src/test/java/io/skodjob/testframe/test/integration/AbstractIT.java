@@ -1,13 +1,15 @@
 package io.skodjob.testframe.test.integration;
 
 import io.skodjob.testframe.annotations.ResourceManager;
+import io.skodjob.testframe.annotations.TestVisualSeparator;
 import io.skodjob.testframe.resources.KubeResourceManager;
 import io.skodjob.testframe.resources.NamespaceResource;
 import io.skodjob.testframe.resources.ServiceAccountResource;
 import io.skodjob.testframe.utils.KubeUtils;
 
 @ResourceManager
-public class AbstractIT {
+@TestVisualSeparator
+public abstract class AbstractIT {
     static {
         KubeResourceManager.getInstance().setResourceTypes(
                 new NamespaceResource(),
@@ -20,5 +22,8 @@ public class AbstractIT {
         });
     }
 
-    protected String nsName = "test";
+    protected String nsName1 = "test";
+    protected String nsName2 = "test2";
+    protected String nsName3 = "test3";
+    protected String nsName4 = "test4";
 }

@@ -9,7 +9,7 @@ import java.time.Duration;
 /**
  * Constants used in the test framework.
  */
-public class TestFrameConstants {
+public final class TestFrameConstants {
     private TestFrameConstants() {
         // Private constructor to prevent instantiation
     }

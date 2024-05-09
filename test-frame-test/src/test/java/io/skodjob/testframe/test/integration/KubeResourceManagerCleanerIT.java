@@ -6,7 +6,6 @@ package io.skodjob.testframe.test.integration;
 
 import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.kubernetes.api.model.NamespaceBuilder;
-import io.skodjob.testframe.annotations.TestVisualSeparator;
 import io.skodjob.testframe.clients.KubeClusterException;
 import io.skodjob.testframe.resources.KubeResourceManager;
 import org.junit.jupiter.api.AfterAll;
@@ -19,48 +18,47 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@TestVisualSeparator
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class KubeResourceManagerCleanerIT extends AbstractIT {
+public final class KubeResourceManagerCleanerIT extends AbstractIT {
 
     @BeforeAll
     void setupAll() {
         KubeResourceManager.getInstance().createResourceWithWait(
-                new NamespaceBuilder().withNewMetadata().withName(nsName).endMetadata().build());
+                new NamespaceBuilder().withNewMetadata().withName(nsName1).endMetadata().build());
     }
 
     @BeforeEach
     void setupEach() {
         KubeResourceManager.getInstance().createResourceWithWait(
-                new NamespaceBuilder().withNewMetadata().withName("test2").endMetadata().build());
+                new NamespaceBuilder().withNewMetadata().withName(nsName2).endMetadata().build());
     }
 
     @AfterAll
     void afterAll() {
-        assertNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName("test2").get());
-        assertNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName("test3").get());
+        assertNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName(nsName2).get());
+        assertNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName(nsName3).get());
     }
 
     @Test
     void createResource() {
-        Namespace ns = new NamespaceBuilder().withNewMetadata().withName("test3").endMetadata().build();
+        Namespace ns = new NamespaceBuilder().withNewMetadata().withName(nsName3).endMetadata().build();
         KubeResourceManager.getInstance().createResourceWithWait(ns);
         KubeResourceManager.getInstance().createOrUpdateResourceWithWait(ns);
-        assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName("test3").get()
+        assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName(nsName3).get()
                 .getMetadata().getLabels().get("test-label"));
     }
 
     @Test
     void testKubeClientNamespacesExists() {
-        assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName("test").get());
-        assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName("test2").get());
-        assertNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName("test3").get());
+        assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName(nsName1).get());
+        assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName(nsName2).get());
+        assertNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName(nsName3).get());
     }
 
     @Test
     void testKubeCmdClientNamespacesExists() {
-        assertNotNull(KubeResourceManager.getKubeCmdClient().get("namespace", "test"));
-        assertNotNull(KubeResourceManager.getKubeCmdClient().get("namespace", "test2"));
-        assertThrows(KubeClusterException.class, () -> KubeResourceManager.getKubeCmdClient().get("namespace", "test3"));
+        assertNotNull(KubeResourceManager.getKubeCmdClient().get("namespace", nsName1));
+        assertNotNull(KubeResourceManager.getKubeCmdClient().get("namespace", nsName2));
+        assertThrows(KubeClusterException.class, () -> KubeResourceManager.getKubeCmdClient().get("namespace", nsName3));
     }
 }
