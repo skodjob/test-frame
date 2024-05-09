@@ -12,3 +12,6 @@ target/
 **/*.kubeconfig
 *.env
 config.yaml
+
+# Pom version backup
+**pom.xml.versionsBackup
