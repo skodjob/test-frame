@@ -31,6 +31,10 @@
             <artifactId>test-frame-common</artifactId>
         </dependency>
         <dependency>
+            <groupId>io.skodjob</groupId>
+            <artifactId>test-frame-kubernetes</artifactId>
+        </dependency>
+        <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>openshift-client</artifactId>
         </dependency>
@@ -101,7 +105,7 @@
                 </executions>
                 <configuration>
                     <skipITs>${it.skip}</skipITs>
-                    <forkCount>0</forkCount>
+                    <forkCount>1</forkCount>
                     <includes>
                         <include>io.skodjob.testframe.test.integration.**</include>
                     </includes>

@@ -96,6 +96,11 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
+                <groupId>io.skodjob</groupId>
+                <artifactId>test-frame-kubernetes</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>io.fabric8</groupId>
                 <artifactId>kubernetes-client-api</artifactId>
                 <version>${fabric8.version}</version>

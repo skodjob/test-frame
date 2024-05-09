@@ -5,7 +5,6 @@
 package io.skodjob.testframe.test.integration;
 
 import io.fabric8.kubernetes.api.model.HasMetadata;
-import io.skodjob.testframe.annotations.ResourceManager;
 import io.skodjob.testframe.annotations.TestVisualSeparator;
 import io.skodjob.testframe.resources.KubeResourceManager;
 import org.junit.jupiter.api.Test;
@@ -16,10 +15,9 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@ResourceManager
 @TestVisualSeparator
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class KubeClientIT {
+public class KubeClientIT extends AbstractIT {
 
     @Test
     void testCreateResourcesFromYaml() throws IOException {
