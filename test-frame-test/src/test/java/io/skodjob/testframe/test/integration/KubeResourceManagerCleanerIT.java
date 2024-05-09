@@ -46,6 +46,8 @@ public class KubeResourceManagerCleanerIT extends AbstractIT {
         Namespace ns = new NamespaceBuilder().withNewMetadata().withName("test3").endMetadata().build();
         KubeResourceManager.getInstance().createResourceWithWait(ns);
         KubeResourceManager.getInstance().createOrUpdateResourceWithWait(ns);
+        assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName("test3").get()
+                .getMetadata().getLabels().get("test-label"));
     }
 
     @Test
