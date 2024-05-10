@@ -5,15 +5,25 @@
 package io.skodjob.testframe.enums;
 
 /**
- * Enum class containing names of installation methods for deployments (and operators):
- *      - Bundle (installation using YAML files)
- *      - Helm (installation using Helm charts)
- *      - OLM (installation using container catalog on the OperatorHub)
+ * Enum class containing names of installation methods for deployments (and operators)
  */
 public enum InstallType {
+    /**
+     * Bundle installation type - installation using YAML files
+     */
     Bundle,
+    /**
+     * Helm installation type - installation using Helm charts
+     */
     Helm,
+    /**
+     * OLM installation type - installation using container catalog on the OperatorHub
+     */
     Olm,
+    /**
+     * Unknown installation type - returned in case that the installation type provided is not
+     * one of the above
+     */
     Unknown;
 
     /**
