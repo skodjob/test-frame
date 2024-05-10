@@ -9,9 +9,9 @@ package io.skodjob.testframe.enums;
  */
 public enum InstallType {
     /**
-     * Bundle installation type - installation using YAML files
+     * Yaml installation type - installation using YAML files
      */
-    Bundle,
+    Yaml,
     /**
      * Helm installation type - installation using Helm charts
      */

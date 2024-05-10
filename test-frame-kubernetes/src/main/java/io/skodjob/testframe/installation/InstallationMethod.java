@@ -11,7 +11,7 @@ public abstract class InstallationMethod {
     /**
      * Deploy deployment/operator abstract method
      */
-    public abstract void deploy();
+    public abstract void install();
 
     /**
      * Delete deployment/operator abstract method
