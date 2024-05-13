@@ -19,6 +19,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.security.InvalidParameterException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -70,6 +71,7 @@ public class MetricsCollector {
         private String scraperPodName;
         private MetricsComponent component;
         private Map<String, String> collectedData;
+        private Exec exec;
 
         /**
          * Sets the namespace name for the metrics collector.
@@ -120,6 +122,23 @@ public class MetricsCollector {
          */
         /* test */ protected Builder withCollectedData(Map<String, String> collectedData) {
             this.collectedData = collectedData;
+            return this;
+        }
+
+        /**
+         * Configures the {@link Exec} instance used for executing shell commands during metric collection.
+         * This method is primarily intended for setting up the execution environment that interacts with
+         * the Kubernetes command-line tools, such as kubectl, to facilitate metrics collection from pods.
+         *
+         * <p>This method is marked for testing purposes and should be used to inject mock or alternative
+         * {@link Exec} implementations during unit testing. It allows for the separation of command execution
+         * logic from the metrics collection logic, thereby enhancing testability and modularity.</p>
+         *
+         * @param exec The {@link Exec} instance to be used for command execution.
+         * @return This builder instance to allow for method chaining, enabling a fluent builder setup.
+         */
+        /* test */ protected Builder withExec(Exec exec) {
+            this.exec = exec;
             return this;
         }
 
@@ -187,6 +206,10 @@ public class MetricsCollector {
         return collectedData;
     }
 
+    private Exec getExec() {
+        return exec;
+    }
+
     /* test */ protected void setCollectedData(Map<String, String> collectedData) {
         this.collectedData = collectedData;
     }
@@ -200,7 +223,8 @@ public class MetricsCollector {
             .withNamespaceName(getNamespaceName())
             .withComponent(getComponent())
             .withScraperPodName(getScraperPodName())
-            .withCollectedData(getCollectedData());
+            .withCollectedData(getCollectedData())
+            .withExec(getExec());
     }
 
     /**
@@ -230,10 +254,15 @@ public class MetricsCollector {
             builder.collectedData = Collections.emptyMap();
         }
 
+        if (builder.exec == null) {
+            builder.exec = new Exec();
+        }
+
         namespaceName = builder.namespaceName;
         scraperPodName = builder.scraperPodName;
         component = builder.component;
         collectedData = builder.collectedData;
+        exec = builder.exec;
     }
 
     /**
@@ -464,7 +493,7 @@ public class MetricsCollector {
      *                                    collection logic.
      */
     public final void collectMetricsFromPods() throws MetricsCollectionException {
-        collectMetricsFromPods(TestFrameConstants.GLOBAL_TIMEOUT_MEDIUM);
+        collectMetricsFromPods(Duration.ofSeconds(30).toMillis());
     }
 
     /**
