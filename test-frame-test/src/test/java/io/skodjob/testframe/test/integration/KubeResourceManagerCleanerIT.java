@@ -17,6 +17,7 @@ import org.junit.jupiter.api.TestInstance;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public final class KubeResourceManagerCleanerIT extends AbstractIT {
@@ -37,12 +38,14 @@ public final class KubeResourceManagerCleanerIT extends AbstractIT {
     void afterAll() {
         assertNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName(nsName2).get());
         assertNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName(nsName3).get());
+        assertTrue(isDeleteHandlerCalled.get());
     }
 
     @Test
     void createResource() {
         Namespace ns = new NamespaceBuilder().withNewMetadata().withName(nsName3).endMetadata().build();
         KubeResourceManager.getInstance().createResourceWithWait(ns);
+        assertTrue(isCreateHandlerCalled.get());
         KubeResourceManager.getInstance().createOrUpdateResourceWithWait(ns);
         assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName(nsName3).get()
                 .getMetadata().getLabels().get("test-label"));
