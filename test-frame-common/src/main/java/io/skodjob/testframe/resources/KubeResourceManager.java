@@ -45,6 +45,7 @@ public class KubeResourceManager {
     private static final Map<String, Stack<ResourceItem<?>>> STORED_RESOURCES = new LinkedHashMap<>();
     private ResourceType<?>[] resourceTypes;
     private List<Consumer<HasMetadata>> createCallbacks = new LinkedList<>();
+    private List<Consumer<HasMetadata>> deleteCallbacks = new LinkedList<>();
 
     /**
      * Retrieves the singleton instance of KubeResourceManager.
@@ -111,6 +112,15 @@ public class KubeResourceManager {
      */
     public final void addCreateCallback(Consumer<HasMetadata> callback) {
         this.createCallbacks.add(callback);
+    }
+
+    /**
+     * Add callback function which is called after deletion of every resource
+     *
+     * @param callback function
+     */
+    public final void addDeleteCallback(Consumer<HasMetadata> callback) {
+        this.deleteCallbacks.add(callback);
     }
 
     /**
@@ -382,6 +392,11 @@ public class KubeResourceManager {
                     e.printStackTrace();
                 }
                 numberOfResources.decrementAndGet();
+                deleteCallbacks.forEach(callback -> {
+                    if (resourceItem.getResource() != null) {
+                        callback.accept(resourceItem.getResource());
+                    }
+                });
             }
         }
         STORED_RESOURCES.remove(getTestContext().getDisplayName());
