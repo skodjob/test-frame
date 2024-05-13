@@ -21,6 +21,11 @@ These clients are initialized and connected to the test cluster based on the con
 ### Test visual separation
 For better clarity regarding the test logs, `TestFrame` library provides ASCII vial separation of tests and test classes.
 
+### Metrics Collector
+The [`MetricsCollector`](test-frame-metrics-collector/MetricsCollector.md) is designed to facilitate the collection of metrics from Kubernetes pods. 
+It integrates seamlessly with Kubernetes environments to gather and process metrics data efficiently. 
+For more detailed documentation, see the [MetricsCollector README](test-frame-metrics-collector/MetricsCollector.md).
+
 ### Utils
 `TestFrame` contains also tweaks and utils for better working with kubernetes cluster.
 

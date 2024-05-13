@@ -35,6 +35,12 @@ public final class TestFrameConstants {
     public static final long GLOBAL_POLL_INTERVAL_1_SEC = Duration.ofSeconds(1).toMillis();
 
     /**
+     * Global timeout in milliseconds (medium).
+     */
+    public static final long GLOBAL_TIMEOUT_MEDIUM = Duration.ofMinutes(5).toMillis();
+
+
+    /**
      * Global timeout in milliseconds.
      */
     public static final long GLOBAL_TIMEOUT = Duration.ofMinutes(10).toMillis();
