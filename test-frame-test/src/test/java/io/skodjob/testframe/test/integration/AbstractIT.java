@@ -1,5 +1,6 @@
 package io.skodjob.testframe.test.integration;
 
+import io.skodjob.testframe.LoggerUtils;
 import io.skodjob.testframe.annotations.ResourceManager;
 import io.skodjob.testframe.annotations.TestVisualSeparator;
 import io.skodjob.testframe.resources.KubeResourceManager;
@@ -18,6 +19,11 @@ public abstract class AbstractIT {
         KubeResourceManager.getInstance().addCreateCallback(r -> {
             if (r.getKind().equals("Namespace")) {
                 KubeUtils.labelNamespace(r.getMetadata().getName(), "test-label", "true");
+            }
+        });
+        KubeResourceManager.getInstance().addDeleteCallback(r -> {
+            if (r.getKind().equals("Namespace")) {
+                LoggerUtils.logResource("Deleted", r);
             }
         });
     }
