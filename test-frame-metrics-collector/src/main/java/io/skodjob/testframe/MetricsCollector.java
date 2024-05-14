@@ -75,6 +75,13 @@ public class MetricsCollector {
         private Exec exec;
 
         /**
+         * Constructor
+         */
+        public Builder() {
+            // constructor
+        }
+
+        /**
          * Sets the namespace name for the metrics collector.
          * The namespace name specifies where the metrics collector will search for pods
          * from which to collect metrics.
