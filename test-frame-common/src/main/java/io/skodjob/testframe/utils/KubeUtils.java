@@ -11,15 +11,15 @@ import io.fabric8.openshift.api.model.operatorhub.v1alpha1.InstallPlanBuilder;
 import io.skodjob.testframe.TestFrameConstants;
 import io.skodjob.testframe.resources.KubeResourceManager;
 import io.skodjob.testframe.wait.Wait;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Utility methods for Kubernetes and Openshift clusters.
  */
 public final class KubeUtils {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(KubeUtils.class);
+    private static final Logger LOGGER = LogManager.getLogger(KubeUtils.class);
 
     private KubeUtils() {
     }

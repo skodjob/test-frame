@@ -5,17 +5,17 @@
 package io.skodjob.testframe.listeners;
 
 import io.skodjob.testframe.LoggerUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * jUnit5 specific class which listening on test callbacks
  */
 public class TestVisualSeparatorExtension implements BeforeEachCallback, AfterEachCallback {
-    private final Logger logger = LoggerFactory.getLogger(TestVisualSeparatorExtension.class);
+    private final Logger logger = LogManager.getLogger(TestVisualSeparatorExtension.class);
     @Override
     public void beforeEach(ExtensionContext extensionContext) {
         LoggerUtils.logSeparator();
