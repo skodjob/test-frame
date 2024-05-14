@@ -190,18 +190,38 @@ public class MetricsCollector {
         return kubeCmdClient;
     }
 
+    /**
+     * Retrieves the namespace name.
+     *
+     * @return the name of the namespace
+     */
     public String getNamespaceName() {
         return namespaceName;
     }
 
+    /**
+     * Retrieves the name of the scraper pod.
+     *
+     * @return the name of the scraper pod
+     */
     public String getScraperPodName() {
         return scraperPodName;
     }
 
+    /**
+     * Retrieves the metrics component associated with this object.
+     *
+     * @return the metrics component
+     */
     public MetricsComponent getComponent() {
         return component;
     }
 
+    /**
+     * Retrieves the collected data as a map.
+     *
+     * @return a map containing the collected data
+     */
     public Map<String, String> getCollectedData() {
         return collectedData;
     }

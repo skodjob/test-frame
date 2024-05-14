@@ -18,8 +18,19 @@ public final class TestFrameEnv {
     private static final String URL_ENV = "KUBE_URL";
     private static final String IP_FAMILY_ENV = "IP_FAMILY";
 
+    /**
+     * Represents the default IP family, which is IPv4.
+     */
     public static final String IP_FAMILY_DEFAULT = "ipv4";
+
+    /**
+     * Represents the IPv6 IP family.
+     */
     public static final String IP_FAMILY_VERSION_6 = "ipv6";
+
+    /**
+     * Represents the dual stack IP family, which supports both IPv4 and IPv6.
+     */
     public static final String IP_FAMILY_DUAL_STACK = "dual";
 
     /**
