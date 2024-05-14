@@ -63,7 +63,7 @@ public final class TestFrameEnv {
      * </ul>
      * The default setting is 'ipv4' if not specified in the environment variables.
      */
-    public static final String IP_FAMILY = getOrDefault(IP_FAMILY_ENV, IP_FAMILY_DEFAULT);
+    public static final String IP_FAMILY = ENV_VARIABLES.getOrDefault(IP_FAMILY_ENV, IP_FAMILY_DEFAULT);
 
     private TestFrameEnv() {
         // Private constructor to prevent instantiation
