@@ -35,7 +35,7 @@ public class ExecResult implements Serializable {
      * @param stdOut     The standard output.
      * @param stdErr     The standard error.
      */
-    ExecResult(int returnCode, String stdOut, String stdErr) {
+    public ExecResult(int returnCode, String stdOut, String stdErr) {
         this.returnCode = returnCode;
         this.stdOut = stdOut;
         this.stdErr = stdErr;
