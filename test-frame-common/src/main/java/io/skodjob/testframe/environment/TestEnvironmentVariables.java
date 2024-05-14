@@ -5,8 +5,8 @@
 package io.skodjob.testframe.environment;
 
 import io.skodjob.testframe.LoggerUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
@@ -24,9 +24,9 @@ import java.util.function.Function;
  */
 public class TestEnvironmentVariables {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TestEnvironmentVariables.class);
+    private static final Logger LOGGER = LogManager.getLogger(TestEnvironmentVariables.class);
 
-    /* test */ private Map<String, String> envMap;
+    /* test */ private final Map<String, String> envMap;
     private Map<String, String> values = new HashMap<>();
     private Map<String, Object> yamlData = new HashMap<>();
     private final String configFilePath;
