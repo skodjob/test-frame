@@ -25,6 +25,10 @@ import org.apache.logging.log4j.Logger;
 public class Wait {
     private static final Logger LOGGER = LogManager.getLogger(Wait.class);
 
+    private Wait() {
+        // Private constructor to prevent instantiation
+    }
+
     /**
      * For every poll (happening once each {@code pollIntervalMs}) checks if supplier {@code ready} is true.
      * If yes, the wait is closed. Otherwise, waits another {@code pollIntervalMs} and tries again.

@@ -16,6 +16,11 @@ import org.junit.jupiter.api.extension.ExtensionContext;
  */
 public class TestVisualSeparatorExtension implements BeforeEachCallback, AfterEachCallback {
     private final Logger logger = LogManager.getLogger(TestVisualSeparatorExtension.class);
+
+    private TestVisualSeparatorExtension() {
+        // Private constructor to prevent instantiation
+    }
+
     @Override
     public void beforeEach(ExtensionContext extensionContext) {
         LoggerUtils.logSeparator();

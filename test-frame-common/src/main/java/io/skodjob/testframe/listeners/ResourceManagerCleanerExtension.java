@@ -19,6 +19,10 @@ import static org.junit.platform.commons.support.AnnotationSupport.findAnnotatio
  */
 public class ResourceManagerCleanerExtension implements AfterAllCallback, AfterEachCallback {
 
+    private ResourceManagerCleanerExtension() {
+        // Private constructor to prevent instantiation
+    }
+
     /**
      * Enables ResourceManagerCleanerExtension for after All callback
      * @param extensionContext context
