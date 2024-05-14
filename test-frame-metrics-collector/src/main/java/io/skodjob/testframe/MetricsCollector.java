@@ -383,7 +383,7 @@ public class MetricsCollector {
      */
     protected String collectMetrics(String metricsPodIp, String podName)
         throws InterruptedException, ExecutionException, IOException {
-        List<String> executableCommand = Arrays.asList(getKubeCmdClient().namespace(namespaceName).toString(), "exec",
+        List<String> executableCommand = Arrays.asList(getKubeCmdClient().inNamespace(namespaceName).toString(), "exec",
             scraperPodName,
             "-n", namespaceName,
             "--", "curl", metricsPodIp + ":" + component.getDefaultMetricsPort() + component.getDefaultMetricsPath());

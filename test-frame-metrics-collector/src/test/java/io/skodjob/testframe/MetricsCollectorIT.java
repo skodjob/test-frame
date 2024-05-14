@@ -47,7 +47,7 @@ public class MetricsCollectorIT {
         mockCmdClient = mock(KubeCmdClient.class);
 
         // we need to use "kubectl" instead of toString because `"Mock for KubeCmdClient, hashCode: 1774795940"`
-        when(mockCmdClient.namespace(anyString())).thenReturn(new Kubectl());
+        when(mockCmdClient.inNamespace(anyString())).thenReturn(new Kubectl());
 
         MetricsCollector.Builder builder = new MetricsCollector.Builder()
             .withNamespaceName("test-namespace")
