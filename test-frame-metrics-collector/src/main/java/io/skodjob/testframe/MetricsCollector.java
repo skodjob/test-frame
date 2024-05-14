@@ -52,6 +52,7 @@ import java.util.regex.Pattern;
 public class MetricsCollector {
 
     private static final Logger LOGGER = LogManager.getLogger(MetricsCollector.class);
+    private static final long EXEC_TIMEOUT_MS_DEFAULT = Duration.ofSeconds(20).toMillis();
 
     protected String namespaceName;
     protected String scraperPodName;
@@ -391,7 +392,7 @@ public class MetricsCollector {
         LOGGER.debug("Executing command:{} for scrape the metrics", executableCommand);
 
         // 20 seconds should be enough for collect data from the pod
-        int ret = this.exec.execute(null, executableCommand, null,20_000);
+        int ret = this.exec.execute(null, executableCommand, null, EXEC_TIMEOUT_MS_DEFAULT);
 
         LOGGER.debug("Metrics collection for Pod: {}/{}({}) from Pod: {}/{} finished with return code: {}",
             namespaceName, podName, metricsPodIp, namespaceName, scraperPodName, ret);
@@ -425,7 +426,7 @@ public class MetricsCollector {
         final MetricsCollectionStatus status = new MetricsCollectionStatus();
 
         try {
-            Wait.until("metrics to contain data", TestFrameConstants.GLOBAL_POLL_INTERVAL_1_SEC, timeoutDuration,
+            Wait.until("metrics won't be empty", TestFrameConstants.GLOBAL_POLL_INTERVAL_1_SEC, timeoutDuration,
                 () -> {
                     try {
                         Map<String, String> metricsData = collectMetricsFromPodsWithoutWait();
@@ -549,7 +550,8 @@ public class MetricsCollector {
             try {
                 final String metrics = collectMetrics(podIP, podName);
                 map.put(podName, metrics);
-                LOGGER.info("Collected metrics from {}: {}", podName, metrics);
+                LOGGER.info("Finished metrics collection from {}", podName);
+                LOGGER.debug("Collected metrics from {}: {}", podName, metrics);
             } catch (InterruptedException | ExecutionException | IOException e) {
                 LOGGER.error("Failed to collect metrics from {}: {}", podName, e.getMessage());
                 errorMap.put(podName, e.getMessage()); // Store the error message
