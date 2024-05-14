@@ -513,7 +513,7 @@ public class MetricsCollector {
      *                                    collection logic.
      */
     public final void collectMetricsFromPods() throws MetricsCollectionException {
-        collectMetricsFromPods(Duration.ofSeconds(30).toMillis());
+        collectMetricsFromPods(Duration.ofSeconds(TestFrameConstants.GLOBAL_TIMEOUT_MEDIUM).toMillis());
     }
 
     /**
