@@ -25,7 +25,7 @@ public class ExecBuilder {
     /**
      * Constructor
      */
-    public ExecBuilder() { }
+    public ExecBuilder() {}
 
     /**
      * Sets the command to execute.
