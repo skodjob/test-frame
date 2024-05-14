@@ -26,9 +26,9 @@ import io.skodjob.testframe.clients.cmdClient.Oc;
 import io.skodjob.testframe.interfaces.NamespacedResourceType;
 import io.skodjob.testframe.interfaces.ResourceType;
 import io.skodjob.testframe.wait.Wait;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.extension.ExtensionContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -37,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Manages Kubernetes resources for testing purposes.
  */
 public class KubeResourceManager {
-    private static final Logger LOGGER = LoggerFactory.getLogger(KubeResourceManager.class);
+    private static final Logger LOGGER = LogManager.getLogger(KubeResourceManager.class);
     private static KubeResourceManager instance;
     private static KubeClient client;
     private static KubeCmdClient<?> kubeCmdClient;

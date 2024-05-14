@@ -19,8 +19,8 @@ import java.util.stream.Collectors;
 import io.skodjob.testframe.clients.KubeClusterException;
 import io.skodjob.testframe.executor.Exec;
 import io.skodjob.testframe.executor.ExecResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import static java.lang.String.join;
 import static java.util.Arrays.asList;
@@ -32,7 +32,7 @@ import static java.util.Arrays.asList;
  */
 public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implements KubeCmdClient<K> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BaseCmdKubeClient.class);
+    private static final Logger LOGGER = LogManager.getLogger(BaseCmdKubeClient.class);
 
     private static final String CREATE = "create";
     private static final String APPLY = "apply";
@@ -425,7 +425,7 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
      *
      * @param throwError  Whether to throw errors.
      * @param logToOutput Whether to log the output.
-     * @param timeout timeout in milis
+     * @param timeout     timeout in milis
      * @param command     The command to execute.
      * @return The execution result.
      */

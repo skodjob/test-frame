@@ -7,15 +7,15 @@ package io.skodjob.testframe;
 import java.util.Collections;
 
 import io.fabric8.kubernetes.api.model.HasMetadata;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Utility methods for logging.
  */
 public final class LoggerUtils {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LoggerUtils.class);
+    private static final Logger LOGGER = LogManager.getLogger(LoggerUtils.class);
     static final String SEPARATOR_CHAR = "#";
 
     /**

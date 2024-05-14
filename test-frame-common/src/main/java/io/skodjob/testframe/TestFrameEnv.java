@@ -14,8 +14,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.yaml.snakeyaml.Yaml;
 
 /**
@@ -23,7 +23,7 @@ import org.yaml.snakeyaml.Yaml;
  */
 public final class TestFrameEnv {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TestFrameEnv.class);
+    private static final Logger LOGGER = LogManager.getLogger(TestFrameEnv.class);
     private static final Map<String, String> VALUES = new HashMap<>();
     private static final Map<String, Object> YAML_DATA = loadConfigurationFile();
 

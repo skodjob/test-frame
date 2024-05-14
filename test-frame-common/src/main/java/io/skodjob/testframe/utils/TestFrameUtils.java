@@ -12,8 +12,8 @@ import java.util.concurrent.TimeUnit;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Utility methods for TestFrame.
@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings({"checkstyle:ClassFanOutComplexity"})
 public final class TestFrameUtils {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TestFrameUtils.class);
+    private static final Logger LOGGER = LogManager.getLogger(TestFrameUtils.class);
 
     /**
      * Default timeout for asynchronous tests.

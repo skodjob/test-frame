@@ -16,14 +16,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.BooleanSupplier;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Wait utils
  */
 public class Wait {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Wait.class);
+    private static final Logger LOGGER = LogManager.getLogger(Wait.class);
 
     /**
      * For every poll (happening once each {@code pollIntervalMs}) checks if supplier {@code ready} is true.

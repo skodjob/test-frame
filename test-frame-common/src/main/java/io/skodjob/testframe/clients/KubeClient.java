@@ -26,15 +26,15 @@ import io.skodjob.testframe.LoggerUtils;
 import io.skodjob.testframe.TestFrameConstants;
 import io.skodjob.testframe.TestFrameEnv;
 import io.skodjob.testframe.executor.Exec;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Provides functionality to interact with Kubernetes and OpenShift clusters.
  * This includes creating clients, reading resources from files, and managing kubeconfig for authentication.
  */
 public class KubeClient {
-    private static final Logger LOGGER = LoggerFactory.getLogger(KubeClient.class);
+    private static final Logger LOGGER = LogManager.getLogger(KubeClient.class);
 
 
     private KubernetesClient client;
