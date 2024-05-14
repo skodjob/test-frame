@@ -4,6 +4,7 @@
  */
 package io.skodjob.testframe.utils;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.Callable;
@@ -67,6 +68,29 @@ public final class TestFrameUtils {
      * @throws RuntimeException         if an I/O error occurs.
      */
     public static <T> T configFromYaml(String yamlFile, Class<T> c) {
+        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+        try {
+            return mapper.readValue(yamlFile, c);
+        } catch (InvalidFormatException e) {
+            throw new IllegalArgumentException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Parses YAML configuration into an object.
+     *
+     * @param yamlFile The YAML file.
+     * @param c        The class of the object to parse into.
+     * @param <T>      The type of the object.
+     *
+     * @return The parsed object.
+     *
+     * @throws IllegalArgumentException if the YAML is invalid.
+     * @throws RuntimeException         if an I/O error occurs.
+     */
+    public static <T> T configFromYaml(File yamlFile, Class<T> c) {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         try {
             return mapper.readValue(yamlFile, c);
