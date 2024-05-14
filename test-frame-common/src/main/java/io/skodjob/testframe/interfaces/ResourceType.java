@@ -23,7 +23,6 @@ public interface ResourceType<T extends HasMetadata> {
      */
     NonNamespaceOperation<?, ?, ?> getClient();
 
-
     /**
      * Kind of api resource
      *

@@ -16,7 +16,9 @@ import java.util.regex.Pattern;
 public class ImageUtils {
     private static final Logger LOGGER = LogManager.getLogger(ImageUtils.class);
 
-    private ImageUtils() {}
+    private ImageUtils() {
+        // Private constructor to prevent instantiation
+    }
 
     private static final Pattern IMAGE_PATTERN_FULL_PATH =
         Pattern.compile("^(?<registry>[^/]*)/(?<org>[^/]*)/(?<image>[^:]*):(?<tag>.*)$");

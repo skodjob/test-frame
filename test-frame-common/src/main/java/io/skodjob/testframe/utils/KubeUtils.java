@@ -22,6 +22,7 @@ public final class KubeUtils {
     private static final Logger LOGGER = LogManager.getLogger(KubeUtils.class);
 
     private KubeUtils() {
+        // Private constructor to prevent instantiation
     }
 
     /**

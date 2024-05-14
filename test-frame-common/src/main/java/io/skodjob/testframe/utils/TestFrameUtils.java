@@ -35,6 +35,7 @@ public final class TestFrameUtils {
     public static final TimeUnit DEFAULT_TIMEOUT_UNIT = TimeUnit.SECONDS;
 
     private TestFrameUtils() {
+        // Private constructor to prevent instantiation
     }
 
     /**
