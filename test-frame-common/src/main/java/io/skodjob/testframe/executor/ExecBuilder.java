@@ -23,6 +23,11 @@ public class ExecBuilder {
     private boolean throwErrors;
 
     /**
+     * Constructor
+     */
+    public ExecBuilder() { }
+
+    /**
      * Sets the command to execute.
      *
      * @param command The command to execute.

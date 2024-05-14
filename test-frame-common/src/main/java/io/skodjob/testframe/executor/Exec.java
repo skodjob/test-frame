@@ -167,6 +167,8 @@ public class Exec {
     }
 
     /**
+     * Method executes external command
+     *
      * @param input       input
      * @param command     command
      * @param timeout     timeout for command

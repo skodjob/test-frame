@@ -8,6 +8,11 @@ package io.skodjob.testframe.installation;
  * Abstract class containing methods that can be implemented in particular setup classes based on the installation type.
  */
 public abstract class InstallationMethod {
+
+    private InstallationMethod() {
+        // Private constructor to prevent instantiation
+    }
+
     /**
      * Deploy deployment/operator abstract method
      */

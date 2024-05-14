@@ -17,6 +17,10 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 public class ResourceManagerExtension
         implements BeforeAllCallback, BeforeEachCallback, AfterAllCallback, AfterEachCallback {
 
+    private ResourceManagerExtension() {
+        // Private constructor to prevent instantiation
+    }
+
     @Override
     public void beforeAll(ExtensionContext extensionContext) {
         KubeResourceManager.getInstance();

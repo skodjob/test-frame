@@ -47,6 +47,10 @@ public class KubeResourceManager {
     private List<Consumer<HasMetadata>> createCallbacks = new LinkedList<>();
     private List<Consumer<HasMetadata>> deleteCallbacks = new LinkedList<>();
 
+    private KubeResourceManager() {
+        // Private constructor to prevent instantiation
+    }
+
     /**
      * Retrieves the singleton instance of KubeResourceManager.
      * @return The singleton instance of KubeResourceManager.
