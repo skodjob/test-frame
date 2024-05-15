@@ -24,20 +24,20 @@ For better clarity regarding the test logs, `TestFrame` library provides ASCII v
 ### Metrics Collector
 The [`MetricsCollector`](test-frame-metrics-collector/MetricsCollector.md) is designed to facilitate the collection of metrics from Kubernetes pods. 
 It integrates seamlessly with Kubernetes environments to gather and process metrics data efficiently. 
-For more detailed documentation, see the [MetricsCollector README](test-frame-metrics-collector/MetricsCollector.md).
+For more detailed documentation, see the MetricsCollector [README](test-frame-metrics-collector/README.md).
 
 ### Utils
 `TestFrame` contains also tweaks and utils for better working with kubernetes cluster.
 
 ## Usage
-1. Include dependency to your maven test project
+### Include dependency to your maven test project
 ```xml
 <dependency>
     <groupId>io.skodjob</groupId>
     <artifactId>test-frame-common</artifactId>
 </dependency>
 ```
-2. Use annotations for working with `KubeResourceManager` or other provided functionality
+### Use annotations for working with `KubeResourceManager` or other provided functionality
 ```java
 //...
 @ResourceManager
@@ -47,7 +47,7 @@ class Test {
 }
 //...
 ```
-3. To disable `KubeResourceManager` clean resources functionality
+### To disable `KubeResourceManager` clean resources functionality
 ```java
 //...
 @ResourceManager(cleanResources = false)
@@ -57,7 +57,7 @@ class Test {
 }
 //...
 ```
-4. Work with `KubeResourceManager` and clients
+### Work with `KubeResourceManager` and clients
 ```java
 //...
 @ResourceManager
@@ -70,6 +70,14 @@ class Test {
     }
 }
 //...
+```
+### Register `ResourceType` or `NamespacedResoruceType` classes into `KubeResoruceManager`
+```java
+KubeResourceManager.getInstance().setResourceTypes(
+        new NamespaceResource(),
+        new JobResource(),
+        new NetworkPolicyResource()
+);
 ```
 
 ## Examples
