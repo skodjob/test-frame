@@ -13,21 +13,18 @@ import io.skodjob.testframe.interfaces.ResourceType;
 /**
  * Represents a condition that can be applied to Kubernetes resources.
  *
+ * @param predicate predicate function
+ * @param conditionName conditionName
  * @param <T> Type of Kubernetes resource.
  */
-public class ResourceCondition<T extends HasMetadata> {
-    private final Predicate<T> predicate;
-    private final String conditionName;
-
+public record ResourceCondition<T extends HasMetadata>(Predicate<T> predicate, String conditionName) {
     /**
      * Constructs a ResourceCondition with the given predicate and condition name.
      *
      * @param predicate     The predicate representing the condition.
      * @param conditionName The name of the condition.
      */
-    public ResourceCondition(Predicate<T> predicate, String conditionName) {
-        this.predicate = predicate;
-        this.conditionName = conditionName;
+    public ResourceCondition {
     }
 
     /**
@@ -35,7 +32,8 @@ public class ResourceCondition<T extends HasMetadata> {
      *
      * @return The name of the condition.
      */
-    public String getConditionName() {
+    @Override
+    public String conditionName() {
         return conditionName;
     }
 
@@ -44,7 +42,8 @@ public class ResourceCondition<T extends HasMetadata> {
      *
      * @return The predicate representing the condition.
      */
-    public Predicate<T> getPredicate() {
+    @Override
+    public Predicate<T> predicate() {
         return predicate;
     }
 
