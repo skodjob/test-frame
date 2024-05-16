@@ -15,7 +15,7 @@ import io.skodjob.testframe.interfaces.ResourceType;
 /**
  * Implementation of ResourceType for specific kubernetes resource
  */
-public class CustomResourceDefinitionResource implements ResourceType<CustomResourceDefinition> {
+public class CustomResourceDefinitionType implements ResourceType<CustomResourceDefinition> {
 
     private final NonNamespaceOperation<CustomResourceDefinition, CustomResourceDefinitionList,
             Resource<CustomResourceDefinition>> client;
@@ -23,7 +23,7 @@ public class CustomResourceDefinitionResource implements ResourceType<CustomReso
     /**
      * Constructor
      */
-    public CustomResourceDefinitionResource() {
+    public CustomResourceDefinitionType() {
         this.client = KubeResourceManager.getKubeClient().getClient().apiextensions().v1().customResourceDefinitions();
     }
 

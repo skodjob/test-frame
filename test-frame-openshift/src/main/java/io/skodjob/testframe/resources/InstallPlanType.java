@@ -15,14 +15,14 @@ import java.util.function.Consumer;
 /**
  * Implementation of ResourceType for specific kubernetes resource
  */
-public class InstallPlanResource implements NamespacedResourceType<InstallPlan> {
+public class InstallPlanType implements NamespacedResourceType<InstallPlan> {
 
     private final MixedOperation<InstallPlan, InstallPlanList, Resource<InstallPlan>> client;
 
     /**
      * Constructor
      */
-    public InstallPlanResource() {
+    public InstallPlanType() {
         this.client = KubeResourceManager.getKubeClient().getOpenShiftClient().operatorHub().installPlans();
     }
 

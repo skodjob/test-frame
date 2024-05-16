@@ -15,14 +15,14 @@ import io.skodjob.testframe.interfaces.NamespacedResourceType;
 /**
  * Implementation of ResourceType for specific kubernetes resource
  */
-public class RoleBindingResource implements NamespacedResourceType<RoleBinding> {
+public class RoleBindingType implements NamespacedResourceType<RoleBinding> {
 
     private final MixedOperation<RoleBinding, RoleBindingList, Resource<RoleBinding>> client;
 
     /**
      * Constructor
      */
-    public RoleBindingResource() {
+    public RoleBindingType() {
         this.client = KubeResourceManager.getKubeClient().getClient().rbac().roleBindings();
     }
 

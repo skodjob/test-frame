@@ -15,14 +15,14 @@ import io.skodjob.testframe.interfaces.NamespacedResourceType;
 /**
  * Implementation of ResourceType for specific kubernetes resource
  */
-public class LeaseResource implements NamespacedResourceType<Lease> {
+public class LeaseType implements NamespacedResourceType<Lease> {
 
     private MixedOperation<Lease, LeaseList, Resource<Lease>> client;
 
     /**
      * Constructor
      */
-    public LeaseResource() {
+    public LeaseType() {
         this.client = KubeResourceManager.getKubeClient().getClient().leases();
     }
 

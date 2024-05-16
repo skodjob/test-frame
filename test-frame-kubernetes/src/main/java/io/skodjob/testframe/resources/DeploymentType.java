@@ -15,14 +15,14 @@ import io.skodjob.testframe.interfaces.NamespacedResourceType;
 /**
  * Implementation of ResourceType for specific kubernetes resource
  */
-public class DeploymentResource implements NamespacedResourceType<Deployment> {
+public class DeploymentType implements NamespacedResourceType<Deployment> {
 
     private final MixedOperation<Deployment, DeploymentList, RollableScalableResource<Deployment>> client;
 
     /**
      * Constructor
      */
-    public DeploymentResource() {
+    public DeploymentType() {
         this.client = KubeResourceManager.getKubeClient().getClient().apps().deployments();
     }
 

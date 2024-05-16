@@ -15,7 +15,7 @@ import io.skodjob.testframe.interfaces.ResourceType;
 /**
  * Implementation of ResourceType for specific kubernetes resource
  */
-public class ValidatingWebhookConfigurationResource implements ResourceType<ValidatingWebhookConfiguration> {
+public class ValidatingWebhookConfigurationType implements ResourceType<ValidatingWebhookConfiguration> {
 
 
     private final NonNamespaceOperation<ValidatingWebhookConfiguration, ValidatingWebhookConfigurationList,
@@ -24,7 +24,7 @@ public class ValidatingWebhookConfigurationResource implements ResourceType<Vali
     /**
      * Constructor
      */
-    public ValidatingWebhookConfigurationResource() {
+    public ValidatingWebhookConfigurationType() {
         this.client = KubeResourceManager.getKubeClient().getClient()
                 .admissionRegistration()
                 .v1()

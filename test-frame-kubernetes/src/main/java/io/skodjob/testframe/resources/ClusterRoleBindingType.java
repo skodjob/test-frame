@@ -15,7 +15,7 @@ import io.skodjob.testframe.interfaces.ResourceType;
 /**
  * Implementation of ResourceType for specific kubernetes resource
  */
-public class ClusterRoleBindingResource implements ResourceType<ClusterRoleBinding> {
+public class ClusterRoleBindingType implements ResourceType<ClusterRoleBinding> {
 
     private final NonNamespaceOperation<ClusterRoleBinding, ClusterRoleBindingList,
             Resource<ClusterRoleBinding>> client;
@@ -23,7 +23,7 @@ public class ClusterRoleBindingResource implements ResourceType<ClusterRoleBindi
     /**
      * Constructor
      */
-    public ClusterRoleBindingResource() {
+    public ClusterRoleBindingType() {
         this.client = KubeResourceManager.getKubeClient().getClient().rbac().clusterRoleBindings();
     }
 

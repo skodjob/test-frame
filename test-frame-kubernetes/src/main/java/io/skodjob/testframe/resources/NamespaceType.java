@@ -16,14 +16,14 @@ import io.skodjob.testframe.interfaces.ResourceType;
 /**
  * Implementation of ResourceType for specific kubernetes resource
  */
-public class NamespaceResource implements ResourceType<Namespace> {
+public class NamespaceType implements ResourceType<Namespace> {
 
     private final NonNamespaceOperation<Namespace, NamespaceList, Resource<Namespace>> client;
 
     /**
      * Constructor
      */
-    public NamespaceResource() {
+    public NamespaceType() {
         this.client = KubeResourceManager.getKubeClient().getClient().namespaces();
     }
 

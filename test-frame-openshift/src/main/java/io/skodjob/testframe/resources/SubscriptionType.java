@@ -15,14 +15,14 @@ import java.util.function.Consumer;
 /**
  * Implementation of ResourceType for specific kubernetes resource
  */
-public class SubscriptionResource implements NamespacedResourceType<Subscription> {
+public class SubscriptionType implements NamespacedResourceType<Subscription> {
 
     private final MixedOperation<Subscription, SubscriptionList, Resource<Subscription>> client;
 
     /**
      * Constructor
      */
-    public SubscriptionResource() {
+    public SubscriptionType() {
         this.client = KubeResourceManager.getKubeClient().getOpenShiftClient().operatorHub().subscriptions();
     }
 

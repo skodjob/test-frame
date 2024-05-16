@@ -74,9 +74,9 @@ class Test {
 ### Register `ResourceType` or `NamespacedResoruceType` classes into `KubeResoruceManager`
 ```java
 KubeResourceManager.getInstance().setResourceTypes(
-        new NamespaceResource(),
-        new JobResource(),
-        new NetworkPolicyResource()
+        new NamespaceType(),
+        new JobType(),
+        new NetworkPolicyType()
 );
 ```
 

@@ -4,8 +4,8 @@ import io.skodjob.testframe.LoggerUtils;
 import io.skodjob.testframe.annotations.ResourceManager;
 import io.skodjob.testframe.annotations.TestVisualSeparator;
 import io.skodjob.testframe.resources.KubeResourceManager;
-import io.skodjob.testframe.resources.NamespaceResource;
-import io.skodjob.testframe.resources.ServiceAccountResource;
+import io.skodjob.testframe.resources.NamespaceType;
+import io.skodjob.testframe.resources.ServiceAccountType;
 import io.skodjob.testframe.utils.KubeUtils;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -18,8 +18,8 @@ public abstract class AbstractIT {
 
     static {
         KubeResourceManager.getInstance().setResourceTypes(
-                new NamespaceResource(),
-                new ServiceAccountResource()
+                new NamespaceType(),
+                new ServiceAccountType()
         );
         KubeResourceManager.getInstance().addCreateCallback(r -> {
             isCreateHandlerCalled.set(true);
