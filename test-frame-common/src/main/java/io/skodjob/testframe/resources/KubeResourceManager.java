@@ -38,14 +38,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 public class KubeResourceManager {
     private static final Logger LOGGER = LogManager.getLogger(KubeResourceManager.class);
+
     private static KubeResourceManager instance;
     private static KubeClient client;
     private static KubeCmdClient<?> kubeCmdClient;
-    private static ThreadLocal<ExtensionContext> testContext = new ThreadLocal<>();
-    private static final Map<String, Stack<ResourceItem<?>>> STORED_RESOURCES = new LinkedHashMap<>();
     private ResourceType<?>[] resourceTypes;
-    private List<Consumer<HasMetadata>> createCallbacks = new LinkedList<>();
-    private List<Consumer<HasMetadata>> deleteCallbacks = new LinkedList<>();
+    private final List<Consumer<HasMetadata>> createCallbacks = new LinkedList<>();
+    private final List<Consumer<HasMetadata>> deleteCallbacks = new LinkedList<>();
+
+    private static final ThreadLocal<ExtensionContext> TEST_CONTEXT = new ThreadLocal<>();
+    private static final Map<String, Stack<ResourceItem<?>>> STORED_RESOURCES = new LinkedHashMap<>();
 
     private KubeResourceManager() {
         // Private constructor to prevent instantiation
@@ -90,7 +92,7 @@ public class KubeResourceManager {
      * @param context The extension context.
      */
     public static void setTestContext(ExtensionContext context) {
-        testContext.set(context);
+        TEST_CONTEXT.set(context);
     }
 
     /**
@@ -98,7 +100,7 @@ public class KubeResourceManager {
      * @return The extension context.
      */
     public static ExtensionContext getTestContext() {
-        return testContext.get();
+        return TEST_CONTEXT.get();
     }
 
     /**
@@ -348,11 +350,11 @@ public class KubeResourceManager {
         boolean[] resourceReady = new boolean[1];
 
         Wait.until(String.format("Resource condition: %s to be fulfilled for resource %s/%s",
-                        condition.getConditionName(), resource.getKind(), resource.getMetadata().getName()),
+                        condition.conditionName(), resource.getKind(), resource.getMetadata().getName()),
                 TestFrameConstants.GLOBAL_POLL_INTERVAL_MEDIUM, TestFrameConstants.GLOBAL_TIMEOUT,
                 () -> {
                     T res = getKubeClient().getClient().resource(resource).get();
-                    resourceReady[0] = condition.getPredicate().test(res);
+                    resourceReady[0] = condition.predicate().test(res);
                     return resourceReady[0];
                 },
                 () -> {

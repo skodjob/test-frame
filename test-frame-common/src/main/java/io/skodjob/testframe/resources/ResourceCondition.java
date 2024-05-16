@@ -13,40 +13,11 @@ import io.skodjob.testframe.interfaces.ResourceType;
 /**
  * Represents a condition that can be applied to Kubernetes resources.
  *
+ * @param predicate predicate function
+ * @param conditionName conditionName
  * @param <T> Type of Kubernetes resource.
  */
-public class ResourceCondition<T extends HasMetadata> {
-    private final Predicate<T> predicate;
-    private final String conditionName;
-
-    /**
-     * Constructs a ResourceCondition with the given predicate and condition name.
-     *
-     * @param predicate     The predicate representing the condition.
-     * @param conditionName The name of the condition.
-     */
-    public ResourceCondition(Predicate<T> predicate, String conditionName) {
-        this.predicate = predicate;
-        this.conditionName = conditionName;
-    }
-
-    /**
-     * Gets the name of the condition.
-     *
-     * @return The name of the condition.
-     */
-    public String getConditionName() {
-        return conditionName;
-    }
-
-    /**
-     * Gets the predicate representing the condition.
-     *
-     * @return The predicate representing the condition.
-     */
-    public Predicate<T> getPredicate() {
-        return predicate;
-    }
+public record ResourceCondition<T extends HasMetadata>(Predicate<T> predicate, String conditionName) {
 
     /**
      * Creates a ResourceCondition representing readiness of a resource of the given type.
