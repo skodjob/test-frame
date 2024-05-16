@@ -15,7 +15,10 @@ import java.util.Stack;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
-import io.fabric8.kubernetes.api.model.HasMetadata;
+import io.fabric8.kubernetes.api.model.*;
+import io.fabric8.kubernetes.api.model.apps.Deployment;
+import io.fabric8.kubernetes.api.model.apps.ReplicaSet;
+import io.fabric8.kubernetes.api.model.apps.StatefulSet;
 import io.skodjob.testframe.LoggerUtils;
 import io.skodjob.testframe.TestFrameConstants;
 import io.skodjob.testframe.TestFrameEnv;
@@ -244,11 +247,10 @@ public class KubeResourceManager {
                 }
                 if (waitReady) {
                     assertTrue(waitResourceCondition(resource, new ResourceCondition<>(p -> {
-                        try {
+                        if (isResourceWithReadiness(resource)) {
                             return client.getClient().resource(resource).isReady();
-                        } catch (Exception ex) {
-                            return client.getClient().resource(resource) != null;
                         }
+                        return client.getClient().resource(resource) != null;
                     }, "ready")),
                             String.format("Timed out waiting for %s/%s in %s to be ready", resource.getKind(),
                                     resource.getMetadata().getName(), resource.getMetadata().getNamespace()));
@@ -424,5 +426,16 @@ public class KubeResourceManager {
             }
         }
         return null;
+    }
+
+    private <T extends HasMetadata> boolean isResourceWithReadiness(T resource) {
+        return resource instanceof Deployment
+            || resource instanceof io.fabric8.kubernetes.api.model.extensions.Deployment
+            || resource instanceof ReplicaSet
+            || resource instanceof Pod
+            || resource instanceof ReplicationController
+            || resource instanceof Endpoints
+            || resource instanceof Node
+            || resource instanceof StatefulSet;
     }
 }

@@ -144,7 +144,7 @@ public class JobResource implements NamespacedResourceType<Job> {
      */
     @Override
     public boolean waitForReadiness(Job resource) {
-        return client.resource(resource).isReady();
+        return client.resource(resource).get().getStatus().getActive() > 0;
     }
 
     /**

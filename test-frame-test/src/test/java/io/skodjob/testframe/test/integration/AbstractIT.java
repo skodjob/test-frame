@@ -4,8 +4,6 @@ import io.skodjob.testframe.LoggerUtils;
 import io.skodjob.testframe.annotations.ResourceManager;
 import io.skodjob.testframe.annotations.TestVisualSeparator;
 import io.skodjob.testframe.resources.KubeResourceManager;
-import io.skodjob.testframe.resources.NamespaceResource;
-import io.skodjob.testframe.resources.ServiceAccountResource;
 import io.skodjob.testframe.utils.KubeUtils;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -17,10 +15,6 @@ public abstract class AbstractIT {
     static AtomicBoolean isDeleteHandlerCalled = new AtomicBoolean(false);
 
     static {
-        KubeResourceManager.getInstance().setResourceTypes(
-                new NamespaceResource(),
-                new ServiceAccountResource()
-        );
         KubeResourceManager.getInstance().addCreateCallback(r -> {
             isCreateHandlerCalled.set(true);
             if (r.getKind().equals("Namespace")) {

@@ -291,7 +291,6 @@
             <modules>
                 <module>test-frame-common</module>
                 <module>test-frame-kubernetes</module>
-                <module>test-frame-openshift</module>
                 <module>test-frame-test</module>
                 <module>test-frame-metrics-collector</module>
             </modules>
@@ -304,7 +303,6 @@
             <modules>
                 <module>test-frame-common</module>
                 <module>test-frame-kubernetes</module>
-                <module>test-frame-openshift</module>
                 <module>test-frame-metrics-collector</module>
             </modules>
             <properties>
@@ -366,7 +364,6 @@
                                     <descriptors>
                                         <descriptor>test-frame-common/src/main/assembly/dist.xml</descriptor>
                                         <descriptor>test-frame-kubernetes/src/main/assembly/dist.xml</descriptor>
-                                        <descriptor>test-frame-openshift/src/main/assembly/dist.xml</descriptor>
                                         <descriptor>test-frame-metrics-collector/src/main/assembly/dist.xml</descriptor>
                                     </descriptors>
                                 </configuration>
