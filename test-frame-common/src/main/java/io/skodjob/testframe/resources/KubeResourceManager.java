@@ -393,14 +393,14 @@ public class KubeResourceManager {
                 ResourceItem<?> resourceItem = s.pop();
 
                 try {
-                    resourceItem.getThrowableRunner().run();
+                    resourceItem.throwableRunner().run();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
                 numberOfResources.decrementAndGet();
                 deleteCallbacks.forEach(callback -> {
-                    if (resourceItem.getResource() != null) {
-                        callback.accept(resourceItem.getResource());
+                    if (resourceItem.resource() != null) {
+                        callback.accept(resourceItem.resource());
                     }
                 });
             }
