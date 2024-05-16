@@ -71,7 +71,7 @@ class Test {
 }
 //...
 ```
-### Register `ResourceType` or `NamespacedResoruceType` classes into `KubeResoruceManager`
+### Register `ResourceType` or `NamespacedResourceType` classes into `KubeResourceManager`
 ```java
 KubeResourceManager.getInstance().setResourceTypes(
         new NamespaceType(),
