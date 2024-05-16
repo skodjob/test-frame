@@ -10,7 +10,9 @@ import io.skodjob.testframe.interfaces.ThrowableRunner;
 /**
  * Represents an item containing a Kubernetes resource and a runnable action.
  *
- * @param <T> Type of Kubernetes resource.
+ * @param throwableRunner delete method
+ * @param resource resource (can be null)
+ * @param <T> Type of kubernetes resource
  */
 public record ResourceItem<T extends HasMetadata>(
         ThrowableRunner throwableRunner,
