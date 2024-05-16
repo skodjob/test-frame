@@ -5,16 +5,16 @@
 package io.skodjob.testframe.installation;
 
 /**
- * Abstract class containing methods that can be implemented in particular setup classes based on the installation type.
+ * Interface containing methods that can be implemented in particular setup classes based on the installation type.
  */
-public abstract class InstallationMethod {
+public interface InstallationMethod {
     /**
-     * Deploy deployment/operator abstract method
+     * Deploy deployment/operator method
      */
-    public abstract void install();
+    void install();
 
     /**
-     * Delete deployment/operator abstract method
+     * Delete deployment/operator method
      */
-    public abstract void delete();
+    void delete();
 }
