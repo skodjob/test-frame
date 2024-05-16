@@ -15,13 +15,13 @@ import io.skodjob.testframe.interfaces.NamespacedResourceType;
 /**
  * Implementation of ResourceType for specific kubernetes resource
  */
-public class ConfigMapResource implements NamespacedResourceType<ConfigMap> {
+public class ConfigMapType implements NamespacedResourceType<ConfigMap> {
     private final MixedOperation<ConfigMap, ConfigMapList, Resource<ConfigMap>> client;
 
     /**
      * Constructor
      */
-    public ConfigMapResource() {
+    public ConfigMapType() {
         this.client = KubeResourceManager.getKubeClient().getClient().configMaps();
     }
 

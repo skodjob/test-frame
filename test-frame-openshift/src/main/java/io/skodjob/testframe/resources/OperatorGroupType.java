@@ -15,14 +15,14 @@ import java.util.function.Consumer;
 /**
  * Implementation of ResourceType for specific kubernetes resource
  */
-public class OperatorGroupResource implements NamespacedResourceType<OperatorGroup> {
+public class OperatorGroupType implements NamespacedResourceType<OperatorGroup> {
 
     private final MixedOperation<OperatorGroup, OperatorGroupList, Resource<OperatorGroup>> client;
 
     /**
      * Constructor
      */
-    public OperatorGroupResource() {
+    public OperatorGroupType() {
         this.client = KubeResourceManager.getKubeClient().getOpenShiftClient().operatorHub().operatorGroups();
     }
 

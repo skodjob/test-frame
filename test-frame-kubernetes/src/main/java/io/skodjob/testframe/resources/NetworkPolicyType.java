@@ -15,14 +15,14 @@ import io.skodjob.testframe.interfaces.NamespacedResourceType;
 /**
  * Implementation of ResourceType for specific kubernetes resource
  */
-public class NetworkPolicyResource implements NamespacedResourceType<NetworkPolicy> {
+public class NetworkPolicyType implements NamespacedResourceType<NetworkPolicy> {
 
     private final MixedOperation<NetworkPolicy, NetworkPolicyList, Resource<NetworkPolicy>> client;
 
     /**
      * Constructor
      */
-    public NetworkPolicyResource() {
+    public NetworkPolicyType() {
         this.client = KubeResourceManager.getKubeClient().getClient().network().networkPolicies();
     }
 

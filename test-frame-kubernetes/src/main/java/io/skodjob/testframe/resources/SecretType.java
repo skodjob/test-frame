@@ -15,14 +15,14 @@ import io.skodjob.testframe.interfaces.NamespacedResourceType;
 /**
  * Implementation of ResourceType for specific kubernetes resource
  */
-public class SecretResource implements NamespacedResourceType<Secret> {
+public class SecretType implements NamespacedResourceType<Secret> {
 
     private final MixedOperation<Secret, SecretList, Resource<Secret>> client;
 
     /**
      * Constructor
      */
-    public SecretResource() {
+    public SecretType() {
         this.client = KubeResourceManager.getKubeClient().getClient().secrets();
     }
 

@@ -15,14 +15,14 @@ import io.skodjob.testframe.interfaces.NamespacedResourceType;
 /**
  * Implementation of ResourceType for specific kubernetes resource
  */
-public class RoleResource implements NamespacedResourceType<Role> {
+public class RoleType implements NamespacedResourceType<Role> {
 
     private final MixedOperation<Role, RoleList, Resource<Role>> client;
 
     /**
      * Constructor
      */
-    public RoleResource() {
+    public RoleType() {
         this.client = KubeResourceManager.getKubeClient().getClient().rbac().roles();
     }
 

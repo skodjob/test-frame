@@ -15,14 +15,14 @@ import io.skodjob.testframe.interfaces.NamespacedResourceType;
 /**
  * Implementation of ResourceType for specific kubernetes resource
  */
-public class JobResource implements NamespacedResourceType<Job> {
+public class JobType implements NamespacedResourceType<Job> {
 
     private final MixedOperation<Job, JobList, ScalableResource<Job>> client;
 
     /**
      * Constructor
      */
-    public JobResource() {
+    public JobType() {
         this.client = KubeResourceManager.getKubeClient().getClient().batch().v1().jobs();
     }
 

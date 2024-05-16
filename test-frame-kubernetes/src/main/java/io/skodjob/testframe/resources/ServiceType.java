@@ -9,20 +9,20 @@ import java.util.function.Consumer;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceList;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
+import io.fabric8.kubernetes.client.dsl.ServiceResource;
 import io.skodjob.testframe.interfaces.NamespacedResourceType;
 
 /**
  * Implementation of ResourceType for specific kubernetes resource
  */
-public class ServiceResource implements NamespacedResourceType<Service> {
+public class ServiceType implements NamespacedResourceType<Service> {
 
-    private final MixedOperation<Service, ServiceList,
-            io.fabric8.kubernetes.client.dsl.ServiceResource<Service>> client;
+    private final MixedOperation<Service, ServiceList, ServiceResource<Service>> client;
 
     /**
      * Constructor
      */
-    public ServiceResource() {
+    public ServiceType() {
         this.client = KubeResourceManager.getKubeClient().getClient().services();
     }
 

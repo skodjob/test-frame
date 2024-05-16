@@ -15,14 +15,14 @@ import io.skodjob.testframe.interfaces.ResourceType;
 /**
  * Implementation of ResourceType for specific kubernetes resource
  */
-public class ClusterRoleResource implements ResourceType<ClusterRole> {
+public class ClusterRoleType implements ResourceType<ClusterRole> {
 
     private final NonNamespaceOperation<ClusterRole, ClusterRoleList, Resource<ClusterRole>> client;
 
     /**
      * Constructor
      */
-    public ClusterRoleResource() {
+    public ClusterRoleType() {
         this.client = KubeResourceManager.getKubeClient().getClient().rbac().clusterRoles();
     }
 
