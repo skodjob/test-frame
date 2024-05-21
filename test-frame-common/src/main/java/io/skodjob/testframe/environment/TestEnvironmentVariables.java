@@ -4,13 +4,13 @@
  */
 package io.skodjob.testframe.environment;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.skodjob.testframe.LoggerUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Collections;
@@ -103,13 +103,12 @@ public class TestEnvironmentVariables {
      * @return  Map with env variables and their values, or empty Map in case of not existing file
      */
     protected Map<String, Object> loadConfigurationFile() {
-        Yaml yaml = new Yaml();
-
+        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         try {
             File yamlFile = new File(configFilePath).getAbsoluteFile();
-            return yaml.load(new FileInputStream(yamlFile));
+            return mapper.readValue(new File(yamlFile.getAbsoluteFile().toString()), Map.class);
         } catch (IOException ex) {
-            LOGGER.info("Yaml configuration not provided or does not exist");
+            LOGGER.info("Yaml configuration not provider or not exists");
             return Collections.emptyMap();
         }
     }
