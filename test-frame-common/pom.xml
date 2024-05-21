@@ -90,6 +90,10 @@
             <artifactId>kubernetes-server-mock</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-yaml</artifactId>
+        </dependency>
         <!-- Logger -->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>

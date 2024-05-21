@@ -73,7 +73,7 @@
         <maven.compiler.target>17</maven.compiler.target>
         <maven.compiler.release>17</maven.compiler.release>
 
-        <fabric8.version>6.12.0</fabric8.version>
+        <fabric8.version>6.12.1</fabric8.version>
         <log4j.version>2.17.2</log4j.version>
 
         <!--   Build tools' properties     -->
@@ -92,6 +92,7 @@
         <junit.jupiter.version>5.10.2</junit.jupiter.version>
         <junit.platform.version>1.10.2</junit.platform.version>
         <maven.surefire.version>3.2.2</maven.surefire.version>
+        <jackson-dataformat-yaml.version>2.17.1</jackson-dataformat-yaml.version>
     </properties>
 
     <dependencyManagement>
@@ -108,38 +109,10 @@
             </dependency>
             <dependency>
                 <groupId>io.fabric8</groupId>
-                <artifactId>kubernetes-client-api</artifactId>
+                <artifactId>kubernetes-client-bom-with-deps</artifactId>
                 <version>${fabric8.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.fabric8</groupId>
-                <artifactId>openshift-client-api</artifactId>
-                <version>${fabric8.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.fabric8</groupId>
-                <artifactId>openshift-client</artifactId>
-                <version>${fabric8.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.fabric8</groupId>
-                <artifactId>kubernetes-client</artifactId>
-                <version>${fabric8.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.fabric8</groupId>
-                <artifactId>kubernetes-model</artifactId>
-                <version>${fabric8.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.fabric8</groupId>
-                <artifactId>generator-annotations</artifactId>
-                <version>${fabric8.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.fabric8</groupId>
-                <artifactId>kubernetes-server-mock</artifactId>
-                <version>${fabric8.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
@@ -175,6 +148,11 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>${maven.surefire.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.dataformat</groupId>
+                <artifactId>jackson-dataformat-yaml</artifactId>
+                <version>${jackson-dataformat-yaml.version}</version>
             </dependency>
             <!--    Logger      -->
             <dependency>
