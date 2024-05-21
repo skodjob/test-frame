@@ -81,7 +81,7 @@ KubeResourceManager.getInstance().setResourceTypes(
 ```
 
 ## Examples
-Examples are stored in [test-frame-test](test-frame-test/src/test/java/io/skodjob/testframe/test/integration) module.
+Examples are stored in [test-frame-test-examples](test-frame-test-examples/src/test/java/io/skodjob/testframe/test/integration) module.
 
 ## Config environment variables
 * **ENV_FILE** - path to YAML file with env variables values
