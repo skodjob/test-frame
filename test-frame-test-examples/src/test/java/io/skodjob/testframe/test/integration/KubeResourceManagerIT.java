@@ -4,6 +4,7 @@
  */
 package io.skodjob.testframe.test.integration;
 
+import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.kubernetes.api.model.NamespaceBuilder;
 import io.skodjob.testframe.annotations.ResourceManager;
 import io.skodjob.testframe.resources.KubeResourceManager;
@@ -13,20 +14,20 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ResourceManager(cleanResources = false) // override default behavior and do not clean resources
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public final class KubeResourceManagerIT extends AbstractIT {
+    Namespace ns1 = new NamespaceBuilder().withNewMetadata().withName(nsName1).endMetadata().build();
 
     @BeforeEach
     void setupEach() {
-        KubeResourceManager.getInstance().createResourceWithWait(
-                new NamespaceBuilder().withNewMetadata().withName(nsName1).endMetadata().build());
+        KubeResourceManager.getInstance().createResourceWithWait(ns1);
     }
 
     @AfterEach
     void afterEach() {
-        assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName(nsName1).get());
         assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName(nsName2).get());
         KubeResourceManager.getInstance().deleteResources();
     }
@@ -37,5 +38,7 @@ public final class KubeResourceManagerIT extends AbstractIT {
                 new NamespaceBuilder().withNewMetadata().withName("test2").endMetadata().build());
         assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName(nsName1).get());
         assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName(nsName2).get());
+        KubeResourceManager.getInstance().deleteResource(ns1);
+        assertTrue(isDeleteHandlerCalled.get());
     }
 }

@@ -314,6 +314,7 @@ public class KubeResourceManager {
                             resource.getMetadata().getName(), resource.getMetadata().getNamespace(), e);
                 }
             }
+            deleteCallbacks.forEach(callback -> callback.accept(resource));
         }
     }
 
