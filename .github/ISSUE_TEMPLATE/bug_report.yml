@@ -1,0 +1,54 @@
+---
+name: Bug report
+description: Create a report to help us improve
+title: '[Bug]: '
+labels: ['bug', 'needs-triage']
+body:
+  - type: markdown
+    attributes:
+      value: _Please use this only for bug reports. For questions or when you need help, you can use the [GitHub Discussions](https://github.com/skodjob/test-frame/discussions)._
+  - type: textarea
+    attributes:
+      label: Bug Description
+      description: Describe the bug
+      placeholder: A clear and concise description of what the bug is.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Expected behavior
+      description: What is the behavior you expected to see? Please describe.
+      placeholder: A clear and concise description of what you expected to happen.
+    validations:
+      required: false
+  - type: input
+    id: test-frame-version
+    attributes:
+      label: TEST-FRAME version
+      description: Test-Frame version where the bug occurred
+      placeholder: e.g. main, 0.1.0
+    validations:
+      required: true
+  - type: input
+    id: kubernetes-version
+    attributes:
+      label: Kubernetes version
+      description: Kubernetes version where the bug occurred
+      placeholder: e.g. Kubernetes 1.25, OpenShift 4.11
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Logs
+      description: All relevant configuration and log files
+      placeholder: |
+        Attach or copy and paste the relevant logs.
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: Additional context
+      description: Any additional context related to the problem
+      placeholder: Add any other context about the problem here.
+    validations:
+      required: false
