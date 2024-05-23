@@ -72,7 +72,5 @@ public class UtilsTest {
         KubeUtils.labelNamespace("test", "test-label", "true");
         assertEquals("true", KubeResourceManager.getKubeClient().getClient()
                 .namespaces().withName("test").get().getMetadata().getLabels().get("test-label"));
-
-
     }
 }
