@@ -6,7 +6,7 @@ labels: ['bug', 'needs-triage']
 body:
   - type: markdown
     attributes:
-      value: _Please use this to only for bug reports. For questions or when you need help, you can use the [GitHub Discussions](https://github.com/skodjob/test-frame/discussions)._
+      value: _Please use this only for bug reports. For questions or when you need help, you can use the [GitHub Discussions](https://github.com/skodjob/test-frame/discussions)._
   - type: textarea
     attributes:
       label: Bug Description
