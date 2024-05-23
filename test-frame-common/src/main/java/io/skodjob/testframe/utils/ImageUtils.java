@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 /**
  * Class containing methods for handling images
  */
-public class ImageUtils {
+public final class ImageUtils {
     private static final Logger LOGGER = LogManager.getLogger(ImageUtils.class);
 
     private ImageUtils() {
