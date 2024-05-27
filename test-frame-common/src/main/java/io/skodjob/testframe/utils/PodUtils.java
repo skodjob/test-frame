@@ -35,37 +35,37 @@ public final class PodUtils {
      * Wait for all pods in namespace to be ready
      *
      * @param namespaceName name of the namespace
-     * @param containers flag wait for all containers
+     * @param containersReady flag wait for all containers
      * @param onTimeout callback on timeout
      */
-    public static void waitForPodsReady(String namespaceName, boolean containers, Runnable onTimeout) {
+    public static void waitForPodsReady(String namespaceName, boolean containersReady, Runnable onTimeout) {
         Wait.until("readiness of all Pods matching in namespace " + namespaceName,
                 TestFrameConstants.GLOBAL_POLL_INTERVAL_MEDIUM, READINESS_TIMEOUT,
                 () -> {
                     List<Pod> pods = KubeResourceManager.getKubeClient().getClient()
                             .pods().inNamespace(namespaceName).list().getItems();
                     if (pods.isEmpty()) {
-                        LOGGER.debug("Expected Pods are not ready!");
+                        LOGGER.debug("There are no existing pods in namespace {}", namespaceName);
                         return false;
                     }
                     for (Pod pod : pods) {
                         if (!(Readiness.isPodReady(pod) || Readiness.isPodSucceeded(pod))) {
-                            LOGGER.debug("Pod not ready: {}/{}", namespaceName, pod.getMetadata().getName());
+                            LOGGER.debug("There is not ready pod {}/{}", namespaceName, pod.getMetadata().getName());
                             return false;
                         } else {
-                            if (containers) {
+                            if (containersReady) {
                                 for (ContainerStatus cs : pod.getStatus().getContainerStatuses()) {
                                     if (!(Boolean.TRUE.equals(cs.getReady())
                                             || cs.getState().getTerminated().getReason().equals("Completed"))) {
-                                        LOGGER.debug("Container: {} of Pod: {}/{} not ready",
-                                                namespaceName, pod.getMetadata().getName(), cs.getName());
+                                        LOGGER.debug("Container {} of Pod {}/{} is not ready",
+                                                cs.getName(), namespaceName, pod.getMetadata().getName());
                                         return false;
                                     }
                                 }
                             }
                         }
                     }
-                    LOGGER.info("Pods in namespace {} are ready", namespaceName);
+                    LOGGER.info("All pods in namespace {} are ready", namespaceName);
                     return true;
                 }, onTimeout);
     }
@@ -176,7 +176,7 @@ public final class PodUtils {
                 () -> {
                     List<Pod> existingPod = KubeResourceManager.getKubeClient().getClient().pods()
                             .inNamespace(namespaceName).withLabelSelector(labelSelector).list().getItems();
-                    LOGGER.debug("Working with the following pods: {}", existingPod.stream()
+                    LOGGER.debug("Considering the following pods {}", existingPod.stream()
                             .map(p -> p.getMetadata().getName()).toList());
 
                     for (Pod pod : existingPod) {
@@ -184,8 +184,8 @@ public final class PodUtils {
                             continue;
                         }
                         if (pod.getStatus().getPhase().equals(phase)) {
-                            LOGGER.debug("Pod: {}/{} is in the {} state. " +
-                                            "Remaining seconds for Pod to be stable {}",
+                            LOGGER.debug("Pod {}/{} is in the {} state. " +
+                                            "Remaining milliseconds for Pod to be stable {}",
                                     namespaceName,
                                     pod.getMetadata().getName(),
                                     pod.getStatus().getPhase(),
@@ -193,8 +193,8 @@ public final class PodUtils {
                                             (TestFrameConstants.GLOBAL_POLL_INTERVAL_SHORT * stabilityCounter[0])
                             );
                         } else {
-                            LOGGER.warn("Pod: {}/{} is not stable in phase following phase {} ({})" +
-                                            " reset the stability counter from {}s to {}s",
+                            LOGGER.warn("Pod {}/{} is not stable in phase following phase {} ({})" +
+                                            " reset the stability counter from {}ms to {}ms",
                                     namespaceName, pod.getMetadata().getName(), pod.getStatus().getPhase(),
                                     phase, stabilityCounter[0], 0);
                             stabilityCounter[0] = 0;
@@ -205,7 +205,7 @@ public final class PodUtils {
 
                     if (stabilityCounter[0] == TestFrameConstants.GLOBAL_STABILITY_TIME /
                             (TestFrameConstants.GLOBAL_POLL_INTERVAL_SHORT)) {
-                        LOGGER.info("All Pods are stable {}", existingPod.stream()
+                        LOGGER.info("All Pods {}/{} are stable", namespaceName, existingPod.stream()
                                 .map(p -> p.getMetadata().getName()).collect(Collectors.joining(" ,")));
                         return true;
                     }

@@ -122,6 +122,9 @@
                             junit.jupiter.extensions.autodetection.enabled = true
                         </configurationParameters>
                     </properties>
+                    <environmentVariables>
+                        <TEST_LOG_LEVEL>DEBUG</TEST_LOG_LEVEL>
+                    </environmentVariables>
                 </configuration>
             </plugin>
         </plugins>
