@@ -75,47 +75,47 @@ public final class PodUtils {
      *
      * @param namespaceName namespace
      * @param selector label selector of the pods
-     * @param expectPods expected pods count
+     * @param expectPodsCount expected pods count
      * @param containers flag wait for all containers
      * @param onTimeout callback on timeout
      */
-    public static void waitForPodsReady(String namespaceName, LabelSelector selector, int expectPods,
+    public static void waitForPodsReady(String namespaceName, LabelSelector selector, int expectPodsCount,
                                         boolean containers, Runnable onTimeout) {
         Wait.until("readiness of all Pods matching: " + selector,
                 TestFrameConstants.GLOBAL_POLL_INTERVAL_MEDIUM, READINESS_TIMEOUT,
                 () -> {
                     List<Pod> pods = KubeResourceManager.getKubeClient().getClient().pods()
                             .inNamespace(namespaceName).withLabelSelector(selector).list().getItems();
-                    if (pods.isEmpty() && expectPods == 0) {
-                        LOGGER.debug("Expected Pods are ready");
+                    if (pods.isEmpty() && expectPodsCount == 0) {
+                        LOGGER.debug("All expected Pods {} in namespace {} are ready", selector, namespaceName);
                         return true;
                     }
                     if (pods.isEmpty()) {
-                        LOGGER.debug("Pods matching: {}/{} are not ready", namespaceName, selector);
+                        LOGGER.debug("Pods matching {}/{} are not ready", namespaceName, selector);
                         return false;
                     }
-                    if (pods.size() != expectPods) {
-                        LOGGER.debug("Expected Pods: {}/{} are not ready", namespaceName, selector);
+                    if (pods.size() != expectPodsCount) {
+                        LOGGER.debug("Expected Pods {}/{} are not ready", namespaceName, selector);
                         return false;
                     }
                     for (Pod pod : pods) {
                         if (!(Readiness.isPodReady(pod) || Readiness.isPodSucceeded(pod))) {
-                            LOGGER.debug("Pod not ready: {}/{}", namespaceName, pod.getMetadata().getName());
+                            LOGGER.debug("Pod is not ready: {}/{}", namespaceName, pod.getMetadata().getName());
                             return false;
                         } else {
                             if (containers) {
                                 for (ContainerStatus cs : pod.getStatus().getContainerStatuses()) {
                                     if (!(Boolean.TRUE.equals(cs.getReady())
                                             || cs.getState().getTerminated().getReason().equals("Completed"))) {
-                                        LOGGER.debug("Container: {} of Pod: {}/{} not ready",
-                                                namespaceName, pod.getMetadata().getName(), cs.getName());
+                                        LOGGER.debug("Container {} of Pod {}/{} not ready",
+                                                cs.getName(), namespaceName, pod.getMetadata().getName());
                                         return false;
                                     }
                                 }
                             }
                         }
                     }
-                    LOGGER.info("Pods matching: {}/{} are ready", namespaceName, selector);
+                    LOGGER.info("Pods matching {}/{} are ready", namespaceName, selector);
                     return true;
                 }, onTimeout);
     }
@@ -123,22 +123,22 @@ public final class PodUtils {
     /**
      * Wait for pod ready, if not ready for timeout try to restart and check again
      *
-     * @param namespace namespace
+     * @param namespaceName namespace
      * @param selector label selector
-     * @param expectedPods expected pods count
-     * @param containers flag wait for containers
+     * @param expectedPodsCount expected pods count
+     * @param containersReady flag wait for containers
      */
-    public static void waitForPodsReadyWithRestart(String namespace, LabelSelector selector,
-                                                   int expectedPods, boolean containers) {
+    public static void waitForPodsReadyWithRestart(String namespaceName, LabelSelector selector,
+                                                   int expectedPodsCount, boolean containersReady) {
         try {
-            waitForPodsReady(namespace, selector, expectedPods, containers, () -> {
+            waitForPodsReady(namespaceName, selector, expectedPodsCount, containersReady, () -> {
             });
         } catch (Exception ex) {
-            LOGGER.warn("Pods not ready trying to restart");
+            LOGGER.warn("Pods {}/{} are not ready. Going to restart them", namespaceName, selector);
             KubeResourceManager.getKubeClient().getClient().pods()
-                    .inNamespace(namespace).withLabelSelector(selector).list().getItems().forEach(p ->
+                    .inNamespace(namespaceName).withLabelSelector(selector).list().getItems().forEach(p ->
                             KubeResourceManager.getKubeClient().getClient().resource(p).delete());
-            waitForPodsReady(namespace, selector, expectedPods, containers, () -> {
+            waitForPodsReady(namespaceName, selector, expectedPodsCount, containersReady, () -> {
             });
         }
     }
@@ -164,18 +164,18 @@ public final class PodUtils {
      * Verify if the pod is stable after it is in ready state.
      *
      * @param namespaceName namespace
-     * @param labelSelector label selector
+     * @param selector label selector
      */
-    public static void verifyThatPodsAreStable(String namespaceName, LabelSelector labelSelector) {
+    public static void verifyThatPodsAreStable(String namespaceName, LabelSelector selector) {
         int[] stabilityCounter = {0};
         String phase = "Running";
 
         Wait.until(String.format("Pods in namespace '%s' with LabelSelector %s stability in phase %s",
-                        namespaceName, labelSelector, phase),
+                        namespaceName, selector, phase),
                 TestFrameConstants.GLOBAL_POLL_INTERVAL_SHORT, TestFrameConstants.GLOBAL_TIMEOUT,
                 () -> {
                     List<Pod> existingPod = KubeResourceManager.getKubeClient().getClient().pods()
-                            .inNamespace(namespaceName).withLabelSelector(labelSelector).list().getItems();
+                            .inNamespace(namespaceName).withLabelSelector(selector).list().getItems();
                     LOGGER.debug("Considering the following pods {}", existingPod.stream()
                             .map(p -> p.getMetadata().getName()).toList());
 
