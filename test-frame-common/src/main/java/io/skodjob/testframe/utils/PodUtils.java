@@ -137,8 +137,7 @@ public final class PodUtils {
             KubeResourceManager.getKubeClient().getClient().pods()
                     .inNamespace(namespaceName).withLabelSelector(selector).list().getItems().forEach(p ->
                             KubeResourceManager.getKubeClient().getClient().resource(p).delete());
-            waitForPodsReady(namespaceName, selector, expectedPodsCount, containersReady, () -> {
-            });
+            waitForPodsReady(namespaceName, selector, expectedPodsCount, containersReady, () -> {});
         }
     }
 
