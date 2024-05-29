@@ -73,7 +73,7 @@
         <maven.compiler.target>17</maven.compiler.target>
         <maven.compiler.release>17</maven.compiler.release>
 
-        <fabric8.version>6.12.1</fabric8.version>
+        <fabric8.version>6.13.0</fabric8.version>
         <log4j.version>2.17.2</log4j.version>
 
         <!--   Build tools' properties     -->
@@ -88,11 +88,12 @@
         <maven.javadoc.version>3.4.1</maven.javadoc.version>
         <maven.assembly.version>3.4.2</maven.assembly.version>
         <maven.plugin.plugin.version>3.9.0</maven.plugin.plugin.version>
-        <checkstyle.config.location>checkstyle.xml</checkstyle.config.location>
         <junit.jupiter.version>5.10.2</junit.jupiter.version>
         <junit.platform.version>1.10.2</junit.platform.version>
         <maven.surefire.version>3.2.2</maven.surefire.version>
         <jackson-dataformat-yaml.version>2.17.1</jackson-dataformat-yaml.version>
+
+        <checkstyle.config.location>checkstyle.xml</checkstyle.config.location>
     </properties>
 
     <dependencyManagement>
