@@ -12,9 +12,12 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
@@ -111,6 +114,22 @@ public class TestEnvironmentVariables {
             LOGGER.info("Yaml configuration not provider or not exists");
             return Collections.emptyMap();
         }
+    }
+
+    /***
+     * Saves all set environment variables into yaml file
+     *
+     * @param testLogDir dir where to store file with set env vars
+     * @throws IOException ioException
+     */
+    public void saveConfigurationFile(String testLogDir) throws IOException {
+        Path logPath = Path.of(testLogDir);
+        Files.createDirectories(logPath);
+
+        LinkedHashMap<String, String> toSave = new LinkedHashMap<>(values);
+
+        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+        mapper.writerWithDefaultPrettyPrinter().writeValue(logPath.resolve("config.yaml").toFile(), toSave);
     }
 
     /**
