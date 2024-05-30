@@ -108,25 +108,4 @@
             <artifactId>log4j-slf4j-impl</artifactId>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>${maven.surefire.version}</version>
-                <configuration>
-                    <test>io.skodjob.testframe.**</test>
-                    <properties>
-                        <configurationParameters>
-                            junit.jupiter.extensions.autodetection.enabled = true
-                        </configurationParameters>
-                    </properties>
-                    <environmentVariables>
-                        <TEST_LOG_LEVEL>DEBUG</TEST_LOG_LEVEL>
-                    </environmentVariables>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 </project>
