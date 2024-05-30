@@ -8,8 +8,8 @@
 TAG=$1
 echo "Tagging version to ${TAG}"
 
-mvn versions:set -DnewVersion=${TAG}
-mvn clean install
+./mvnw versions:set -DnewVersion=${TAG}
+./mvnw clean install
 git add "."
 git diff --staged --quiet || git commit -m "Release ${TAG}"
 git tag -a ${TAG} -m "${TAG}"
