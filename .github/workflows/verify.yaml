@@ -27,4 +27,4 @@ jobs:
         uses: helm/kind-action@v1
 
       - name: Verify
-        run: mvn verify -P integration
+        run: ./mvnw verify -P integration
