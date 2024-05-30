@@ -40,6 +40,11 @@ public class LogCollector {
      */
     public LogCollector(LogCollectorBuilder builder) {
         this.resources = builder.getResources() == null ? Collections.emptyList() : builder.getResources();
+
+        if (builder.getRootFolderPath() == null) {
+            throw new RuntimeException("rootFolderPath should be filled, but it's empty");
+        }
+
         this.rootFolderPath = builder.getRootFolderPath();
     }
 

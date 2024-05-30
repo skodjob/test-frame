@@ -36,6 +36,7 @@ public class LogCollectorIT extends AbstractIT {
     private final String[] resourcesToBeCollected = new String[] {"secret", "configmap", "deployment"};
     private final LogCollector logCollector = new LogCollectorBuilder()
         .withResources(resourcesToBeCollected)
+        .withRootFolderPath(folderRoot)
         .build();
 
     /**

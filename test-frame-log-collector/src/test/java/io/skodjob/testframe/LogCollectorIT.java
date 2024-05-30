@@ -70,6 +70,7 @@ public class LogCollectorIT {
 
         logCollector = new LogCollectorBuilder()
             .withResources(SECRET, DEPLOYMENT, CONFIG_MAP)
+            .withRootFolderPath(pathToRoot)
             .build();
 
         logCollector.setKubeClient(mockClient);

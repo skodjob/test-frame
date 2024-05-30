@@ -6,6 +6,7 @@ package io.skodjob.testframe;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Builder class for the {@link LogCollector}
@@ -53,7 +54,11 @@ public class LogCollectorBuilder {
      * @return  {@link LogCollectorBuilder} object
      */
     public LogCollectorBuilder withResources(String... resources) {
-        this.resources = Arrays.stream(resources).toList();
+        this.resources = Arrays.stream(resources).toList()
+            .stream()
+            .filter(resource -> !resource.equals(CollectorConstants.POD) && !resource.equals(CollectorConstants.PODS))
+            .collect(Collectors.toList());
+
         return this;
     }
 

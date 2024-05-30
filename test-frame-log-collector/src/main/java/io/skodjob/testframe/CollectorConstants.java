@@ -13,6 +13,10 @@ public interface CollectorConstants {
      */
     String POD = "pod";
     /**
+     * Pod resource type - plural
+     */
+    String PODS = "pods";
+    /**
      * Container resource type
      */
     String CONTAINER = "container";
