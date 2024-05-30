@@ -1,0 +1,161 @@
+# LogCollector
+
+Utility for collecting logs from Pods and their containers, description of Pods, and YAML descriptions for specified
+list of resources in desired Namespaces.
+The logs are stored in root folder (which user specifies) within the corresponding folder named after the Namespace 
+it collects from.
+
+## Prerequisites
+
+- Java 17 and higher
+- Access to a Kubernetes cluster
+- Kubernetes Client and Command Line Tools (kubectl) setup in your Java environment.
+
+## Installation
+
+In case you are using Maven, you can install the LogCollector dependencies using this code snippet added into `pom.xml`:
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>io.skodjob.testframe</groupId>
+        <artifactId>test-frame-log-collector</artifactId>
+        <version>{version}</version>
+    </dependency>
+</dependencies>
+```
+
+## Usage
+
+### Configuration and initialization
+
+For building the `LogCollector` instance, you can use the `LogCollectorBuilder`.
+In the builder, you can specify the list of resources that should be checked during the log collection, or a path to
+folder, where all the logs/descriptions should be stored.
+
+The initialization of `LogCollector` object can look like follows:
+
+```java
+import io.skodjob.testframe.LogCollector;
+import io.skodjob.testframe.LogCollectorBuilder;
+
+LogCollector logCollector = new LogCollectorBuilder()
+    .withResources("secret", "deployment", "my-custom-resource")
+    .withRootFolderPath("/path/to/logs/folder")
+    .build();
+```
+
+### Collecting logs and descriptions
+
+Each Namespace has its own directory in the root folder, where everything collected is stored to.
+For each resource specified in the list, the folder is created and all the YAMLs are stored there - only in case that 
+there are resources with the specified resource kind.
+Otherwise, the folder is not created.
+This is the list of things that are collected by default (without specifying them in the resource list):
+
+- Events of the Namespace - `kubectl get events -n NAMESPACE`
+- Pod description - `kubectl describe pod POD_NAME -n NAMESPACE`
+- Logs from each Pod and its container(s) - `kubectl logs POD_NAME -c CONTAINER_NAME -n NAMESPACE`
+
+In LogCollector, you can collect the logs and resource descriptions using multiple methods, based on your needs:
+
+#### 1. Collect from single Namespace with specified name
+
+```java
+import io.skodjob.testframe.LogCollector;
+import io.skodjob.testframe.LogCollectorBuilder;
+
+LogCollector logCollector = new LogCollectorBuilder()
+    .withResources("secret", "deployment", "my-custom-resource")
+    .withRootFolderPath("/path/to/logs/folder")
+    .build();
+
+public static void collectFromNamespace() {
+    logCollector.collectFromNamespace("my-namespace");
+}
+```
+the logs path will then look like this:
+```bash
+/path/to/logs/folder
+└── my-namespace
+    ├── deployment
+    ├── events.log
+    ├── my-custom-resource
+    ├── pods
+    └── secret
+```
+
+#### 2. Collect from multiple Namespaces with specified names:
+
+```java
+import io.skodjob.testframe.LogCollector;
+import io.skodjob.testframe.LogCollectorBuilder;
+
+LogCollector logCollector = new LogCollectorBuilder()
+    .withResources("secret", "deployment", "my-custom-resource")
+    .withRootFolderPath("/path/to/logs/folder")
+    .build();
+
+public static void collectFromNamespaces() {
+    logCollector.collectFromNamespaces("my-namespace", "my-namespace2");
+}
+```
+the logs path will then look like this:
+```bash
+/path/to/logs/folder
+├── my-namespace
+│   ├── deployment
+│   ├── events.log
+│   ├── pods
+│   └── secret
+└── my-namespace2
+    ├── deployment
+    ├── events.log
+    ├── pods
+    └── secret
+
+```
+#### 3. Collect from Namespaces matching labels
+
+Let's assume that `my-namespace` in this example is the one containing our specified labels and we have other Namespaces
+that don't have this label.
+Then to collect logs and YAMLs from those Namespaces, that are matching the labels, you can do:
+
+```java
+import io.fabric8.kubernetes.api.model.LabelSelectorBuilder;
+import io.skodjob.testframe.LogCollector;
+import io.skodjob.testframe.LogCollectorBuilder;
+
+LogCollector logCollector = new LogCollectorBuilder()
+    .withResources("secret", "deployment", "my-custom-resource")
+    .withRootFolderPath("/path/to/logs/folder")
+    .build();
+
+public static void collectFromNamespaces() {
+    logCollector.collectFromNamespaceWithLabels(new LabelSelectorBuilder()
+        .withMatchLabels(Map.of("my-label", "my-value"))
+    );
+}
+```
+
+The tree path will look similarly to above examples, there will be folders for Namespaces matching the specified labels.
+
+### Changing the root folder path
+
+In case that you would like to change the root path, there is a method for that in the `LogCollector` object itself:
+
+```java
+import io.skodjob.testframe.LogCollector;
+import io.skodjob.testframe.LogCollectorBuilder;
+import org.junit.jupiter.api.AfterEach;
+
+LogCollector logCollector = new LogCollectorBuilder()
+    .withResources("secret", "deployment", "my-custom-resource")
+    .withRootFolderPath("/path/to/logs/folder")
+    .build();
+
+@AfterEach
+void changeRootPath() {
+    logCollector.changeRootFolderPath("/path/to/another/folder");
+}
+```
