@@ -124,11 +124,7 @@ public class TestEnvironmentVariables {
         Path logPath = Path.of(testLogDir);
         Files.createDirectories(logPath);
 
-        LinkedHashMap<String, String> toSave = new LinkedHashMap<>();
-
-        values.forEach((key, value) -> {
-            toSave.put(key, value);
-        });
+        LinkedHashMap<String, String> toSave = new LinkedHashMap<>(values);
 
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         mapper.writerWithDefaultPrettyPrinter().writeValue(logPath.resolve("config.yaml").toFile(), toSave);
