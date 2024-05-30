@@ -3,9 +3,14 @@ package io.skodjob.testframe.clients;
 import io.skodjob.testframe.environment.TestEnvironmentVariables;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class TestEnvironmentVariablesTest {
 
@@ -13,12 +18,14 @@ public class TestEnvironmentVariablesTest {
     void testGetEnvVariablesCorrectly() {
         assertEquals(MyEnvs.MY_ENV, "this");
         assertEquals(MyEnvs.SECOND_ENV, "23");
+        assertTrue(Files.exists(Paths.get(System.getProperty("user.dir"))
+                .resolve("target").resolve("config.yaml")));
     }
 
     public static class MyEnvs {
         private static final Map<String, String> ENVS_MAP = Map.of(
-            "MY_ENV", "this",
-            "THIRD_ENV", "that"
+                "MY_ENV", "this",
+                "THIRD_ENV", "that"
         );
 
         public static final TestEnvironmentVariables ENVIRONMENT_VARIABLES = new TestEnvironmentVariables(ENVS_MAP);
@@ -27,6 +34,12 @@ public class TestEnvironmentVariablesTest {
 
         static {
             ENVIRONMENT_VARIABLES.logEnvironmentVariables();
+            try {
+                ENVIRONMENT_VARIABLES.saveConfigurationFile(Paths.get(System.getProperty("user.dir"))
+                        .resolve("target").toAbsolutePath().toString());
+            } catch (IOException e) {
+                fail("Env vars not saved");
+            }
         }
     }
 }

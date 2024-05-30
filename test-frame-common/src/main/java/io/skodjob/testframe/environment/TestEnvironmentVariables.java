@@ -12,9 +12,12 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
@@ -44,23 +47,22 @@ public class TestEnvironmentVariables {
      * {@link TestEnvironmentVariables} object initialization, where the config file is loaded to {@link #yamlData}
      * if possible.
      *
-     * @param envMap    Map containing the environment variables. Used mainly for testing purposes.
+     * @param envMap Map containing the environment variables. Used mainly for testing purposes.
      */
     public TestEnvironmentVariables(Map<String, String> envMap) {
         this.envMap = envMap;
         this.configFilePath = envMap.getOrDefault(configFilePathEnv,
-            Paths.get(System.getProperty("user.dir"), "config.yaml").toAbsolutePath().toString());
+                Paths.get(System.getProperty("user.dir"), "config.yaml").toAbsolutePath().toString());
         this.yamlData = loadConfigurationFile();
     }
 
     /**
      * Method which returns the value from env variable or its default in String.
      *
-     * @param envVarName        environment variable name
-     * @param defaultValue      default value, which should be used if the env var is empty and the config file
-     *                          doesn't contain it
-     *
-     * @return  value from env var/config file or default
+     * @param envVarName   environment variable name
+     * @param defaultValue default value, which should be used if the env var is empty and the config file
+     *                     doesn't contain it
+     * @return value from env var/config file or default
      */
     public String getOrDefault(String envVarName, String defaultValue) {
         return getOrDefault(envVarName, String::toString, defaultValue);
@@ -70,20 +72,19 @@ public class TestEnvironmentVariables {
      * Method which returns the value from env variable or its default in the specified type.
      * It also checks if the env var is specified in the configuration file before applying the default.
      *
-     * @param envVarName        environment variable name
-     * @param converter         converter to the desired type
-     * @param defaultValue      default value, which should be used if the env var is empty and the config file
-     *                          doesn't contain it
-     *
-     * @return  value from env var/config file or default
-     * @param <T>   desired type
+     * @param envVarName   environment variable name
+     * @param converter    converter to the desired type
+     * @param defaultValue default value, which should be used if the env var is empty and the config file
+     *                     doesn't contain it
+     * @param <T>          desired type
+     * @return value from env var/config file or default
      */
     public <T> T getOrDefault(String envVarName, Function<String, T> converter, T defaultValue) {
         String value = envMap.get(envVarName) != null ?
-            envMap.get(envVarName) :
-            (Objects.requireNonNull(yamlData).get(envVarName) != null ?
-                yamlData.get(envVarName).toString() :
-                null);
+                envMap.get(envVarName) :
+                (Objects.requireNonNull(yamlData).get(envVarName) != null ?
+                        yamlData.get(envVarName).toString() :
+                        null);
 
         T returnValue = defaultValue;
 
@@ -100,7 +101,7 @@ public class TestEnvironmentVariables {
      * the default path (in the `config.yaml` file on the `user.dir` path).
      * If the file doesn't exist, the info log is printed and empty Map is returned.
      *
-     * @return  Map with env variables and their values, or empty Map in case of not existing file
+     * @return Map with env variables and their values, or empty Map in case of not existing file
      */
     protected Map<String, Object> loadConfigurationFile() {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
@@ -111,6 +112,26 @@ public class TestEnvironmentVariables {
             LOGGER.info("Yaml configuration not provider or not exists");
             return Collections.emptyMap();
         }
+    }
+
+    /***
+     * Saves all set environment variables into yaml file
+     *
+     * @param testLogDir dir where to store file with set env vars
+     * @throws IOException ioException
+     */
+    public void saveConfigurationFile(String testLogDir) throws IOException {
+        Path logPath = Path.of(testLogDir);
+        Files.createDirectories(logPath);
+
+        LinkedHashMap<String, String> toSave = new LinkedHashMap<>();
+
+        values.forEach((key, value) -> {
+            toSave.put(key, value);
+        });
+
+        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+        mapper.writerWithDefaultPrettyPrinter().writeValue(logPath.resolve("config.yaml").toFile(), toSave);
     }
 
     /**
@@ -124,12 +145,12 @@ public class TestEnvironmentVariables {
         LOGGER.info("Used environment variables:");
 
         values.entrySet().stream()
-            .sorted(Map.Entry.comparingByKey())
-            .forEach(entry -> {
-                if (!Objects.equals(entry.getValue(), "null")) {
-                    LOGGER.info(debugFormat, entry.getKey(), entry.getValue());
-                }
-            });
+                .sorted(Map.Entry.comparingByKey())
+                .forEach(entry -> {
+                    if (!Objects.equals(entry.getValue(), "null")) {
+                        LOGGER.info(debugFormat, entry.getKey(), entry.getValue());
+                    }
+                });
 
         LoggerUtils.logSeparator("-", 30);
     }
