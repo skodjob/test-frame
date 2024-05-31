@@ -132,7 +132,7 @@ LogCollector logCollector = new LogCollectorBuilder()
     .build();
 
 public static void collectFromNamespaces() {
-    logCollector.collectFromNamespaceWithLabels(new LabelSelectorBuilder()
+    logCollector.collectFromNamespacesWithLabels(new LabelSelectorBuilder()
         .withMatchLabels(Map.of("my-label", "my-value"))
     );
 }
@@ -140,22 +140,23 @@ public static void collectFromNamespaces() {
 
 The tree path will look similarly to above examples, there will be folders for Namespaces matching the specified labels.
 
-### Changing the root folder path
+### Specifying additional folder path
 
-In case that you would like to change the root path, there is a method for that in the `LogCollector` object itself:
+In case that you would like to collect the logs to additional sub-directories of your root folder, the `LogCollector` contains
+methods for specifying the additional path for each of the three methods for log collection (mentioned above):
 
-```java
-import io.skodjob.testframe.LogCollector;
-import io.skodjob.testframe.LogCollectorBuilder;
-import org.junit.jupiter.api.AfterEach;
+- `collectFromNamespacesWithLabelsToFolder(LabelSelector labelSelector, String folderPath)`
+- `collectFromNamespacesToFolder(List<String> namespacesNames, String folderPath)`
+- `collectFromNamespaceToFolder(String namespaceName, String folderPath)`
 
-LogCollector logCollector = new LogCollectorBuilder()
-    .withResources("secret", "deployment", "my-custom-resource")
-    .withRootFolderPath("/path/to/logs/folder")
-    .build();
+The usage is same as for the methods that don't contain the `folderPath` parameter.
+The `folderPath` is appended after the `rootPath` you specified during the `LogCollector` initialization.
 
-@AfterEach
-void changeRootPath() {
-    logCollector.changeRootFolderPath("/path/to/another/folder");
-}
+Example:
+```
+rootPath: /tmp/logs
+folderPath: run1
+namespaceName: my-namespace
+
+final full path for log collection: /tmp/logs/run1/my-namespace/
 ```

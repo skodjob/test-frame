@@ -63,7 +63,8 @@ public class LogCollectorUtilsTest {
         String resourceType = "ULTIMATE";
         String expectedFullPath = rootPathDir + "/" + namespaceName + "/" + resourceType.toLowerCase(Locale.ROOT);
 
-        assertEquals(expectedFullPath, LogCollectorUtils.getFullDirPathWithNamespaceAndForResourceType(rootPathDir, namespaceName, resourceType));
+        assertEquals(expectedFullPath, LogCollectorUtils.getNamespaceFullDirPathForResourceType(
+            LogCollectorUtils.getFullDirPathWithNamespace(rootPathDir, namespaceName), resourceType));
     }
 
     @Test
@@ -73,5 +74,14 @@ public class LogCollectorUtilsTest {
         String expectedFullPath = fullNamespacePath + "/" + fileName;
 
         assertEquals(expectedFullPath, LogCollectorUtils.getFullPathForFolderPathAndFileName(fullNamespacePath, fileName));
+    }
+
+    @Test
+    void testGetFolderPath() {
+        String rootPath = "/tmp/logs";
+        String folderPath = "additional/path/to/folder";
+        String expectedFolderPath = rootPath + "/" + folderPath;
+
+        assertEquals(expectedFolderPath, LogCollectorUtils.getFolderPath(rootPath, folderPath));
     }
 }

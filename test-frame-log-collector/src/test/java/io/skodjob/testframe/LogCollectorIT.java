@@ -72,9 +72,6 @@ public class LogCollectorIT {
             .withResources(SECRET, DEPLOYMENT, CONFIG_MAP)
             .withRootFolderPath(pathToRoot)
             .build();
-
-        logCollector.setKubeClient(mockClient);
-        logCollector.setKubeCmdClient(mockCmdClient);
     }
 
     @BeforeEach
@@ -83,7 +80,12 @@ public class LogCollectorIT {
         when(mockCmdClient.inNamespace(anyString())).thenReturn(mockCmdClient);
         when(mockClient.getClient()).thenReturn(mockKubernetesClient);
 
-        logCollector.changeRootFolderPath(getFolderPathForTest());
+        logCollector = new LogCollectorBuilder(logCollector)
+            .withRootFolderPath(getFolderPathForTest())
+            .build();
+
+        logCollector.setKubeCmdClient(mockCmdClient);
+        logCollector.setKubeClient(mockClient);
     }
 
     /**
@@ -121,7 +123,16 @@ public class LogCollectorIT {
     }
 
     @Test
-    void testCollectFromNamespaceWhichAreEmpty() {
+    void testCollectFromNamespaceWhichIsEmptyWithAdditionalFolder() {
+        doTestCollectFromNamespaceWhichIsEmpty("additional");
+    }
+
+    @Test
+    void testCollectFromNamespaceWhichIsEmptyWithoutAdditionalFolder() {
+        doTestCollectFromNamespaceWhichIsEmpty(null);
+    }
+
+    void doTestCollectFromNamespaceWhichIsEmpty(String folderName) {
         String namespaceName = "my-namespace";
 
         mockNamespaces(namespaceName);
@@ -129,7 +140,13 @@ public class LogCollectorIT {
 
         logCollector.collectFromNamespace(namespaceName);
 
-        File rootFolder = Paths.get(getFolderPathForTest()).toFile();
+        if (folderName == null) {
+            logCollector.collectFromNamespace(namespaceName);
+        } else {
+            logCollector.collectFromNamespaceToFolder(namespaceName, folderName);
+        }
+
+        File rootFolder = Paths.get(LogCollectorUtils.getFolderPath(getFolderPathForTest(), folderName)).toFile();
 
         assertFolderExistsAndContainsCorrectNumberOfFiles(rootFolder, 1);
         assertFolderContainsFolders(rootFolder, namespaceName);
@@ -141,16 +158,29 @@ public class LogCollectorIT {
     }
 
     @Test
-    void testCollectFromNamespacesWhichAreEmpty() {
+    void testCollectFromNamespacesWhichAreEmptyWithAdditionalFolder() {
+        doTestCollectFromNamespacesWhichAreEmpty("additional");
+    }
+
+    @Test
+    void testCollectFromNamespacesWhichAreEmptyWithoutAdditionalFolder() {
+        doTestCollectFromNamespacesWhichAreEmpty(null);
+    }
+
+    void doTestCollectFromNamespacesWhichAreEmpty(String folderName) {
         String namespaceName1 = "my-namespace";
         String namespaceName2 = "second-namespace";
 
         mockNamespaces(namespaceName1, namespaceName2);
         mockEvents();
 
-        logCollector.collectFromNamespaces(namespaceName1, namespaceName2);
+        if (folderName == null) {
+            logCollector.collectFromNamespaces(namespaceName1, namespaceName2);
+        } else {
+            logCollector.collectFromNamespacesToFolder(List.of(namespaceName1, namespaceName2), folderName);
+        }
 
-        File rootFolder = Paths.get(getFolderPathForTest()).toFile();
+        File rootFolder = Paths.get(LogCollectorUtils.getFolderPath(getFolderPathForTest(), folderName)).toFile();
 
         assertFolderExistsAndContainsCorrectNumberOfFiles(rootFolder, 2);
         assertFolderContainsFolders(rootFolder, namespaceName1, namespaceName2);
@@ -162,7 +192,16 @@ public class LogCollectorIT {
     }
 
     @Test
-    void testCollectFromNamespacesWithLabels() {
+    void testCollectFromNamespacesWithLabelsWithAdditionalFolder() {
+        doTestCollectFromNamespaceWithLabels("additional");
+    }
+
+    @Test
+    void testCollectFromNamespacesWithLabelsWithoutAdditionalFolder() {
+        doTestCollectFromNamespaceWithLabels(null);
+    }
+
+    void doTestCollectFromNamespaceWithLabels(String folderName) {
         String namespaceName1 = "my-namespace";
         String namespaceName2 = "second-namespace";
         Map<String, String> labels = Map.of("first", "label");
@@ -171,9 +210,17 @@ public class LogCollectorIT {
         mockEvents();
         mockNamespacesWithLabels(labels, namespaceName2);
 
-        logCollector.collectFromNamespaceWithLabels(new LabelSelectorBuilder().withMatchLabels(labels).build());
+        LabelSelector labelSelector = new LabelSelectorBuilder()
+            .withMatchLabels(labels)
+            .build();
 
-        File rootFolder = Paths.get(getFolderPathForTest()).toFile();
+        if (folderName == null) {
+            logCollector.collectFromNamespacesWithLabels(labelSelector);
+        } else {
+            logCollector.collectFromNamespacesWithLabelsToFolder(labelSelector, folderName);
+        }
+
+        File rootFolder = Paths.get(LogCollectorUtils.getFolderPath(getFolderPathForTest(), folderName)).toFile();
 
         assertFolderExistsAndContainsCorrectNumberOfFiles(rootFolder, 1);
         assertFolderContainsFolders(rootFolder, namespaceName2);
@@ -196,32 +243,6 @@ public class LogCollectorIT {
         File rootFolder = Paths.get(getFolderPathForTest()).toFile();
 
         assertFalse(rootFolder.exists());
-    }
-
-    @Test
-    void testChangingRootFolderPath() {
-        String newPath = pathToRoot + "/my-custom-folder";
-        String namespaceName = "my-namespace";
-
-        mockNamespaces(namespaceName);
-        mockEvents();
-
-        logCollector.changeRootFolderPath(newPath);
-        logCollector.collectFromNamespace(namespaceName);
-
-        File rootFolder = Paths.get(newPath).toFile();
-
-        assertFolderExistsAndContainsCorrectNumberOfFiles(rootFolder, 1);
-        assertFolderContainsFolders(rootFolder, namespaceName);
-
-        newPath = pathToRoot + "/my-completely-different-dir";
-        logCollector.changeRootFolderPath(newPath);
-        logCollector.collectFromNamespace(namespaceName);
-
-        rootFolder = Paths.get(newPath).toFile();
-
-        assertFolderExistsAndContainsCorrectNumberOfFiles(rootFolder, 1);
-        assertFolderContainsFolders(rootFolder, namespaceName);
     }
 
     @Test

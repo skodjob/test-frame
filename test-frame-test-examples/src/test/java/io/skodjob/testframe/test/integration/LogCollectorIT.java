@@ -45,7 +45,8 @@ public class LogCollectorIT extends AbstractIT {
      */
     @Test
     void testCollectFromMultipleNamespacesWithDifferentResources() {
-        String fullFolderPath = folderRoot + "/test1";
+        String folderPath = "test1";
+        String fullFolderPath = LogCollectorUtils.getFolderPath(folderRoot, folderPath);
 
         String namespaceName1 = "my-namespace1";
         String namespaceName2 = "my-namespace2";
@@ -55,8 +56,6 @@ public class LogCollectorIT extends AbstractIT {
         String deploymentName = "my-deployment";
 
         int deploymentReplicas = 2;
-
-        logCollector.changeRootFolderPath(fullFolderPath);
 
         KubeResourceManager.getInstance().createResourceWithWait(
             new NamespaceBuilder()
@@ -144,7 +143,7 @@ public class LogCollectorIT extends AbstractIT {
                 .build()
         );
 
-        logCollector.collectFromNamespaces(namespaceName1, namespaceName2);
+        logCollector.collectFromNamespacesToFolder(List.of(namespaceName1, namespaceName2), folderPath);
 
         List<String> podNames = KubeResourceManager.getKubeClient()
             .listPods(namespaceName1).stream().map(pod -> pod.getMetadata().getName()).toList();

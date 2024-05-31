@@ -86,36 +86,31 @@ public class LogCollectorUtils {
     /**
      * Method returning full path from {@param rootFolderPath} to the {@param namespaceName} dir
      *
-     * @param rootFolderPath    root folder path where the sub-dirs will be created into
+     * @param folderPath        root folder path where the sub-dirs will be created into
      * @param namespaceName     name of the Namespace for which the folder will be created
      *
      * @return  full path from {@param rootFolderPath} to the {@param namespaceName} dir
      */
-    public static String getFullDirPathWithNamespace(String rootFolderPath, String namespaceName) {
-        return String.join("/", rootFolderPath, namespaceName);
+    public static String getFullDirPathWithNamespace(String folderPath, String namespaceName) {
+        return String.join("/", folderPath, namespaceName);
     }
 
     /**
-     * Method returning full path from {@param rootFolderPath} through the {@param namespaceName} dir
-     * to the {@param resourceType} dir.
+     * Method returning full path from {@param namespaceFolderPath} to the {@param resourceType} dir.
      * Example: /tmp/logs/my-namespace/secret
      *
-     * @param rootFolderPath    root folder path where the sub-dirs will be created into
-     * @param namespaceName     name of the Namespace (and its directory) where the folder
-     *                          for desired resource will be created
-     * @param resourceType      type of resource for which the folder will be created
+     * @param namespaceFolderPath   Namespace folder path where the sub-dirs will be created into
+     * @param resourceType          type of resource for which the folder will be created
      *
-     * @return  full path from {@param rootFolderPath} through the {@param namespaceName} dir
-     * to the {@param resourceType} dir
+     * @return  full path from {@param namespaceFolderPath} to the {@param resourceType} dir
      */
-    public static String getFullDirPathWithNamespaceAndForResourceType(
-        String rootFolderPath,
-        String namespaceName,
+    public static String getNamespaceFullDirPathForResourceType(
+        String namespaceFolderPath,
         String resourceType
     ) {
         return String.join(
             "/",
-            getFullDirPathWithNamespace(rootFolderPath, namespaceName),
+            namespaceFolderPath,
             resourceType.toLowerCase(Locale.ROOT)
         );
     }
@@ -131,5 +126,22 @@ public class LogCollectorUtils {
      */
     public static String getFullPathForFolderPathAndFileName(String folderPath, String fileName) {
         return String.join("/", folderPath, fileName);
+    }
+
+    /**
+     * Method returning full path from specified {@param rootPath} into the {@param folderPath}.
+     * This is used in cases that we have root path specified in LogCollector, but for the new log collection, we
+     * want to collect everything in different sub-dirs (and the Namespace sub-dirs are not enough).
+     *
+     * @param rootPath      root path specified in LogCollector during the instance initialization
+     * @param folderPath    additional folder path
+     * @return  full path from  {@param rootPath} into the {@param folderPath}
+     */
+    public static String getFolderPath(String rootPath, String folderPath) {
+        if (folderPath == null) {
+            return rootPath;
+        }
+
+        return String.join("/", rootPath, folderPath);
     }
 }

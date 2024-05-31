@@ -69,20 +69,23 @@ public class LogCollector {
     }
 
     /**
-     * Changes root folder path where the logs should be collected into.
-     *
-     * @param rootFolderPath    path to the folder, where the logs should be collected into
-     */
-    public void changeRootFolderPath(String rootFolderPath) {
-        this.rootFolderPath = rootFolderPath;
-    }
-
-    /**
-     * Method that collects all logs and YAML files from Namespaces containing specified LabelSelector
+     * Method that collects all logs and YAML files from Namespaces containing specified LabelSelector, collected into
+     * {@link #rootFolderPath}.
      *
      * @param labelSelector     LabelSelector containing Labels that Namespace should contain
      */
-    public void collectFromNamespaceWithLabels(LabelSelector labelSelector) {
+    public void collectFromNamespacesWithLabels(LabelSelector labelSelector) {
+        collectFromNamespacesWithLabelsToFolder(labelSelector, null);
+    }
+
+    /**
+     * Method that collects all logs and YAML files from Namespaces containing specified LabelSelector, collected into
+     * {@link #rootFolderPath} with {@param folderPath}.
+     *
+     * @param labelSelector     LabelSelector containing Labels that Namespace should contain
+     * @param folderPath        additional folder path for the log collection
+     */
+    public void collectFromNamespacesWithLabelsToFolder(LabelSelector labelSelector, String folderPath) {
         List<String> namespacesWithLabel = kubeClient.getClient()
             .namespaces()
             .withLabelSelector(labelSelector)
@@ -92,32 +95,57 @@ public class LogCollector {
             .map(namespace -> namespace.getMetadata().getName())
             .toList();
 
-        namespacesWithLabel.forEach(this::collectFromNamespace);
+        namespacesWithLabel.forEach(namespace -> collectFromNamespaceToFolder(namespace, folderPath));
     }
 
     /**
-     * Method that collects all logs and YAML files from specified set of Namespaces
+     * Method that collects all logs and YAML files from specified set of Namespaces, collected into
+     * {@link #rootFolderPath}.
      *
      * @param namespacesNames   set of Namespace from which the logs should be collected
      */
     public void collectFromNamespaces(String... namespacesNames) {
-        Arrays.stream(namespacesNames).forEach(this::collectFromNamespace);
+        collectFromNamespacesToFolder(Arrays.asList(namespacesNames), null);
     }
 
     /**
-     * Method that collects all logs and YAML files from specified Namespace
+     * Method that collects all logs and YAML files from specified set of Namespaces, collected into
+     * {@link #rootFolderPath} with {@param folderPath}.
+     *
+     * @param namespacesNames   set of Namespace from which the logs should be collected
+     * @param folderPath        additional folder path for the log collection
+     */
+    public void collectFromNamespacesToFolder(List<String> namespacesNames, String folderPath) {
+        namespacesNames.forEach(namespace -> collectFromNamespaceToFolder(namespace, folderPath));
+    }
+
+    /**
+     * Method that collects all logs and YAML files from specified Namespace, collected into
+     * {@link #rootFolderPath}.
      *
      * @param namespaceName     name of Namespace from which the logs should be collected
      */
     public void collectFromNamespace(String namespaceName) {
+        collectFromNamespaceToFolder(namespaceName, null);
+    }
+
+    /**
+     * Method that collects all logs and YAML files from specified Namespace, collected into
+     * {@link #rootFolderPath} with {@param folderPath}.
+     *
+     * @param namespaceName     name of Namespace from which the logs should be collected
+     * @param folderPath        additional folder path for the log collection
+     */
+    public void collectFromNamespaceToFolder(String namespaceName, String folderPath) {
         // check if Namespace exists
         if (kubeClient.getClient().namespaces().withName(namespaceName).get() != null) {
-            String namespaceFolderPath = createNamespaceDirectory(namespaceName);
+            String namespaceFolderPath = createNamespaceDirectory(namespaceName,
+                LogCollectorUtils.getFolderPath(rootFolderPath, folderPath));
 
-            collectLogsFromPodsInNamespace(namespaceName);
-            collectEventsFromNamespace(namespaceFolderPath, namespaceName);
+            collectLogsFromPodsInNamespace(namespaceName, namespaceFolderPath);
+            collectEventsFromNamespace(namespaceName, namespaceFolderPath);
 
-            collectResourcesDescInNamespace(namespaceName);
+            collectResourcesDescInNamespace(namespaceName, namespaceFolderPath);
         } else {
             LOGGER.warn("Specified Namespace: {} doesn't exist", namespaceName);
         }
@@ -130,14 +158,16 @@ public class LogCollector {
      * Then, for each Pod-(Init)Container it collects logs and then creates a log file, where are the logs stored.
      * Additionally, it stores description of each Pod in the Namespace.
      *
-     * @param namespaceName     name of Namespace from which the logs (and Pod descriptions) should be collected
+     * @param namespaceName         name of Namespace from which the logs (and Pod descriptions) should be collected
+     * @param namespaceFolderPath   path to Namespace folder where the pods directory will be created and logs will be
+     *                              collected into
      */
-    public void collectLogsFromPodsInNamespace(String namespaceName) {
+    public void collectLogsFromPodsInNamespace(String namespaceName, String namespaceFolderPath) {
         LOGGER.info("Collecting logs from all Pods in Namespace: {}", namespaceName);
         List<Pod> pods = kubeClient.listPods(namespaceName);
 
         if (!pods.isEmpty()) {
-            String podsFolderPath = createResourceDirectoryInNamespaceDir(namespaceName, CollectorConstants.POD);
+            String podsFolderPath = createResourceDirectoryInNamespaceDir(namespaceFolderPath, CollectorConstants.POD);
 
             pods.forEach(pod -> {
                 String podName = pod.getMetadata().getName();
@@ -146,9 +176,9 @@ public class LogCollector {
                 List<String> initContainers = pod.getSpec().getInitContainers().stream()
                     .map(Container::getName).toList();
 
-                collectPodDescription(podsFolderPath, namespaceName, podName);
-                collectLogsFromPodContainers(podsFolderPath, namespaceName, podName, containers);
-                collectLogsFromPodContainers(podsFolderPath, namespaceName, podName, initContainers);
+                collectPodDescription(namespaceName, podsFolderPath, podName);
+                collectLogsFromPodContainers(namespaceName, podsFolderPath, podName, containers);
+                collectLogsFromPodContainers(namespaceName, podsFolderPath, podName, initContainers);
             });
         }
     }
@@ -157,32 +187,32 @@ public class LogCollector {
      * Method that for each container collects the log using
      * {@link #collectLogsFromPodContainer(String, String, String, String)}
      *
-     * @param podsFolderPath    path to the "pod" folder (for example: /tmp/logs/namespace/pods)
      * @param namespaceName     name of Namespace where the Pod is present
+     * @param podsFolderPath    path to the "pod" folder (for example: /tmp/logs/namespace/pods)
      * @param podName           name of Pod from which the log should be collected
      * @param containerNames    list of container names from which the log should be collected
      */
     private void collectLogsFromPodContainers(
-        String podsFolderPath,
         String namespaceName,
+        String podsFolderPath,
         String podName,
         List<String> containerNames
     ) {
         containerNames.forEach(containerName ->
-            collectLogsFromPodContainer(podsFolderPath, namespaceName, podName, containerName));
+            collectLogsFromPodContainer(namespaceName, podsFolderPath, podName, containerName));
     }
 
     /**
      * Method that collects log from specified Pod and Container
      *
-     * @param podsFolderPath    path to the "pod" folder (for example: /tmp/logs/namespace/pods)
      * @param namespaceName     name of Namespace where the Pod is present
+     * @param podsFolderPath    path to the "pod" folder (for example: /tmp/logs/namespace/pods)
      * @param podName           name of Pod from which the log should be collected
      * @param containerName     name of container from which the log should be collected
      */
     private void collectLogsFromPodContainer(
-        String podsFolderPath,
         String namespaceName,
+        String podsFolderPath,
         String podName,
         String containerName
     ) {
@@ -196,11 +226,11 @@ public class LogCollector {
     /**
      * Method that collects description of specified Pod
      *
-     * @param podsFolderPath    path to the "pod" folder (for example: /tmp/logs/namespace/pods)
      * @param namespaceName     name of Namespace where the Pod is present
+     * @param podsFolderPath    path to the "pod" folder (for example: /tmp/logs/namespace/pods)
      * @param podName           name of Pod from which the description should be collected
      */
-    private void collectPodDescription(String podsFolderPath, String namespaceName, String podName) {
+    private void collectPodDescription(String namespaceName, String podsFolderPath, String podName) {
         String podDesc = kubeCmdClient.inNamespace(namespaceName).describe(CollectorConstants.POD, podName);
         String podDescFileName = LogCollectorUtils.getLogFileNameForPodDescription(podName);
         String filePath = LogCollectorUtils.getFullPathForFolderPathAndFileName(podsFolderPath, podDescFileName);
@@ -211,10 +241,10 @@ public class LogCollector {
     /**
      * Method that collects all Events (kubectl get events) from Namespace
      *
-     * @param namespaceFolderPath   path to the Namespace folder (for example: /tmp/logs/namespace)
      * @param namespaceName         name of Namespace from which the events should be collected
+     * @param namespaceFolderPath   path to the Namespace folder (for example: /tmp/logs/namespace)
      */
-    public void collectEventsFromNamespace(String namespaceFolderPath, String namespaceName) {
+    public void collectEventsFromNamespace(String namespaceName, String namespaceFolderPath) {
         LOGGER.info("Collecting events from Namespace: {}", namespaceName);
         String events = kubeCmdClient.inNamespace(namespaceName).getEvents();
         String eventsFileName = LogCollectorUtils.getLogFileNameForResource(CollectorConstants.EVENTS);
@@ -227,10 +257,12 @@ public class LogCollector {
      * Method that collects YAML descriptions of specified resources (resource types)
      * and stores them in particular folders and their YAML files.
      *
-     * @param namespaceName     name of Namespace from where the YAMLs should be collected
+     * @param namespaceName         name of Namespace from where the YAMLs should be collected
+     * @param namespaceFolderPath   path to Namespace folder where the resource directories will be created
      */
-    private void collectResourcesDescInNamespace(String namespaceName) {
-        resources.forEach(resource -> collectDescriptionOfResourceInNamespace(namespaceName, resource));
+    private void collectResourcesDescInNamespace(String namespaceName, String namespaceFolderPath) {
+        resources.forEach(resource ->
+            collectDescriptionOfResourceInNamespace(namespaceName, namespaceFolderPath, resource));
     }
 
 
@@ -240,15 +272,20 @@ public class LogCollector {
      * When the resources exist in Namespace, the folder for the resource type is created.
      * Finally, for each resource the YAML description is collected and stored in YAML file inside the type's folder.
      *
-     * @param namespaceName     name of Namespace from where the YAMLs should be collected
-     * @param resourceType      name of the resource type (for example secret, configmap, ...)
+     * @param namespaceName         name of Namespace from where the YAMLs should be collected
+     * @param namespaceFolderPath   path to Namespace folder where the resource directory will be created
+     * @param resourceType          name of the resource type (for example secret, configmap, ...)
      */
-    private void collectDescriptionOfResourceInNamespace(String namespaceName, String resourceType) {
+    private void collectDescriptionOfResourceInNamespace(
+        String namespaceName,
+        String namespaceFolderPath,
+        String resourceType
+    ) {
         LOGGER.info("Collecting YAMLs of {} from Namespace: {}", resourceType, namespaceName);
         List<String> resources = kubeCmdClient.inNamespace(namespaceName).list(resourceType);
 
         if (resources != null && !resources.isEmpty()) {
-            String fullFolderPath = createResourceDirectoryInNamespaceDir(namespaceName, resourceType);
+            String fullFolderPath = createResourceDirectoryInNamespaceDir(namespaceFolderPath, resourceType);
 
             resources.forEach(resourceName -> {
                 String yaml = kubeCmdClient.inNamespace(namespaceName).getResourceAsYaml(resourceType, resourceName);
@@ -261,29 +298,30 @@ public class LogCollector {
     }
 
     /**
-     * Method that creates directory for specified Namespace in the {@link #rootFolderPath}
+     * Method that creates directory for specified Namespace in the {@param folderPath}
      *
      * @param namespaceName     name of Namespace for which the folder will be created
+     * @param folderPath        folder path where the Namespace directory should be created
      *
      * @return  full path to the Namespace directory
      */
-    private String createNamespaceDirectory(String namespaceName) {
-        return createLogDirOnPath(LogCollectorUtils.getFullDirPathWithNamespace(rootFolderPath, namespaceName));
+    private String createNamespaceDirectory(String namespaceName, String folderPath) {
+        return createLogDirOnPath(LogCollectorUtils.getFullDirPathWithNamespace(folderPath, namespaceName));
     }
 
     /**
      * Method that creates directory for specified resource type in the Namespace directory
      *
-     * @param namespaceName     name of Namespace directory where the directory for the resource type will be created
-     * @param resourceType      name of resource type for which the directory will be created
+     * @param namespaceFolderPath   path to Namespace directory where the directory for the resource type
+     *                              will be created
+     * @param resourceType          name of resource type for which the directory will be created
      *
      * @return  full path to the resource type's directory
      */
-    private String createResourceDirectoryInNamespaceDir(String namespaceName, String resourceType) {
+    private String createResourceDirectoryInNamespaceDir(String namespaceFolderPath, String resourceType) {
         return createLogDirOnPath(
-            LogCollectorUtils.getFullDirPathWithNamespaceAndForResourceType(
-                rootFolderPath,
-                namespaceName,
+            LogCollectorUtils.getNamespaceFullDirPathForResourceType(
+                namespaceFolderPath,
                 resourceType
             )
         );
