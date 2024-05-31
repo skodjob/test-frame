@@ -75,6 +75,11 @@
 
         <fabric8.version>6.13.0</fabric8.version>
         <log4j.version>2.17.2</log4j.version>
+        <slf4j.version>1.7.36</slf4j.version>
+
+        <!--  TEST dependencies  -->
+        <mockito.version>5.11.0</mockito.version>
+        <apache.commons.version>2.16.1</apache.commons.version>
 
         <!--   Build tools' properties     -->
         <spotbugs.version>4.7.3</spotbugs.version>
@@ -93,6 +98,10 @@
         <maven.surefire.version>3.2.2</maven.surefire.version>
         <jackson-dataformat-yaml.version>2.17.1</jackson-dataformat-yaml.version>
 
+        <it.skip>true</it.skip>
+        <!--suppress UnresolvedMavenProperty -->
+        <ut.skip>${skipTests}</ut.skip>
+
         <checkstyle.config.location>checkstyle.xml</checkstyle.config.location>
     </properties>
 
@@ -106,6 +115,11 @@
             <dependency>
                 <groupId>io.skodjob</groupId>
                 <artifactId>test-frame-kubernetes</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.skodjob</groupId>
+                <artifactId>test-frame-log-collector</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -170,6 +184,29 @@
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-slf4j-impl</artifactId>
                 <version>${log4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>${mockito.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-junit-jupiter</artifactId>
+                <version>${mockito.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${apache.commons.version}</version>
+                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -258,10 +295,65 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>${maven.surefire.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>verify</goal>
+                            <goal>integration-test</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <skipITs>${it.skip}</skipITs>
+                    <forkCount>1</forkCount>
+                    <includes>
+                        <include>**/IT*.java</include>
+                        <include>**/*IT.java</include>
+                    </includes>
+                    <properties>
+                        <configurationParameters>
+                            junit.jupiter.extensions.autodetection.enabled = true
+                        </configurationParameters>
+                    </properties>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven.surefire.version}</version>
+                <inherited>true</inherited>
+                <configuration>
+                    <properties>
+                        <configurationParameters>
+                            junit.jupiter.extensions.autodetection.enabled = true
+                        </configurationParameters>
+                    </properties>
+                    <skipTests>${ut.skip}</skipTests>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
     <profiles>
+        <profile>
+            <id>integration</id>
+            <properties>
+                <it.skip>false</it.skip>
+                <ut.skip>true</ut.skip>
+            </properties>
+            <modules>
+                <module>test-frame-common</module>
+                <module>test-frame-kubernetes</module>
+                <module>test-frame-openshift</module>
+                <module>test-frame-test-examples</module>
+                <module>test-frame-metrics-collector</module>
+                <module>test-frame-log-collector</module>
+            </modules>
+        </profile>
         <profile>
             <id>default</id>
             <activation>
@@ -273,6 +365,7 @@
                 <module>test-frame-openshift</module>
                 <module>test-frame-test-examples</module>
                 <module>test-frame-metrics-collector</module>
+                <module>test-frame-log-collector</module>
             </modules>
         </profile>
         <profile>
@@ -285,6 +378,7 @@
                 <module>test-frame-kubernetes</module>
                 <module>test-frame-openshift</module>
                 <module>test-frame-metrics-collector</module>
+                <module>test-frame-log-collector</module>
             </modules>
             <properties>
                 <!--suppress UnresolvedMavenProperty -->
@@ -347,6 +441,7 @@
                                         <descriptor>test-frame-kubernetes/src/main/assembly/dist.xml</descriptor>
                                         <descriptor>test-frame-openshift/src/main/assembly/dist.xml</descriptor>
                                         <descriptor>test-frame-metrics-collector/src/main/assembly/dist.xml</descriptor>
+                                        <descriptor>test-frame-log-collector/src/main/assembly/dist.xml</descriptor>
                                     </descriptors>
                                 </configuration>
                             </execution>

@@ -22,7 +22,6 @@
 
         <maven.deploy.skip>true</maven.deploy.skip>
         <maven.javadoc.skip>true</maven.javadoc.skip>
-        <it.skip>true</it.skip>
     </properties>
 
     <dependencies>
@@ -33,6 +32,10 @@
         <dependency>
             <groupId>io.skodjob</groupId>
             <artifactId>test-frame-kubernetes</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.skodjob</groupId>
+            <artifactId>test-frame-log-collector</artifactId>
         </dependency>
         <dependency>
             <groupId>io.fabric8</groupId>
@@ -95,44 +98,4 @@
             <artifactId>log4j-slf4j-impl</artifactId>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <version>${maven.surefire.version}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>verify</goal>
-                            <goal>integration-test</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <skipITs>${it.skip}</skipITs>
-                    <forkCount>1</forkCount>
-                    <includes>
-                        <include>io.skodjob.testframe.test.integration.**</include>
-                    </includes>
-                    <properties>
-                        <configurationParameters>
-                            junit.jupiter.extensions.autodetection.enabled = true
-                        </configurationParameters>
-                    </properties>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
-    <profiles>
-        <profile>
-            <id>integration</id>
-            <properties>
-                <it.skip>false</it.skip>
-            </properties>
-        </profile>
-    </profiles>
-
 </project>

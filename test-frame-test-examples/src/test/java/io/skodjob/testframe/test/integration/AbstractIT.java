@@ -3,6 +3,7 @@ package io.skodjob.testframe.test.integration;
 import io.skodjob.testframe.LoggerUtils;
 import io.skodjob.testframe.annotations.ResourceManager;
 import io.skodjob.testframe.annotations.TestVisualSeparator;
+import io.skodjob.testframe.resources.DeploymentType;
 import io.skodjob.testframe.resources.KubeResourceManager;
 import io.skodjob.testframe.resources.NamespaceType;
 import io.skodjob.testframe.resources.ServiceAccountType;
@@ -19,7 +20,8 @@ public abstract class AbstractIT {
     static {
         KubeResourceManager.getInstance().setResourceTypes(
                 new NamespaceType(),
-                new ServiceAccountType()
+                new ServiceAccountType(),
+                new DeploymentType()
         );
         KubeResourceManager.getInstance().addCreateCallback(r -> {
             isCreateHandlerCalled.set(true);
