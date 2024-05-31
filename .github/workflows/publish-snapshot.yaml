@@ -38,7 +38,7 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Publish to GitHub Packages Apache Maven
-        run: mvn deploy
+        run: ./mvnw deploy
         env:
           GITHUB_USERNAME: x-access-token
           GITHUB_TOKEN: ${{ secrets.TOKEN }}

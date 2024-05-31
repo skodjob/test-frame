@@ -30,7 +30,7 @@ jobs:
             ${{ runner.os }}-${{ matrix.version }}-maven-
 
       - name: Build
-        run: mvn --batch-mode install
+        run: ./mvnw --batch-mode install
 
       - name: Run spotbugs check
-        run: mvn spotbugs:spotbugs
+        run: ./mvnw spotbugs:spotbugs
