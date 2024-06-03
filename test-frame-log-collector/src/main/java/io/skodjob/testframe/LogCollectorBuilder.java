@@ -4,6 +4,10 @@
  */
 package io.skodjob.testframe;
 
+import io.skodjob.testframe.clients.KubeClient;
+import io.skodjob.testframe.clients.cmdClient.KubeCmdClient;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,7 +18,10 @@ import java.util.stream.Collectors;
 public class LogCollectorBuilder {
 
     private String rootFolderPath;
-    private List<String> resources;
+    private List<String> namespacedResources;
+    private List<String> clusterWideResources;
+    private KubeClient kubeClient;
+    private KubeCmdClient<?> kubeCmdClient;
 
     /**
      * Constructor for creating {@link LogCollectorBuilder} with parameters from
@@ -24,7 +31,8 @@ public class LogCollectorBuilder {
      */
     public LogCollectorBuilder(LogCollector logCollector) {
         this.rootFolderPath = logCollector.rootFolderPath;
-        this.resources = logCollector.resources;
+        this.namespacedResources = logCollector.namespacedResources;
+        this.clusterWideResources = logCollector.clusterWideResources;
     }
 
     /**
@@ -47,18 +55,55 @@ public class LogCollectorBuilder {
     }
 
     /**
-     * Method for setting the resources, which YAML descriptions should be collected as part of the log collection
+     * Method for setting the  namespaced resources, which YAML
+     * descriptions should be collected as part of the log collection
      *
      * @param resources    array of resources
      *
      * @return  {@link LogCollectorBuilder} object
      */
-    public LogCollectorBuilder withResources(String... resources) {
-        this.resources = Arrays.stream(resources).toList()
+    public LogCollectorBuilder withNamespacedResources(String... resources) {
+        this.namespacedResources = Arrays.stream(resources).toList()
             .stream()
             .filter(resource -> !resource.equals(CollectorConstants.POD) && !resource.equals(CollectorConstants.PODS))
             .collect(Collectors.toList());
 
+        return this;
+    }
+
+    /**
+     * Method for setting the  cluster wide resources, which YAML
+     * descriptions should be collected as part of the log collection
+     *
+     * @param resources    array of resources
+     *
+     * @return  {@link LogCollectorBuilder} object
+     */
+    public LogCollectorBuilder withClusterWideResources(String... resources) {
+        this.clusterWideResources = new ArrayList<>(Arrays.stream(resources).toList());
+
+        return this;
+    }
+
+    /**
+     * Setter for kubeClient
+     *
+     * @param kubeClient kubeClientInstance
+     * @return {@link LogCollectorBuilder} object
+     */
+    public LogCollectorBuilder withKubeClient(KubeClient kubeClient) {
+        this.kubeClient = kubeClient;
+        return this;
+    }
+
+    /**
+     * Setter for kubeCmdClient
+     *
+     * @param kubeCmdClient kubeClientInstance
+     * @return {@link LogCollectorBuilder} object
+     */
+    public LogCollectorBuilder withKubeCmdClient(KubeCmdClient<?> kubeCmdClient) {
+        this.kubeCmdClient = kubeCmdClient;
         return this;
     }
 
@@ -72,12 +117,39 @@ public class LogCollectorBuilder {
     }
 
     /**
-     * Getter returning currently configured {@link #resources} in {@link List} object
+     * Getter returning currently configured {@link #namespacedResources} in {@link List} object
      *
-     * @return {@link #resources}
+     * @return {@link #namespacedResources}
      */
-    public List<String> getResources() {
-        return this.resources;
+    public List<String> getNamespacedResources() {
+        return this.namespacedResources;
+    }
+
+    /**
+     * Getter returning currently configured {@link #clusterWideResources} in {@link List} object
+     *
+     * @return {@link #clusterWideResources}
+     */
+    public List<String> getClusterWideResources() {
+        return this.clusterWideResources;
+    }
+
+    /**
+     * Getter for kubeClient
+     *
+     * @return {@link #kubeClient}
+     */
+    public KubeClient getKubeClient() {
+        return this.kubeClient;
+    }
+
+    /**
+     * Getter for kubeCmdClient
+     *
+     * @return {@link #kubeCmdClient}
+     */
+    public KubeCmdClient<?> getKubeCmdClient() {
+        return this.kubeCmdClient;
     }
 
     /**

@@ -40,7 +40,7 @@ import io.skodjob.testframe.LogCollector;
 import io.skodjob.testframe.LogCollectorBuilder;
 
 LogCollector logCollector = new LogCollectorBuilder()
-    .withResources("secret", "deployment", "my-custom-resource")
+    .withNamespacedResources("secret", "deployment", "my-custom-resource")
     .withRootFolderPath("/path/to/logs/folder")
     .build();
 ```
@@ -66,7 +66,7 @@ import io.skodjob.testframe.LogCollector;
 import io.skodjob.testframe.LogCollectorBuilder;
 
 LogCollector logCollector = new LogCollectorBuilder()
-    .withResources("secret", "deployment", "my-custom-resource")
+    .withNamespacedResources("secret", "deployment", "my-custom-resource")
     .withRootFolderPath("/path/to/logs/folder")
     .build();
 
@@ -92,7 +92,7 @@ import io.skodjob.testframe.LogCollector;
 import io.skodjob.testframe.LogCollectorBuilder;
 
 LogCollector logCollector = new LogCollectorBuilder()
-    .withResources("secret", "deployment", "my-custom-resource")
+    .withNamespacedResources("secret", "deployment", "my-custom-resource")
     .withRootFolderPath("/path/to/logs/folder")
     .build();
 
@@ -127,17 +127,46 @@ import io.skodjob.testframe.LogCollector;
 import io.skodjob.testframe.LogCollectorBuilder;
 
 LogCollector logCollector = new LogCollectorBuilder()
-    .withResources("secret", "deployment", "my-custom-resource")
+    .withNamespacedResources("secret", "deployment", "my-custom-resource")
     .withRootFolderPath("/path/to/logs/folder")
     .build();
 
 public static void collectFromNamespaces() {
     logCollector.collectFromNamespacesWithLabels(new LabelSelectorBuilder()
-        .withMatchLabels(Map.of("my-label", "my-value"))
+            .withMatchLabels(Map.of("my-label", "my-value"))
     );
 }
 ```
 
+#### 4. Collect cluster wide resource lists
+
+Collect cluster wide resource lists yaml like `nodes`, `pvs`:
+
+```java
+import io.fabric8.kubernetes.api.model.LabelSelectorBuilder;
+import io.skodjob.testframe.LogCollector;
+import io.skodjob.testframe.LogCollectorBuilder;
+
+LogCollector logCollector = new LogCollectorBuilder()
+    .withClusterWideResources("nodes", "pvs")
+    .withRootFolderPath("/path/to/logs/folder")
+    .build();
+
+public static void collectClusterWideRes() {
+    logCollector.collectClusterWideResources();
+}
+```
+the logs path will then look like this:
+```bash
+/path/to/logs/folder
+└── cluster-wide-resources
+    ├── nodes
+    │   ├── node1.yaml
+    │   └── node2.yaml
+    └── pvs
+        ├── pv1.yaml
+        └── pv2.yaml
+```
 The tree path will look similarly to above examples, there will be folders for Namespaces matching the specified labels.
 
 ### Specifying additional folder path

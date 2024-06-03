@@ -10,7 +10,6 @@ import io.fabric8.kubernetes.api.model.Pod;
 import io.skodjob.testframe.clients.KubeClient;
 import io.skodjob.testframe.clients.cmdClient.KubeCmdClient;
 import io.skodjob.testframe.clients.cmdClient.Kubectl;
-import io.skodjob.testframe.resources.KubeResourceManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -27,10 +26,11 @@ import java.util.List;
  * LogCollector class containing all methods used for logs and YAML collection.
  */
 public class LogCollector {
-    private static final Logger LOGGER = LogManager.getLogger(KubeResourceManager.class);
-    protected final List<String> resources;
+    private static final Logger LOGGER = LogManager.getLogger(LogCollector.class);
+    protected final List<String> namespacedResources;
+    protected final List<String> clusterWideResources;
     protected String rootFolderPath;
-    private KubeCmdClient<Kubectl> kubeCmdClient = new Kubectl();
+    private KubeCmdClient<?> kubeCmdClient = new Kubectl();
     private KubeClient kubeClient = new KubeClient();
 
     /**
@@ -39,33 +39,24 @@ public class LogCollector {
      * @param builder   {@link LogCollectorBuilder} with configuration for {@link LogCollector}
      */
     public LogCollector(LogCollectorBuilder builder) {
-        this.resources = builder.getResources() == null ? Collections.emptyList() : builder.getResources();
+        this.namespacedResources = builder.getNamespacedResources() == null ?
+                Collections.emptyList() : builder.getNamespacedResources();
+        this.clusterWideResources = builder.getClusterWideResources() == null ?
+                Collections.emptyList() : builder.getClusterWideResources();
 
         if (builder.getRootFolderPath() == null) {
             throw new RuntimeException("rootFolderPath should be filled, but it's empty");
         }
 
+        if (builder.getKubeClient() != null) {
+            this.kubeClient = builder.getKubeClient();
+        }
+
+        if (builder.getKubeCmdClient() != null) {
+            this.kubeCmdClient = builder.getKubeCmdClient();
+        }
+
         this.rootFolderPath = builder.getRootFolderPath();
-    }
-
-    /**
-     * Sets {@link KubeClient} for the LogCollector.
-     * Mainly for testing purposes (to mock the client).
-     *
-     * @param kubeClient     {@link KubeClient} - usually mocked.
-     */
-    /* test */ public void setKubeClient(KubeClient kubeClient) {
-        this.kubeClient = kubeClient;
-    }
-
-    /**
-     * Sets {@link KubeCmdClient} for the LogCollector.
-     * Mainly for testing purposes (to mock the client).
-     *
-     * @param kubeCmdClient     {@link KubeCmdClient} - usually mocked.
-     */
-    /* test */ public void setKubeCmdClient(KubeCmdClient<Kubectl> kubeCmdClient) {
-        this.kubeCmdClient = kubeCmdClient;
     }
 
     /**
@@ -130,6 +121,24 @@ public class LogCollector {
     }
 
     /**
+     * Method that collects YAML of cluster wide resources
+     * {@link #rootFolderPath}.
+     */
+    public void collectClusterWideResources() {
+        collectClusterWideResources(true);
+    }
+
+    /**
+     * Method that collects YAML of cluster wide resources
+     * {@link #rootFolderPath}.
+     *
+     * @param logPerResource    flag enables cluster wide resource per file
+     */
+    public void collectClusterWideResources(boolean logPerResource) {
+        collectClusterWideResourcesToFolder(logPerResource, null);
+    }
+
+    /**
      * Method that collects all logs and YAML files from specified Namespace, collected into
      * {@link #rootFolderPath} with {@param folderPath}.
      *
@@ -149,6 +158,43 @@ public class LogCollector {
         } else {
             LOGGER.warn("Specified Namespace: {} doesn't exist", namespaceName);
         }
+    }
+
+    /**
+     * Method that collects YAML of cluster wide resources
+     * {@link #rootFolderPath} with {@param folderPath}.
+     *
+     * @param folderPath        folder path for the log collection
+     */
+    public void collectClusterWideResourcesToFolder(String folderPath) {
+        collectClusterWideResourcesToFolder(true, folderPath);
+    }
+
+    /**
+     * Method that collects YAML of cluster wide resources
+     * {@link #rootFolderPath} with {@param folderPath}.
+     *
+     * @param logPerFile        flag enables cluster wide resource per file
+     * @param folderPath        folder path for the log collection
+     */
+    public void collectClusterWideResourcesToFolder(boolean logPerFile, String folderPath) {
+        clusterWideResources.forEach(resourceType -> {
+            LOGGER.info("Collecting YAMLs of {}", resourceType);
+
+            String clusterWideFolderPath = createNamespaceDirectory(CollectorConstants.CLUSTER_WIDE_FOLDER,
+                LogCollectorUtils.getFolderPath(rootFolderPath, folderPath));
+            createLogDirOnPath(clusterWideFolderPath);
+
+            if (logPerFile) {
+                collectClusterWideResourcesPerFile(clusterWideFolderPath, resourceType);
+            } else {
+                String yaml = kubeCmdClient.getClusterWideResourcesAsYaml(resourceType);
+                String resFileName = LogCollectorUtils.getYamlFileNameForResource(resourceType);
+                String filePath = LogCollectorUtils
+                    .getFullPathForFolderPathAndFileName(clusterWideFolderPath, resFileName);
+                writeDataToFile(filePath, yaml);
+            }
+        });
     }
 
     /**
@@ -239,6 +285,27 @@ public class LogCollector {
     }
 
     /**
+     * Collect cluster wide resource per file
+     *
+     * @param clusterWideFolderPath root path of cluster wide resource
+     * @param resourceType resource kind for collect
+     */
+    private void collectClusterWideResourcesPerFile(String clusterWideFolderPath,String resourceType) {
+        List<String> resources = kubeCmdClient.listClusterWide(resourceType);
+        if (resources != null && !resources.isEmpty()) {
+            String fullFolderPath = createResourceDirectoryInNamespaceDir(clusterWideFolderPath, resourceType);
+
+            resources.forEach(resourceName -> {
+                String yaml = kubeCmdClient.getClusterWideResourceAsYaml(resourceType, resourceName);
+
+                String resFileName = LogCollectorUtils.getYamlFileNameForResource(resourceName);
+                String fileName = LogCollectorUtils.getFullPathForFolderPathAndFileName(fullFolderPath, resFileName);
+                writeDataToFile(fileName, yaml);
+            });
+        }
+    }
+
+    /**
      * Method that collects all Events (kubectl get events) from Namespace
      *
      * @param namespaceName         name of Namespace from which the events should be collected
@@ -261,7 +328,7 @@ public class LogCollector {
      * @param namespaceFolderPath   path to Namespace folder where the resource directories will be created
      */
     private void collectResourcesDescInNamespace(String namespaceName, String namespaceFolderPath) {
-        resources.forEach(resource ->
+        namespacedResources.forEach(resource ->
             collectDescriptionOfResourceInNamespace(namespaceName, namespaceFolderPath, resource));
     }
 

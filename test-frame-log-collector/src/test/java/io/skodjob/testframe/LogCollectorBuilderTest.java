@@ -3,7 +3,6 @@ package io.skodjob.testframe;
 import io.skodjob.testframe.annotations.TestVisualSeparator;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -15,9 +14,9 @@ public class LogCollectorBuilderTest {
     @Test
     void testPassingPodAndPodsAsResourcesToLogCollectorBuilder() {
         LogCollectorBuilder logCollectorBuilder = new LogCollectorBuilder()
-            .withResources("pod", "pods");
+            .withNamespacedResources("pod", "pods");
 
-        assertEquals(Collections.emptyList(), logCollectorBuilder.getResources());
+        assertEquals(Collections.emptyList(), logCollectorBuilder.getNamespacedResources());
     }
 
     @Test
