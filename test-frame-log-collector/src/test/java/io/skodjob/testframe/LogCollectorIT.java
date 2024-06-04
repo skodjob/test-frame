@@ -79,8 +79,10 @@ public class LogCollectorIT {
         mockNamespaceOperation = mock(NonNamespaceOperation.class);
 
         logCollector = new LogCollectorBuilder()
-            .withResources(SECRET, DEPLOYMENT, CONFIG_MAP)
+            .withNamespacedResources(SECRET, DEPLOYMENT, CONFIG_MAP)
             .withRootFolderPath(pathToRoot)
+            .withKubeCmdClient(mockCmdClient)
+            .withKubeClient(mockClient)
             .build();
     }
 
@@ -92,10 +94,9 @@ public class LogCollectorIT {
 
         logCollector = new LogCollectorBuilder(logCollector)
             .withRootFolderPath(getFolderPathForTest())
+            .withKubeCmdClient(mockCmdClient)
+            .withKubeClient(mockClient)
             .build();
-
-        logCollector.setKubeCmdClient(mockCmdClient);
-        logCollector.setKubeClient(mockClient);
     }
 
     /**
@@ -259,11 +260,10 @@ public class LogCollectorIT {
     void testChangingCustomResources() throws IOException {
         LogCollector localLogCollector = new LogCollectorBuilder()
             .withRootFolderPath(getFolderPathForTest())
-            .withResources(SECRET)
+            .withNamespacedResources(SECRET)
+            .withKubeClient(mockClient)
+            .withKubeCmdClient(mockCmdClient)
             .build();
-
-        localLogCollector.setKubeClient(mockClient);
-        localLogCollector.setKubeCmdClient(mockCmdClient);
 
         String namespaceName = "my-namespace";
         String[] secretNames = new String[]{"secret1", "secret2"};
@@ -293,11 +293,10 @@ public class LogCollectorIT {
 
         localLogCollector = new LogCollectorBuilder(localLogCollector)
             .withRootFolderPath(getFolderPathForTest())
-            .withResources(CONFIG_MAP, DEPLOYMENT)
+            .withNamespacedResources(CONFIG_MAP, DEPLOYMENT)
+            .withKubeClient(mockClient)
+            .withKubeCmdClient(mockCmdClient)
             .build();
-
-        localLogCollector.setKubeClient(mockClient);
-        localLogCollector.setKubeCmdClient(mockCmdClient);
 
         localLogCollector.collectFromNamespace(namespaceName);
 
@@ -344,10 +343,9 @@ public class LogCollectorIT {
 
         LogCollector localLogCollector = new LogCollectorBuilder()
             .withRootFolderPath(getFolderPathForTest())
+            .withKubeClient(mockClient)
+            .withKubeCmdClient(mockCmdClient)
             .build();
-
-        localLogCollector.setKubeClient(mockClient);
-        localLogCollector.setKubeCmdClient(mockCmdClient);
 
         mockNamespaces(namespaceName);
         mockEvents();

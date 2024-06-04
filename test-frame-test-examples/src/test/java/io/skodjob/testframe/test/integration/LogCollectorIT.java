@@ -6,6 +6,7 @@ package io.skodjob.testframe.test.integration;
 
 import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder;
+import io.skodjob.testframe.CollectorConstants;
 import io.skodjob.testframe.LogCollector;
 import io.skodjob.testframe.LogCollectorBuilder;
 import io.skodjob.testframe.LogCollectorUtils;
@@ -35,7 +36,8 @@ public class LogCollectorIT extends AbstractIT {
     private final String folderRoot = "/tmp/log-collector-examples";
     private final String[] resourcesToBeCollected = new String[] {"secret", "configmap", "deployment"};
     private final LogCollector logCollector = new LogCollectorBuilder()
-        .withResources(resourcesToBeCollected)
+        .withNamespacedResources(resourcesToBeCollected)
+        .withClusterWideResources("nodes")
         .withRootFolderPath(folderRoot)
         .build();
 
@@ -144,6 +146,8 @@ public class LogCollectorIT extends AbstractIT {
         );
 
         logCollector.collectFromNamespacesToFolder(List.of(namespaceName1, namespaceName2), folderPath);
+        logCollector.collectClusterWideResourcesToFolder(folderPath);
+        logCollector.collectClusterWideResourcesToFolder(false, folderPath);
 
         List<String> podNames = KubeResourceManager.getKubeClient()
             .listPods(namespaceName1).stream().map(pod -> pod.getMetadata().getName()).toList();
@@ -157,9 +161,12 @@ public class LogCollectorIT extends AbstractIT {
         File[] namespaceFolders = rootFolder.listFiles();
 
         assertNotNull(namespaceFolders);
-        assertEquals(2, namespaceFolders.length);
+        assertEquals(3, namespaceFolders.length);
 
-        Arrays.stream(namespaceFolders).forEach(namespaceFolder -> {
+        assertTrue(rootFolder.toPath()
+                .resolve(CollectorConstants.CLUSTER_WIDE_FOLDER).resolve("nodes.yaml").toFile().exists());
+
+        Arrays.stream(namespaceFolders).filter(File::isDirectory).forEach(namespaceFolder -> {
             List<File> namespaceFolderFiles = Arrays.asList(Objects.requireNonNull(namespaceFolder.listFiles()));
             List<String> namespaceFolderFileNames = namespaceFolderFiles.stream().map(File::getName).toList();
 
@@ -200,7 +207,7 @@ public class LogCollectorIT extends AbstractIT {
                 secretNames.forEach(
                     secret -> assertTrue(secretFolderFileNames.contains(LogCollectorUtils.getYamlFileNameForResource(secret)))
                 );
-            } else {
+            } else if (namespaceFolder.getName().equals(namespaceName2)) {
                 assertFalse(namespaceFolderFileNames.contains("pod"));
                 assertFalse(namespaceFolderFileNames.contains("deployment"));
                 assertTrue(namespaceFolderFileNames.contains("configmap"));
@@ -211,6 +218,13 @@ public class LogCollectorIT extends AbstractIT {
                 List<String> configMapFolderFileNames = configMapFolderFiles.stream().map(File::getName).toList();
 
                 assertTrue(configMapFolderFileNames.contains(LogCollectorUtils.getYamlFileNameForResource(configMapName)));
+            } else if (namespaceFolder.getName().equals(CollectorConstants.CLUSTER_WIDE_FOLDER)) {
+                int countOfNodes = KubeResourceManager.getKubeClient().getClient().nodes().list().getItems().size();
+                int countOfFiles = Objects.requireNonNull(
+                        Arrays.stream(Objects.requireNonNull(namespaceFolder.listFiles()))
+                                .filter(file -> file.getName().equals("nodes")).toList()
+                                .stream().findFirst().get().listFiles()).length;
+                assertEquals(countOfNodes, countOfFiles);
             }
         });
     }

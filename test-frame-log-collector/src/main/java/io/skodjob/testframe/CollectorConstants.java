@@ -32,4 +32,9 @@ public interface CollectorConstants {
      * Prefix for description files
      */
     String DESCRIBE = "describe";
+
+    /**
+     * Cluster wide resources folder name
+     */
+    String CLUSTER_WIDE_FOLDER = "cluster-wide-resources";
 }

@@ -483,6 +483,20 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
     }
 
     /**
+     * Lists cluster wide resources of a certain type.
+     *
+     * @param resourceType The type of the resource.
+     * @return A list of resource names.
+     */
+    @Override
+    public List<String> listClusterWide(String resourceType) {
+        return Arrays.stream(Exec.exec(command(List.of(GET, resourceType,
+                                "-o", "jsonpath={range .items[*]}{.metadata.name} ")))
+                        .out().trim().split(" +"))
+                .filter(s -> !s.trim().isEmpty()).collect(Collectors.toList());
+    }
+
+    /**
      * Retrieves a resource as JSON.
      *
      * @param resourceType The type of the resource.
@@ -515,6 +529,29 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
     @Override
     public String getResourcesAsYaml(String resourceType) {
         return Exec.exec(namespacedCommand(GET, resourceType, "-o", "yaml")).out();
+    }
+
+    /**
+     * Retrieves a  cluster wide resource as YAML.
+     *
+     * @param resourceType The type of the resource.
+     * @param resourceName The name of the resource.
+     * @return The resource as YAML.
+     */
+    @Override
+    public String getClusterWideResourceAsYaml(String resourceType, String resourceName) {
+        return Exec.exec(command(List.of(GET, resourceType, resourceName, "-o", "yaml"))).out();
+    }
+
+    /**
+     * Retrieves resources as YAML.
+     *
+     * @param resourceType The type of the resource.
+     * @return The resources as YAML.
+     */
+    @Override
+    public String getClusterWideResourcesAsYaml(String resourceType) {
+        return Exec.exec(command(List.of(GET, resourceType, "-o", "yaml"))).out();
     }
 
     /**

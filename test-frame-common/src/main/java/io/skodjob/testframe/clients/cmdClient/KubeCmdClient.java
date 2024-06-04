@@ -287,6 +287,14 @@ public interface KubeCmdClient<K extends KubeCmdClient<K>> {
     List<String> list(String resourceType);
 
     /**
+     * Retrieves a list of cluster wide resources by type.
+     *
+     * @param resourceType The type of the resources.
+     * @return The list of resources.
+     */
+    List<String> listClusterWide(String resourceType);
+
+    /**
      * Retrieves the YAML content of a resource by type and name.
      *
      * @param resourceType The type of the resource.
@@ -302,6 +310,23 @@ public interface KubeCmdClient<K extends KubeCmdClient<K>> {
      * @return The YAML content of the resources.
      */
     String getResourcesAsYaml(String resourceType);
+
+    /**
+     * Retrieves the YAML content of a cluster wide resource by type and name.
+     *
+     * @param resourceType The type of the resource.
+     * @param resourceName The name of the resource.
+     * @return The YAML content of the resource.
+     */
+    String getClusterWideResourceAsYaml(String resourceType, String resourceName);
+
+    /**
+     * Retrieves the YAML content of cluster wide resources by type.
+     *
+     * @param resourceType The type of the resources.
+     * @return The YAML content of the resources.
+     */
+    String getClusterWideResourcesAsYaml(String resourceType);
 
     /**
      * Creates a resource from a template and applies it.
