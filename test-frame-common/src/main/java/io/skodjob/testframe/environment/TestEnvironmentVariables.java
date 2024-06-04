@@ -4,6 +4,7 @@
  */
 package io.skodjob.testframe.environment;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.skodjob.testframe.LoggerUtils;
@@ -109,7 +110,8 @@ public class TestEnvironmentVariables {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         try {
             File yamlFile = new File(configFilePath).getAbsoluteFile();
-            return mapper.readValue(new File(yamlFile.getAbsoluteFile().toString()), Map.class);
+            return mapper.readValue(new File(yamlFile.getAbsoluteFile().toString()),
+                    new TypeReference<HashMap<String,Object>>() {});
         } catch (IOException ex) {
             LOGGER.info("Yaml configuration not provider or not exists");
             return Collections.emptyMap();
