@@ -81,7 +81,7 @@ public final class PodUtils {
      */
     public static void waitForPodsReady(String namespaceName, LabelSelector selector, int expectPodsCount,
                                         boolean containers, Runnable onTimeout) {
-        Wait.until("readiness of all Pods matching " + selector + " in Namespace" + namespaceName,
+        Wait.until("readiness of all Pods matching " + selector + " in Namespace " + namespaceName,
                 TestFrameConstants.GLOBAL_POLL_INTERVAL_MEDIUM, READINESS_TIMEOUT,
                 () -> {
                     List<Pod> pods = KubeResourceManager.getKubeClient().getClient().pods()
