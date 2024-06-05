@@ -7,8 +7,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.fabric8.kubernetes.api.model.LabelSelector;
 import io.fabric8.kubernetes.api.model.LabelSelectorBuilder;
+import io.skodjob.testframe.exceptions.MetricsCollectionException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.security.InvalidParameterException;
 import java.util.HashMap;
@@ -94,6 +96,18 @@ class MetricsCollectorTest {
         assertFalse(results.isEmpty());
         assertTrue(results.containsKey("metricName{label}"));
         assertEquals(100.0, results.get("metricName{label}"), 0.01);
+    }
+
+    @Test
+    public void testCollectMetricsHandlesNPE() {
+        MetricsCollector collector = Mockito.spy(metricsCollector);
+        Mockito.doThrow(new NullPointerException("Null pointer access")).when(collector).collectMetricsFromPodsWithoutWait();
+
+        // Assert that a MetricsCollectionException is thrown when an NPE occurs
+        MetricsCollectionException ex = assertThrows(MetricsCollectionException.class, () -> collector.collectMetricsFromPods(1000));
+
+        // Verify that the exception message contains specific information about the NPE
+        assertTrue(ex.getMessage().contains("Null pointer access"), "Exception message should indicate the nature of the NPE.");
     }
 
     public static class DummyMetricsComponent implements MetricsComponent {
