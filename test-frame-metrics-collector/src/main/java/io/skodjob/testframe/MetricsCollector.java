@@ -440,13 +440,13 @@ public class MetricsCollector {
                         if (metricsData.isEmpty()) {
                             status.setMessage("No pods found or no metrics available from pods.");
                             status.setType(MetricsCollectionStatus.Type.NO_DATA);
-                            LOGGER.error("Metrics collection failed: {}", status.getMessage());
+                            LOGGER.warn("Metrics collection failed: {}", status.getMessage());
                             return false;
                         }
                         if (metricsData.values().stream().anyMatch(String::isEmpty)) {
                             status.setMessage("Incomplete metrics data collected.");
                             status.setType(MetricsCollectionStatus.Type.INCOMPLETE_DATA);
-                            LOGGER.error("Metrics collection incomplete: Some pods returned empty metrics.");
+                            LOGGER.warn("Metrics collection incomplete: Some pods returned empty metrics.");
                             return false;
                         }
                         this.collectedData = metricsData;
@@ -455,7 +455,7 @@ public class MetricsCollector {
                         status.setMessage(e.getMessage());
                         status.setType(MetricsCollectionStatus.Type.ERROR);
                         status.setException(e);
-                        LOGGER.error("Error during metrics collection: {}", status.getMessage(), e);
+                        LOGGER.warn("Error during metrics collection: {}", status.getMessage(), e);
                         return false;
                     }
                 },
