@@ -21,6 +21,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * LogCollector class containing all methods used for logs and YAML collection.
@@ -188,10 +189,14 @@ public class LogCollector {
             if (logPerFile) {
                 collectClusterWideResourcesPerFile(clusterWideFolderPath, resourceType);
             } else {
-                String yaml = kubeCmdClient.getClusterWideResourcesAsYaml(resourceType);
+                String yaml = executeCollectionCall(
+                    String.format("collect descriptions of type: %s", resourceType),
+                    () -> kubeCmdClient.getClusterWideResourcesAsYaml(resourceType)
+                );
                 String resFileName = LogCollectorUtils.getYamlFileNameForResource(resourceType);
                 String filePath = LogCollectorUtils
                     .getFullPathForFolderPathAndFileName(clusterWideFolderPath, resFileName);
+
                 writeDataToFile(filePath, yaml);
             }
         });
@@ -210,9 +215,12 @@ public class LogCollector {
      */
     public void collectLogsFromPodsInNamespace(String namespaceName, String namespaceFolderPath) {
         LOGGER.info("Collecting logs from all Pods in Namespace: {}", namespaceName);
-        List<Pod> pods = kubeClient.listPods(namespaceName);
+        List<Pod> pods = executeCollectionCall(
+            String.format("list Pods in Namespace: %s", namespaceName),
+            () -> kubeClient.listPods(namespaceName)
+        );
 
-        if (!pods.isEmpty()) {
+        if (pods != null && !pods.isEmpty()) {
             String podsFolderPath = createResourceDirectoryInNamespaceDir(namespaceFolderPath, CollectorConstants.POD);
 
             pods.forEach(pod -> {
@@ -262,7 +270,10 @@ public class LogCollector {
         String podName,
         String containerName
     ) {
-        String containerLog = kubeCmdClient.inNamespace(namespaceName).logs(podName, containerName);
+        String containerLog = executeCollectionCall(
+            String.format("collect logs from Pod:%s", podName),
+            () -> kubeCmdClient.inNamespace(namespaceName).logs(podName, containerName)
+        );
         String podConLogFileName = LogCollectorUtils.getLogFileNameForPodContainer(podName, containerName);
         String filePath = LogCollectorUtils.getFullPathForFolderPathAndFileName(podsFolderPath, podConLogFileName);
 
@@ -277,7 +288,10 @@ public class LogCollector {
      * @param podName           name of Pod from which the description should be collected
      */
     private void collectPodDescription(String namespaceName, String podsFolderPath, String podName) {
-        String podDesc = kubeCmdClient.inNamespace(namespaceName).describe(CollectorConstants.POD, podName);
+        String podDesc = executeCollectionCall(
+            String.format("collect description of Pod:%s", podName),
+            () -> kubeCmdClient.inNamespace(namespaceName).describe(CollectorConstants.POD, podName)
+        );
         String podDescFileName = LogCollectorUtils.getLogFileNameForPodDescription(podName);
         String filePath = LogCollectorUtils.getFullPathForFolderPathAndFileName(podsFolderPath, podDescFileName);
 
@@ -296,7 +310,10 @@ public class LogCollector {
             String fullFolderPath = createResourceDirectoryInNamespaceDir(clusterWideFolderPath, resourceType);
 
             resources.forEach(resourceName -> {
-                String yaml = kubeCmdClient.getClusterWideResourceAsYaml(resourceType, resourceName);
+                String yaml = executeCollectionCall(
+                    String.format("collect YAML description for %s:%s", resourceType, resourceName),
+                    () -> kubeCmdClient.getClusterWideResourceAsYaml(resourceType, resourceName)
+                );
 
                 String resFileName = LogCollectorUtils.getYamlFileNameForResource(resourceName);
                 String fileName = LogCollectorUtils.getFullPathForFolderPathAndFileName(fullFolderPath, resFileName);
@@ -313,7 +330,10 @@ public class LogCollector {
      */
     public void collectEventsFromNamespace(String namespaceName, String namespaceFolderPath) {
         LOGGER.info("Collecting events from Namespace: {}", namespaceName);
-        String events = kubeCmdClient.inNamespace(namespaceName).getEvents();
+        String events = executeCollectionCall(
+            String.format("collect %s from %s", CollectorConstants.EVENTS, namespaceName),
+            () -> kubeCmdClient.inNamespace(namespaceName).getEvents()
+        );
         String eventsFileName = LogCollectorUtils.getLogFileNameForResource(CollectorConstants.EVENTS);
         String fileName = LogCollectorUtils.getFullPathForFolderPathAndFileName(namespaceFolderPath, eventsFileName);
 
@@ -349,13 +369,19 @@ public class LogCollector {
         String resourceType
     ) {
         LOGGER.info("Collecting YAMLs of {} from Namespace: {}", resourceType, namespaceName);
-        List<String> resources = kubeCmdClient.inNamespace(namespaceName).list(resourceType);
+        List<String> resources = executeCollectionCall(
+            String.format("list resources of type: %s in Namespace: %s", resourceType, namespaceName),
+            () -> kubeCmdClient.inNamespace(namespaceName).list(resourceType)
+        );
 
         if (resources != null && !resources.isEmpty()) {
             String fullFolderPath = createResourceDirectoryInNamespaceDir(namespaceFolderPath, resourceType);
 
             resources.forEach(resourceName -> {
-                String yaml = kubeCmdClient.inNamespace(namespaceName).getResourceAsYaml(resourceType, resourceName);
+                String yaml = executeCollectionCall(
+                    String.format("collect YAML description for %s:%s", resourceType, resourceName),
+                    () -> kubeCmdClient.inNamespace(namespaceName).getResourceAsYaml(resourceType, resourceName)
+                );
 
                 String resFileName = LogCollectorUtils.getYamlFileNameForResource(resourceName);
                 String fileName = LogCollectorUtils.getFullPathForFolderPathAndFileName(fullFolderPath, resFileName);
@@ -431,6 +457,26 @@ public class LogCollector {
                     String.format("Failed to write to the %s file due to: %s", fullFilePath, e.getMessage())
                 );
             }
+        }
+    }
+
+    /**
+     * Method for executing the collection (or list) call, which handles the exceptions when the resource is not found
+     * (or was removed during the process). That way the LogCollector will continue with collection of other resources.
+     *
+     * @param errorOperationMessage     message for the operation that is being executed, for error logging
+     * @param executeCall               Supplier with the lambda method for collection of the data
+     *
+     * @return  result of the execution of the method -> YAML descriptions, logs, or lists of resources
+     *
+     * @param <T>   type of the return value -> same as the return type of the executed call
+     */
+    private <T> T executeCollectionCall(String errorOperationMessage, Supplier<T> executeCall) {
+        try {
+            return executeCall.get();
+        } catch (Exception e) {
+            LOGGER.warn("Failed to {}, due to: {}", errorOperationMessage, e.getMessage());
+            return null;
         }
     }
 }
