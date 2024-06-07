@@ -15,6 +15,7 @@ import io.fabric8.kubernetes.api.model.NamespaceListBuilder;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClientException;
 import io.fabric8.kubernetes.client.dsl.FilterWatchListDeletable;
 import io.fabric8.kubernetes.client.dsl.NonNamespaceOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
@@ -42,10 +43,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
@@ -378,6 +376,18 @@ public class LogCollectorIT {
 
             assertThrows(RuntimeException.class, () -> logCollector.collectFromNamespace(namespaceName));
         }
+    }
+
+    @Test
+    void testExceptionDuringResourceCollection() {
+        String namespaceName = "my-namespace";
+        mockNamespaces(namespaceName);
+        mockSecrets(namespaceName, "my-secret");
+
+        when(mockClient.listPods(any())).thenThrow(new KubernetesClientException("Failed to obtain the resource"));
+        when(mockCmdClient.getResourceAsYaml(any(), any())).thenThrow(new KubernetesClientException("Failed to get description of resource"));
+
+        assertDoesNotThrow(() -> logCollector.collectFromNamespace(namespaceName));
     }
 
     @AfterEach
