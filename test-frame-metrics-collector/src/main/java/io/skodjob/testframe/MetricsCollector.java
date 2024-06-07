@@ -440,11 +440,13 @@ public class MetricsCollector {
                         if (metricsData.isEmpty()) {
                             status.setMessage("No pods found or no metrics available from pods.");
                             status.setType(MetricsCollectionStatus.Type.NO_DATA);
+                            LOGGER.warn("Metrics collection failed: {}", status.getMessage());
                             return false;
                         }
                         if (metricsData.values().stream().anyMatch(String::isEmpty)) {
                             status.setMessage("Incomplete metrics data collected.");
                             status.setType(MetricsCollectionStatus.Type.INCOMPLETE_DATA);
+                            LOGGER.warn("Metrics collection incomplete: Some pods returned empty metrics.");
                             return false;
                         }
                         this.collectedData = metricsData;
@@ -453,12 +455,14 @@ public class MetricsCollector {
                         status.setMessage(e.getMessage());
                         status.setType(MetricsCollectionStatus.Type.ERROR);
                         status.setException(e);
+                        LOGGER.warn("Error during metrics collection: {}", status.getMessage(), e);
                         return false;
                     }
                 },
-                () -> LOGGER.error("Failed to collect metrics: {}", status.getMessage())
+                () -> LOGGER.error("Failed to collect metrics within the allowed time: {}", status.getMessage())
             );
         } catch (WaitException we) {
+            LOGGER.error("Metrics collection terminated due to timeout: {}", we.getMessage());
             throw determineExceptionFromStatus(status);
         }
     }
@@ -521,7 +525,7 @@ public class MetricsCollector {
      *                                    collection logic.
      */
     public final void collectMetricsFromPods() throws MetricsCollectionException {
-        collectMetricsFromPods(Duration.ofSeconds(TestFrameConstants.GLOBAL_TIMEOUT_MEDIUM).toMillis());
+        collectMetricsFromPods(TestFrameConstants.GLOBAL_TIMEOUT_MEDIUM);
     }
 
     /**
