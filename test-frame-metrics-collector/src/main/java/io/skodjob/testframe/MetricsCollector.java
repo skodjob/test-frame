@@ -422,13 +422,13 @@ public class MetricsCollector {
      * during the collection attempts and throws a corresponding specialized exception based on the last known error
      * state.</p>
      *
-     * @param timeoutDuration the maximum time in milliseconds to wait for metrics collection.
-     *                        This duration dictates how long the system should attempt to collect metrics
-     *                        before timing out.
-     * @throws MetricsCollectionException if the collection process fails due to any error such as no data,
-     *                                    incomplete data, or an exception during the collection process.
-     *                                    This exception encapsulates detailed error information, including
-     *                                    the original cause of the failure when applicable.
+     * @param timeoutDuration               the maximum time in milliseconds to wait for metrics collection.
+     *                                      This duration dictates how long the system should attempt to collect metrics
+     *                                      before timing out.
+     * @throws MetricsCollectionException   if the collection process fails due to any error such as no data,
+     *                                      incomplete data, or an exception during the collection process.
+     *                                      This exception encapsulates detailed error information, including
+     *                                      the original cause of the failure when applicable.
      */
     public final void collectMetricsFromPods(long timeoutDuration) {
         final MetricsCollectionStatus status = new MetricsCollectionStatus();
