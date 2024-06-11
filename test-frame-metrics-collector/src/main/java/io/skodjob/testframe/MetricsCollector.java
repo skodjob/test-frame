@@ -128,8 +128,7 @@ public class MetricsCollector {
          * @param collectedData the map to store collected metrics data
          * @return this builder instance to allow for method chaining
          */
-        /* test */
-        protected Builder withCollectedData(Map<String, String> collectedData) {
+        /* test */ protected Builder withCollectedData(Map<String, String> collectedData) {
             this.collectedData = collectedData;
             return this;
         }
@@ -146,8 +145,7 @@ public class MetricsCollector {
          * @param exec The {@link Exec} instance to be used for command execution.
          * @return This builder instance to allow for method chaining, enabling a fluent builder setup.
          */
-        /* test */
-        protected Builder withExec(Exec exec) {
+        /* test */ protected Builder withExec(Exec exec) {
             this.exec = exec;
             return this;
         }
@@ -165,18 +163,15 @@ public class MetricsCollector {
     }
 
     // Additional setter methods for dependency injection
-    /* test */
-    protected void setKubeClient(KubernetesClient client) {
+    /* test */ protected void setKubeClient(KubernetesClient client) {
         this.kubeClient = client;
     }
 
-    /* test */
-    protected void setKubeCmdClient(KubeCmdClient<?> client) {
+    /* test */ protected void setKubeCmdClient(KubeCmdClient<?> client) {
         this.kubeCmdClient = client;
     }
 
-    /* test */
-    protected void setExec(Exec exec) {
+    /* test */ protected void setExec(Exec exec) {
         this.exec = exec;
     }
 
@@ -243,8 +238,7 @@ public class MetricsCollector {
         return exec;
     }
 
-    /* test */
-    protected void setCollectedData(Map<String, String> collectedData) {
+    /* test */ protected void setCollectedData(Map<String, String> collectedData) {
         this.collectedData = collectedData;
     }
 
