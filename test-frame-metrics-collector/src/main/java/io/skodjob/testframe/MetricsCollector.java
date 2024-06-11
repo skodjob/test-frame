@@ -87,7 +87,7 @@ public class MetricsCollector {
          * from which to collect metrics.
          *
          * @param namespaceName the name of the Kubernetes namespace
-         * @return this builder instance to allow for method chaining
+         * @return              this builder instance to allow for method chaining
          */
         public Builder withNamespaceName(String namespaceName) {
             this.namespaceName = namespaceName;
@@ -99,8 +99,8 @@ public class MetricsCollector {
          * The scraper pod name is used to identify which pod within the specified namespace
          * should be used to execute metrics collection commands.
          *
-         * @param scraperPodName the name of the pod designated for scraping metrics
-         * @return this builder instance to allow for method chaining
+         * @param scraperPodName    the name of the pod designated for scraping metrics
+         * @return                  this builder instance to allow for method chaining
          */
         public Builder withScraperPodName(String scraperPodName) {
             this.scraperPodName = scraperPodName;
@@ -112,8 +112,8 @@ public class MetricsCollector {
          * This component defines specific details such as the port and path used for
          * collecting metrics and the label selector to identify relevant pods.
          *
-         * @param component the metrics component that provides configuration details
-         * @return this builder instance to allow for method chaining
+         * @param component     the metrics component that provides configuration details
+         * @return              this builder instance to allow for method chaining
          */
         public Builder withComponent(MetricsComponent component) {
             this.component = component;
@@ -126,7 +126,7 @@ public class MetricsCollector {
          * used for testing purposes to inject predefined data into the metrics collector.
          *
          * @param collectedData the map to store collected metrics data
-         * @return this builder instance to allow for method chaining
+         * @return              this builder instance to allow for method chaining
          */
         /* test */ protected Builder withCollectedData(Map<String, String> collectedData) {
             this.collectedData = collectedData;
@@ -142,8 +142,8 @@ public class MetricsCollector {
          * {@link Exec} implementations during unit testing. It allows for the separation of command execution
          * logic from the metrics collection logic, thereby enhancing testability and modularity.</p>
          *
-         * @param exec The {@link Exec} instance to be used for command execution.
-         * @return This builder instance to allow for method chaining, enabling a fluent builder setup.
+         * @param exec  The {@link Exec} instance to be used for command execution.
+         * @return      This builder instance to allow for method chaining, enabling a fluent builder setup.
          */
         /* test */ protected Builder withExec(Exec exec) {
             this.exec = exec;
@@ -297,8 +297,8 @@ public class MetricsCollector {
      * Attempts to collect specific metrics based on a regular expression pattern applied to the collected data.
      * This method is intended for extracting numerical values from the raw metrics data stored in the map.
      *
-     * @param pattern The regular expression pattern used to identify and extract metric values.
-     * @return A list of extracted metric values as doubles.
+     * @param pattern   The regular expression pattern used to identify and extract metric values.
+     * @return          A list of extracted metric values as doubles.
      */
     public final ArrayList<Double> collectSpecificMetric(Pattern pattern) {
         ArrayList<Double> values = new ArrayList<>();
@@ -320,8 +320,8 @@ public class MetricsCollector {
      * This method constructs a pattern to find and parse the relevant data lines, facilitating easy access
      * to labeled metrics.
      *
-     * @param metricName The name of the metric to collect.
-     * @return A map associating metric labels with their values, parsed from the metrics data.
+     * @param metricName    The name of the metric to collect.
+     * @return              A map associating metric labels with their values, parsed from the metrics data.
      */
     public final Map<String, Double> collectMetricWithLabels(String metricName) {
         // This pattern will match the metric name and capture the labels and value.
@@ -348,8 +348,8 @@ public class MetricsCollector {
      * of the specified pattern. If the metric is not initially available, this method periodically retries
      * the collection until the metric appears or a timeout occurs.
      *
-     * @param pattern The regular expression pattern used to identify and extract the metric.
-     * @return A list of collected metric values. If no metrics are found, the returned list will be empty.
+     * @param pattern   The regular expression pattern used to identify and extract the metric.
+     * @return          A list of collected metric values. If no metrics are found, the returned list will be empty.
      */
     public final synchronized ArrayList<Double> waitForSpecificMetricAndCollect(Pattern pattern) {
         ArrayList<Double> values = collectSpecificMetric(pattern);
@@ -382,9 +382,9 @@ public class MetricsCollector {
      * The method constructs and executes a shell command to scrape metrics using curl,
      * handling the execution within a specified timeout.
      *
-     * @param metricsPodIp The IP address of the metrics pod.
-     * @param podName      The name of the pod from which metrics are being collected.
-     * @return String                   The output from the executed command, typically metrics data.
+     * @param metricsPodIp          The IP address of the metrics pod.
+     * @param podName               The name of the pod from which metrics are being collected.
+     * @return String               The output from the executed command, typically metrics data.
      * @throws InterruptedException If the thread is interrupted during command execution.
      * @throws ExecutionException   If an error occurs during the command execution.
      * @throws IOException          If an I/O error occurs during command handling.
@@ -534,8 +534,8 @@ public class MetricsCollector {
      * for data availability checks. This method is useful for scenarios where immediate data retrieval is necessary
      * and the readiness of data is either ensured or non-critical.
      *
-     * @return A map containing the collected metrics, associated by pod name.
-     * @throws MetricsCollectionException if errors occur during the collection process.
+     * @return                              A map containing the collected metrics, associated by pod name.
+     * @throws MetricsCollectionException   if errors occur during the collection process.
      */
     public final Map<String, String> collectMetricsFromPodsWithoutWait() {
         final Map<String, String> map = new HashMap<>();
