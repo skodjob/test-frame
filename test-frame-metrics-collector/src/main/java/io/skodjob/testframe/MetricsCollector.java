@@ -86,8 +86,8 @@ public class MetricsCollector {
          * The namespace name specifies where the metrics collector will search for pods
          * from which to collect metrics.
          *
-         * @param namespaceName     the name of the Kubernetes namespace
-         * @return                  this builder instance to allow for method chaining
+         * @param namespaceName the name of the Kubernetes namespace
+         * @return              this builder instance to allow for method chaining
          */
         public Builder withNamespaceName(String namespaceName) {
             this.namespaceName = namespaceName;
@@ -125,8 +125,8 @@ public class MetricsCollector {
          * Sets the map that will hold the collected metrics data. This method is typically
          * used for testing purposes to inject predefined data into the metrics collector.
          *
-         * @param collectedData     the map to store collected metrics data
-         * @return                  this builder instance to allow for method chaining
+         * @param collectedData the map to store collected metrics data
+         * @return              this builder instance to allow for method chaining
          */
         /* test */ protected Builder withCollectedData(Map<String, String> collectedData) {
             this.collectedData = collectedData;
@@ -142,8 +142,8 @@ public class MetricsCollector {
          * {@link Exec} implementations during unit testing. It allows for the separation of command execution
          * logic from the metrics collection logic, thereby enhancing testability and modularity.</p>
          *
-         * @param exec The {@link Exec} instance to be used for command execution.
-         * @return This builder instance to allow for method chaining, enabling a fluent builder setup.
+         * @param exec  The {@link Exec} instance to be used for command execution.
+         * @return      This builder instance to allow for method chaining, enabling a fluent builder setup.
          */
         /* test */ protected Builder withExec(Exec exec) {
             this.exec = exec;
@@ -248,11 +248,11 @@ public class MetricsCollector {
 
     protected MetricsCollector.Builder updateBuilder(MetricsCollector.Builder builder) {
         return builder
-            .withNamespaceName(getNamespaceName())
-            .withComponent(getComponent())
-            .withScraperPodName(getScraperPodName())
-            .withCollectedData(getCollectedData())
-            .withExec(getExec());
+                .withNamespaceName(getNamespaceName())
+                .withComponent(getComponent())
+                .withScraperPodName(getScraperPodName())
+                .withCollectedData(getCollectedData())
+                .withExec(getExec());
     }
 
     /**
@@ -297,8 +297,8 @@ public class MetricsCollector {
      * Attempts to collect specific metrics based on a regular expression pattern applied to the collected data.
      * This method is intended for extracting numerical values from the raw metrics data stored in the map.
      *
-     * @param pattern           The regular expression pattern used to identify and extract metric values.
-     * @return                  A list of extracted metric values as doubles.
+     * @param pattern   The regular expression pattern used to identify and extract metric values.
+     * @return          A list of extracted metric values as doubles.
      */
     public final ArrayList<Double> collectSpecificMetric(Pattern pattern) {
         ArrayList<Double> values = new ArrayList<>();
@@ -348,30 +348,30 @@ public class MetricsCollector {
      * of the specified pattern. If the metric is not initially available, this method periodically retries
      * the collection until the metric appears or a timeout occurs.
      *
-     * @param pattern       The regular expression pattern used to identify and extract the metric.
-     * @return              A list of collected metric values. If no metrics are found, the returned list will be empty.
+     * @param pattern   The regular expression pattern used to identify and extract the metric.
+     * @return          A list of collected metric values. If no metrics are found, the returned list will be empty.
      */
     public final synchronized ArrayList<Double> waitForSpecificMetricAndCollect(Pattern pattern) {
         ArrayList<Double> values = collectSpecificMetric(pattern);
 
         if (values.isEmpty()) {
             Wait.until(String.format("metrics contain pattern: %s", pattern.toString()),
-                TestFrameConstants.GLOBAL_POLL_INTERVAL_MEDIUM, TestFrameConstants.GLOBAL_TIMEOUT, () -> {
-                try {
-                    this.collectMetricsFromPods();
-                } catch (MetricsCollectionException e) {
-                    throw new RuntimeException(e);
-                }
-                LOGGER.debug("Collected data: {}", this.collectedData);
-                ArrayList<Double> vals = this.collectSpecificMetric(pattern);
+                    TestFrameConstants.GLOBAL_POLL_INTERVAL_MEDIUM, TestFrameConstants.GLOBAL_TIMEOUT, () -> {
+                        try {
+                            this.collectMetricsFromPods();
+                        } catch (MetricsCollectionException e) {
+                            throw new RuntimeException(e);
+                        }
+                        LOGGER.debug("Collected data: {}", this.collectedData);
+                        ArrayList<Double> vals = this.collectSpecificMetric(pattern);
 
-                if (!vals.isEmpty()) {
-                    values.addAll(vals);
-                    return true;
-                }
+                        if (!vals.isEmpty()) {
+                            values.addAll(vals);
+                            return true;
+                        }
 
-                return false;
-            });
+                        return false;
+                    });
         }
 
         return values;
@@ -382,19 +382,20 @@ public class MetricsCollector {
      * The method constructs and executes a shell command to scrape metrics using curl,
      * handling the execution within a specified timeout.
      *
-     * @param metricsPodIp              The IP address of the metrics pod.
-     * @param podName                   The name of the pod from which metrics are being collected.
-     * @return String                   The output from the executed command, typically metrics data.
-     * @throws InterruptedException     If the thread is interrupted during command execution.
-     * @throws ExecutionException       If an error occurs during the command execution.
-     * @throws IOException              If an I/O error occurs during command handling.
+     * @param metricsPodIp          The IP address of the metrics pod.
+     * @param podName               The name of the pod from which metrics are being collected.
+     * @return String               The output from the executed command, typically metrics data.
+     * @throws InterruptedException If the thread is interrupted during command execution.
+     * @throws ExecutionException   If an error occurs during the command execution.
+     * @throws IOException          If an I/O error occurs during command handling.
      */
     protected String collectMetrics(String metricsPodIp, String podName)
-        throws InterruptedException, ExecutionException, IOException {
+            throws InterruptedException, ExecutionException, IOException {
         List<String> executableCommand = Arrays.asList(getKubeCmdClient().inNamespace(namespaceName).toString(), "exec",
-            scraperPodName,
-            "-n", namespaceName,
-            "--", "curl", metricsPodIp + ":" + component.getDefaultMetricsPort() + component.getDefaultMetricsPath());
+                scraperPodName,
+                "-n", namespaceName,
+                "--", "curl", metricsPodIp + ":" +
+                        component.getDefaultMetricsPort() + component.getDefaultMetricsPath());
 
         LOGGER.debug("Executing command:{} for scrape the metrics", executableCommand);
 
@@ -402,7 +403,7 @@ public class MetricsCollector {
         int ret = this.exec.execute(null, executableCommand, null, EXEC_TIMEOUT_MS_DEFAULT);
 
         LOGGER.debug("Metrics collection for Pod: {}/{}({}) from Pod: {}/{} finished with return code: {}",
-            namespaceName, podName, metricsPodIp, namespaceName, scraperPodName, ret);
+                namespaceName, podName, metricsPodIp, namespaceName, scraperPodName, ret);
 
         return this.exec.out();
     }
@@ -434,32 +435,32 @@ public class MetricsCollector {
 
         try {
             Wait.until("metrics won't be empty", TestFrameConstants.GLOBAL_POLL_INTERVAL_1_SEC, timeoutDuration,
-                () -> {
-                    try {
-                        Map<String, String> metricsData = collectMetricsFromPodsWithoutWait();
-                        if (metricsData.isEmpty()) {
-                            status.setMessage("No pods found or no metrics available from pods.");
-                            status.setType(MetricsCollectionStatus.Type.NO_DATA);
-                            LOGGER.warn("Metrics collection failed: {}", status.getMessage());
+                    () -> {
+                        try {
+                            Map<String, String> metricsData = collectMetricsFromPodsWithoutWait();
+                            if (metricsData.isEmpty()) {
+                                status.setMessage("No pods found or no metrics available from pods.");
+                                status.setType(MetricsCollectionStatus.Type.NO_DATA);
+                                LOGGER.warn("Metrics collection failed: {}", status.getMessage());
+                                return false;
+                            }
+                            if (metricsData.values().stream().anyMatch(String::isEmpty)) {
+                                status.setMessage("Incomplete metrics data collected.");
+                                status.setType(MetricsCollectionStatus.Type.INCOMPLETE_DATA);
+                                LOGGER.warn("Metrics collection incomplete: Some pods returned empty metrics.");
+                                return false;
+                            }
+                            this.collectedData = metricsData;
+                            return true;
+                        } catch (Exception e) {
+                            status.setMessage(e.getMessage());
+                            status.setType(MetricsCollectionStatus.Type.ERROR);
+                            status.setException(e);
+                            LOGGER.warn("Error during metrics collection: {}", status.getMessage(), e);
                             return false;
                         }
-                        if (metricsData.values().stream().anyMatch(String::isEmpty)) {
-                            status.setMessage("Incomplete metrics data collected.");
-                            status.setType(MetricsCollectionStatus.Type.INCOMPLETE_DATA);
-                            LOGGER.warn("Metrics collection incomplete: Some pods returned empty metrics.");
-                            return false;
-                        }
-                        this.collectedData = metricsData;
-                        return true;
-                    } catch (Exception e) {
-                        status.setMessage(e.getMessage());
-                        status.setType(MetricsCollectionStatus.Type.ERROR);
-                        status.setException(e);
-                        LOGGER.warn("Error during metrics collection: {}", status.getMessage(), e);
-                        return false;
-                    }
-                },
-                () -> LOGGER.error("Failed to collect metrics within the allowed time: {}", status.getMessage())
+                    },
+                    () -> LOGGER.error("Failed to collect metrics within the allowed time: {}", status.getMessage())
             );
         } catch (WaitException we) {
             LOGGER.error("Metrics collection terminated due to timeout: {}", we.getMessage());
@@ -541,11 +542,11 @@ public class MetricsCollector {
         final Map<String, String> errorMap = new HashMap<>(); // Store errors separately
 
         final List<Pod> pods = getKubeClient()
-            .pods()
-            .inNamespace(namespaceName)
-            .withLabelSelector(component.getLabelSelector())
-            .list()
-            .getItems();
+                .pods()
+                .inNamespace(namespaceName)
+                .withLabelSelector(component.getLabelSelector())
+                .list()
+                .getItems();
         if (pods.isEmpty()) {
             LOGGER.info("No pods found with the specified label selector.");
             return map;
