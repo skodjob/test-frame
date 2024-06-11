@@ -32,10 +32,10 @@ public class MetricsCollectionException extends RuntimeException {
      * (e.g., a failed network call or parsing error). The cause helps in tracing back to the root problem that
      * triggered this exception.
      *
-     * @param message   the detailed message that explains the cause of the exception. The detail message is saved
-     *                  for later retrieval by the {@link #getMessage()} method.
-     * @param cause     the cause (which is saved for later retrieval by the {@link #getCause()} method). A null value
-     *                  is permitted, and indicates that the cause is nonexistent or unknown.
+     * @param message the detailed message that explains the cause of the exception. The detail message is saved
+     *                for later retrieval by the {@link #getMessage()} method.
+     * @param cause   the cause (which is saved for later retrieval by the {@link #getCause()} method). A null value
+     *                is permitted, and indicates that the cause is nonexistent or unknown.
      */
     public MetricsCollectionException(String message, Throwable cause) {
         super(message, cause);
