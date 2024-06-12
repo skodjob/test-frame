@@ -97,6 +97,7 @@ Examples are stored in [test-frame-test-examples](test-frame-test-examples/src/t
 
 ## Adopters
 * [opendatahub.io](https://github.com/opendatahub-io/opendatahub-operator) operator test suite - [odh-e2e](https://github.com/skodjob/odh-e2e)
+* [strimzi.io](https://github.com/strimzi/strimzi-kafka-operator) strimzi kafka operator - [e2e](https://github.com/strimzi/strimzi-kafka-operator/tree/main/systemtest)
 
 ## Maintainers
 * [David Kornel](https://github.com/kornys) <kornys@outlook.com>
