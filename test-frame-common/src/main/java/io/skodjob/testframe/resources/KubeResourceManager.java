@@ -402,7 +402,7 @@ public class KubeResourceManager {
                 try {
                     resourceItem.throwableRunner().run();
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    LOGGER.error(e.getMessage(), e);
                 }
                 numberOfResources.decrementAndGet();
                 deleteCallbacks.forEach(callback -> {

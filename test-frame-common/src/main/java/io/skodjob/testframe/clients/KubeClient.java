@@ -365,7 +365,7 @@ public class KubeClient {
             }
             return TestFrameEnv.USER_PATH + "/test.kubeconfig";
         } catch (Exception ex) {
-            ex.printStackTrace();
+            LOGGER.error(ex.getMessage(), ex);
             return null;
         }
     }
