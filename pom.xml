@@ -86,6 +86,7 @@
         <maven.spotbugs.version>4.7.3.4</maven.spotbugs.version>
         <maven.checkstyle.version>3.3.0</maven.checkstyle.version>
 
+        <maven.compile.plugin.version>3.13.0</maven.compile.plugin.version>
         <maven.source.plugin.version>3.3.0</maven.source.plugin.version>
         <maven.deploy.plugin.version>3.1.1</maven.deploy.plugin.version>
         <maven.gpg.version>3.1.0</maven.gpg.version>
@@ -218,6 +219,16 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven.compile.plugin.version}</version>
+                <configuration>
+                    <compilerArgs>
+                        <arg>-proc:full</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-maven-plugin</artifactId>
