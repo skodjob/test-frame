@@ -98,6 +98,7 @@
         <junit.platform.version>1.10.2</junit.platform.version>
         <maven.surefire.version>3.2.2</maven.surefire.version>
         <jackson-dataformat-yaml.version>2.17.1</jackson-dataformat-yaml.version>
+        <org.eclipse.sisu.version>0.3.5</org.eclipse.sisu.version>
 
         <it.skip>true</it.skip>
         <!--suppress UnresolvedMavenProperty -->
@@ -213,6 +214,11 @@
                 <artifactId>commons-io</artifactId>
                 <version>${apache.commons.version}</version>
                 <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.sisu</groupId>
+                <artifactId>org.eclipse.sisu.inject</artifactId>
+                <version>${org.eclipse.sisu.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
