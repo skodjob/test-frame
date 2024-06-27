@@ -1,6 +1,6 @@
 package io.skodjob.testframe.test.integration;
 
-import io.skodjob.testframe.LoggerUtils;
+import io.skodjob.testframe.utils.LoggerUtils;
 import io.skodjob.testframe.annotations.ResourceManager;
 import io.skodjob.testframe.annotations.TestVisualSeparator;
 import io.skodjob.testframe.resources.DeploymentType;
