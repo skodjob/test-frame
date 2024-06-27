@@ -2,11 +2,12 @@
  * Copyright Skodjob authors.
  * License: Apache License 2.0 (see the file LICENSE or http://apache.org/licenses/LICENSE-2.0.html).
  */
-package io.skodjob.testframe;
+package io.skodjob.testframe.utils;
 
 import java.util.Collections;
 
 import io.fabric8.kubernetes.api.model.HasMetadata;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -57,12 +58,24 @@ public final class LoggerUtils {
      * @param <T> The type of the resources.
      */
     public static <T extends HasMetadata> void logResource(String operation, T resource) {
+        logResource(operation, Level.INFO, resource);
+    }
+
+    /**
+     * Log resource with correct format
+     *
+     * @param operation operation with resource
+     * @param logLevel log level
+     * @param resource resource
+     * @param <T> The type of the resources.
+     */
+    public static <T extends HasMetadata> void logResource(String operation, Level logLevel, T resource) {
         if (resource.getMetadata().getNamespace() == null) {
-            LOGGER.info(LoggerUtils.RESOURCE_LOGGER_PATTERN,
+            LOGGER.log(logLevel, LoggerUtils.RESOURCE_LOGGER_PATTERN,
                     operation, resource.getKind(),
                     resource.getMetadata().getName());
         } else {
-            LOGGER.info(LoggerUtils.RESOURCE_WITH_NAMESPACE_LOGGER_PATTERN,
+            LOGGER.log(logLevel, LoggerUtils.RESOURCE_WITH_NAMESPACE_LOGGER_PATTERN,
                     operation,
                     resource.getKind(), resource.getMetadata().getName(), resource.getMetadata().getNamespace());
         }

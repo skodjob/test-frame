@@ -8,6 +8,7 @@ import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.kubernetes.api.model.NamespaceBuilder;
 import io.skodjob.testframe.clients.KubeClusterException;
 import io.skodjob.testframe.resources.KubeResourceManager;
+import org.apache.logging.log4j.Level;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -49,6 +50,7 @@ public final class KubeResourceManagerCleanerIT extends AbstractIT {
         KubeResourceManager.getInstance().createOrUpdateResourceWithWait(ns);
         assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName(nsName3).get()
                 .getMetadata().getLabels().get("test-label"));
+        KubeResourceManager.getInstance().printAllResources(Level.INFO);
     }
 
     @Test

@@ -4,7 +4,7 @@
  */
 package io.skodjob.testframe.listeners;
 
-import io.skodjob.testframe.LoggerUtils;
+import io.skodjob.testframe.utils.LoggerUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.extension.AfterEachCallback;

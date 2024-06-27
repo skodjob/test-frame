@@ -6,19 +6,28 @@ package io.skodjob.testframe.clients;
 
 import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.kubernetes.api.model.NamespaceBuilder;
+import io.fabric8.kubernetes.api.model.ServiceAccountBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.server.mock.EnableKubernetesMockClient;
 import io.fabric8.kubernetes.client.server.mock.KubernetesMockServer;
 import io.skodjob.testframe.annotations.ResourceManager;
 import io.skodjob.testframe.annotations.TestVisualSeparator;
+import io.skodjob.testframe.helper.TestLoggerAppender;
 import io.skodjob.testframe.resources.KubeResourceManager;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.LogEvent;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.config.Configurator;
+import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @EnableKubernetesMockClient(crud = true)
 @ResourceManager
@@ -67,5 +76,44 @@ public class KubeResourceManagerTest {
         assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName("test4").get());
         KubeResourceManager.getInstance().createOrUpdateResourceWithoutWait(ns);
         assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName("test4").get());
+    }
+
+    @Test
+    void testLoggingManagedResources() {
+        // create resources
+        KubeResourceManager.getInstance().createResourceWithWait(
+                new NamespaceBuilder().withNewMetadata().withName("test-ns").endMetadata().build());
+        KubeResourceManager.getInstance().createResourceWithWait(
+                new ServiceAccountBuilder().withNewMetadata().withName("test-sa").endMetadata().build());
+
+        // setup mock logger appender
+        TestLoggerAppender testAppender = new TestLoggerAppender("TestAppender");
+
+        LoggerContext context = (LoggerContext) LogManager.getContext(false);
+        Configuration config = context.getConfiguration();
+        LoggerConfig loggerConfig = config.getLoggerConfig(LogManager.ROOT_LOGGER_NAME);
+        loggerConfig.addAppender(testAppender, null, null);
+        Configurator.setLevel(loggerConfig.getName(), Level.DEBUG);
+        testAppender.start();
+
+        // print resources
+        KubeResourceManager.getInstance().printCurrentResources(Level.INFO);
+        List<LogEvent> events = testAppender.getLogEvents();
+
+        assertEquals(3, events.size());
+        assertEquals("Managed resource: Namespace/test-ns", events.get(1).getMessage().getFormattedMessage());
+        assertEquals("Managed resource: ServiceAccount/test-sa", events.get(2).getMessage().getFormattedMessage());
+        assertEquals(Level.INFO, events.get(0).getLevel());
+
+        testAppender.clean();
+
+        // print all resources on debug output
+        KubeResourceManager.getInstance().printAllResources(Level.DEBUG);
+        events = testAppender.getLogEvents();
+
+        assertEquals(4, events.size());
+        assertEquals("Managed resource: Namespace/test-ns", events.get(2).getMessage().getFormattedMessage());
+        assertEquals("Managed resource: ServiceAccount/test-sa", events.get(3).getMessage().getFormattedMessage());
+        assertEquals(Level.DEBUG, events.get(0).getLevel());
     }
 }
