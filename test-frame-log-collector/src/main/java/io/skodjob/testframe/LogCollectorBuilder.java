@@ -27,7 +27,7 @@ public class LogCollectorBuilder {
      * Constructor for creating {@link LogCollectorBuilder} with parameters from
      * current instance of {@link LogCollector}.
      *
-     * @param logCollector  current instance of {@link LogCollector}
+     * @param logCollector current instance of {@link LogCollector}
      */
     public LogCollectorBuilder(LogCollector logCollector) {
         this.rootFolderPath = logCollector.rootFolderPath;
@@ -45,9 +45,8 @@ public class LogCollectorBuilder {
     /**
      * Method for setting the rootFolderPath, where the logs collection will happen
      *
-     * @param rootFolderPath    folder path for the root folder, where the logs should be collected into
-     *
-     * @return  {@link LogCollectorBuilder} object
+     * @param rootFolderPath folder path for the root folder, where the logs should be collected into
+     * @return {@link LogCollectorBuilder} object
      */
     public LogCollectorBuilder withRootFolderPath(String rootFolderPath) {
         this.rootFolderPath = rootFolderPath;
@@ -58,9 +57,8 @@ public class LogCollectorBuilder {
      * Method for setting the  namespaced resources, which YAML
      * descriptions should be collected as part of the log collection
      *
-     * @param resources    array of resources
-     *
-     * @return  {@link LogCollectorBuilder} object
+     * @param resources array of resources
+     * @return {@link LogCollectorBuilder} object
      */
     public LogCollectorBuilder withNamespacedResources(String... resources) {
         this.namespacedResources = Arrays.stream(resources).toList()
@@ -75,9 +73,8 @@ public class LogCollectorBuilder {
      * Method for setting the  cluster wide resources, which YAML
      * descriptions should be collected as part of the log collection
      *
-     * @param resources    array of resources
-     *
-     * @return  {@link LogCollectorBuilder} object
+     * @param resources array of resources
+     * @return {@link LogCollectorBuilder} object
      */
     public LogCollectorBuilder withClusterWideResources(String... resources) {
         this.clusterWideResources = new ArrayList<>(Arrays.stream(resources).toList());

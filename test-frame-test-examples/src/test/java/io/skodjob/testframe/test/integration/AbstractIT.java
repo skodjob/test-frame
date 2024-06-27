@@ -1,3 +1,7 @@
+/*
+ * Copyright Skodjob authors.
+ * License: Apache License 2.0 (see the file LICENSE or http://apache.org/licenses/LICENSE-2.0.html).
+ */
 package io.skodjob.testframe.test.integration;
 
 import io.skodjob.testframe.utils.LoggerUtils;
@@ -19,9 +23,9 @@ public abstract class AbstractIT {
 
     static {
         KubeResourceManager.getInstance().setResourceTypes(
-                new NamespaceType(),
-                new ServiceAccountType(),
-                new DeploymentType()
+            new NamespaceType(),
+            new ServiceAccountType(),
+            new DeploymentType()
         );
         KubeResourceManager.getInstance().addCreateCallback(r -> {
             isCreateHandlerCalled.set(true);

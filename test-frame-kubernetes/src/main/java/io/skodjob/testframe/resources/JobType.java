@@ -28,6 +28,7 @@ public class JobType implements NamespacedResourceType<Job> {
 
     /**
      * Kind of api resource
+     *
      * @return kind name
      */
     @Override
@@ -37,6 +38,7 @@ public class JobType implements NamespacedResourceType<Job> {
 
     /**
      * Get specific client for resoruce
+     *
      * @return specific client
      */
     @Override

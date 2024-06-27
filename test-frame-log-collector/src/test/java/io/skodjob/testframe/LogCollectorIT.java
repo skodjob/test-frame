@@ -43,7 +43,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
@@ -62,16 +66,16 @@ public class LogCollectorIT {
     private NonNamespaceOperation<Namespace, NamespaceList, Resource<Namespace>> mockNamespaceOperation;
     private KubernetesClient mockKubernetesClient = mock(KubernetesClient.class);
 
-    private final String SECRET = "secret";
-    private final String CONFIG_MAP = "configmap";
-    private final String DEPLOYMENT = "deployment";
+    private static final String SECRET = "secret";
+    private static final String CONFIG_MAP = "configmap";
+    private static final String DEPLOYMENT = "deployment";
 
     private final String pathToRoot = "/tmp/log-collector-tests";
     private int testCounter = 0;
     private LogCollector logCollector;
 
     @BeforeAll
-    public void setup() {
+    void setup() {
         mockClient = mock(KubeClient.class);
         mockCmdClient = mock(KubeCmdClient.class);
         mockNamespaceOperation = mock(NonNamespaceOperation.class);
@@ -85,7 +89,7 @@ public class LogCollectorIT {
     }
 
     @BeforeEach
-    public void setRootPathForCollector() {
+    void setRootPathForCollector() {
         when(mockKubernetesClient.namespaces()).thenReturn(mockNamespaceOperation);
         when(mockCmdClient.inNamespace(anyString())).thenReturn(mockCmdClient);
         when(mockClient.getClient()).thenReturn(mockKubernetesClient);
@@ -385,7 +389,8 @@ public class LogCollectorIT {
         mockSecrets(namespaceName, "my-secret");
 
         when(mockClient.listPods(any())).thenThrow(new KubernetesClientException("Failed to obtain the resource"));
-        when(mockCmdClient.getResourceAsYaml(any(), any())).thenThrow(new KubernetesClientException("Failed to get description of resource"));
+        when(mockCmdClient.getResourceAsYaml(any(), any()))
+            .thenThrow(new KubernetesClientException("Failed to get description of resource"));
 
         assertDoesNotThrow(() -> logCollector.collectFromNamespace(namespaceName));
     }
@@ -441,30 +446,33 @@ public class LogCollectorIT {
             .withItems(listOfNamespaces)
             .build();
 
-        when(mockNamespaceOperation.withLabelSelector(any(LabelSelector.class))).thenAnswer((Answer<FilterWatchListDeletable<Namespace, NamespaceList, Resource<Namespace>>>) invocation -> {
-            LabelSelector labelSelector = invocation.getArgument(0);
-            FilterWatchListDeletable mockFilterWatchList = mock(FilterWatchListDeletable.class);
+        when(mockNamespaceOperation.withLabelSelector(any(LabelSelector.class))).thenAnswer(
+            (Answer<FilterWatchListDeletable<Namespace, NamespaceList, Resource<Namespace>>>) invocation -> {
+                LabelSelector labelSelector = invocation.getArgument(0);
+                FilterWatchListDeletable mockFilterWatchList = mock(FilterWatchListDeletable.class);
 
-            if (labelSelector.getMatchLabels().equals(labels)) {
-                when(mockFilterWatchList.list()).thenReturn(namespaceList);
-            }
+                if (labelSelector.getMatchLabels().equals(labels)) {
+                    when(mockFilterWatchList.list()).thenReturn(namespaceList);
+                }
 
-            return mockFilterWatchList;
-        });
+                return mockFilterWatchList;
+            });
 
         when(mockNamespaceOperation.withName(anyString())).thenAnswer((Answer<Resource<Namespace>>) invocation -> {
             String namespaceName = invocation.getArgument(0);
             Resource<Namespace> mockNamespace = mock(Resource.class);
 
             if (Arrays.asList(namespaces).contains(namespaceName)) {
-                when(mockNamespace.get()).thenReturn(listOfNamespaces.stream().filter(nspc -> nspc.equals(namespaceName)).findFirst().orElse(new Namespace()));
+                when(mockNamespace.get()).thenReturn(listOfNamespaces.stream()
+                    .filter(nspc -> nspc.equals(namespaceName)).findFirst().orElse(new Namespace()));
             }
 
             return mockNamespace;
         });
     }
 
-    private void mockPods(String namespaceName, boolean withInitContainers, boolean withMultipleContainers, String... podNames) {
+    private void mockPods(String namespaceName, boolean withInitContainers,
+                          boolean withMultipleContainers, String... podNames) {
         List<Pod> pods = new ArrayList<>();
 
         for (String podName : podNames) {
@@ -507,13 +515,15 @@ public class LogCollectorIT {
             Pod mockPod = mockPodBuilder.build();
             pods.add(mockPod);
 
-            when(mockCmdClient.inNamespace(namespaceName).describe(CollectorConstants.POD, podName)).thenReturn("this is description of " + podName);
-            when(mockCmdClient.inNamespace(namespaceName).logs(any(), any())).thenAnswer((Answer<String>) invocation -> {
-                String pod = invocation.getArgument(0);
-                String container = invocation.getArgument(1);
+            when(mockCmdClient.inNamespace(namespaceName).describe(CollectorConstants.POD, podName))
+                .thenReturn("this is description of " + podName);
+            when(mockCmdClient.inNamespace(namespaceName).logs(any(), any()))
+                .thenAnswer((Answer<String>) invocation -> {
+                    String pod = invocation.getArgument(0);
+                    String container = invocation.getArgument(1);
 
-                return "this is log for pod: " + pod + " and container: " + container;
-            });
+                    return "this is log for pod: " + pod + " and container: " + container;
+                });
         }
 
         when(mockClient.listPods(namespaceName)).thenReturn(pods);
@@ -560,8 +570,10 @@ public class LogCollectorIT {
         assertTrue(Arrays.asList(namespaceFolder.list()).contains("events.log"));
     }
 
-    private void assertFolderForResourceTypeExistsAndContainsFiles(File namespaceFolder, String resourceType, String... resourceNames) {
-        File resourceFolder = Arrays.stream(namespaceFolder.listFiles()).filter(file -> file.getName().equals(resourceType)).findFirst().get();
+    private void assertFolderForResourceTypeExistsAndContainsFiles(File namespaceFolder, String resourceType,
+                                                                   String... resourceNames) {
+        File resourceFolder = Arrays.stream(namespaceFolder.listFiles())
+            .filter(file -> file.getName().equals(resourceType)).findFirst().get();
 
         assertFolderExistsAndIsNotEmpty(resourceFolder);
         assertFolderContainsCorrectResourceFiles(resourceFolder, resourceNames);
@@ -611,11 +623,13 @@ public class LogCollectorIT {
             assertTrue(podFiles.contains(LogCollectorUtils.getLogFileNameForPodContainer(podName, podName)));
 
             if (withInitContainers) {
-                assertTrue(podFiles.contains(LogCollectorUtils.getLogFileNameForPodContainer(podName, "init-" + podName)));
+                assertTrue(podFiles.contains(
+                    LogCollectorUtils.getLogFileNameForPodContainer(podName, "init-" + podName)));
             }
 
             if (withMultipleContainers) {
-                assertTrue(podFiles.contains(LogCollectorUtils.getLogFileNameForPodContainer(podName, "second-" + podName)));
+                assertTrue(podFiles.contains(
+                    LogCollectorUtils.getLogFileNameForPodContainer(podName, "second-" + podName)));
             }
         }
     }

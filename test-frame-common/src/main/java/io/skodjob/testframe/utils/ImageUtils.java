@@ -27,10 +27,9 @@ public final class ImageUtils {
     /**
      * Method that, for specified {@param image}, replaces the registry, based on the parameters.
      *
-     * @param image             image that should be replaced with new values
-     * @param newRegistry       desired registry
-     *
-     * @return  updated image based on the parameters
+     * @param image       image that should be replaced with new values
+     * @param newRegistry desired registry
+     * @return updated image based on the parameters
      */
     public static String changeRegistry(String image, String newRegistry) {
         return changeRegistryOrgAndTag(image, newRegistry, null, null);
@@ -39,11 +38,10 @@ public final class ImageUtils {
     /**
      * Method that, for specified {@param image}, replaces the registry and organization, based on the parameters.
      *
-     * @param image             image that should be replaced with new values
-     * @param newRegistry       desired registry
-     * @param newOrg            desired organization
-     *
-     * @return  updated image based on the parameters
+     * @param image       image that should be replaced with new values
+     * @param newRegistry desired registry
+     * @param newOrg      desired organization
+     * @return updated image based on the parameters
      */
     public static String changeRegistryAndOrg(String image, String newRegistry, String newOrg) {
         return changeRegistryOrgAndTag(image, newRegistry, newOrg, null);
@@ -52,11 +50,10 @@ public final class ImageUtils {
     /**
      * Method that, for specified {@param image}, replaces the registry and tag, based on the parameters.
      *
-     * @param image             image that should be replaced with new values
-     * @param newRegistry       desired registry
-     * @param newTag            desired tag
-     *
-     * @return  updated image based on the parameters
+     * @param image       image that should be replaced with new values
+     * @param newRegistry desired registry
+     * @param newTag      desired tag
+     * @return updated image based on the parameters
      */
     public static String changeRegistryAndTag(String image, String newRegistry, String newTag) {
         return changeRegistryOrgAndTag(image, newRegistry, null, newTag);
@@ -65,10 +62,9 @@ public final class ImageUtils {
     /**
      * Method that, for specified {@param image}, replaces the organization, based on the parameters.
      *
-     * @param image             image that should be replaced with new values
-     * @param newOrg            desired organization
-     *
-     * @return  updated image based on the parameters
+     * @param image  image that should be replaced with new values
+     * @param newOrg desired organization
+     * @return updated image based on the parameters
      */
     public static String changeOrg(String image, String newOrg) {
         return changeRegistryOrgAndTag(image, null, newOrg, null);
@@ -77,11 +73,10 @@ public final class ImageUtils {
     /**
      * Method that, for specified {@param image}, replaces the organization and tag, based on the parameters.
      *
-     * @param image             image that should be replaced with new values
-     * @param newOrg            desired organization
-     * @param newTag            desired tag
-     *
-     * @return  updated image based on the parameters
+     * @param image  image that should be replaced with new values
+     * @param newOrg desired organization
+     * @param newTag desired tag
+     * @return updated image based on the parameters
      */
     public static String changeOrgAndTag(String image, String newOrg, String newTag) {
         return changeRegistryOrgAndTag(image, null, newOrg, newTag);
@@ -90,10 +85,9 @@ public final class ImageUtils {
     /**
      * Method that, for specified {@param image}, replaces the tag, based on the parameters.
      *
-     * @param image             image that should be replaced with new values
-     * @param newTag            desired tag
-     *
-     * @return  updated image based on the parameters
+     * @param image  image that should be replaced with new values
+     * @param newTag desired tag
+     * @return updated image based on the parameters
      */
     public static String changeTag(String image, String newTag) {
         return changeRegistryOrgAndTag(image, null, null, newTag);
@@ -102,12 +96,11 @@ public final class ImageUtils {
     /**
      * Method that, for specified {@param image}, replaces the registry, organization, and tag, based on the parameters.
      *
-     * @param image             image that should be replaced with new values
-     * @param newRegistry       desired registry
-     * @param newOrg            desired organization
-     * @param newTag            desired tag
-     *
-     * @return  updated image based on the parameters
+     * @param image       image that should be replaced with new values
+     * @param newRegistry desired registry
+     * @param newOrg      desired organization
+     * @param newTag      desired tag
+     * @return updated image based on the parameters
      */
     public static String changeRegistryOrgAndTag(String image, String newRegistry, String newOrg, String newTag) {
         Matcher m = IMAGE_PATTERN_FULL_PATH.matcher(image);
@@ -131,7 +124,7 @@ public final class ImageUtils {
             String org = setImagePropertiesIfNeeded(m.group("org"), newOrg);
             String tag = setImagePropertiesIfNeeded(m.group("tag"), newTag);
 
-            String newImage = registry + org + "/" + m.group("image") + ":"  + tag;
+            String newImage = registry + org + "/" + m.group("image") + ":" + tag;
 
             LOGGER.info("Updating container image to {}", newImage);
 

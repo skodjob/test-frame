@@ -1,3 +1,7 @@
+/*
+ * Copyright Skodjob authors.
+ * License: Apache License 2.0 (see the file LICENSE or http://apache.org/licenses/LICENSE-2.0.html).
+ */
 package io.skodjob.testframe;
 
 import io.fabric8.kubernetes.api.model.LabelSelector;
@@ -43,7 +47,7 @@ public class MetricsCollectorIT {
     private MetricsCollector metricsCollector;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         mockClient = mock(KubernetesClient.class);
         mockCmdClient = mock(KubeCmdClient.class);
 
@@ -54,9 +58,17 @@ public class MetricsCollectorIT {
             .withNamespaceName("test-namespace")
             .withScraperPodName("scraper-pod")
             .withComponent(new MetricsComponent() {
-                public int getDefaultMetricsPort() { return 8080; }
-                public String getDefaultMetricsPath() { return "/metrics"; }
-                public LabelSelector getLabelSelector() { return new LabelSelector(); }
+                public int getDefaultMetricsPort() {
+                    return 8080;
+                }
+
+                public String getDefaultMetricsPath() {
+                    return "/metrics";
+                }
+
+                public LabelSelector getLabelSelector() {
+                    return new LabelSelector();
+                }
             });
 
         this.metricsCollector = builder.build();
@@ -67,7 +79,8 @@ public class MetricsCollectorIT {
     }
 
     @Test
-    public void testCollectMetricsFromPods() throws InterruptedException, ExecutionException, IOException, MetricsCollectionException {
+    void testCollectMetricsFromPods() throws InterruptedException,
+        ExecutionException, IOException, MetricsCollectionException {
         // Create mock operations for Kubernetes client
         MixedOperation<Pod, PodList, PodResource> podsOperation = mock(MixedOperation.class);
         when(mockClient.pods()).thenReturn(podsOperation);
@@ -101,12 +114,13 @@ public class MetricsCollectorIT {
         this.metricsCollector.collectMetricsFromPods(5000);
 
         // Verify interactions and assertions
-        verify(mockExec, times(1)).execute(eq(null), anyList(), eq(null), eq(20000L));
+        verify(mockExec, times(1))
+            .execute(eq(null), anyList(), eq(null), eq(20000L));
         assertNotNull(this.metricsCollector.getCollectedData());
     }
 
     @Test
-    public void testCollectMetricsWhenNoPodsAvailable() throws Exception {
+    void testCollectMetricsWhenNoPodsAvailable() throws Exception {
         // Create mock operations for Kubernetes client
         MixedOperation<Pod, PodList, PodResource> podsOperation = mock(MixedOperation.class);
         when(mockClient.pods()).thenReturn(podsOperation);
@@ -124,12 +138,13 @@ public class MetricsCollectorIT {
         assertThrows(NoPodsFoundException.class, () -> this.metricsCollector.collectMetricsFromPods(2000));
 
         // Verify interactions
-        verify(mock(Exec.class), times(0)).execute(eq(null), anyList(), eq(null), eq(20000L));
+        verify(mock(Exec.class), times(0))
+            .execute(eq(null), anyList(), eq(null), eq(20000L));
         assertTrue(this.metricsCollector.getCollectedData().isEmpty());
     }
 
     @Test
-    public void testCollectMetricsWithIncompleteData() throws IOException, ExecutionException, InterruptedException {
+    void testCollectMetricsWithIncompleteData() throws IOException, ExecutionException, InterruptedException {
         // Create mock operations for Kubernetes client
         MixedOperation<Pod, PodList, PodResource> podsOperation = mock(MixedOperation.class);
         when(mockClient.pods()).thenReturn(podsOperation);
@@ -141,14 +156,14 @@ public class MetricsCollectorIT {
 
         // Create a pod with valid metadata but empty metrics data
         Pod pod = new PodBuilder()
-                    .withNewMetadata()
-                        .withName("pod1")
-                        .withNamespace("test-namespace")
-                    .endMetadata()
-                    .withNewStatus()
-                        .withPodIP("192.168.1.100")
-                    .endStatus()
-                    .build();
+            .withNewMetadata()
+                .withName("pod1")
+                .withNamespace("test-namespace")
+            .endMetadata()
+            .withNewStatus()
+                .withPodIP("192.168.1.100")
+            .endStatus()
+            .build();
         PodList podList = new PodList();
         podList.setItems(List.of(pod));
         when(namespaceOperation.list()).thenReturn(podList);
@@ -171,7 +186,7 @@ public class MetricsCollectorIT {
     }
 
     @Test
-    public void testCollectMetricsWithExecutionError() throws IOException, ExecutionException, InterruptedException {
+    void testCollectMetricsWithExecutionError() throws IOException, ExecutionException, InterruptedException {
         // Create mock operations for Kubernetes client
         MixedOperation<Pod, PodList, PodResource> podsOperation = mock(MixedOperation.class);
         when(mockClient.pods()).thenReturn(podsOperation);
@@ -183,14 +198,14 @@ public class MetricsCollectorIT {
 
         // Create a pod with valid metadata
         Pod pod = new PodBuilder()
-                    .withNewMetadata()
-                        .withName("pod2")
-                        .withNamespace("test-namespace")
-                    .endMetadata()
-                    .withNewStatus()
-                        .withPodIP("192.168.1.101")
-                    .endStatus()
-                    .build();
+            .withNewMetadata()
+                .withName("pod2")
+                .withNamespace("test-namespace")
+            .endMetadata()
+            .withNewStatus()
+                .withPodIP("192.168.1.101")
+            .endStatus()
+            .build();
         PodList podList = new PodList();
         podList.setItems(List.of(pod));
         when(namespaceOperation.list()).thenReturn(podList);

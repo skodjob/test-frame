@@ -13,9 +13,9 @@ import io.skodjob.testframe.interfaces.ResourceType;
 /**
  * Represents a condition that can be applied to Kubernetes resources.
  *
- * @param predicate predicate function
+ * @param predicate     predicate function
  * @param conditionName conditionName
- * @param <T> Type of Kubernetes resource.
+ * @param <T>           Type of Kubernetes resource.
  */
 public record ResourceCondition<T extends HasMetadata>(Predicate<T> predicate, String conditionName) {
 

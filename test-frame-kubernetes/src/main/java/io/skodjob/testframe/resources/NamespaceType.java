@@ -29,6 +29,7 @@ public class NamespaceType implements ResourceType<Namespace> {
 
     /**
      * Kind of api resource
+     *
      * @return kind name
      */
     @Override
@@ -38,6 +39,7 @@ public class NamespaceType implements ResourceType<Namespace> {
 
     /**
      * Get specific client for resoruce
+     *
      * @return specific client
      */
     @Override
@@ -53,7 +55,7 @@ public class NamespaceType implements ResourceType<Namespace> {
     public void create(String namespaceName) {
         Namespace namespace = new NamespaceBuilder()
             .withNewMetadata()
-                .withName(namespaceName)
+            .withName(namespaceName)
             .endMetadata()
             .build();
 

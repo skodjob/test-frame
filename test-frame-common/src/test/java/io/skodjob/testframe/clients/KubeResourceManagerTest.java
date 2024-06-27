@@ -27,7 +27,10 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 
 @EnableKubernetesMockClient(crud = true)
 @ResourceManager
@@ -43,13 +46,15 @@ public class KubeResourceManagerTest {
 
     @Test
     void testCreateDeleteNamespace() {
-        KubeResourceManager.getInstance().createResourceWithWait(new NamespaceBuilder().withNewMetadata().withName("test").endMetadata().build());
+        KubeResourceManager.getInstance().createResourceWithWait(
+            new NamespaceBuilder().withNewMetadata().withName("test").endMetadata().build());
         assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName("test").get());
     }
 
     @Test
     void testDeleteAllResources() {
-        KubeResourceManager.getInstance().createResourceWithWait(new NamespaceBuilder().withNewMetadata().withName("test2").endMetadata().build());
+        KubeResourceManager.getInstance().createResourceWithWait(
+            new NamespaceBuilder().withNewMetadata().withName("test2").endMetadata().build());
         assertNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName("test").get());
         assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName("test2").get());
         KubeResourceManager.getInstance().deleteResources();
@@ -62,9 +67,9 @@ public class KubeResourceManagerTest {
         KubeResourceManager.getInstance().createResourceWithWait(ns);
         assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName("test3").get());
         KubeResourceManager.getInstance().updateResource(ns.edit()
-                .editMetadata().addToLabels(Collections.singletonMap("test-label", "true")).endMetadata().build());
+            .editMetadata().addToLabels(Collections.singletonMap("test-label", "true")).endMetadata().build());
         assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName("test3").get()
-                .getMetadata().getLabels().get("test-label"));
+            .getMetadata().getLabels().get("test-label"));
     }
 
     @Test
@@ -82,9 +87,9 @@ public class KubeResourceManagerTest {
     void testLoggingManagedResources() {
         // create resources
         KubeResourceManager.getInstance().createResourceWithWait(
-                new NamespaceBuilder().withNewMetadata().withName("test-ns").endMetadata().build());
+            new NamespaceBuilder().withNewMetadata().withName("test-ns").endMetadata().build());
         KubeResourceManager.getInstance().createResourceWithWait(
-                new ServiceAccountBuilder().withNewMetadata().withName("test-sa").endMetadata().build());
+            new ServiceAccountBuilder().withNewMetadata().withName("test-sa").endMetadata().build());
 
         // setup mock logger appender
         TestLoggerAppender testAppender = new TestLoggerAppender("TestAppender");

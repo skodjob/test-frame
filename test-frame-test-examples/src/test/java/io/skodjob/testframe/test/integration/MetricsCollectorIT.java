@@ -17,7 +17,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public final class MetricsCollectorIT extends AbstractIT {
@@ -26,38 +28,45 @@ public final class MetricsCollectorIT extends AbstractIT {
     void testCollectMetrics() throws IOException {
         //Create deployment
         List<HasMetadata> resources = KubeResourceManager.getKubeClient()
-                .readResourcesFromFile(getClass().getClassLoader().getResourceAsStream("metrics-example.yaml"));
+            .readResourcesFromFile(getClass().getClassLoader().getResourceAsStream("metrics-example.yaml"));
 
         KubeResourceManager.getInstance().createResourceWithWait(resources.toArray(new HasMetadata[0]));
 
         // Check deployment is not null
         assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName("metrics-test").get());
         assertNotNull(KubeResourceManager.getKubeClient().getClient().apps().deployments()
-                .inNamespace("metrics-test").withName("prometheus-example").get());
+            .inNamespace("metrics-test").withName("prometheus-example").get());
         assertNotNull(KubeResourceManager.getKubeClient().getClient().apps().deployments()
-                .inNamespace("metrics-test").withName("scraper-pod").get());
+            .inNamespace("metrics-test").withName("scraper-pod").get());
 
         // Create metrics collector
         MetricsCollector collector = new MetricsCollector.Builder()
-                .withNamespaceName("metrics-test")
-                .withScraperPodName(KubeResourceManager.getKubeClient()
-                        .listPodsByPrefixInName("metrics-test", "scraper-pod").get(0)
-                        .getMetadata().getName())
-                .withComponent(new MetricsComponent() {
-                    public int getDefaultMetricsPort() { return 8080; }
-                    public String getDefaultMetricsPath() { return "/metrics"; }
-                    public LabelSelector getLabelSelector() { return new LabelSelectorBuilder()
-                            .withMatchLabels(Map.of("app", "prometheus-example-app"))
-                            .build();
-                    }
-                })
-                .build();
+            .withNamespaceName("metrics-test")
+            .withScraperPodName(KubeResourceManager.getKubeClient()
+                .listPodsByPrefixInName("metrics-test", "scraper-pod").get(0)
+                .getMetadata().getName())
+            .withComponent(new MetricsComponent() {
+                public int getDefaultMetricsPort() {
+                    return 8080;
+                }
+
+                public String getDefaultMetricsPath() {
+                    return "/metrics";
+                }
+
+                public LabelSelector getLabelSelector() {
+                    return new LabelSelectorBuilder()
+                        .withMatchLabels(Map.of("app", "prometheus-example-app"))
+                        .build();
+                }
+            })
+            .build();
 
 
         assertDoesNotThrow(() -> collector.collectMetricsFromPods(30000)); // timeout in milliseconds
         Map<String, String> metrics = collector.getCollectedData();
         assertTrue(metrics.containsKey(KubeResourceManager.getKubeClient()
-                .listPodsByPrefixInName("metrics-test", "prometheus-example").get(0)
-                .getMetadata().getName()));
+            .listPodsByPrefixInName("metrics-test", "prometheus-example").get(0)
+            .getMetadata().getName()));
     }
 }

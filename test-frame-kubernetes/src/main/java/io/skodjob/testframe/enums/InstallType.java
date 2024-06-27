@@ -29,8 +29,7 @@ public enum InstallType {
     /**
      * Returns enum based on String
      *
-     * @param text  installation method in String
-     *
+     * @param text installation method in String
      * @return one of the enums or {@link #Unknown} in case of not supported install type
      */
     public static InstallType fromString(String text) {

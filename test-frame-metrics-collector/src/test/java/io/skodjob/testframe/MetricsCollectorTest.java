@@ -1,3 +1,7 @@
+/*
+ * Copyright Skodjob authors.
+ * License: Apache License 2.0 (see the file LICENSE or http://apache.org/licenses/LICENSE-2.0.html).
+ */
 package io.skodjob.testframe;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -101,16 +105,19 @@ class MetricsCollectorTest {
     @Test
     public void testCollectMetricsHandlesNPE() {
         MetricsCollector collector = Mockito.spy(metricsCollector);
-        Mockito.doThrow(new NullPointerException("Null pointer access")).when(collector).collectMetricsFromPodsWithoutWait();
+        Mockito.doThrow(new NullPointerException("Null pointer access"))
+            .when(collector).collectMetricsFromPodsWithoutWait();
 
         // Assert that a MetricsCollectionException is thrown when an NPE occurs
-        MetricsCollectionException ex = assertThrows(MetricsCollectionException.class, () -> collector.collectMetricsFromPods(1000));
+        MetricsCollectionException ex = assertThrows(MetricsCollectionException.class, () ->
+            collector.collectMetricsFromPods(1000));
 
         // Verify that the exception message contains specific information about the NPE
-        assertTrue(ex.getMessage().contains("Null pointer access"), "Exception message should indicate the nature of the NPE.");
+        assertTrue(ex.getMessage().contains("Null pointer access"),
+            "Exception message should indicate the nature of the NPE.");
     }
 
-    public static class DummyMetricsComponent implements MetricsComponent {
+    static class DummyMetricsComponent implements MetricsComponent {
         @Override
         public int getDefaultMetricsPort() {
             return 8080; // Return a dummy port typically used for HTTP services

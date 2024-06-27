@@ -73,7 +73,8 @@ public class LogCollectorUtilsTest {
         String fileName = "tonda.yaml";
         String expectedFullPath = fullNamespacePath + "/" + fileName;
 
-        assertEquals(expectedFullPath, LogCollectorUtils.getFullPathForFolderPathAndFileName(fullNamespacePath, fileName));
+        assertEquals(expectedFullPath,
+            LogCollectorUtils.getFullPathForFolderPathAndFileName(fullNamespacePath, fileName));
     }
 
     @Test

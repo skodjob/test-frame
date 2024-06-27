@@ -54,8 +54,8 @@ public final class LoggerUtils {
      * Log resource with correct format
      *
      * @param operation operation with resource
-     * @param resource resource
-     * @param <T> The type of the resources.
+     * @param resource  resource
+     * @param <T>       The type of the resources.
      */
     public static <T extends HasMetadata> void logResource(String operation, T resource) {
         logResource(operation, Level.INFO, resource);
@@ -65,19 +65,19 @@ public final class LoggerUtils {
      * Log resource with correct format
      *
      * @param operation operation with resource
-     * @param logLevel log level
-     * @param resource resource
-     * @param <T> The type of the resources.
+     * @param logLevel  log level
+     * @param resource  resource
+     * @param <T>       The type of the resources.
      */
     public static <T extends HasMetadata> void logResource(String operation, Level logLevel, T resource) {
         if (resource.getMetadata().getNamespace() == null) {
             LOGGER.log(logLevel, LoggerUtils.RESOURCE_LOGGER_PATTERN,
-                    operation, resource.getKind(),
-                    resource.getMetadata().getName());
+                operation, resource.getKind(),
+                resource.getMetadata().getName());
         } else {
             LOGGER.log(logLevel, LoggerUtils.RESOURCE_WITH_NAMESPACE_LOGGER_PATTERN,
-                    operation,
-                    resource.getKind(), resource.getMetadata().getName(), resource.getMetadata().getNamespace());
+                operation,
+                resource.getKind(), resource.getMetadata().getName(), resource.getMetadata().getNamespace());
         }
     }
 }

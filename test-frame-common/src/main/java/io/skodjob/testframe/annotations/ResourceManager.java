@@ -30,6 +30,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 public @interface ResourceManager {
     /**
      * Enables cleaner extension for resource manager
+     *
      * @return enable/disable cleaner
      */
     boolean cleanResources() default true;

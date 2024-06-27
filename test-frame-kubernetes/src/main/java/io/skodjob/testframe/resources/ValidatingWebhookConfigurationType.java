@@ -19,20 +19,21 @@ public class ValidatingWebhookConfigurationType implements ResourceType<Validati
 
 
     private final NonNamespaceOperation<ValidatingWebhookConfiguration, ValidatingWebhookConfigurationList,
-            Resource<ValidatingWebhookConfiguration>> client;
+        Resource<ValidatingWebhookConfiguration>> client;
 
     /**
      * Constructor
      */
     public ValidatingWebhookConfigurationType() {
         this.client = KubeResourceManager.getKubeClient().getClient()
-                .admissionRegistration()
-                .v1()
-                .validatingWebhookConfigurations();
+            .admissionRegistration()
+            .v1()
+            .validatingWebhookConfigurations();
     }
 
     /**
      * Kind of api resource
+     *
      * @return kind name
      */
     @Override
@@ -42,6 +43,7 @@ public class ValidatingWebhookConfigurationType implements ResourceType<Validati
 
     /**
      * Get specific client for resoruce
+     *
      * @return specific client
      */
     @Override

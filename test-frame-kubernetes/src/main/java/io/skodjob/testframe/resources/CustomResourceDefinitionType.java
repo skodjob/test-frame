@@ -18,7 +18,7 @@ import io.skodjob.testframe.interfaces.ResourceType;
 public class CustomResourceDefinitionType implements ResourceType<CustomResourceDefinition> {
 
     private final NonNamespaceOperation<CustomResourceDefinition, CustomResourceDefinitionList,
-            Resource<CustomResourceDefinition>> client;
+        Resource<CustomResourceDefinition>> client;
 
     /**
      * Constructor
@@ -29,6 +29,7 @@ public class CustomResourceDefinitionType implements ResourceType<CustomResource
 
     /**
      * Kind of api resource
+     *
      * @return kind name
      */
     @Override
@@ -38,6 +39,7 @@ public class CustomResourceDefinitionType implements ResourceType<CustomResource
 
     /**
      * Get specific client for resoruce
+     *
      * @return specific client
      */
     @Override

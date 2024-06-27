@@ -85,9 +85,7 @@ public final class TestFrameUtils {
      * @param yamlFile The YAML file.
      * @param c        The class of the object to parse into.
      * @param <T>      The type of the object.
-     *
      * @return The parsed object.
-     *
      * @throws IllegalArgumentException if the YAML is invalid.
      * @throws RuntimeException         if an I/O error occurs.
      */

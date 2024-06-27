@@ -60,6 +60,7 @@ public class KubeClient {
     /**
      * Test method only
      * Reconnect client with new config
+     *
      * @param config kubernetes config
      */
     void testReconnect(Config config) {
@@ -116,14 +117,14 @@ public class KubeClient {
      */
     public boolean namespaceExists(String namespace) {
         return client.namespaces().list().getItems().stream()
-                .anyMatch(n -> n.getMetadata().getName().equals(namespace));
+            .anyMatch(n -> n.getMetadata().getName().equals(namespace));
     }
 
     /**
      * Creates resource and apply modifier
      *
      * @param resources resources
-     * @param modifier modifier
+     * @param modifier  modifier
      */
     public void create(List<HasMetadata> resources, Function<HasMetadata, HasMetadata> modifier) {
         create(null, resources, modifier);
@@ -133,7 +134,7 @@ public class KubeClient {
      * Updates resources and apply modifier
      *
      * @param resources resources
-     * @param modifier modifier
+     * @param modifier  modifier
      */
     public void update(List<HasMetadata> resources, Function<HasMetadata, HasMetadata> modifier) {
         update(null, resources, modifier);
@@ -144,13 +145,13 @@ public class KubeClient {
      *
      * @param namespace namespace
      * @param resources resources
-     * @param modifier modifier
+     * @param modifier  modifier
      */
     public void create(String namespace, List<HasMetadata> resources, Function<HasMetadata, HasMetadata> modifier) {
         resources.forEach(res -> {
             HasMetadata h = modifier.apply(res);
             LOGGER.debug(LoggerUtils.RESOURCE_WITH_NAMESPACE_LOGGER_PATTERN,
-                    "Creating", h.getKind(), h.getMetadata().getName(), namespace);
+                "Creating", h.getKind(), h.getMetadata().getName(), namespace);
             if (namespace == null) {
                 client.resource(h).create();
             } else {
@@ -164,13 +165,13 @@ public class KubeClient {
      *
      * @param namespace namespace
      * @param resources resources
-     * @param modifier modifier
+     * @param modifier  modifier
      */
     public void update(String namespace, List<HasMetadata> resources, Function<HasMetadata, HasMetadata> modifier) {
         resources.forEach(res -> {
             HasMetadata h = modifier.apply(res);
             LOGGER.debug(LoggerUtils.RESOURCE_WITH_NAMESPACE_LOGGER_PATTERN,
-                    "Updating", h.getKind(), h.getMetadata().getName(), namespace);
+                "Updating", h.getKind(), h.getMetadata().getName(), namespace);
             if (namespace == null) {
                 client.resource(h).update();
             } else {
@@ -183,7 +184,7 @@ public class KubeClient {
      * Create or update resources from file and apply modifier
      *
      * @param resources resources
-     * @param modifier modifier method
+     * @param modifier  modifier method
      */
     public void createOrUpdate(List<HasMetadata> resources, Function<HasMetadata, HasMetadata> modifier) {
         createOrUpdate(null, resources, modifier);
@@ -192,9 +193,9 @@ public class KubeClient {
     /**
      * Create or update resources from file and apply modifier
      *
-     * @param ns namespace
+     * @param ns        namespace
      * @param resources resources
-     * @param modifier modifier method
+     * @param modifier  modifier method
      */
     public void createOrUpdate(String ns, List<HasMetadata> resources, Function<HasMetadata, HasMetadata> modifier) {
         resources.forEach(i -> {
@@ -202,7 +203,7 @@ public class KubeClient {
             if (h != null) {
                 if (client.resource(h).get() == null) {
                     LOGGER.debug(LoggerUtils.RESOURCE_WITH_NAMESPACE_LOGGER_PATTERN,
-                            "Creating", h.getKind(), h.getMetadata().getName(), h.getMetadata().getNamespace());
+                        "Creating", h.getKind(), h.getMetadata().getName(), h.getMetadata().getNamespace());
                     if (ns == null) {
                         client.resource(h).create();
                     } else {
@@ -210,7 +211,7 @@ public class KubeClient {
                     }
                 } else {
                     LOGGER.debug(LoggerUtils.RESOURCE_WITH_NAMESPACE_LOGGER_PATTERN,
-                            "Updating", h.getKind(), h.getMetadata().getName(), h.getMetadata().getNamespace());
+                        "Updating", h.getKind(), h.getMetadata().getName(), h.getMetadata().getNamespace());
                     if (ns == null) {
                         client.resource(h).update();
                     } else {
@@ -231,7 +232,7 @@ public class KubeClient {
             if (h != null) {
                 if (client.resource(h).get() != null) {
                     LOGGER.debug(LoggerUtils.RESOURCE_WITH_NAMESPACE_LOGGER_PATTERN,
-                            "Deleting", h.getKind(), h.getMetadata().getName(), h.getMetadata().getNamespace());
+                        "Deleting", h.getKind(), h.getMetadata().getName(), h.getMetadata().getNamespace());
                     client.resource(h).delete();
                 }
             }
@@ -249,7 +250,7 @@ public class KubeClient {
             if (h != null) {
                 if (client.resource(h).inNamespace(namespace).get() != null) {
                     LOGGER.debug(LoggerUtils.RESOURCE_WITH_NAMESPACE_LOGGER_PATTERN,
-                            "Deleting", h.getKind(), h.getMetadata().getName(), namespace);
+                        "Deleting", h.getKind(), h.getMetadata().getName(), namespace);
                     client.resource(h).inNamespace(namespace).delete();
                 }
             }
@@ -270,7 +271,7 @@ public class KubeClient {
      * Get all pods with prefix nanme
      *
      * @param namespaceName namespace
-     * @param selector prefix
+     * @param selector      prefix
      * @return lust of pods
      */
     public List<Pod> listPods(String namespaceName, LabelSelector selector) {
@@ -286,15 +287,15 @@ public class KubeClient {
      */
     public List<Pod> listPodsByPrefixInName(String namespaceName, String podNamePrefix) {
         return listPods(namespaceName)
-                .stream().filter(p -> p.getMetadata().getName().startsWith(podNamePrefix))
-                .collect(Collectors.toList());
+            .stream().filter(p -> p.getMetadata().getName().startsWith(podNamePrefix))
+            .collect(Collectors.toList());
     }
 
     /**
      * Return log from pod with one container
      *
      * @param namespaceName namespace of the pod
-     * @param podName pod name
+     * @param podName       pod name
      * @return logs
      */
     public String getLogsFromPod(String namespaceName, String podName) {
@@ -305,7 +306,7 @@ public class KubeClient {
      * Return log from pods specific container
      *
      * @param namespaceName namespace of the pod
-     * @param podName pod name
+     * @param podName       pod name
      * @param containerName container name
      * @return logs
      */
@@ -316,14 +317,14 @@ public class KubeClient {
     /**
      * Returns list of deployments with prefix name
      *
-     * @param namespace namespace
+     * @param namespace  namespace
      * @param namePrefix prefix
      * @return list of deployments
      */
     public String getDeploymentNameByPrefix(String namespace, String namePrefix) {
         List<Deployment> prefixDeployments = client.apps().deployments()
-                .inNamespace(namespace).list().getItems().stream().filter(rs ->
-                        rs.getMetadata().getName().startsWith(namePrefix)).toList();
+            .inNamespace(namespace).list().getItems().stream().filter(rs ->
+                rs.getMetadata().getName().startsWith(namePrefix)).toList();
 
         if (!prefixDeployments.isEmpty()) {
             return prefixDeployments.get(0).getMetadata().getName();
@@ -341,11 +342,11 @@ public class KubeClient {
         if (TestFrameEnv.KUBE_URL != null && TestFrameEnv.KUBE_TOKEN != null) {
             kubeconfigPath = createLocalKubeconfig();
             return new ConfigBuilder()
-                    .withOauthToken(TestFrameEnv.KUBE_TOKEN)
-                    .withMasterUrl(TestFrameEnv.KUBE_URL)
-                    .withDisableHostnameVerification(true)
-                    .withTrustCerts(true)
-                    .build();
+                .withOauthToken(TestFrameEnv.KUBE_TOKEN)
+                .withMasterUrl(TestFrameEnv.KUBE_URL)
+                .withDisableHostnameVerification(true)
+                .withTrustCerts(true)
+                .build();
         } else {
             return Config.autoConfigure(System.getenv().getOrDefault("KUBE_CONTEXT", null));
         }
@@ -378,9 +379,9 @@ public class KubeClient {
      */
     private void createLocalOcKubeconfig(String token, String apiUrl) {
         Exec.exec(null, Arrays.asList("oc", "login", "--token", token,
-                "--insecure-skip-tls-verify",
-                "--kubeconfig", TestFrameEnv.USER_PATH + "/test.kubeconfig",
-                apiUrl), 0, false, true);
+            "--insecure-skip-tls-verify",
+            "--kubeconfig", TestFrameEnv.USER_PATH + "/test.kubeconfig",
+            apiUrl), 0, false, true);
     }
 
     /**
@@ -391,10 +392,10 @@ public class KubeClient {
      */
     private void createLocalKubectlContext(String token, String apiUrl) {
         Exec.exec(null, Arrays.asList("kubectl", "config",
-                        "set-credentials", "test-user",
-                        "--token", token,
-                        "--kubeconfig", TestFrameEnv.USER_PATH + "/test.kubeconfig"),
-                0, false, true);
+                "set-credentials", "test-user",
+                "--token", token,
+                "--kubeconfig", TestFrameEnv.USER_PATH + "/test.kubeconfig"),
+            0, false, true);
         buildKubectlContext(apiUrl);
     }
 
@@ -405,20 +406,20 @@ public class KubeClient {
      */
     private void buildKubectlContext(String apiUrl) {
         Exec.exec(null, Arrays.asList("kubectl", "config",
-                        "set-cluster", "test-cluster",
-                        "--insecure-skip-tls-verify=true", "--server", apiUrl,
-                        "--kubeconfig", TestFrameEnv.USER_PATH + "/test.kubeconfig"),
-                0, false, true);
+                "set-cluster", "test-cluster",
+                "--insecure-skip-tls-verify=true", "--server", apiUrl,
+                "--kubeconfig", TestFrameEnv.USER_PATH + "/test.kubeconfig"),
+            0, false, true);
         Exec.exec(null, Arrays.asList("kubectl", "config",
-                        "set-context", "test-context",
-                        "--user", "test-user",
-                        "--cluster", "test-cluster",
-                        "--namespace", "default",
-                        "--kubeconfig", TestFrameEnv.USER_PATH + "/test.kubeconfig"),
-                0, false, true);
+                "set-context", "test-context",
+                "--user", "test-user",
+                "--cluster", "test-cluster",
+                "--namespace", "default",
+                "--kubeconfig", TestFrameEnv.USER_PATH + "/test.kubeconfig"),
+            0, false, true);
         Exec.exec(null, Arrays.asList("kubectl", "config",
-                        "use-context", "test-context",
-                        "--kubeconfig", TestFrameEnv.USER_PATH + "/test.kubeconfig"),
-                0, false, true);
+                "use-context", "test-context",
+                "--kubeconfig", TestFrameEnv.USER_PATH + "/test.kubeconfig"),
+            0, false, true);
     }
 }

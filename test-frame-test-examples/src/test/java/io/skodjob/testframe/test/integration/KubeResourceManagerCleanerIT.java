@@ -26,13 +26,13 @@ public final class KubeResourceManagerCleanerIT extends AbstractIT {
     @BeforeAll
     void setupAll() {
         KubeResourceManager.getInstance().createResourceWithWait(
-                new NamespaceBuilder().withNewMetadata().withName(nsName1).endMetadata().build());
+            new NamespaceBuilder().withNewMetadata().withName(nsName1).endMetadata().build());
     }
 
     @BeforeEach
     void setupEach() {
         KubeResourceManager.getInstance().createResourceWithWait(
-                new NamespaceBuilder().withNewMetadata().withName(nsName2).endMetadata().build());
+            new NamespaceBuilder().withNewMetadata().withName(nsName2).endMetadata().build());
     }
 
     @AfterAll
@@ -49,7 +49,7 @@ public final class KubeResourceManagerCleanerIT extends AbstractIT {
         assertTrue(isCreateHandlerCalled.get());
         KubeResourceManager.getInstance().createOrUpdateResourceWithWait(ns);
         assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName(nsName3).get()
-                .getMetadata().getLabels().get("test-label"));
+            .getMetadata().getLabels().get("test-label"));
         KubeResourceManager.getInstance().printAllResources(Level.INFO);
     }
 
@@ -64,6 +64,7 @@ public final class KubeResourceManagerCleanerIT extends AbstractIT {
     void testKubeCmdClientNamespacesExists() {
         assertNotNull(KubeResourceManager.getKubeCmdClient().get("namespace", nsName1));
         assertNotNull(KubeResourceManager.getKubeCmdClient().get("namespace", nsName2));
-        assertThrows(KubeClusterException.class, () -> KubeResourceManager.getKubeCmdClient().get("namespace", nsName3));
+        assertThrows(KubeClusterException.class, () ->
+            KubeResourceManager.getKubeCmdClient().get("namespace", nsName3));
     }
 }

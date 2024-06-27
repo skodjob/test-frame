@@ -63,6 +63,7 @@ public class KubeResourceManager {
 
     /**
      * Retrieves the singleton instance of KubeResourceManager.
+     *
      * @return The singleton instance of KubeResourceManager.
      */
     public static synchronized KubeResourceManager getInstance() {
@@ -81,6 +82,7 @@ public class KubeResourceManager {
 
     /**
      * Retrieves the Kubernetes client.
+     *
      * @return The Kubernetes client.
      */
     public static KubeClient getKubeClient() {
@@ -89,6 +91,7 @@ public class KubeResourceManager {
 
     /**
      * Retrieves the Kubernetes command-line client.
+     *
      * @return The Kubernetes command-line client.
      */
     public static KubeCmdClient<?> getKubeCmdClient() {
@@ -97,6 +100,7 @@ public class KubeResourceManager {
 
     /**
      * Sets the test context.
+     *
      * @param context The extension context.
      */
     public static void setTestContext(ExtensionContext context) {
@@ -105,6 +109,7 @@ public class KubeResourceManager {
 
     /**
      * Retrieves the test context.
+     *
      * @return The extension context.
      */
     public static ExtensionContext getTestContext() {
@@ -113,6 +118,7 @@ public class KubeResourceManager {
 
     /**
      * Sets the resource types.
+     *
      * @param types The resource types implementing {@link ResourceType}
      */
     public final void setResourceTypes(ResourceType<?>... types) {
@@ -161,6 +167,7 @@ public class KubeResourceManager {
 
     /**
      * Pushes a resource item to the stack.
+     *
      * @param item The resource item to push.
      */
     public final void pushToStack(ResourceItem<?> item) {
@@ -172,17 +179,18 @@ public class KubeResourceManager {
 
     /**
      * Pushes a resource to the stack.
+     *
      * @param resource The resource to push.
-     * @param <T> The type of the resource.
+     * @param <T>      The type of the resource.
      */
     public final <T extends HasMetadata> void pushToStack(T resource) {
         synchronized (this) {
             STORED_RESOURCES.computeIfAbsent(getTestContext().getDisplayName(), k -> new Stack<>());
             STORED_RESOURCES.get(getTestContext().getDisplayName()).push(
-                    new ResourceItem<T>(
-                            () -> deleteResource(resource),
-                            resource
-                    ));
+                new ResourceItem<T>(
+                    () -> deleteResource(resource),
+                    resource
+                ));
         }
     }
 
@@ -219,8 +227,9 @@ public class KubeResourceManager {
 
     /**
      * Creates resources without waiting for readiness.
+     *
      * @param resources The resources to create.
-     * @param <T> The type of the resources.
+     * @param <T>       The type of the resources.
      */
     @SafeVarargs
     public final <T extends HasMetadata> void createResourceWithoutWait(T... resources) {
@@ -229,8 +238,9 @@ public class KubeResourceManager {
 
     /**
      * Creates resources and waits for readiness.
+     *
      * @param resources The resources to create.
-     * @param <T> The type of the resources.
+     * @param <T>       The type of the resources.
      */
     @SafeVarargs
     public final <T extends HasMetadata> void createResourceWithWait(T... resources) {
@@ -239,8 +249,9 @@ public class KubeResourceManager {
 
     /**
      * Creates or updates resources and waits for readiness.
+     *
      * @param resources The resources to create.
-     * @param <T> The type of the resources.
+     * @param <T>       The type of the resources.
      */
     @SafeVarargs
     public final <T extends HasMetadata> void createOrUpdateResourceWithWait(T... resources) {
@@ -249,8 +260,9 @@ public class KubeResourceManager {
 
     /**
      * Creates or updates resources.
+     *
      * @param resources The resources to create.
-     * @param <T> The type of the resources.
+     * @param <T>       The type of the resources.
      */
     @SafeVarargs
     public final <T extends HasMetadata> void createOrUpdateResourceWithoutWait(T... resources) {
@@ -259,10 +271,11 @@ public class KubeResourceManager {
 
     /**
      * Creates resources with or without waiting for readiness.
-     * @param waitReady Flag indicating whether to wait for readiness.
+     *
+     * @param waitReady   Flag indicating whether to wait for readiness.
      * @param allowUpdate Flag indicating if update resource is allowed
-     * @param resources The resources to create.
-     * @param <T> The type of the resources.
+     * @param resources   The resources to create.
+     * @param <T>         The type of the resources.
      */
     @SafeVarargs
     private <T extends HasMetadata> void createOrUpdateResource(boolean waitReady,
@@ -282,14 +295,15 @@ public class KubeResourceManager {
                     client.getClient().resource(resource).create();
                 }
                 if (waitReady) {
-                    assertTrue(waitResourceCondition(resource, new ResourceCondition<>(p -> {
-                        if (isResourceWithReadiness(resource)) {
-                            return client.getClient().resource(resource).isReady();
-                        }
-                        return client.getClient().resource(resource) != null;
-                    }, "ready")),
-                            String.format("Timed out waiting for %s/%s in %s to be ready", resource.getKind(),
-                                    resource.getMetadata().getName(), resource.getMetadata().getNamespace()));
+                    assertTrue(waitResourceCondition(resource,
+                            new ResourceCondition<>(p -> {
+                                if (isResourceWithReadiness(resource)) {
+                                    return client.getClient().resource(resource).isReady();
+                                }
+                                return client.getClient().resource(resource) != null;
+                            }, "ready")),
+                        String.format("Timed out waiting for %s/%s in %s to be ready", resource.getKind(),
+                            resource.getMetadata().getName(), resource.getMetadata().getNamespace()));
                 }
             } else {
                 // Create for typed resource implementing ResourceType
@@ -302,8 +316,8 @@ public class KubeResourceManager {
                 }
                 if (waitReady) {
                     assertTrue(waitResourceCondition(resource, ResourceCondition.readiness(type)),
-                            String.format("Timed out waiting for %s/%s in %s to be ready", resource.getKind(),
-                                    resource.getMetadata().getName(), resource.getMetadata().getNamespace()));
+                        String.format("Timed out waiting for %s/%s in %s to be ready", resource.getKind(),
+                            resource.getMetadata().getName(), resource.getMetadata().getNamespace()));
                 }
             }
             createCallbacks.forEach(callback -> callback.accept(resource));
@@ -312,8 +326,9 @@ public class KubeResourceManager {
 
     /**
      * Deletes resources.
+     *
      * @param resources The resources to delete.
-     * @param <T> The type of the resources.
+     * @param <T>       The type of the resources.
      */
     @SafeVarargs
     public final <T extends HasMetadata> void deleteResource(T... resources) {
@@ -324,26 +339,26 @@ public class KubeResourceManager {
                 if (type == null) {
                     client.getClient().resource(resource).delete();
                     assertTrue(waitResourceCondition(resource, ResourceCondition.deletion()),
-                            String.format("Timed out deleting %s/%s in %s", resource.getKind(),
-                                    resource.getMetadata().getName(), resource.getMetadata().getNamespace()));
+                        String.format("Timed out deleting %s/%s in %s", resource.getKind(),
+                            resource.getMetadata().getName(), resource.getMetadata().getNamespace()));
                 } else {
                     if (type instanceof NamespacedResourceType<T>) {
                         ((NamespacedResourceType<T>) type).deleteFromNamespace(resource.getMetadata().getNamespace(),
-                                resource.getMetadata().getName());
+                            resource.getMetadata().getName());
                     } else {
                         type.delete(resource.getMetadata().getName());
                     }
                     assertTrue(waitResourceCondition(resource, ResourceCondition.deletion()),
-                            String.format("Timed out deleting %s/%s in %s", resource.getKind(),
-                                    resource.getMetadata().getName(), resource.getMetadata().getNamespace()));
+                        String.format("Timed out deleting %s/%s in %s", resource.getKind(),
+                            resource.getMetadata().getName(), resource.getMetadata().getNamespace()));
                 }
             } catch (Exception e) {
                 if (resource.getMetadata().getNamespace() == null) {
                     LOGGER.error(LoggerUtils.RESOURCE_LOGGER_PATTERN, "Deleting", resource.getKind(),
-                            resource.getMetadata().getName(), e);
+                        resource.getMetadata().getName(), e);
                 } else {
-                    LOGGER.error(LoggerUtils.RESOURCE_WITH_NAMESPACE_LOGGER_PATTERN, "Deleting",resource.getKind(),
-                            resource.getMetadata().getName(), resource.getMetadata().getNamespace(), e);
+                    LOGGER.error(LoggerUtils.RESOURCE_WITH_NAMESPACE_LOGGER_PATTERN, "Deleting", resource.getKind(),
+                        resource.getMetadata().getName(), resource.getMetadata().getNamespace(), e);
                 }
             }
             deleteCallbacks.forEach(callback -> callback.accept(resource));
@@ -352,8 +367,9 @@ public class KubeResourceManager {
 
     /**
      * Updates resources.
+     *
      * @param resources The resources to update.
-     * @param <T> The type of the resources.
+     * @param <T>       The type of the resources.
      */
     @SafeVarargs
     public final <T extends HasMetadata> void updateResource(T... resources) {
@@ -363,7 +379,7 @@ public class KubeResourceManager {
             if (type != null) {
                 if (type instanceof NamespacedResourceType<T>) {
                     ((NamespacedResourceType<T>) type).updateInNamespace(resource.getMetadata().getNamespace(),
-                            resource);
+                        resource);
                 } else {
                     type.update(resource);
                 }
@@ -375,9 +391,10 @@ public class KubeResourceManager {
 
     /**
      * Waits for a resource condition to be fulfilled.
-     * @param resource The resource to wait for.
+     *
+     * @param resource  The resource to wait for.
      * @param condition The condition to fulfill.
-     * @param <T> The type of the resource.
+     * @param <T>       The type of the resource.
      * @return True if the condition is fulfilled, false otherwise.
      */
     public final <T extends HasMetadata> boolean waitResourceCondition(T resource, ResourceCondition<T> condition) {
@@ -389,21 +406,21 @@ public class KubeResourceManager {
         boolean[] resourceReady = new boolean[1];
 
         Wait.until(String.format("Resource condition: %s to be fulfilled for resource %s/%s",
-                        condition.conditionName(), resource.getKind(), resource.getMetadata().getName()),
-                TestFrameConstants.GLOBAL_POLL_INTERVAL_MEDIUM, TestFrameConstants.GLOBAL_TIMEOUT,
-                () -> {
-                    T res = getKubeClient().getClient().resource(resource).get();
-                    resourceReady[0] = condition.predicate().test(res);
-                    return resourceReady[0];
-                },
-                () -> {
-                    T res = getKubeClient().getClient().resource(resource).get();
-                    if (type == null) {
-                        client.getClient().resource(resource).delete();
-                    } else {
-                        type.delete(res.getMetadata().getName());
-                    }
-                });
+                condition.conditionName(), resource.getKind(), resource.getMetadata().getName()),
+            TestFrameConstants.GLOBAL_POLL_INTERVAL_MEDIUM, TestFrameConstants.GLOBAL_TIMEOUT,
+            () -> {
+                T res = getKubeClient().getClient().resource(resource).get();
+                resourceReady[0] = condition.predicate().test(res);
+                return resourceReady[0];
+            },
+            () -> {
+                T res = getKubeClient().getClient().resource(resource).get();
+                if (type == null) {
+                    client.getClient().resource(resource).delete();
+                } else {
+                    type.delete(res.getMetadata().getName());
+                }
+            });
 
         return resourceReady[0];
     }
@@ -414,7 +431,7 @@ public class KubeResourceManager {
     public void deleteResources() {
         LoggerUtils.logSeparator();
         if (!STORED_RESOURCES.containsKey(getTestContext().getDisplayName())
-                || STORED_RESOURCES.get(getTestContext().getDisplayName()).isEmpty()) {
+            || STORED_RESOURCES.get(getTestContext().getDisplayName()).isEmpty()) {
             LOGGER.info("In context {} is everything deleted", getTestContext().getDisplayName());
         } else {
             LOGGER.info("Deleting all resources for {}", getTestContext().getDisplayName());
@@ -422,9 +439,9 @@ public class KubeResourceManager {
 
         // if stack is created for specific test suite or test case
         AtomicInteger numberOfResources = STORED_RESOURCES.get(getTestContext().getDisplayName()) != null ?
-                new AtomicInteger(STORED_RESOURCES.get(getTestContext().getDisplayName()).size()) :
-                // stack has no elements
-                new AtomicInteger(0);
+            new AtomicInteger(STORED_RESOURCES.get(getTestContext().getDisplayName()).size()) :
+            // stack has no elements
+            new AtomicInteger(0);
         while (STORED_RESOURCES.containsKey(getTestContext().getDisplayName()) && numberOfResources.get() > 0) {
             Stack<ResourceItem<?>> s = STORED_RESOURCES.get(getTestContext().getDisplayName());
 
@@ -450,9 +467,10 @@ public class KubeResourceManager {
 
     /**
      * Return ResourceType implementation if it is specified in resourceTypes based on kind
+     *
      * @param resource HasMetadata resource to find
+     * @param <T>      The type of the resource.
      * @return {@link ResourceType}
-     * @param <T> The type of the resource.
      */
     @SuppressWarnings("unchecked")
     private <T extends HasMetadata> ResourceType<T> findResourceType(T resource) {
