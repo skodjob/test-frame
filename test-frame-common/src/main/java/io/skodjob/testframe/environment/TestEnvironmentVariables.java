@@ -7,7 +7,7 @@ package io.skodjob.testframe.environment;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import io.skodjob.testframe.LoggerUtils;
+import io.skodjob.testframe.utils.LoggerUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

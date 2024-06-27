@@ -23,7 +23,7 @@ import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.apps.ReplicaSet;
 import io.fabric8.kubernetes.api.model.apps.StatefulSet;
-import io.skodjob.testframe.LoggerUtils;
+import io.skodjob.testframe.utils.LoggerUtils;
 import io.skodjob.testframe.TestFrameConstants;
 import io.skodjob.testframe.TestFrameEnv;
 import io.skodjob.testframe.clients.KubeClient;
@@ -33,6 +33,7 @@ import io.skodjob.testframe.clients.cmdClient.Oc;
 import io.skodjob.testframe.interfaces.NamespacedResourceType;
 import io.skodjob.testframe.interfaces.ResourceType;
 import io.skodjob.testframe.wait.Wait;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -183,6 +184,37 @@ public class KubeResourceManager {
                             resource
                     ));
         }
+    }
+
+    /**
+     * Logs all managed resources across all test contexts with set log level
+     *
+     * @param logLevel log4j2 log level
+     */
+    public void printAllResources(Level logLevel) {
+        LOGGER.log(logLevel, "Printing all managed resources from all test contexts");
+        STORED_RESOURCES.forEach((testName, resources) -> {
+            LOGGER.log(logLevel, "Context: {}", testName);
+            resources.forEach(resourceItem -> {
+                if (resourceItem.resource() != null) {
+                    LoggerUtils.logResource("Managed resource:", logLevel, resourceItem.resource());
+                }
+            });
+        });
+    }
+
+    /**
+     * Logs all managed resources in current test context with set log level
+     *
+     * @param logLevel log4j2 log level
+     */
+    public void printCurrentResources(Level logLevel) {
+        LOGGER.log(logLevel, "Printing all managed resources from current test context");
+        STORED_RESOURCES.get(getTestContext().getDisplayName()).forEach(resourceItem -> {
+            if (resourceItem.resource() != null) {
+                LoggerUtils.logResource("Managed resource:", logLevel, resourceItem.resource());
+            }
+        });
     }
 
     /**
