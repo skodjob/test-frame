@@ -28,6 +28,7 @@ public class OperatorGroupType implements NamespacedResourceType<OperatorGroup> 
 
     /**
      * Kind of api resource
+     *
      * @return kind name
      */
     @Override
@@ -37,6 +38,7 @@ public class OperatorGroupType implements NamespacedResourceType<OperatorGroup> 
 
     /**
      * Get specific client for resoruce
+     *
      * @return specific client
      */
     @Override

@@ -28,6 +28,7 @@ public class SubscriptionType implements NamespacedResourceType<Subscription> {
 
     /**
      * Kind of api resource
+     *
      * @return kind name
      */
     @Override
@@ -37,6 +38,7 @@ public class SubscriptionType implements NamespacedResourceType<Subscription> {
 
     /**
      * Get specific client for resoruce
+     *
      * @return specific client
      */
     @Override

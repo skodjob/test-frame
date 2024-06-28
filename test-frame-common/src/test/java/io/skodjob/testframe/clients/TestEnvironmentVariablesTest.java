@@ -1,3 +1,7 @@
+/*
+ * Copyright Skodjob authors.
+ * License: Apache License 2.0 (see the file LICENSE or http://apache.org/licenses/LICENSE-2.0.html).
+ */
 package io.skodjob.testframe.clients;
 
 import io.skodjob.testframe.environment.TestEnvironmentVariables;
@@ -19,13 +23,13 @@ public class TestEnvironmentVariablesTest {
         assertEquals(MyEnvs.MY_ENV, "this");
         assertEquals(MyEnvs.SECOND_ENV, "23");
         assertTrue(Files.exists(Paths.get(System.getProperty("user.dir"))
-                .resolve("target").resolve("config.yaml")));
+            .resolve("target").resolve("config.yaml")));
     }
 
     public static class MyEnvs {
         private static final Map<String, String> ENVS_MAP = Map.of(
-                "MY_ENV", "this",
-                "THIRD_ENV", "that"
+            "MY_ENV", "this",
+            "THIRD_ENV", "that"
         );
 
         public static final TestEnvironmentVariables ENVIRONMENT_VARIABLES = new TestEnvironmentVariables(ENVS_MAP);
@@ -36,7 +40,7 @@ public class TestEnvironmentVariablesTest {
             ENVIRONMENT_VARIABLES.logEnvironmentVariables();
             try {
                 ENVIRONMENT_VARIABLES.saveConfigurationFile(Paths.get(System.getProperty("user.dir"))
-                        .resolve("target").toAbsolutePath().toString());
+                    .resolve("target").toAbsolutePath().toString());
             } catch (IOException e) {
                 fail("Env vars not saved");
             }

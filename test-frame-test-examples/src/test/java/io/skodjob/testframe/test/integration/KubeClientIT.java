@@ -20,12 +20,12 @@ public final class KubeClientIT extends AbstractIT {
     @Test
     void testCreateResourcesFromYaml() throws IOException {
         List<HasMetadata> resources = KubeResourceManager.getKubeClient()
-                .readResourcesFromFile(getClass().getClassLoader().getResourceAsStream("resources.yaml"));
+            .readResourcesFromFile(getClass().getClassLoader().getResourceAsStream("resources.yaml"));
 
         KubeResourceManager.getInstance().createResourceWithWait(resources.toArray(new HasMetadata[0]));
 
         assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName(nsName4).get());
         assertNotNull(KubeResourceManager.getKubeClient().getClient().serviceAccounts()
-                .inNamespace(nsName4).withName("skodjob-test-user").get());
+            .inNamespace(nsName4).withName("skodjob-test-user").get());
     }
 }

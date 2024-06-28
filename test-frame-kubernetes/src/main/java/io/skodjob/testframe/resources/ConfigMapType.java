@@ -27,6 +27,7 @@ public class ConfigMapType implements NamespacedResourceType<ConfigMap> {
 
     /**
      * Kind of api resource
+     *
      * @return kind name
      */
     @Override
@@ -36,6 +37,7 @@ public class ConfigMapType implements NamespacedResourceType<ConfigMap> {
 
     /**
      * Get specific client for resoruce
+     *
      * @return specific client
      */
     @Override

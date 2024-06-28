@@ -28,6 +28,7 @@ public class ServiceAccountType implements NamespacedResourceType<ServiceAccount
 
     /**
      * Kind of api resource
+     *
      * @return kind name
      */
     @Override
@@ -47,6 +48,7 @@ public class ServiceAccountType implements NamespacedResourceType<ServiceAccount
 
     /**
      * Get specific client for resoruce
+     *
      * @return specific client
      */
     @Override

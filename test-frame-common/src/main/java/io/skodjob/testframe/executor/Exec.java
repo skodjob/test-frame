@@ -44,7 +44,7 @@ public class Exec {
 
     private static final Pattern ERROR_PATTERN = Pattern.compile("Error from server \\(([a-zA-Z0-9]+)\\):");
     private static final Pattern INVALID_PATTERN = Pattern
-            .compile("The ([a-zA-Z0-9]+) \"([a-z0-9.-]+)\" is invalid:");
+        .compile("The ([a-zA-Z0-9]+) \"([a-z0-9.-]+)\" is invalid:");
     private static final Pattern PATH_SPLITTER = Pattern.compile(System.getProperty("path.separator"));
     private static final int MAXIMUM_EXEC_LOG_CHARACTER_SIZE = 2000;
     private static final Object LOCK = new Object();
@@ -124,7 +124,7 @@ public class Exec {
      * Method executes external command
      *
      * @param logToOutput enable output logging
-     * @param command arguments for command
+     * @param command     arguments for command
      * @return execution results
      */
     public static ExecResult exec(boolean logToOutput, String... command) {
@@ -145,7 +145,7 @@ public class Exec {
     /**
      * Method executes external command
      *
-     * @param input log input
+     * @param input   log input
      * @param command arguments for command
      * @return execution results
      */
@@ -156,7 +156,7 @@ public class Exec {
     /**
      * Method executes external command
      *
-     * @param input log input
+     * @param input       log input
      * @param command     arguments for command
      * @param timeout     timeout for execution
      * @param logToOutput log output or not
@@ -184,7 +184,7 @@ public class Exec {
     /**
      * Method executes external command
      *
-     * @param input log input
+     * @param input       log input
      * @param command     arguments for command
      * @param envVars     session environment
      * @param timeout     timeout for execution
@@ -220,8 +220,8 @@ public class Exec {
 
             if (throwErrors && ret != 0) {
                 String msg = "`" + join(" ", command) + "` got status code " + ret
-                        + " and stderr:\n------\n" + executor.stdErr
-                        + "\n------\nand stdout:\n------\n" + executor.stdOut + "\n------";
+                    + " and stderr:\n------\n" + executor.stdErr
+                    + "\n------\nand stdout:\n------\n" + executor.stdOut + "\n------";
 
                 Matcher matcher = ERROR_PATTERN.matcher(executor.err());
                 KubeClusterException t = null;
@@ -260,17 +260,17 @@ public class Exec {
     /**
      * Method executes external command
      *
-     * @param input log input
+     * @param input     log input
      * @param commands  arguments for command
-     * @param envVars session environments
+     * @param envVars   session environments
      * @param timeoutMs timeout in ms for kill
      * @return returns ecode of execution
-     * @throws IOException IOException
+     * @throws IOException          IOException
      * @throws InterruptedException InterruptedException
-     * @throws ExecutionException ExecutionException
+     * @throws ExecutionException   ExecutionException
      */
     public int execute(String input, List<String> commands, Set<EnvVar> envVars, long timeoutMs)
-            throws IOException, InterruptedException, ExecutionException {
+        throws IOException, InterruptedException, ExecutionException {
         LOGGER.trace("Running command - " + join(" ", commands.toArray(new String[0])));
         ProcessBuilder builder = new ProcessBuilder();
         builder.command(commands);
@@ -357,9 +357,9 @@ public class Exec {
             try {
                 Files.createDirectories(logPath);
                 Files.writeString(Paths.get(logPath.toString(), "stdOutput.log"),
-                        stdOut, Charset.defaultCharset());
+                    stdOut, Charset.defaultCharset());
                 Files.writeString(Paths.get(logPath.toString(), "stdError.log"),
-                        stdErr, Charset.defaultCharset());
+                    stdErr, Charset.defaultCharset());
             } catch (Exception ex) {
                 LOGGER.warn("Cannot save output of execution: " + ex.getMessage());
             }
@@ -390,7 +390,7 @@ public class Exec {
     public static String cutExecutorLog(String log) {
         if (log.length() > MAXIMUM_EXEC_LOG_CHARACTER_SIZE) {
             LOGGER.warn("Executor log is too long. Going to strip it and print only first {} characters",
-                    MAXIMUM_EXEC_LOG_CHARACTER_SIZE);
+                MAXIMUM_EXEC_LOG_CHARACTER_SIZE);
             return log.substring(0, MAXIMUM_EXEC_LOG_CHARACTER_SIZE);
         }
         return log;

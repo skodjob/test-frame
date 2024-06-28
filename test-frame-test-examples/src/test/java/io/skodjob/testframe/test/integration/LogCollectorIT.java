@@ -4,7 +4,14 @@
  */
 package io.skodjob.testframe.test.integration;
 
-import io.fabric8.kubernetes.api.model.*;
+import io.fabric8.kubernetes.api.model.ConfigMapBuilder;
+import io.fabric8.kubernetes.api.model.ContainerBuilder;
+import io.fabric8.kubernetes.api.model.ContainerPortBuilder;
+import io.fabric8.kubernetes.api.model.LabelSelectorBuilder;
+import io.fabric8.kubernetes.api.model.NamespaceBuilder;
+import io.fabric8.kubernetes.api.model.SecretBuilder;
+import io.fabric8.kubernetes.api.model.VolumeBuilder;
+import io.fabric8.kubernetes.api.model.VolumeMountBuilder;
 import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder;
 import io.skodjob.testframe.CollectorConstants;
 import io.skodjob.testframe.LogCollector;
@@ -134,7 +141,8 @@ public class LogCollectorIT extends AbstractIT {
                     .withNamespace(namespaceName1)
                     .withName(secretName)
                 .endMetadata()
-                .withData(Map.of("data", Base64.getEncoder().encodeToString("top-secret-password-for-ultimate-access-to-everything".getBytes(StandardCharsets.UTF_8))))
+                .withData(Map.of("data", Base64.getEncoder().encodeToString(
+                        "top-secret-password-for-ultimate-access-to-everything".getBytes(StandardCharsets.UTF_8))))
                 .build(),
             new ConfigMapBuilder()
                 .editOrNewMetadata()
@@ -205,7 +213,8 @@ public class LogCollectorIT extends AbstractIT {
 
                 assertTrue(secretFolderFileNames.contains(LogCollectorUtils.getYamlFileNameForResource(secretName)));
                 secretNames.forEach(
-                    secret -> assertTrue(secretFolderFileNames.contains(LogCollectorUtils.getYamlFileNameForResource(secret)))
+                    secret -> assertTrue(secretFolderFileNames
+                            .contains(LogCollectorUtils.getYamlFileNameForResource(secret)))
                 );
             } else if (namespaceFolder.getName().equals(namespaceName2)) {
                 assertFalse(namespaceFolderFileNames.contains("pod"));
@@ -217,13 +226,14 @@ public class LogCollectorIT extends AbstractIT {
                 List<File> configMapFolderFiles = Arrays.asList(Objects.requireNonNull(configMapFolder.listFiles()));
                 List<String> configMapFolderFileNames = configMapFolderFiles.stream().map(File::getName).toList();
 
-                assertTrue(configMapFolderFileNames.contains(LogCollectorUtils.getYamlFileNameForResource(configMapName)));
+                assertTrue(configMapFolderFileNames
+                        .contains(LogCollectorUtils.getYamlFileNameForResource(configMapName)));
             } else if (namespaceFolder.getName().equals(CollectorConstants.CLUSTER_WIDE_FOLDER)) {
                 int countOfNodes = KubeResourceManager.getKubeClient().getClient().nodes().list().getItems().size();
                 int countOfFiles = Objects.requireNonNull(
-                        Arrays.stream(Objects.requireNonNull(namespaceFolder.listFiles()))
-                                .filter(file -> file.getName().equals("nodes")).toList()
-                                .stream().findFirst().get().listFiles()).length;
+                    Arrays.stream(Objects.requireNonNull(namespaceFolder.listFiles()))
+                        .filter(file -> file.getName().equals("nodes")).toList()
+                        .stream().findFirst().get().listFiles()).length;
                 assertEquals(countOfNodes, countOfFiles);
             }
         });

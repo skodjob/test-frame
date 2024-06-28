@@ -28,6 +28,7 @@ public class RoleType implements NamespacedResourceType<Role> {
 
     /**
      * Kind of api resource
+     *
      * @return kind name
      */
     @Override
@@ -47,6 +48,7 @@ public class RoleType implements NamespacedResourceType<Role> {
 
     /**
      * Get specific client for resoruce
+     *
      * @return specific client
      */
     @Override

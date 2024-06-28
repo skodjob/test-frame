@@ -28,6 +28,7 @@ public class LeaseType implements NamespacedResourceType<Lease> {
 
     /**
      * Kind of api resource
+     *
      * @return kind name
      */
     @Override
@@ -37,6 +38,7 @@ public class LeaseType implements NamespacedResourceType<Lease> {
 
     /**
      * Get specific client for resoruce
+     *
      * @return specific client
      */
     @Override

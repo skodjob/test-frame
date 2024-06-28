@@ -35,14 +35,15 @@ public class Wait {
      * Once the wait timeout (specified by {@code timeoutMs} is reached and supplier wasn't true until that time,
      * throws {@link WaitException}.
      *
-     * @param description information about on what we are waiting
+     * @param description    information about on what we are waiting
      * @param pollIntervalMs poll interval in milliseconds
-     * @param timeoutMs timeout specified in milliseconds
-     * @param ready {@link BooleanSupplier} containing code, which should be executed each poll, verifying readiness
-     *                                     of the particular thing
+     * @param timeoutMs      timeout specified in milliseconds
+     * @param ready          {@link BooleanSupplier} containing code, which should be executed each poll,
+     *                       verifying readiness of the particular thing
      */
     public static void until(String description, long pollIntervalMs, long timeoutMs, BooleanSupplier ready) {
-        until(description, pollIntervalMs, timeoutMs, ready, () -> {});
+        until(description, pollIntervalMs, timeoutMs, ready, () -> {
+        });
     }
 
     /**
@@ -52,13 +53,13 @@ public class Wait {
      * runs the {@code onTimeout} (f.e. print of logs, showing the actual value that was checked inside {@code ready}),
      * and finally throws {@link WaitException}.
      *
-     * @param description information about on what we are waiting
+     * @param description    information about on what we are waiting
      * @param pollIntervalMs poll interval in milliseconds
-     * @param timeoutMs timeout specified in milliseconds
-     * @param ready {@link BooleanSupplier} containing code, which should be executed each poll, verifying readiness
-     *                                     of the particular thing
-     * @param onTimeout {@link Runnable} executed once timeout is reached and
-     *                                  before the {@link WaitException} is thrown.
+     * @param timeoutMs      timeout specified in milliseconds
+     * @param ready          {@link BooleanSupplier} containing code, which should be executed each poll,
+     *                       verifying readiness of the particular thing
+     * @param onTimeout      {@link Runnable} executed once timeout is reached and
+     *                       before the {@link WaitException} is thrown.
      */
     public static void until(String description, long pollIntervalMs, long timeoutMs, BooleanSupplier ready,
                              Runnable onTimeout) {
@@ -71,7 +72,7 @@ public class Wait {
         // in case we are polling every 1s, we want to print exception after x tries, not on the first try
         // for minutes poll interval will 2 be enough
         int exceptionAppearanceCount = Duration.ofMillis(pollIntervalMs).toMinutes() > 0
-                ? 2 : Math.max((int) (timeoutMs / pollIntervalMs) / 4, 2);
+            ? 2 : Math.max((int) (timeoutMs / pollIntervalMs) / 4, 2);
         int exceptionCount = 0;
         int newExceptionAppearance = 0;
 
@@ -85,12 +86,12 @@ public class Wait {
                 exceptionMessage = e.getMessage();
 
                 if (++exceptionCount == exceptionAppearanceCount && exceptionMessage != null
-                        && exceptionMessage.equals(previousExceptionMessage)) {
+                    && exceptionMessage.equals(previousExceptionMessage)) {
                     LOGGER.info("While waiting for: {} exception occurred: {}", description, exceptionMessage);
                     // log the stacktrace
                     e.printStackTrace(new PrintWriter(stackTraceError));
                 } else if (exceptionMessage != null && !exceptionMessage.equals(previousExceptionMessage)
-                        && ++newExceptionAppearance == 2) {
+                    && ++newExceptionAppearance == 2) {
                     previousExceptionMessage = exceptionMessage;
                 }
 
@@ -111,7 +112,7 @@ public class Wait {
                 }
                 onTimeout.run();
                 WaitException waitException = new WaitException("Timeout after " + timeoutMs
-                        + " ms waiting for " + description);
+                    + " ms waiting for " + description);
                 LOGGER.error(waitException.getMessage(), waitException);
                 throw waitException;
             }
@@ -142,11 +143,11 @@ public class Wait {
      * runs the {@code onTimeout} (f.e. print of logs, showing the actual value that was checked inside {@code ready}),
      * and finally throws {@link WaitException}.
      *
-     * @param description information about on what we are waiting
+     * @param description    information about on what we are waiting
      * @param pollIntervalMs poll interval in milliseconds
-     * @param timeoutMs timeout specified in milliseconds
-     * @param ready {@link BooleanSupplier} containing code, which should be executed each poll, verifying readiness
-     *                                     of the particular thing
+     * @param timeoutMs      timeout specified in milliseconds
+     * @param ready          {@link BooleanSupplier} containing code, which should be executed each poll,
+     *                       verifying readiness of the particular thing
      * @return completable future for waiting
      */
     public static CompletableFuture<Void> untilAsync(String description, long pollIntervalMs,
@@ -170,12 +171,13 @@ public class Wait {
                     if (!result) {
                         if (timeLeft >= 0) {
                             if (LOGGER.isTraceEnabled()) {
-                                LOGGER.trace("{} not ready, will try again ({}ms till timeout)", description, timeLeft);
+                                LOGGER.trace("{} not ready, will try again ({}ms till timeout)",
+                                    description, timeLeft);
                             }
                             delayed.execute(this);
                         } else {
                             future.completeExceptionally(new TimeoutException(
-                                    String.format("Waiting for %s timeout %s exceeded", description, timeoutMs)));
+                                String.format("Waiting for %s timeout %s exceeded", description, timeoutMs)));
                         }
                     } else {
                         future.complete(null);

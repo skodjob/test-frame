@@ -22,9 +22,8 @@ public class LogCollectorUtils {
     /**
      * Method returning name of the YAML file for particular resource
      *
-     * @param resourceName  name of the resource
-     *
-     * @return  name of the YAML file for particular resource
+     * @param resourceName name of the resource
+     * @return name of the YAML file for particular resource
      */
     public static String getYamlFileNameForResource(String resourceName) {
         return getFileNameForResourceAndType(resourceName, YAML_TYPE);
@@ -33,9 +32,8 @@ public class LogCollectorUtils {
     /**
      * Method returning name of the log file for particular resource
      *
-     * @param resourceName  name of the resource
-     *
-     * @return  name of the log file for particular resource
+     * @param resourceName name of the resource
+     * @return name of the log file for particular resource
      */
     public static String getLogFileNameForResource(String resourceName) {
         return getFileNameForResourceAndType(resourceName, LOG_TYPE);
@@ -44,10 +42,9 @@ public class LogCollectorUtils {
     /**
      * Method returning name of the log file for Pod and its container
      *
-     * @param podName  name of the Pod
-     * @param containerName  name of the Container
-     *
-     * @return  name of the log file for Pod and its container
+     * @param podName       name of the Pod
+     * @param containerName name of the Container
+     * @return name of the log file for Pod and its container
      */
     public static String getLogFileNameForPodContainer(String podName, String containerName) {
         return getFileNameForResourceAndType(
@@ -60,9 +57,8 @@ public class LogCollectorUtils {
     /**
      * Method returning name of the log file for Pod (and its description)
      *
-     * @param podName  name of the Pod
-     *
-     * @return  name of the log file for Pod (and its description)
+     * @param podName name of the Pod
+     * @return name of the log file for Pod (and its description)
      */
     public static String getLogFileNameForPodDescription(String podName) {
         return getFileNameForResourceAndType(
@@ -74,10 +70,9 @@ public class LogCollectorUtils {
     /**
      * Method returning name of the file with correct file type specified under {@param fileType}
      *
-     * @param resourceName  name of the resource
-     * @param fileType      type of file (YAML, log)
-     *
-     * @return  name of the file with a specified type and for particular resource
+     * @param resourceName name of the resource
+     * @param fileType     type of file (YAML, log)
+     * @return name of the file with a specified type and for particular resource
      */
     private static String getFileNameForResourceAndType(String resourceName, String fileType) {
         return String.join(".", resourceName.toLowerCase(Locale.ROOT), fileType);
@@ -86,10 +81,9 @@ public class LogCollectorUtils {
     /**
      * Method returning full path from {@param rootFolderPath} to the {@param namespaceName} dir
      *
-     * @param folderPath        root folder path where the sub-dirs will be created into
-     * @param namespaceName     name of the Namespace for which the folder will be created
-     *
-     * @return  full path from {@param rootFolderPath} to the {@param namespaceName} dir
+     * @param folderPath    root folder path where the sub-dirs will be created into
+     * @param namespaceName name of the Namespace for which the folder will be created
+     * @return full path from {@param rootFolderPath} to the {@param namespaceName} dir
      */
     public static String getFullDirPathWithNamespace(String folderPath, String namespaceName) {
         return String.join("/", folderPath, namespaceName);
@@ -99,10 +93,9 @@ public class LogCollectorUtils {
      * Method returning full path from {@param namespaceFolderPath} to the {@param resourceType} dir.
      * Example: /tmp/logs/my-namespace/secret
      *
-     * @param namespaceFolderPath   Namespace folder path where the sub-dirs will be created into
-     * @param resourceType          type of resource for which the folder will be created
-     *
-     * @return  full path from {@param namespaceFolderPath} to the {@param resourceType} dir
+     * @param namespaceFolderPath Namespace folder path where the sub-dirs will be created into
+     * @param resourceType        type of resource for which the folder will be created
+     * @return full path from {@param namespaceFolderPath} to the {@param resourceType} dir
      */
     public static String getNamespaceFullDirPathForResourceType(
         String namespaceFolderPath,
@@ -119,10 +112,9 @@ public class LogCollectorUtils {
      * Method returning full path to the file in the logs directory.
      * Example: /tmp/logs/my-namespace/secret/my-secret.yaml
      *
-     * @param folderPath    full path where the file should be created
-     * @param fileName      name of the file
-     *
-     * @return  full path to the file in the logs directory
+     * @param folderPath full path where the file should be created
+     * @param fileName   name of the file
+     * @return full path to the file in the logs directory
      */
     public static String getFullPathForFolderPathAndFileName(String folderPath, String fileName) {
         return String.join("/", folderPath, fileName);
@@ -133,9 +125,9 @@ public class LogCollectorUtils {
      * This is used in cases that we have root path specified in LogCollector, but for the new log collection, we
      * want to collect everything in different sub-dirs (and the Namespace sub-dirs are not enough).
      *
-     * @param rootPath      root path specified in LogCollector during the instance initialization
-     * @param folderPath    additional folder path
-     * @return  full path from  {@param rootPath} into the {@param folderPath}
+     * @param rootPath   root path specified in LogCollector during the instance initialization
+     * @param folderPath additional folder path
+     * @return full path from  {@param rootPath} into the {@param folderPath}
      */
     public static String getFolderPath(String rootPath, String folderPath) {
         if (folderPath == null) {

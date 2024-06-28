@@ -37,13 +37,13 @@ public class LogCollector {
     /**
      * Constructor of the {@link LogCollector}, which uses parameters from {@link LogCollectorBuilder}
      *
-     * @param builder   {@link LogCollectorBuilder} with configuration for {@link LogCollector}
+     * @param builder {@link LogCollectorBuilder} with configuration for {@link LogCollector}
      */
     public LogCollector(LogCollectorBuilder builder) {
         this.namespacedResources = builder.getNamespacedResources() == null ?
-                Collections.emptyList() : builder.getNamespacedResources();
+            Collections.emptyList() : builder.getNamespacedResources();
         this.clusterWideResources = builder.getClusterWideResources() == null ?
-                Collections.emptyList() : builder.getClusterWideResources();
+            Collections.emptyList() : builder.getClusterWideResources();
 
         if (builder.getRootFolderPath() == null) {
             throw new RuntimeException("rootFolderPath should be filled, but it's empty");
@@ -64,7 +64,7 @@ public class LogCollector {
      * Method that collects all logs and YAML files from Namespaces containing specified LabelSelector, collected into
      * {@link #rootFolderPath}.
      *
-     * @param labelSelector     LabelSelector containing Labels that Namespace should contain
+     * @param labelSelector LabelSelector containing Labels that Namespace should contain
      */
     public void collectFromNamespacesWithLabels(LabelSelector labelSelector) {
         collectFromNamespacesWithLabelsToFolder(labelSelector, null);
@@ -74,8 +74,8 @@ public class LogCollector {
      * Method that collects all logs and YAML files from Namespaces containing specified LabelSelector, collected into
      * {@link #rootFolderPath} with {@param folderPath}.
      *
-     * @param labelSelector     LabelSelector containing Labels that Namespace should contain
-     * @param folderPath        additional folder path for the log collection
+     * @param labelSelector LabelSelector containing Labels that Namespace should contain
+     * @param folderPath    additional folder path for the log collection
      */
     public void collectFromNamespacesWithLabelsToFolder(LabelSelector labelSelector, String folderPath) {
         List<String> namespacesWithLabel = kubeClient.getClient()
@@ -94,7 +94,7 @@ public class LogCollector {
      * Method that collects all logs and YAML files from specified set of Namespaces, collected into
      * {@link #rootFolderPath}.
      *
-     * @param namespacesNames   set of Namespace from which the logs should be collected
+     * @param namespacesNames set of Namespace from which the logs should be collected
      */
     public void collectFromNamespaces(String... namespacesNames) {
         collectFromNamespacesToFolder(Arrays.asList(namespacesNames), null);
@@ -104,8 +104,8 @@ public class LogCollector {
      * Method that collects all logs and YAML files from specified set of Namespaces, collected into
      * {@link #rootFolderPath} with {@param folderPath}.
      *
-     * @param namespacesNames   set of Namespace from which the logs should be collected
-     * @param folderPath        additional folder path for the log collection
+     * @param namespacesNames set of Namespace from which the logs should be collected
+     * @param folderPath      additional folder path for the log collection
      */
     public void collectFromNamespacesToFolder(List<String> namespacesNames, String folderPath) {
         namespacesNames.forEach(namespace -> collectFromNamespaceToFolder(namespace, folderPath));
@@ -115,7 +115,7 @@ public class LogCollector {
      * Method that collects all logs and YAML files from specified Namespace, collected into
      * {@link #rootFolderPath}.
      *
-     * @param namespaceName     name of Namespace from which the logs should be collected
+     * @param namespaceName name of Namespace from which the logs should be collected
      */
     public void collectFromNamespace(String namespaceName) {
         collectFromNamespaceToFolder(namespaceName, null);
@@ -133,7 +133,7 @@ public class LogCollector {
      * Method that collects YAML of cluster wide resources
      * {@link #rootFolderPath}.
      *
-     * @param logPerResource    flag enables cluster wide resource per file
+     * @param logPerResource flag enables cluster wide resource per file
      */
     public void collectClusterWideResources(boolean logPerResource) {
         collectClusterWideResourcesToFolder(logPerResource, null);
@@ -143,8 +143,8 @@ public class LogCollector {
      * Method that collects all logs and YAML files from specified Namespace, collected into
      * {@link #rootFolderPath} with {@param folderPath}.
      *
-     * @param namespaceName     name of Namespace from which the logs should be collected
-     * @param folderPath        additional folder path for the log collection
+     * @param namespaceName name of Namespace from which the logs should be collected
+     * @param folderPath    additional folder path for the log collection
      */
     public void collectFromNamespaceToFolder(String namespaceName, String folderPath) {
         // check if Namespace exists
@@ -165,7 +165,7 @@ public class LogCollector {
      * Method that collects YAML of cluster wide resources
      * {@link #rootFolderPath} with {@param folderPath}.
      *
-     * @param folderPath        folder path for the log collection
+     * @param folderPath folder path for the log collection
      */
     public void collectClusterWideResourcesToFolder(String folderPath) {
         collectClusterWideResourcesToFolder(true, folderPath);
@@ -175,8 +175,8 @@ public class LogCollector {
      * Method that collects YAML of cluster wide resources
      * {@link #rootFolderPath} with {@param folderPath}.
      *
-     * @param logPerFile        flag enables cluster wide resource per file
-     * @param folderPath        folder path for the log collection
+     * @param logPerFile flag enables cluster wide resource per file
+     * @param folderPath folder path for the log collection
      */
     public void collectClusterWideResourcesToFolder(boolean logPerFile, String folderPath) {
         clusterWideResources.forEach(resourceType -> {
@@ -209,9 +209,9 @@ public class LogCollector {
      * Then, for each Pod-(Init)Container it collects logs and then creates a log file, where are the logs stored.
      * Additionally, it stores description of each Pod in the Namespace.
      *
-     * @param namespaceName         name of Namespace from which the logs (and Pod descriptions) should be collected
-     * @param namespaceFolderPath   path to Namespace folder where the pods directory will be created and logs will be
-     *                              collected into
+     * @param namespaceName       name of Namespace from which the logs (and Pod descriptions) should be collected
+     * @param namespaceFolderPath path to Namespace folder where the pods directory will be created and logs will be
+     *                            collected into
      */
     public void collectLogsFromPodsInNamespace(String namespaceName, String namespaceFolderPath) {
         LOGGER.info("Collecting logs from all Pods in Namespace: {}", namespaceName);
@@ -241,10 +241,10 @@ public class LogCollector {
      * Method that for each container collects the log using
      * {@link #collectLogsFromPodContainer(String, String, String, String)}
      *
-     * @param namespaceName     name of Namespace where the Pod is present
-     * @param podsFolderPath    path to the "pod" folder (for example: /tmp/logs/namespace/pods)
-     * @param podName           name of Pod from which the log should be collected
-     * @param containerNames    list of container names from which the log should be collected
+     * @param namespaceName  name of Namespace where the Pod is present
+     * @param podsFolderPath path to the "pod" folder (for example: /tmp/logs/namespace/pods)
+     * @param podName        name of Pod from which the log should be collected
+     * @param containerNames list of container names from which the log should be collected
      */
     private void collectLogsFromPodContainers(
         String namespaceName,
@@ -259,10 +259,10 @@ public class LogCollector {
     /**
      * Method that collects log from specified Pod and Container
      *
-     * @param namespaceName     name of Namespace where the Pod is present
-     * @param podsFolderPath    path to the "pod" folder (for example: /tmp/logs/namespace/pods)
-     * @param podName           name of Pod from which the log should be collected
-     * @param containerName     name of container from which the log should be collected
+     * @param namespaceName  name of Namespace where the Pod is present
+     * @param podsFolderPath path to the "pod" folder (for example: /tmp/logs/namespace/pods)
+     * @param podName        name of Pod from which the log should be collected
+     * @param containerName  name of container from which the log should be collected
      */
     private void collectLogsFromPodContainer(
         String namespaceName,
@@ -283,9 +283,9 @@ public class LogCollector {
     /**
      * Method that collects description of specified Pod
      *
-     * @param namespaceName     name of Namespace where the Pod is present
-     * @param podsFolderPath    path to the "pod" folder (for example: /tmp/logs/namespace/pods)
-     * @param podName           name of Pod from which the description should be collected
+     * @param namespaceName  name of Namespace where the Pod is present
+     * @param podsFolderPath path to the "pod" folder (for example: /tmp/logs/namespace/pods)
+     * @param podName        name of Pod from which the description should be collected
      */
     private void collectPodDescription(String namespaceName, String podsFolderPath, String podName) {
         String podDesc = executeCollectionCall(
@@ -302,9 +302,9 @@ public class LogCollector {
      * Collect cluster wide resource per file
      *
      * @param clusterWideFolderPath root path of cluster wide resource
-     * @param resourceType resource kind for collect
+     * @param resourceType          resource kind for collect
      */
-    private void collectClusterWideResourcesPerFile(String clusterWideFolderPath,String resourceType) {
+    private void collectClusterWideResourcesPerFile(String clusterWideFolderPath, String resourceType) {
         List<String> resources = kubeCmdClient.listClusterWide(resourceType);
         if (resources != null && !resources.isEmpty()) {
             String fullFolderPath = createResourceDirectoryInNamespaceDir(clusterWideFolderPath, resourceType);
@@ -325,8 +325,8 @@ public class LogCollector {
     /**
      * Method that collects all Events (kubectl get events) from Namespace
      *
-     * @param namespaceName         name of Namespace from which the events should be collected
-     * @param namespaceFolderPath   path to the Namespace folder (for example: /tmp/logs/namespace)
+     * @param namespaceName       name of Namespace from which the events should be collected
+     * @param namespaceFolderPath path to the Namespace folder (for example: /tmp/logs/namespace)
      */
     public void collectEventsFromNamespace(String namespaceName, String namespaceFolderPath) {
         LOGGER.info("Collecting events from Namespace: {}", namespaceName);
@@ -344,8 +344,8 @@ public class LogCollector {
      * Method that collects YAML descriptions of specified resources (resource types)
      * and stores them in particular folders and their YAML files.
      *
-     * @param namespaceName         name of Namespace from where the YAMLs should be collected
-     * @param namespaceFolderPath   path to Namespace folder where the resource directories will be created
+     * @param namespaceName       name of Namespace from where the YAMLs should be collected
+     * @param namespaceFolderPath path to Namespace folder where the resource directories will be created
      */
     private void collectResourcesDescInNamespace(String namespaceName, String namespaceFolderPath) {
         namespacedResources.forEach(resource ->
@@ -359,9 +359,9 @@ public class LogCollector {
      * When the resources exist in Namespace, the folder for the resource type is created.
      * Finally, for each resource the YAML description is collected and stored in YAML file inside the type's folder.
      *
-     * @param namespaceName         name of Namespace from where the YAMLs should be collected
-     * @param namespaceFolderPath   path to Namespace folder where the resource directory will be created
-     * @param resourceType          name of the resource type (for example secret, configmap, ...)
+     * @param namespaceName       name of Namespace from where the YAMLs should be collected
+     * @param namespaceFolderPath path to Namespace folder where the resource directory will be created
+     * @param resourceType        name of the resource type (for example secret, configmap, ...)
      */
     private void collectDescriptionOfResourceInNamespace(
         String namespaceName,
@@ -393,10 +393,9 @@ public class LogCollector {
     /**
      * Method that creates directory for specified Namespace in the {@param folderPath}
      *
-     * @param namespaceName     name of Namespace for which the folder will be created
-     * @param folderPath        folder path where the Namespace directory should be created
-     *
-     * @return  full path to the Namespace directory
+     * @param namespaceName name of Namespace for which the folder will be created
+     * @param folderPath    folder path where the Namespace directory should be created
+     * @return full path to the Namespace directory
      */
     private String createNamespaceDirectory(String namespaceName, String folderPath) {
         return createLogDirOnPath(LogCollectorUtils.getFullDirPathWithNamespace(folderPath, namespaceName));
@@ -405,11 +404,10 @@ public class LogCollector {
     /**
      * Method that creates directory for specified resource type in the Namespace directory
      *
-     * @param namespaceFolderPath   path to Namespace directory where the directory for the resource type
-     *                              will be created
-     * @param resourceType          name of resource type for which the directory will be created
-     *
-     * @return  full path to the resource type's directory
+     * @param namespaceFolderPath path to Namespace directory where the directory for the resource type
+     *                            will be created
+     * @param resourceType        name of resource type for which the directory will be created
+     * @return full path to the resource type's directory
      */
     private String createResourceDirectoryInNamespaceDir(String namespaceFolderPath, String resourceType) {
         return createLogDirOnPath(
@@ -424,9 +422,8 @@ public class LogCollector {
      * Method that creates directory in path.
      * It firstly checks if the directory exists or not and if not, it creates all the directories that are missing.
      *
-     * @param fullPathToDirectory   full path to the desired directory
-     *
-     * @return  path to newly created directory
+     * @param fullPathToDirectory full path to the desired directory
+     * @return path to newly created directory
      */
     private String createLogDirOnPath(String fullPathToDirectory) {
         File logDir = Paths.get(fullPathToDirectory).toFile();
@@ -445,8 +442,8 @@ public class LogCollector {
     /**
      * Method that writes data to file (on path, specified by {@param fullFilePath}.
      *
-     * @param fullFilePath  full path to file (for example: /tmp/logs/my-namespace/secret.yaml)
-     * @param data          data which should be written to file
+     * @param fullFilePath full path to file (for example: /tmp/logs/my-namespace/secret.yaml)
+     * @param data         data which should be written to file
      */
     private void writeDataToFile(String fullFilePath, String data) {
         if (data != null && !data.isEmpty()) {
@@ -464,12 +461,10 @@ public class LogCollector {
      * Method for executing the collection (or list) call, which handles the exceptions when the resource is not found
      * (or was removed during the process). That way the LogCollector will continue with collection of other resources.
      *
-     * @param errorOperationMessage     message for the operation that is being executed, for error logging
-     * @param executeCall               Supplier with the lambda method for collection of the data
-     *
-     * @return  result of the execution of the method -> YAML descriptions, logs, or lists of resources
-     *
-     * @param <T>   type of the return value -> same as the return type of the executed call
+     * @param errorOperationMessage message for the operation that is being executed, for error logging
+     * @param executeCall           Supplier with the lambda method for collection of the data
+     * @param <T>                   type of the return value -> same as the return type of the executed call
+     * @return result of the execution of the method -> YAML descriptions, logs, or lists of resources
      */
     private <T> T executeCollectionCall(String errorOperationMessage, Supplier<T> executeCall) {
         try {

@@ -25,12 +25,13 @@ public class ResourceManagerCleanerExtension implements AfterAllCallback, AfterE
 
     /**
      * Enables ResourceManagerCleanerExtension for after All callback
+     *
      * @param extensionContext context
      */
     @Override
     public void afterAll(ExtensionContext extensionContext) {
         Optional<ResourceManager> annotation =
-                findAnnotation(extensionContext.getRequiredTestClass(), ResourceManager.class);
+            findAnnotation(extensionContext.getRequiredTestClass(), ResourceManager.class);
 
         if (annotation.isPresent() && annotation.get().cleanResources()) {
             KubeResourceManager.setTestContext(extensionContext);
@@ -40,12 +41,13 @@ public class ResourceManagerCleanerExtension implements AfterAllCallback, AfterE
 
     /**
      * Enables ResourceManagerCleanerExtension for afterEach callback
+     *
      * @param extensionContext context
      */
     @Override
     public void afterEach(ExtensionContext extensionContext) {
         Optional<ResourceManager> annotation =
-                findAnnotation(extensionContext.getRequiredTestClass(), ResourceManager.class);
+            findAnnotation(extensionContext.getRequiredTestClass(), ResourceManager.class);
 
         if (annotation.isPresent() && annotation.get().cleanResources()) {
             KubeResourceManager.setTestContext(extensionContext);

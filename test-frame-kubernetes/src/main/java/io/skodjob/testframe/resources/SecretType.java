@@ -28,6 +28,7 @@ public class SecretType implements NamespacedResourceType<Secret> {
 
     /**
      * Kind of api resource
+     *
      * @return kind name
      */
     @Override
@@ -47,6 +48,7 @@ public class SecretType implements NamespacedResourceType<Secret> {
 
     /**
      * Get specific client for resoruce
+     *
      * @return specific client
      */
     @Override
@@ -98,7 +100,7 @@ public class SecretType implements NamespacedResourceType<Secret> {
 
     /**
      * @param resourceName name
-     * @param editor modifier
+     * @param editor       modifier
      */
     @Override
     public void replace(String resourceName, Consumer<Secret> editor) {
@@ -142,8 +144,8 @@ public class SecretType implements NamespacedResourceType<Secret> {
 
     /**
      * @param namespaceName namespace
-     * @param resourceName resource
-     * @param editor modifier
+     * @param resourceName  resource
+     * @param editor        modifier
      */
     @Override
     public void replaceInNamespace(String namespaceName, String resourceName, Consumer<Secret> editor) {

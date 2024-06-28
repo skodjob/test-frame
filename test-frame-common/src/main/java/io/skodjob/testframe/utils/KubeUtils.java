@@ -36,16 +36,16 @@ public final class KubeUtils {
         Wait.until("InstallPlan approval", TestFrameConstants.GLOBAL_POLL_INTERVAL_SHORT, 15_000, () -> {
             try {
                 InstallPlan installPlan =
-                        new InstallPlanBuilder(KubeResourceManager.getKubeClient()
-                                .getOpenShiftClient().operatorHub().installPlans()
-                                .inNamespace(namespaceName).withName(installPlanName).get())
-                                .editSpec()
-                                    .withApproved()
-                                .endSpec()
-                                .build();
+                    new InstallPlanBuilder(KubeResourceManager.getKubeClient()
+                        .getOpenShiftClient().operatorHub().installPlans()
+                        .inNamespace(namespaceName).withName(installPlanName).get())
+                        .editSpec()
+                        .withApproved()
+                        .endSpec()
+                        .build();
 
                 KubeResourceManager.getKubeClient().getOpenShiftClient().operatorHub().installPlans()
-                        .inNamespace(namespaceName).withName(installPlanName).patch(installPlan);
+                    .inNamespace(namespaceName).withName(installPlanName).patch(installPlan);
                 return true;
             } catch (Exception ex) {
                 LOGGER.error(String.valueOf(ex));
@@ -63,10 +63,10 @@ public final class KubeUtils {
      */
     public static InstallPlan getNonApprovedInstallPlan(String namespaceName, String csvPrefix) {
         return KubeResourceManager.getKubeClient().getOpenShiftClient().operatorHub().installPlans()
-                .inNamespace(namespaceName).list().getItems().stream()
-                .filter(installPlan -> !installPlan.getSpec().getApproved()
-                        && installPlan.getSpec().getClusterServiceVersionNames().toString().contains(csvPrefix))
-                .findFirst().get();
+            .inNamespace(namespaceName).list().getItems().stream()
+            .filter(installPlan -> !installPlan.getSpec().getApproved()
+                && installPlan.getSpec().getClusterServiceVersionNames().toString().contains(csvPrefix))
+            .findFirst().get();
     }
 
     /**
@@ -79,24 +79,24 @@ public final class KubeUtils {
     public static void labelNamespace(String namespace, String key, String value) {
         if (KubeResourceManager.getKubeClient().namespaceExists(namespace)) {
             Wait.until(String.format("Namespace %s has label: %s", namespace, key),
-                    TestFrameConstants.GLOBAL_POLL_INTERVAL_1_SEC, TestFrameConstants.GLOBAL_STABILITY_TIME, () -> {
-                        try {
-                            KubeResourceManager.getKubeClient().getClient().namespaces().withName(namespace).edit(n ->
-                                    new NamespaceBuilder(n)
-                                            .editMetadata()
-                                                .addToLabels(key, value)
-                                            .endMetadata()
-                                            .build());
-                        } catch (Exception ex) {
-                            return false;
-                        }
-                        Namespace n = KubeResourceManager.getKubeClient()
-                                .getClient().namespaces().withName(namespace).get();
-                        if (n != null) {
-                            return n.getMetadata().getLabels().get(key) != null;
-                        }
+                TestFrameConstants.GLOBAL_POLL_INTERVAL_1_SEC, TestFrameConstants.GLOBAL_STABILITY_TIME, () -> {
+                    try {
+                        KubeResourceManager.getKubeClient().getClient().namespaces().withName(namespace).edit(n ->
+                            new NamespaceBuilder(n)
+                                .editMetadata()
+                                .addToLabels(key, value)
+                                .endMetadata()
+                                .build());
+                    } catch (Exception ex) {
                         return false;
-                    });
+                    }
+                    Namespace n = KubeResourceManager.getKubeClient()
+                        .getClient().namespaces().withName(namespace).get();
+                    if (n != null) {
+                        return n.getMetadata().getLabels().get(key) != null;
+                    }
+                    return false;
+                });
         }
     }
 }

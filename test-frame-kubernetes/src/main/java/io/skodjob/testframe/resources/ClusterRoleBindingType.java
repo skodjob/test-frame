@@ -18,7 +18,7 @@ import io.skodjob.testframe.interfaces.ResourceType;
 public class ClusterRoleBindingType implements ResourceType<ClusterRoleBinding> {
 
     private final NonNamespaceOperation<ClusterRoleBinding, ClusterRoleBindingList,
-            Resource<ClusterRoleBinding>> client;
+        Resource<ClusterRoleBinding>> client;
 
     /**
      * Constructor
@@ -29,6 +29,7 @@ public class ClusterRoleBindingType implements ResourceType<ClusterRoleBinding> 
 
     /**
      * Get specific client for resoruce
+     *
      * @return specific client
      */
     @Override
@@ -38,6 +39,7 @@ public class ClusterRoleBindingType implements ResourceType<ClusterRoleBinding> 
 
     /**
      * Kind of api resource
+     *
      * @return kind name
      */
     @Override

@@ -1,3 +1,7 @@
+/*
+ * Copyright Skodjob authors.
+ * License: Apache License 2.0 (see the file LICENSE or http://apache.org/licenses/LICENSE-2.0.html).
+ */
 package io.skodjob.testframe.clients;
 
 import io.fabric8.kubernetes.api.model.LabelSelector;
@@ -36,30 +40,31 @@ public class UtilsTest {
     @Test
     void testPodUtils() {
         KubeResourceManager.getInstance().createResourceWithWait(
-                new NamespaceBuilder().withNewMetadata().withName("test").endMetadata().build());
+            new NamespaceBuilder().withNewMetadata().withName("test").endMetadata().build());
         KubeResourceManager.getInstance().createResourceWithoutWait(
-                new PodBuilder()
-                        .withNewMetadata()
-                        .withName("test-pod")
-                        .withNamespace("test")
-                        .addToLabels("test-label", "true")
-                        .endMetadata()
-                        .withNewStatus()
-                        .withPhase("Running")
-                        .withConditions(new PodConditionBuilder()
-                                .withType("Ready")
-                                .withStatus("True")
-                                .withMessage("Ready")
-                                .build())
-                        .endStatus()
-                        .build());
+            new PodBuilder()
+                .withNewMetadata()
+                    .withName("test-pod")
+                    .withNamespace("test")
+                    .addToLabels("test-label", "true")
+                .endMetadata()
+                .withNewStatus()
+                    .withPhase("Running")
+                    .withConditions(new PodConditionBuilder()
+                        .withType("Ready")
+                        .withStatus("True")
+                        .withMessage("Ready")
+                        .build())
+                .endStatus()
+                .build());
 
         LabelSelector lb = new LabelSelectorBuilder()
-                .withMatchLabels(Collections.singletonMap("test-label", "true")).build();
+            .withMatchLabels(Collections.singletonMap("test-label", "true")).build();
 
         assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName("test").get());
 
-        PodUtils.waitForPodsReady("test", false, () -> { });
+        PodUtils.waitForPodsReady("test", false, () -> {
+        });
         PodUtils.verifyThatPodsAreStable("test", lb);
         assertNotNull(PodUtils.podSnapshot("test", lb).get("test-pod"));
     }
@@ -67,10 +72,10 @@ public class UtilsTest {
     @Test
     void testKubeUtils() {
         KubeResourceManager.getInstance().createResourceWithWait(
-                new NamespaceBuilder().withNewMetadata().withName("test").endMetadata().build());
+            new NamespaceBuilder().withNewMetadata().withName("test").endMetadata().build());
 
         KubeUtils.labelNamespace("test", "test-label", "true");
         assertEquals("true", KubeResourceManager.getKubeClient().getClient()
-                .namespaces().withName("test").get().getMetadata().getLabels().get("test-label"));
+            .namespaces().withName("test").get().getMetadata().getLabels().get("test-label"));
     }
 }

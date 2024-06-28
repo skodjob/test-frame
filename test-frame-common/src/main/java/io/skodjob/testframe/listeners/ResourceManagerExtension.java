@@ -15,7 +15,7 @@ import org.junit.jupiter.api.extension.ExtensionContext;
  * jUnit5 specific class which listening on test callbacks
  */
 public class ResourceManagerExtension
-        implements BeforeAllCallback, BeforeEachCallback, AfterAllCallback, AfterEachCallback {
+    implements BeforeAllCallback, BeforeEachCallback, AfterAllCallback, AfterEachCallback {
 
     private ResourceManagerExtension() {
         // Private constructor to prevent instantiation

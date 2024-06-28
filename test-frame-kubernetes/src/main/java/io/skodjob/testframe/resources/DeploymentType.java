@@ -28,6 +28,7 @@ public class DeploymentType implements NamespacedResourceType<Deployment> {
 
     /**
      * Kind of api resource
+     *
      * @return kind name
      */
     @Override
@@ -37,10 +38,11 @@ public class DeploymentType implements NamespacedResourceType<Deployment> {
 
     /**
      * Get specific client for resoruce
+     *
      * @return specific client
      */
     @Override
-    public  MixedOperation<?, ?, ?> getClient() {
+    public MixedOperation<?, ?, ?> getClient() {
         return client;
     }
 
