@@ -78,12 +78,12 @@
         <slf4j.version>1.7.36</slf4j.version>
 
         <!--  TEST dependencies  -->
-        <mockito.version>5.11.0</mockito.version>
+        <mockito.version>5.12.0</mockito.version>
         <apache.commons.version>2.16.1</apache.commons.version>
 
         <!--   Build tools' properties     -->
-        <spotbugs.version>4.7.3</spotbugs.version>
-        <maven.spotbugs.version>4.7.3.4</maven.spotbugs.version>
+        <spotbugs.version>4.8.6</spotbugs.version>
+        <maven.spotbugs.version>4.8.6.1</maven.spotbugs.version>
         <maven.checkstyle.version>3.3.0</maven.checkstyle.version>
 
         <maven.compile.plugin.version>3.13.0</maven.compile.plugin.version>
@@ -96,7 +96,7 @@
         <maven.plugin.plugin.version>3.9.0</maven.plugin.plugin.version>
         <junit.jupiter.version>5.10.2</junit.jupiter.version>
         <junit.platform.version>1.10.2</junit.platform.version>
-        <maven.surefire.version>3.2.2</maven.surefire.version>
+        <maven.surefire.version>3.3.0</maven.surefire.version>
         <jackson-dataformat-yaml.version>2.17.1</jackson-dataformat-yaml.version>
         <org.eclipse.sisu.version>0.9.0.M3</org.eclipse.sisu.version>
 
