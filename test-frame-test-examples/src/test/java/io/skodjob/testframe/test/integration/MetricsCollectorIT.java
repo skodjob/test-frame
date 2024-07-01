@@ -62,10 +62,64 @@ public final class MetricsCollectorIT extends AbstractIT {
             })
             .build();
 
-
         assertDoesNotThrow(() -> collector.collectMetricsFromPods(30000)); // timeout in milliseconds
         Map<String, String> metrics = collector.getCollectedData();
         assertTrue(metrics.containsKey(KubeResourceManager.getKubeClient()
+            .listPodsByPrefixInName("metrics-test", "prometheus-example").get(0)
+            .getMetadata().getName()));
+    }
+
+    @Test
+    void testCollectMetricsWithAutoDeployedPod() throws IOException {
+        //Create deployment
+        List<HasMetadata> resources = KubeResourceManager.getKubeClient()
+            .readResourcesFromFile(getClass().getClassLoader().getResourceAsStream("metrics-example.yaml"))
+            .stream().filter(resource -> !resource.getMetadata().getName().equals("scraper-pod")).toList();
+
+        KubeResourceManager.getInstance().createResourceWithWait(resources.toArray(new HasMetadata[0]));
+
+        // Check deployment is not null
+        assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName("metrics-test").get());
+        assertNotNull(KubeResourceManager.getKubeClient().getClient().apps().deployments()
+            .inNamespace("metrics-test").withName("prometheus-example").get());
+
+        // Create metrics collector
+        MetricsCollector.Builder mcBuilder = new MetricsCollector.Builder()
+            .withNamespaceName("metrics-test")
+            .withDeployScraperPod()
+            .withScraperPodName("test-scraper-pod")
+            .withComponent(new MetricsComponent() {
+                public int getDefaultMetricsPort() {
+                    return 8080;
+                }
+
+                public String getDefaultMetricsPath() {
+                    return "/metrics";
+                }
+
+                public LabelSelector getLabelSelector() {
+                    return new LabelSelectorBuilder()
+                        .withMatchLabels(Map.of("app", "prometheus-example-app"))
+                        .build();
+                }
+            });
+
+        MetricsCollector collector = mcBuilder.build();
+
+        // Collect metrics
+        assertDoesNotThrow(() -> collector.collectMetricsFromPods(30000)); // timeout in milliseconds
+        Map<String, String> metrics = collector.getCollectedData();
+        assertTrue(metrics.containsKey(KubeResourceManager.getKubeClient()
+            .listPodsByPrefixInName("metrics-test", "prometheus-example").get(0)
+            .getMetadata().getName()));
+
+        // Update metrics collector with different image
+        MetricsCollector collector2 = mcBuilder.withScraperPodImage("quay.io/curl/curl-base:latest").build();
+
+        // Collect metrics
+        assertDoesNotThrow(() -> collector2.collectMetricsFromPods(30000)); // timeout in milliseconds
+        Map<String, String> metrics2 = collector.getCollectedData();
+        assertTrue(metrics2.containsKey(KubeResourceManager.getKubeClient()
             .listPodsByPrefixInName("metrics-test", "prometheus-example").get(0)
             .getMetadata().getName()));
     }
