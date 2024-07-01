@@ -115,7 +115,7 @@ public class MetricsCollector {
          *
          * @return this builder instance to allow for method chaining
          */
-        public Builder withOwnScraperPod() {
+        public Builder withDeployScraperPod() {
             this.deployScraperPod = true;
             return this;
         }

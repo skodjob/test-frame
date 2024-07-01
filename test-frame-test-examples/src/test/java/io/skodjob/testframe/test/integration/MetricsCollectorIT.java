@@ -86,7 +86,7 @@ public final class MetricsCollectorIT extends AbstractIT {
         // Create metrics collector
         MetricsCollector collector = new MetricsCollector.Builder()
             .withNamespaceName("metrics-test")
-            .withOwnScraperPod()
+            .withDeployScraperPod()
             .withScraperPodName("test-scraper-pod")
             .withComponent(new MetricsComponent() {
                 public int getDefaultMetricsPort() {
