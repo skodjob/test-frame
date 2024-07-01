@@ -114,7 +114,7 @@ public final class MetricsCollectorIT extends AbstractIT {
             .getMetadata().getName()));
 
         // Update metrics collector with different image
-        MetricsCollector collector2 = mcBuilder.withScraperPodImage("quay.io/prometheus/busybox:latest").build();
+        MetricsCollector collector2 = mcBuilder.withScraperPodImage("quay.io/curl/curl-base:latest").build();
 
         // Collect metrics
         assertDoesNotThrow(() -> collector2.collectMetricsFromPods(30000)); // timeout in milliseconds
