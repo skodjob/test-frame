@@ -57,6 +57,7 @@ public class MetricsCollector {
 
     protected String namespaceName;
     protected String scraperPodName;
+    protected String scraperPodImage;
     protected boolean deployScraperPod;
     protected MetricsComponent component;
     protected Map<String, String> collectedData;
@@ -72,6 +73,7 @@ public class MetricsCollector {
     public static class Builder {
         private String namespaceName;
         private String scraperPodName;
+        private String scraperPodImage = "quay.io/curl/curl:latest";
         private boolean deployScraperPod;
         private MetricsComponent component;
         private Map<String, String> collectedData;
@@ -107,6 +109,17 @@ public class MetricsCollector {
          */
         public Builder withScraperPodName(String scraperPodName) {
             this.scraperPodName = scraperPodName;
+            return this;
+        }
+
+        /**
+         * Sets image of scraper pod which is deployed by MetricsCollector
+         *
+         * @param image image full path
+         * @return this builder instance to allow for method chaining
+         */
+        public Builder withScraperPodImage(String image) {
+            this.scraperPodImage = image;
             return this;
         }
 
@@ -235,12 +248,30 @@ public class MetricsCollector {
     }
 
     /**
+     * Retrieves the image of the scraper pod.
+     *
+     * @return the image of the scraper pod
+     */
+    public String getScraperPodImage() {
+        return scraperPodImage;
+    }
+
+    /**
      * Retrieves the metrics component associated with this object.
      *
      * @return the metrics component
      */
     public MetricsComponent getComponent() {
         return component;
+    }
+
+    /**
+     * Retrieves the switch if deploy own scraper pod is enabled
+     *
+     * @return boolean indicates deploy own pod
+     */
+    public boolean getDeployScraperPod() {
+        return deployScraperPod;
     }
 
     /**
@@ -266,12 +297,19 @@ public class MetricsCollector {
     }
 
     protected MetricsCollector.Builder updateBuilder(MetricsCollector.Builder builder) {
-        return builder
+        MetricsCollector.Builder b =  builder
             .withNamespaceName(getNamespaceName())
             .withComponent(getComponent())
+            .withScraperPodImage(getScraperPodImage())
             .withScraperPodName(getScraperPodName())
             .withCollectedData(getCollectedData())
             .withExec(getExec());
+
+        if (getDeployScraperPod()) {
+            b.withDeployScraperPod();
+        }
+
+        return b;
     }
 
     /**
@@ -307,6 +345,7 @@ public class MetricsCollector {
 
         namespaceName = builder.namespaceName;
         scraperPodName = builder.scraperPodName;
+        scraperPodImage = builder.scraperPodImage;
         deployScraperPod = builder.deployScraperPod;
         component = builder.component;
         collectedData = builder.collectedData;
@@ -450,8 +489,8 @@ public class MetricsCollector {
             .withNewSpec()
                 .withRestartPolicy("Never")
                 .addNewContainer()
-                    .withName("curl-container")
-                    .withImage("quay.io/curl/curl")
+                    .withName("scraper-container")
+                    .withImage(this.scraperPodImage)
                     .withCommand("/bin/sh")
                     .withArgs("-c", "while true; do sleep 3600; done")
                 .endContainer()

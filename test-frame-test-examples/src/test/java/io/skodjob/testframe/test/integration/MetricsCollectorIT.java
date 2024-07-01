@@ -70,7 +70,7 @@ public final class MetricsCollectorIT extends AbstractIT {
     }
 
     @Test
-    void testCollectMetricsWitAutoDeployedPod() throws IOException {
+    void testCollectMetricsWithAutoDeployedPod() throws IOException {
         //Create deployment
         List<HasMetadata> resources = KubeResourceManager.getKubeClient()
             .readResourcesFromFile(getClass().getClassLoader().getResourceAsStream("metrics-example.yaml"))
@@ -84,7 +84,7 @@ public final class MetricsCollectorIT extends AbstractIT {
             .inNamespace("metrics-test").withName("prometheus-example").get());
 
         // Create metrics collector
-        MetricsCollector collector = new MetricsCollector.Builder()
+        MetricsCollector.Builder mcBuilder = new MetricsCollector.Builder()
             .withNamespaceName("metrics-test")
             .withDeployScraperPod()
             .withScraperPodName("test-scraper-pod")
@@ -102,12 +102,24 @@ public final class MetricsCollectorIT extends AbstractIT {
                         .withMatchLabels(Map.of("app", "prometheus-example-app"))
                         .build();
                 }
-            })
-            .build();
+            });
 
+        MetricsCollector collector = mcBuilder.build();
+
+        // Collect metrics
         assertDoesNotThrow(() -> collector.collectMetricsFromPods(30000)); // timeout in milliseconds
         Map<String, String> metrics = collector.getCollectedData();
         assertTrue(metrics.containsKey(KubeResourceManager.getKubeClient()
+            .listPodsByPrefixInName("metrics-test", "prometheus-example").get(0)
+            .getMetadata().getName()));
+
+        // Update metrics collector with different image
+        MetricsCollector collector2 = mcBuilder.withScraperPodImage("quay.io/prometheus/busybox:latest").build();
+
+        // Collect metrics
+        assertDoesNotThrow(() -> collector2.collectMetricsFromPods(30000)); // timeout in milliseconds
+        Map<String, String> metrics2 = collector.getCollectedData();
+        assertTrue(metrics2.containsKey(KubeResourceManager.getKubeClient()
             .listPodsByPrefixInName("metrics-test", "prometheus-example").get(0)
             .getMetadata().getName()));
     }
