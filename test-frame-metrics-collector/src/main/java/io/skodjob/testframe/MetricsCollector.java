@@ -5,6 +5,7 @@
 package io.skodjob.testframe;
 
 import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.PodBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.skodjob.testframe.clients.cmdClient.KubeCmdClient;
 import io.skodjob.testframe.exceptions.IncompleteMetricsException;
@@ -56,6 +57,7 @@ public class MetricsCollector {
 
     protected String namespaceName;
     protected String scraperPodName;
+    protected boolean deployScraperPod;
     protected MetricsComponent component;
     protected Map<String, String> collectedData;
 
@@ -70,6 +72,7 @@ public class MetricsCollector {
     public static class Builder {
         private String namespaceName;
         private String scraperPodName;
+        private boolean deployScraperPod;
         private MetricsComponent component;
         private Map<String, String> collectedData;
         private Exec exec;
@@ -104,6 +107,16 @@ public class MetricsCollector {
          */
         public Builder withScraperPodName(String scraperPodName) {
             this.scraperPodName = scraperPodName;
+            return this;
+        }
+
+        /**
+         * Deploy own scraper pod instead of using already created with name
+         *
+         * @return this builder instance to allow for method chaining
+         */
+        public Builder withOwnScraperPod() {
+            this.deployScraperPod = true;
             return this;
         }
 
@@ -294,6 +307,7 @@ public class MetricsCollector {
 
         namespaceName = builder.namespaceName;
         scraperPodName = builder.scraperPodName;
+        deployScraperPod = builder.deployScraperPod;
         component = builder.component;
         collectedData = builder.collectedData;
         exec = builder.exec;
@@ -397,6 +411,11 @@ public class MetricsCollector {
      */
     protected String collectMetrics(String metricsPodIp, String podName)
         throws InterruptedException, ExecutionException, IOException {
+
+        if (this.deployScraperPod) {
+            deployScraperPod();
+        }
+
         List<String> executableCommand = Arrays.asList(getKubeCmdClient().inNamespace(namespaceName).toString(), "exec",
             scraperPodName,
             "-n", namespaceName,
@@ -411,7 +430,47 @@ public class MetricsCollector {
         LOGGER.debug("Metrics collection for Pod: {}/{}({}) from Pod: {}/{} finished with return code: {}",
             namespaceName, podName, metricsPodIp, namespaceName, scraperPodName, ret);
 
+        if (this.deployScraperPod) {
+            deleteScraperPod();
+        }
+
         return this.exec.out();
+    }
+
+    /**
+     * Deploy own scraper pod
+     */
+    private void deployScraperPod() {
+        Pod scraperPod = new PodBuilder()
+            .withNewMetadata()
+                .withName(this.scraperPodName)
+                .withNamespace(this.namespaceName)
+                .addToLabels(Map.of("io.skodjob.scraper-pod", "true"))
+            .endMetadata()
+            .withNewSpec()
+                .withRestartPolicy("Never")
+                .addNewContainer()
+                    .withName("curl-container")
+                    .withImage("quay.io/curl/curl")
+                    .withCommand("/bin/sh")
+                    .withArgs("-c", "while true; do sleep 3600; done")
+                .endContainer()
+            .endSpec()
+            .build();
+        KubeResourceManager.getInstance().createResourceWithWait(scraperPod);
+    }
+
+    /**
+     * Delete own scraper pod
+     */
+    private void deleteScraperPod() {
+        KubeResourceManager.getInstance().deleteResource(
+            new PodBuilder()
+                .withNewMetadata()
+                    .withName(this.scraperPodName)
+                    .withNamespace(this.namespaceName)
+                .endMetadata()
+                .build());
     }
 
     /**
