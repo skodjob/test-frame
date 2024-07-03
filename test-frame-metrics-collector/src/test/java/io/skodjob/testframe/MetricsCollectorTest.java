@@ -12,15 +12,17 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import io.fabric8.kubernetes.api.model.LabelSelector;
 import io.fabric8.kubernetes.api.model.LabelSelectorBuilder;
 import io.skodjob.testframe.exceptions.MetricsCollectionException;
+import io.skodjob.testframe.metrics.Gauge;
+import io.skodjob.testframe.metrics.Metric;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.security.InvalidParameterException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 class MetricsCollectorTest {
 
@@ -38,11 +40,11 @@ class MetricsCollectorTest {
     @Test
     void testCollectMetricWithLabelsNoDataAvailable() {
         // Setup
-        HashMap<String, String> emptyData = new HashMap<>();
+        HashMap<String, List<Metric>> emptyData = new HashMap<>();
         this.metricsCollector.setCollectedData(emptyData);
 
         // Execution
-        Map<String, Double> results = this.metricsCollector.collectMetricWithLabels("nonexistentMetric");
+        List<Metric> results = this.metricsCollector.collectMetricWithLabels("pod", "nonexistentMetric");
 
         // Verification
         assertTrue(results.isEmpty(), "Results should be empty when no relevant data is available");
@@ -51,12 +53,13 @@ class MetricsCollectorTest {
     @Test
     void testCollectMetricWithLabelsInvalidDataFormat() {
         // Setup
-        HashMap<String, String> invalidData = new HashMap<>();
-        invalidData.put("data", "metricName{label} xyz");
+        HashMap<String, List<Metric>> invalidData = new HashMap<>();
+        invalidData.put("pod", Collections.singletonList(new Gauge("metric_name",
+            Collections.singletonMap("label", "value"), 32)));
         this.metricsCollector.setCollectedData(invalidData);
 
         // Execution
-        Map<String, Double> results = this.metricsCollector.collectMetricWithLabels("metricName");
+        List<Metric> results = this.metricsCollector.collectMetricWithLabels("pod", "metricName");
 
         // Verification
         assertTrue(results.isEmpty(), "Results should be empty with invalid data format");
@@ -70,36 +73,15 @@ class MetricsCollectorTest {
     }
 
     @Test
-    void testCollectSpecificMetricValidData() {
-        HashMap<String, String> collectedData = new HashMap<>();
-        collectedData.put("data", "value: 123.45");
-        this.metricsCollector.setCollectedData(collectedData); // Assuming a setter for testing
-
-        List<Double> results = this.metricsCollector.collectSpecificMetric(Pattern.compile("value: (\\d+\\.\\d+)"));
-        assertFalse(results.isEmpty());
-        assertEquals(123.45, results.get(0), 0.01);
-    }
-
-    @Test
-    void testCollectSpecificMetricNoDataMatch() {
-        HashMap<String, String> collectedData = new HashMap<>();
-        collectedData.put("data", "no match here");
-        this.metricsCollector.setCollectedData(collectedData); // Assuming a setter for testing
-
-        List<Double> results = this.metricsCollector.collectSpecificMetric(Pattern.compile("value: (\\d+\\.\\d+)"));
-        assertTrue(results.isEmpty());
-    }
-
-    @Test
     void testCollectMetricWithLabelsMatchingEntries() {
-        HashMap<String, String> collectedData = new HashMap<>();
-        collectedData.put("metric", "metricName{label} 100.0");
-        this.metricsCollector.setCollectedData(collectedData); // Assuming a setter for testing
+        HashMap<String, List<Metric>> invalidData = new HashMap<>();
+        invalidData.put("pod", Collections.singletonList(new Gauge("metric_name",
+            Collections.singletonMap("label", "value"), 100)));
+        this.metricsCollector.setCollectedData(invalidData);
 
-        Map<String, Double> results = this.metricsCollector.collectMetricWithLabels("metricName");
+        List<Metric>  results = this.metricsCollector.collectMetricWithLabels("pod", "label");
         assertFalse(results.isEmpty());
-        assertTrue(results.containsKey("metricName{label}"));
-        assertEquals(100.0, results.get("metricName{label}"), 0.01);
+        assertEquals(100.0, ((Gauge)results.get(0)).getValue(), 0.01);
     }
 
     @Test

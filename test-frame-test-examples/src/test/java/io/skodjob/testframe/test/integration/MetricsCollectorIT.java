@@ -9,6 +9,7 @@ import io.fabric8.kubernetes.api.model.LabelSelector;
 import io.fabric8.kubernetes.api.model.LabelSelectorBuilder;
 import io.skodjob.testframe.MetricsCollector;
 import io.skodjob.testframe.MetricsComponent;
+import io.skodjob.testframe.metrics.Metric;
 import io.skodjob.testframe.resources.KubeResourceManager;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -63,7 +64,7 @@ public final class MetricsCollectorIT extends AbstractIT {
             .build();
 
         assertDoesNotThrow(() -> collector.collectMetricsFromPods(30000)); // timeout in milliseconds
-        Map<String, String> metrics = collector.getCollectedData();
+        Map<String, List<Metric>> metrics = collector.getCollectedData();
         assertTrue(metrics.containsKey(KubeResourceManager.getKubeClient()
             .listPodsByPrefixInName("metrics-test", "prometheus-example").get(0)
             .getMetadata().getName()));
@@ -108,7 +109,7 @@ public final class MetricsCollectorIT extends AbstractIT {
 
         // Collect metrics
         assertDoesNotThrow(() -> collector.collectMetricsFromPods(30000)); // timeout in milliseconds
-        Map<String, String> metrics = collector.getCollectedData();
+        Map<String, List<Metric>> metrics = collector.getCollectedData();
         assertTrue(metrics.containsKey(KubeResourceManager.getKubeClient()
             .listPodsByPrefixInName("metrics-test", "prometheus-example").get(0)
             .getMetadata().getName()));
@@ -118,7 +119,7 @@ public final class MetricsCollectorIT extends AbstractIT {
 
         // Collect metrics
         assertDoesNotThrow(() -> collector2.collectMetricsFromPods(30000)); // timeout in milliseconds
-        Map<String, String> metrics2 = collector.getCollectedData();
+        Map<String, List<Metric>> metrics2 = collector.getCollectedData();
         assertTrue(metrics2.containsKey(KubeResourceManager.getKubeClient()
             .listPodsByPrefixInName("metrics-test", "prometheus-example").get(0)
             .getMetadata().getName()));
