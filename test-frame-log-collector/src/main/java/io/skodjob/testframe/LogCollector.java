@@ -191,7 +191,7 @@ public class LogCollector {
             } else {
                 String yaml = executeCollectionCall(
                     String.format("collect descriptions of type: %s", resourceType),
-                    () -> kubeCmdClient.getClusterWideResourcesAsYaml(resourceType)
+                    () -> kubeCmdClient.getResourcesAsYaml(resourceType)
                 );
                 String resFileName = LogCollectorUtils.getYamlFileNameForResource(resourceType);
                 String filePath = LogCollectorUtils
@@ -305,14 +305,14 @@ public class LogCollector {
      * @param resourceType          resource kind for collect
      */
     private void collectClusterWideResourcesPerFile(String clusterWideFolderPath, String resourceType) {
-        List<String> resources = kubeCmdClient.listClusterWide(resourceType);
+        List<String> resources = kubeCmdClient.list(resourceType);
         if (resources != null && !resources.isEmpty()) {
             String fullFolderPath = createResourceDirectoryInNamespaceDir(clusterWideFolderPath, resourceType);
 
             resources.forEach(resourceName -> {
                 String yaml = executeCollectionCall(
                     String.format("collect YAML description for %s:%s", resourceType, resourceName),
-                    () -> kubeCmdClient.getClusterWideResourceAsYaml(resourceType, resourceName)
+                    () -> kubeCmdClient.getResourceAsYaml(resourceType, resourceName)
                 );
 
                 String resFileName = LogCollectorUtils.getYamlFileNameForResource(resourceName);

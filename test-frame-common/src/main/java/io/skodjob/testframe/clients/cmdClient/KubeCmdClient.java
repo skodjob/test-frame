@@ -20,13 +20,6 @@ import io.skodjob.testframe.executor.ExecResult;
 public interface KubeCmdClient<K extends KubeCmdClient<K>> {
 
     /**
-     * Retrieves the default namespace for the Kubernetes client.
-     *
-     * @return The default namespace.
-     */
-    String defaultNamespace();
-
-    /**
      * Retrieves the default OLM (Operator Lifecycle Manager) namespace for the Kubernetes client.
      *
      * @return The default OLM namespace.
@@ -120,22 +113,6 @@ public interface KubeCmdClient<K extends KubeCmdClient<K>> {
     K replace(File... files);
 
     /**
-     * Applies resource content within the current namespace.
-     *
-     * @param yamlContent The YAML content representing the resources.
-     * @return This kube client.
-     */
-    K applyContentInNamespace(String yamlContent);
-
-    /**
-     * Deletes resource content within the current namespace.
-     *
-     * @param yamlContent The YAML content representing the resources to delete.
-     * @return This kube client.
-     */
-    K deleteContentInNamespace(String yamlContent);
-
-    /**
      * Applies resource content.
      *
      * @param yamlContent The YAML content representing the resources.
@@ -185,23 +162,6 @@ public interface KubeCmdClient<K extends KubeCmdClient<K>> {
      * @return The execution result.
      */
     ExecResult execInPod(String pod, String... command);
-
-    /**
-     * Executes a command within the current namespace.
-     *
-     * @param commands The commands to execute.
-     * @return The execution result.
-     */
-    ExecResult execInCurrentNamespace(String... commands);
-
-    /**
-     * Executes a command within the current namespace with logging to output control.
-     *
-     * @param logToOutput Determines if the output should be logged.
-     * @param commands    The commands to execute.
-     * @return The execution result.
-     */
-    ExecResult execInCurrentNamespace(boolean logToOutput, String... commands);
 
     /**
      * Executes a command within a pod container.
@@ -287,14 +247,6 @@ public interface KubeCmdClient<K extends KubeCmdClient<K>> {
     List<String> list(String resourceType);
 
     /**
-     * Retrieves a list of cluster wide resources by type.
-     *
-     * @param resourceType The type of the resources.
-     * @return The list of resources.
-     */
-    List<String> listClusterWide(String resourceType);
-
-    /**
      * Retrieves the YAML content of a resource by type and name.
      *
      * @param resourceType The type of the resource.
@@ -310,23 +262,6 @@ public interface KubeCmdClient<K extends KubeCmdClient<K>> {
      * @return The YAML content of the resources.
      */
     String getResourcesAsYaml(String resourceType);
-
-    /**
-     * Retrieves the YAML content of a cluster wide resource by type and name.
-     *
-     * @param resourceType The type of the resource.
-     * @param resourceName The name of the resource.
-     * @return The YAML content of the resource.
-     */
-    String getClusterWideResourceAsYaml(String resourceType, String resourceName);
-
-    /**
-     * Retrieves the YAML content of cluster wide resources by type.
-     *
-     * @param resourceType The type of the resources.
-     * @return The YAML content of the resources.
-     */
-    String getClusterWideResourcesAsYaml(String resourceType);
 
     /**
      * Creates a resource from a template and applies it.

@@ -57,16 +57,6 @@ public class Kubectl extends BaseCmdKubeClient<Kubectl> {
     }
 
     /**
-     * Gets the default namespace.
-     *
-     * @return The default namespace.
-     */
-    @Override
-    public String defaultNamespace() {
-        return "default";
-    }
-
-    /**
      * Gets the default OLM (Operator Lifecycle Manager) namespace.
      *
      * @return The default OLM namespace.
