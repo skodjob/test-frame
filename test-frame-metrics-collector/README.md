@@ -77,8 +77,11 @@ To collect metrics from configured pods:
 ```java
 try {
     collector.collectMetricsFromPods(30000); // timeout in milliseconds
-    Map<String, String> metrics = collector.getCollectedData();
-    metrics.forEach((key, value) -> System.out.println(key + " : " + value));
+    Map<String, List<Metric>> metrics = collector.getCollectedData();
+    metrics.forEach((podName, metrics) -> {
+        System.out.println(podName);
+        metrics.forEach(metric -> System.out.println(metric.getName))
+    });
 } catch (MetricsCollectionException e) {
     System.err.println("Error collecting metrics: " + e.getMessage());
 }
@@ -86,16 +89,9 @@ try {
 
 ### Advanced Usage
 
-For more specific metric collection, such as collecting metrics that match a certain pattern:
+Return all metrics with specific label present
 ```java
-Pattern pattern = Pattern.compile("http_requests_total\\{method=\"POST\"\\}");
-ArrayList<Double> values = collector.collectSpecificMetric(pattern);
-```
-
-To wait for a specific metric and collect it:
-
-```java
-ArrayList<Double> awaitedValues = collector.waitForSpecificMetricAndCollect(pattern);
+Map<String, List<Metric>> metrics = collector.collectMetricWithLabels("my-pod", "label");
 ```
 
 This README provides a structured guide that helps users understand what the `MetricsCollector` does and how to implement it effectively in their projects.
