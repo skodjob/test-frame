@@ -80,7 +80,7 @@ try {
     Map<String, List<Metric>> metrics = collector.getCollectedData();
     metrics.forEach((podName, metrics) -> {
         System.out.println(podName);
-        metrics.forEach(metric -> System.out.println(metric.getName))
+        metrics.forEach(metric -> System.out.println(metric.getName));
     });
 } catch (MetricsCollectionException e) {
     System.err.println("Error collecting metrics: " + e.getMessage());
