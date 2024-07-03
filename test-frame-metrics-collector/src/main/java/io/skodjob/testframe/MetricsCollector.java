@@ -12,6 +12,8 @@ import io.skodjob.testframe.exceptions.IncompleteMetricsException;
 import io.skodjob.testframe.exceptions.MetricsCollectionException;
 import io.skodjob.testframe.exceptions.NoPodsFoundException;
 import io.skodjob.testframe.executor.Exec;
+import io.skodjob.testframe.metrics.Metric;
+import io.skodjob.testframe.metrics.PrometheusTextFormatParser;
 import io.skodjob.testframe.resources.KubeResourceManager;
 import io.skodjob.testframe.wait.Wait;
 import io.skodjob.testframe.wait.WaitException;
@@ -21,15 +23,12 @@ import org.apache.logging.log4j.Logger;
 import java.io.IOException;
 import java.security.InvalidParameterException;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * MetricsCollector is a utility class designed to collect metrics from various Kubernetes components.
@@ -60,7 +59,7 @@ public class MetricsCollector {
     protected String scraperPodImage;
     protected boolean deployScraperPod;
     protected MetricsComponent component;
-    protected Map<String, String> collectedData;
+    protected Map<String, List<Metric>> collectedData;
 
     /* test */ private Exec exec;
     /* test */ private KubernetesClient kubeClient;
@@ -76,7 +75,7 @@ public class MetricsCollector {
         private String scraperPodImage = "quay.io/curl/curl:latest";
         private boolean deployScraperPod;
         private MetricsComponent component;
-        private Map<String, String> collectedData;
+        private Map<String, List<Metric>> collectedData;
         private Exec exec;
 
         /**
@@ -155,7 +154,7 @@ public class MetricsCollector {
          * @return this builder instance to allow for method chaining
          */
         /* test */
-        protected Builder withCollectedData(Map<String, String> collectedData) {
+        protected Builder withCollectedData(Map<String, List<Metric>> collectedData) {
             this.collectedData = collectedData;
             return this;
         }
@@ -279,7 +278,7 @@ public class MetricsCollector {
      *
      * @return a map containing the collected data
      */
-    public Map<String, String> getCollectedData() {
+    public Map<String, List<Metric>> getCollectedData() {
         return collectedData;
     }
 
@@ -288,7 +287,7 @@ public class MetricsCollector {
     }
 
     /* test */
-    protected void setCollectedData(Map<String, String> collectedData) {
+    protected void setCollectedData(Map<String, List<Metric>> collectedData) {
         this.collectedData = collectedData;
     }
 
@@ -350,90 +349,6 @@ public class MetricsCollector {
         component = builder.component;
         collectedData = builder.collectedData;
         exec = builder.exec;
-    }
-
-    /**
-     * Attempts to collect specific metrics based on a regular expression pattern applied to the collected data.
-     * This method is intended for extracting numerical values from the raw metrics data stored in the map.
-     *
-     * @param pattern The regular expression pattern used to identify and extract metric values.
-     * @return A list of extracted metric values as doubles.
-     */
-    public final ArrayList<Double> collectSpecificMetric(Pattern pattern) {
-        ArrayList<Double> values = new ArrayList<>();
-
-        if (this.collectedData != null && !this.collectedData.isEmpty()) {
-            for (Map.Entry<String, String> entry : this.collectedData.entrySet()) {
-                Matcher t = pattern.matcher(entry.getValue());
-                if (t.find()) {
-                    values.add(Double.parseDouble(t.group(1)));
-                }
-            }
-        }
-
-        return values;
-    }
-
-    /**
-     * Collects metrics identified by a specific metric name, parsing them for both their labels and values.
-     * This method constructs a pattern to find and parse the relevant data lines, facilitating easy access
-     * to labeled metrics.
-     *
-     * @param metricName The name of the metric to collect.
-     * @return A map associating metric labels with their values, parsed from the metrics data.
-     */
-    public final Map<String, Double> collectMetricWithLabels(String metricName) {
-        // This pattern will match the metric name and capture the labels and value.
-        Pattern pattern = Pattern.compile(metricName + "\\{([^}]+)\\}\\s(\\d+(?:\\.\\d+)?(?:E-?\\d+)?)");
-        Map<String, Double> valuesWithLabels = new HashMap<>();
-
-        if (this.collectedData != null && !this.collectedData.isEmpty()) {
-            for (String dataLine : this.collectedData.values()) {
-                Matcher matcher = pattern.matcher(dataLine);
-                while (matcher.find()) {
-                    // Construct the key from the metric name and labels.
-                    String key = metricName + "{" + matcher.group(1) + "}";
-                    Double value = Double.parseDouble(matcher.group(2));
-                    valuesWithLabels.put(key, value);
-                }
-            }
-        }
-
-        return valuesWithLabels;
-    }
-
-    /**
-     * Waits for a specific metric to become available by continuously collecting metrics and checking for the presence
-     * of the specified pattern. If the metric is not initially available, this method periodically retries
-     * the collection until the metric appears or a timeout occurs.
-     *
-     * @param pattern The regular expression pattern used to identify and extract the metric.
-     * @return A list of collected metric values. If no metrics are found, the returned list will be empty.
-     */
-    public final synchronized ArrayList<Double> waitForSpecificMetricAndCollect(Pattern pattern) {
-        ArrayList<Double> values = collectSpecificMetric(pattern);
-
-        if (values.isEmpty()) {
-            Wait.until(String.format("metrics contain pattern: %s", pattern.toString()),
-                TestFrameConstants.GLOBAL_POLL_INTERVAL_MEDIUM, TestFrameConstants.GLOBAL_TIMEOUT, () -> {
-                    try {
-                        this.collectMetricsFromPods();
-                    } catch (MetricsCollectionException e) {
-                        throw new RuntimeException(e);
-                    }
-                    LOGGER.debug("Collected data: {}", this.collectedData);
-                    ArrayList<Double> vals = this.collectSpecificMetric(pattern);
-
-                    if (!vals.isEmpty()) {
-                        values.addAll(vals);
-                        return true;
-                    }
-
-                    return false;
-                });
-        }
-
-        return values;
     }
 
     /**
@@ -513,6 +428,18 @@ public class MetricsCollector {
     }
 
     /**
+     * Return list of metrics containing specific label name for specific pod
+     *
+     * @param podName name of the pod which provided metrics
+     * @param label label
+     * @return list of metrics with label
+     */
+    public final List<Metric> collectMetricWithLabels(String podName, String label) {
+        return this.collectedData.getOrDefault(podName, Collections.emptyList()).stream()
+            .filter(metric -> metric.getLabels().containsKey(label)).toList();
+    }
+
+    /**
      * Collects metrics from all relevant pods within the configured namespace using specified label selectors,
      * within a given timeout duration. This method orchestrates the entire metrics collection process, handling
      * retries and managing exceptions, and aggregates the metrics data into a map.
@@ -541,14 +468,14 @@ public class MetricsCollector {
             Wait.until("metrics won't be empty", TestFrameConstants.GLOBAL_POLL_INTERVAL_1_SEC, timeoutDuration,
                 () -> {
                     try {
-                        Map<String, String> metricsData = collectMetricsFromPodsWithoutWait();
+                        Map<String, List<Metric>> metricsData = collectMetricsFromPodsWithoutWait();
                         if (metricsData.isEmpty()) {
                             status.setMessage("No pods found or no metrics available from pods.");
                             status.setType(MetricsCollectionStatus.Type.NO_DATA);
                             LOGGER.warn("Metrics collection failed: {}", status.getMessage());
                             return false;
                         }
-                        if (metricsData.values().stream().anyMatch(String::isEmpty)) {
+                        if (metricsData.values().stream().anyMatch(List::isEmpty)) {
                             status.setMessage("Incomplete metrics data collected.");
                             status.setType(MetricsCollectionStatus.Type.INCOMPLETE_DATA);
                             LOGGER.warn("Metrics collection incomplete: Some pods returned empty metrics.");
@@ -641,8 +568,8 @@ public class MetricsCollector {
      * @return A map containing the collected metrics, associated by pod name.
      * @throws MetricsCollectionException if errors occur during the collection process.
      */
-    public final Map<String, String> collectMetricsFromPodsWithoutWait() {
-        final Map<String, String> map = new HashMap<>();
+    public final Map<String, List<Metric>> collectMetricsFromPodsWithoutWait() {
+        final Map<String, List<Metric>> map = new HashMap<>();
         final Map<String, String> errorMap = new HashMap<>(); // Store errors separately
 
         final List<Pod> pods = getKubeClient()
@@ -665,7 +592,7 @@ public class MetricsCollector {
 
             try {
                 final String metrics = collectMetrics(podIP, podName);
-                map.put(podName, metrics);
+                map.put(podName, PrometheusTextFormatParser.parse(metrics));
                 LOGGER.info("Finished metrics collection from {}", podName);
                 LOGGER.debug("Collected metrics from {}: {}", podName, metrics);
             } catch (InterruptedException | ExecutionException | IOException e) {
