@@ -41,16 +41,6 @@ public class Oc extends BaseCmdKubeClient<Oc> {
     }
 
     /**
-     * Gets the default namespace.
-     *
-     * @return The default namespace.
-     */
-    @Override
-    public String defaultNamespace() {
-        return "myproject";
-    }
-
-    /**
      * Gets the default OLM (Operator Lifecycle Manager) namespace.
      *
      * @return The default OLM namespace.
@@ -103,7 +93,7 @@ public class Oc extends BaseCmdKubeClient<Oc> {
      * @return The Oc instance.
      */
     public Oc newApp(String template, Map<String, String> params) {
-        List<String> cmd = namespacedCommand("new-app", template);
+        List<String> cmd = command("new-app", template);
         for (Map.Entry<String, String> entry : params.entrySet()) {
             cmd.add("-p");
             cmd.add(entry.getKey() + "=" + entry.getValue());
