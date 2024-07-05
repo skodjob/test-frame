@@ -73,7 +73,7 @@
         <maven.compiler.target>17</maven.compiler.target>
         <maven.compiler.release>17</maven.compiler.release>
 
-        <fabric8.version>6.13.0</fabric8.version>
+        <fabric8.version>6.13.1</fabric8.version>
         <log4j.version>2.17.2</log4j.version>
         <slf4j.version>1.7.36</slf4j.version>
 
