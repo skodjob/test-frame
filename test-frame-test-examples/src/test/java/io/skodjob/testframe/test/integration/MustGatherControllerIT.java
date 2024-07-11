@@ -14,7 +14,7 @@ import java.io.IOException;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class GlobalLogCollectorIT extends AbstractIT {
+public class MustGatherControllerIT extends AbstractIT {
     @Test
     void testGlobalLogCollector() {
         fail("Expected issue");

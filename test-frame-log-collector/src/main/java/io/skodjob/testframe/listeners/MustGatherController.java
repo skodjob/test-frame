@@ -5,7 +5,7 @@
 package io.skodjob.testframe.listeners;
 
 import io.skodjob.testframe.LogCollector;
-import io.skodjob.testframe.annotations.CollectLogs;
+import io.skodjob.testframe.annotations.MustGather;
 import io.skodjob.testframe.interfaces.ThrowableRunner;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -13,21 +13,18 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.LifecycleMethodExecutionExceptionHandler;
 import org.junit.jupiter.api.extension.TestExecutionExceptionHandler;
 
-import java.util.LinkedList;
-import java.util.List;
-
 /**
  * Represents global log collector which is automatically called on text fail or error even in setup or post methods
  */
-public class GlobalLogCollector implements TestExecutionExceptionHandler, LifecycleMethodExecutionExceptionHandler {
-    private static final Logger LOGGER = LogManager.getLogger(GlobalLogCollector.class);
-    private static LogCollector globalInstance;
-    private static final List<ThrowableRunner> COLLECT_CALLBACKS = new LinkedList<>();
+public class MustGatherController implements TestExecutionExceptionHandler, LifecycleMethodExecutionExceptionHandler {
+    private static final Logger LOGGER = LogManager.getLogger(MustGatherController.class);
+    private static LogCollector mustGatherInstance;
+    private static ThrowableRunner collectCallback;
 
     /**
      * Private constructor
      */
-    private GlobalLogCollector() {
+    private MustGatherController() {
         // empty constructor
     }
 
@@ -40,7 +37,7 @@ public class GlobalLogCollector implements TestExecutionExceptionHandler, Lifecy
      */
     @Override
     public void handleTestExecutionException(ExtensionContext extensionContext, Throwable throwable) throws Throwable {
-        saveKubeState();
+        saveKubeState(extensionContext);
         throw throwable;
     }
 
@@ -53,7 +50,7 @@ public class GlobalLogCollector implements TestExecutionExceptionHandler, Lifecy
      */
     @Override
     public void handleBeforeAllMethodExecutionException(ExtensionContext context, Throwable throwable)throws Throwable {
-        saveKubeState();
+        saveKubeState(context);
         LifecycleMethodExecutionExceptionHandler.super.handleBeforeAllMethodExecutionException(context, throwable);
     }
 
@@ -67,7 +64,7 @@ public class GlobalLogCollector implements TestExecutionExceptionHandler, Lifecy
     @Override
     public void handleBeforeEachMethodExecutionException(ExtensionContext context,
                                                          Throwable throwable) throws Throwable {
-        saveKubeState();
+        saveKubeState(context);
         LifecycleMethodExecutionExceptionHandler.super.handleBeforeEachMethodExecutionException(context, throwable);
     }
 
@@ -81,7 +78,7 @@ public class GlobalLogCollector implements TestExecutionExceptionHandler, Lifecy
     @Override
     public void handleAfterEachMethodExecutionException(ExtensionContext context,
                                                         Throwable throwable) throws Throwable {
-        saveKubeState();
+        saveKubeState(context);
         LifecycleMethodExecutionExceptionHandler.super.handleAfterEachMethodExecutionException(context, throwable);
     }
 
@@ -94,17 +91,17 @@ public class GlobalLogCollector implements TestExecutionExceptionHandler, Lifecy
      */
     @Override
     public void handleAfterAllMethodExecutionException(ExtensionContext context, Throwable throwable) throws Throwable {
-        saveKubeState();
+        saveKubeState(context);
         LifecycleMethodExecutionExceptionHandler.super.handleAfterAllMethodExecutionException(context, throwable);
     }
 
     /**
-     * Setup globalLogCollector which is automatically used within {@link CollectLogs} annotation
+     * Setup globalLogCollector which is automatically used within {@link MustGather} annotation
      *
      * @param globalLogCollector log collector instance
      */
-    public static void setupGlobalLogCollector(LogCollector globalLogCollector) {
-        globalInstance = globalLogCollector;
+    public static void setupMustGatherController(LogCollector globalLogCollector) {
+        mustGatherInstance = globalLogCollector;
     }
 
     /**
@@ -112,11 +109,11 @@ public class GlobalLogCollector implements TestExecutionExceptionHandler, Lifecy
      *
      * @return global log collector instance
      */
-    public static LogCollector getGlobalLogCollector() {
-        if (globalInstance == null) {
+    public static LogCollector getMustGatherController() {
+        if (mustGatherInstance == null) {
             throw new NullPointerException("Global log collector is not initialized");
         }
-        return globalInstance;
+        return mustGatherInstance;
     }
 
     /**
@@ -124,14 +121,16 @@ public class GlobalLogCollector implements TestExecutionExceptionHandler, Lifecy
      *
      * @param callback callback method with log collecting
      */
-    public static void addLogCallback(ThrowableRunner callback) {
-        COLLECT_CALLBACKS.add(callback);
+    public static void setMustGatherCallback(ThrowableRunner callback) {
+        collectCallback = callback;
     }
 
-    private void saveKubeState() {
+    private void saveKubeState(ExtensionContext context) {
         try {
-            for (ThrowableRunner runner : COLLECT_CALLBACKS) {
-                runner.run();
+            if (collectCallback != null) {
+                collectCallback.run();
+            } else {
+                LOGGER.warn("No logCallback defined");
             }
         } catch (Exception ex) {
             LOGGER.error("Cannot collect all data", ex);

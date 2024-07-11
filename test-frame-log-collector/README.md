@@ -169,33 +169,33 @@ the logs path will then look like this:
 ```
 The tree path will look similarly to above examples, there will be folders for Namespaces matching the specified labels.
 
-### Global log collector
-`CollectLogs` is an annotation which can handle collecting logs which user want automatically in case of test failure or before/after failure.
-It gets configuration passed into `GlobalLogCollector` and call collecting in proper callbacks.
+### MustGather
+`MustGather` is an annotation which can handle collecting logs which user want automatically in case of test failure or before/after failure.
+It gets configuration passed into `MustGatherController` and call collecting in proper callbacks.
 
-Register `GlobalLogCollector` handlers and configure
+Register `MustGatherController` handlers and configure
 
 ```java
 import io.skodjob.testframe.LogCollectorBuilder;
-import io.skodjob.testframe.annotations.CollectLogs;
-import io.skodjob.testframe.listeners.GlobalLogCollector;
+import io.skodjob.testframe.annotations.MustGather;
+import io.skodjob.testframe.listeners.MustGatherController;
 import io.skodjob.testframe.resources.KubeResourceManager;
 import org.junit.jupiter.api.Test;
 
-@CollectLogs
+@MustGather
 class TestClass() {
     static {
         // Setup global log collector and handlers
-        GlobalLogCollector.setupGlobalLogCollector(new LogCollectorBuilder()
+        MustGatherController.setupMustGatherController(new LogCollectorBuilder()
             .withNamespacedResources("sa", "deployment", "configmaps", "secret")
             .withClusterWideResources("nodes")
             .withKubeClient(KubeResourceManager.getKubeClient())
             .withKubeCmdClient(KubeResourceManager.getKubeCmdClient())
             .withRootFolderPath("/some-path/path/")
             .build());
-        GlobalLogCollector.addLogCallback(() -> {
-            GlobalLogCollector.getGlobalLogCollector().collectFromNamespaces("test-namespace", "test-namespace-2");
-            GlobalLogCollector.getGlobalLogCollector().collectClusterWideResources();
+        MustGatherController.setMustGatherCallback(() -> {
+            MustGatherController.getMustGatherController().collectFromNamespaces("test-namespace", "test-namespace-2");
+            MustGatherController.getMustGatherController().collectClusterWideResources();
         });
     }
 

@@ -4,7 +4,7 @@
  */
 package io.skodjob.testframe.annotations;
 
-import io.skodjob.testframe.listeners.GlobalLogCollector;
+import io.skodjob.testframe.listeners.MustGatherController;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.lang.annotation.ElementType;
@@ -19,11 +19,11 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * when test of prepare and post phase fails in JUnit tests.
  * It is applied at the class level.
  * <p>
- * It uses the {@link GlobalLogCollector}
+ * It uses the {@link MustGatherController}
  */
 @Target(ElementType.TYPE)
 @Retention(RUNTIME)
 @Inherited
-@ExtendWith(GlobalLogCollector.class)
-public @interface CollectLogs {
+@ExtendWith(MustGatherController.class)
+public @interface MustGather {
 }

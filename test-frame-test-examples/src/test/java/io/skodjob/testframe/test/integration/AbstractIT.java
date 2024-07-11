@@ -5,8 +5,8 @@
 package io.skodjob.testframe.test.integration;
 
 import io.skodjob.testframe.LogCollectorBuilder;
-import io.skodjob.testframe.annotations.CollectLogs;
-import io.skodjob.testframe.listeners.GlobalLogCollector;
+import io.skodjob.testframe.annotations.MustGather;
+import io.skodjob.testframe.listeners.MustGatherController;
 import io.skodjob.testframe.test.integration.helpers.GlobalLogCollectorTestHandler;
 import io.skodjob.testframe.utils.LoggerUtils;
 import io.skodjob.testframe.annotations.ResourceManager;
@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 @ExtendWith(GlobalLogCollectorTestHandler.class) // For testing purpose
 @ResourceManager
-@CollectLogs
+@MustGather
 @TestVisualSeparator
 public abstract class AbstractIT {
     static AtomicBoolean isCreateHandlerCalled = new AtomicBoolean(false);
@@ -60,16 +60,16 @@ public abstract class AbstractIT {
         });
 
         // Setup global log collector and handlers
-        GlobalLogCollector.setupGlobalLogCollector(new LogCollectorBuilder()
+        MustGatherController.setupMustGatherController(new LogCollectorBuilder()
             .withNamespacedResources("sa", "deployment", "configmaps", "secret")
             .withClusterWideResources("nodes")
             .withKubeClient(KubeResourceManager.getKubeClient())
             .withKubeCmdClient(KubeResourceManager.getKubeCmdClient())
             .withRootFolderPath(LOG_DIR.toString())
             .build());
-        GlobalLogCollector.addLogCallback(() -> {
-            GlobalLogCollector.getGlobalLogCollector().collectFromNamespaces("default");
-            GlobalLogCollector.getGlobalLogCollector().collectClusterWideResources();
+        MustGatherController.setMustGatherCallback(() -> {
+            MustGatherController.getMustGatherController().collectFromNamespaces("default");
+            MustGatherController.getMustGatherController().collectClusterWideResources();
         });
     }
 
