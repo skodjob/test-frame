@@ -18,7 +18,7 @@ import org.junit.jupiter.api.extension.TestExecutionExceptionHandler;
  */
 public class MustGatherController implements TestExecutionExceptionHandler, LifecycleMethodExecutionExceptionHandler {
     private static final Logger LOGGER = LogManager.getLogger(MustGatherController.class);
-    private static LogCollector globalInstance;
+    private static LogCollector mustGatherInstance;
     private static ThrowableRunner collectCallback;
 
     /**
@@ -100,8 +100,8 @@ public class MustGatherController implements TestExecutionExceptionHandler, Life
      *
      * @param globalLogCollector log collector instance
      */
-    public static void setupGlobalLogCollector(LogCollector globalLogCollector) {
-        globalInstance = globalLogCollector;
+    public static void setupMustGatherController(LogCollector globalLogCollector) {
+        mustGatherInstance = globalLogCollector;
     }
 
     /**
@@ -109,11 +109,11 @@ public class MustGatherController implements TestExecutionExceptionHandler, Life
      *
      * @return global log collector instance
      */
-    public static LogCollector getGlobalLogCollector() {
-        if (globalInstance == null) {
+    public static LogCollector getMustGatherController() {
+        if (mustGatherInstance == null) {
             throw new NullPointerException("Global log collector is not initialized");
         }
-        return globalInstance;
+        return mustGatherInstance;
     }
 
     /**
@@ -121,7 +121,7 @@ public class MustGatherController implements TestExecutionExceptionHandler, Life
      *
      * @param callback callback method with log collecting
      */
-    public static void setLogCallback(ThrowableRunner callback) {
+    public static void setMustGatherCallback(ThrowableRunner callback) {
         collectCallback = callback;
     }
 

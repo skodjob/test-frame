@@ -186,16 +186,16 @@ import org.junit.jupiter.api.Test;
 class TestClass() {
     static {
         // Setup global log collector and handlers
-        MustGatherController.setupGlobalLogCollector(new LogCollectorBuilder()
+        MustGatherController.setupMustGatherController(new LogCollectorBuilder()
             .withNamespacedResources("sa", "deployment", "configmaps", "secret")
             .withClusterWideResources("nodes")
             .withKubeClient(KubeResourceManager.getKubeClient())
             .withKubeCmdClient(KubeResourceManager.getKubeCmdClient())
             .withRootFolderPath("/some-path/path/")
             .build());
-        MustGatherController.setLogCallback(() -> {
-            MustGatherController.getGlobalLogCollector().collectFromNamespaces("test-namespace", "test-namespace-2");
-            MustGatherController.getGlobalLogCollector().collectClusterWideResources();
+        MustGatherController.setMustGatherCallback(() -> {
+            MustGatherController.getMustGatherController().collectFromNamespaces("test-namespace", "test-namespace-2");
+            MustGatherController.getMustGatherController().collectClusterWideResources();
         });
     }
 

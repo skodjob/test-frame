@@ -60,16 +60,16 @@ public abstract class AbstractIT {
         });
 
         // Setup global log collector and handlers
-        MustGatherController.setupGlobalLogCollector(new LogCollectorBuilder()
+        MustGatherController.setupMustGatherController(new LogCollectorBuilder()
             .withNamespacedResources("sa", "deployment", "configmaps", "secret")
             .withClusterWideResources("nodes")
             .withKubeClient(KubeResourceManager.getKubeClient())
             .withKubeCmdClient(KubeResourceManager.getKubeCmdClient())
             .withRootFolderPath(LOG_DIR.toString())
             .build());
-        MustGatherController.setLogCallback(() -> {
-            MustGatherController.getGlobalLogCollector().collectFromNamespaces("default");
-            MustGatherController.getGlobalLogCollector().collectClusterWideResources();
+        MustGatherController.setMustGatherCallback(() -> {
+            MustGatherController.getMustGatherController().collectFromNamespaces("default");
+            MustGatherController.getMustGatherController().collectClusterWideResources();
         });
     }
 
