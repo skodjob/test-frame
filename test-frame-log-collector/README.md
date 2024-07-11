@@ -169,11 +169,11 @@ the logs path will then look like this:
 ```
 The tree path will look similarly to above examples, there will be folders for Namespaces matching the specified labels.
 
-### Global log collector
-`CollectLogs` is an annotation which can handle collecting logs which user want automatically in case of test failure or before/after failure.
-It gets configuration passed into `GlobalLogCollector` and call collecting in proper callbacks.
+### MustGather
+`MustGather` is an annotation which can handle collecting logs which user want automatically in case of test failure or before/after failure.
+It gets configuration passed into `MustGatherController` and call collecting in proper callbacks.
 
-Register `GlobalLogCollector` handlers and configure
+Register `MustGatherController` handlers and configure
 
 ```java
 import io.skodjob.testframe.LogCollectorBuilder;
