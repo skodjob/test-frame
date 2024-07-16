@@ -1,6 +1,6 @@
 ---
 apiVersion: backstage.io/v1alpha1
-kind: System
+kind: Component
 metadata:
   name: test-frame
   title: Test Frame
@@ -20,5 +20,7 @@ metadata:
     - title: Blogpost
       url: https://skodjob.io/tools/test-frame-introduction/
 spec:
+  type: library
+  lifecycle: production
   owner: group:redhat/skodjob
   domain: quality-community/quality-community
