@@ -4,10 +4,6 @@
  */
 package io.skodjob.testframe.test.integration;
 
-import io.skodjob.testframe.LogCollectorBuilder;
-import io.skodjob.testframe.annotations.MustGather;
-import io.skodjob.testframe.listeners.MustGatherController;
-import io.skodjob.testframe.test.integration.helpers.GlobalLogCollectorTestHandler;
 import io.skodjob.testframe.utils.LoggerUtils;
 import io.skodjob.testframe.annotations.ResourceManager;
 import io.skodjob.testframe.annotations.TestVisualSeparator;
@@ -16,7 +12,6 @@ import io.skodjob.testframe.resources.KubeResourceManager;
 import io.skodjob.testframe.resources.NamespaceType;
 import io.skodjob.testframe.resources.ServiceAccountType;
 import io.skodjob.testframe.utils.KubeUtils;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -24,9 +19,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-@ExtendWith(GlobalLogCollectorTestHandler.class) // For testing purpose
 @ResourceManager
-@MustGather
 @TestVisualSeparator
 public abstract class AbstractIT {
     static AtomicBoolean isCreateHandlerCalled = new AtomicBoolean(false);
@@ -57,19 +50,6 @@ public abstract class AbstractIT {
             if (r.getKind().equals("Namespace")) {
                 LoggerUtils.logResource("Deleted", r);
             }
-        });
-
-        // Setup global log collector and handlers
-        MustGatherController.setupMustGatherController(new LogCollectorBuilder()
-            .withNamespacedResources("sa", "deployment", "configmaps", "secret")
-            .withClusterWideResources("nodes")
-            .withKubeClient(KubeResourceManager.getKubeClient())
-            .withKubeCmdClient(KubeResourceManager.getKubeCmdClient())
-            .withRootFolderPath(LOG_DIR.toString())
-            .build());
-        MustGatherController.setMustGatherCallback(() -> {
-            MustGatherController.getMustGatherController().collectFromNamespaces("default");
-            MustGatherController.getMustGatherController().collectClusterWideResources();
         });
     }
 

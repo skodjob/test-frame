@@ -169,43 +169,6 @@ the logs path will then look like this:
 ```
 The tree path will look similarly to above examples, there will be folders for Namespaces matching the specified labels.
 
-### MustGather
-`MustGather` is an annotation which can handle collecting logs which user want automatically in case of test failure or before/after failure.
-It gets configuration passed into `MustGatherController` and call collecting in proper callbacks.
-
-Register `MustGatherController` handlers and configure
-
-```java
-import io.skodjob.testframe.LogCollectorBuilder;
-import io.skodjob.testframe.annotations.MustGather;
-import io.skodjob.testframe.listeners.MustGatherController;
-import io.skodjob.testframe.resources.KubeResourceManager;
-import org.junit.jupiter.api.Test;
-
-@MustGather
-class TestClass() {
-    static {
-        // Setup global log collector and handlers
-        MustGatherController.setupMustGatherController(new LogCollectorBuilder()
-            .withNamespacedResources("sa", "deployment", "configmaps", "secret")
-            .withClusterWideResources("nodes")
-            .withKubeClient(KubeResourceManager.getKubeClient())
-            .withKubeCmdClient(KubeResourceManager.getKubeCmdClient())
-            .withRootFolderPath("/some-path/path/")
-            .build());
-        MustGatherController.setMustGatherCallback(() -> {
-            MustGatherController.getMustGatherController().collectFromNamespaces("test-namespace", "test-namespace-2");
-            MustGatherController.getMustGatherController().collectClusterWideResources();
-        });
-    }
-
-    @Test
-    void test() {
-        ...
-    }
-}
-```
-
 ### Specifying additional folder path
 
 In case that you would like to collect the logs to additional sub-directories of your root folder, the `LogCollector` contains
