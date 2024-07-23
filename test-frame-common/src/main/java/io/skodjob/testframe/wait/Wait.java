@@ -4,6 +4,9 @@
  */
 package io.skodjob.testframe.wait;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.Duration;
@@ -16,14 +19,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.BooleanSupplier;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 /**
  * Wait utils
  */
 public class Wait {
-    private static final Logger LOGGER = LogManager.getLogger(Wait.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Wait.class);
 
     private Wait() {
         // Private constructor to prevent instantiation

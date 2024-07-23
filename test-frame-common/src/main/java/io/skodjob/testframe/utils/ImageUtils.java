@@ -4,8 +4,8 @@
  */
 package io.skodjob.testframe.utils;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
  * Class containing methods for handling images
  */
 public final class ImageUtils {
-    private static final Logger LOGGER = LogManager.getLogger(ImageUtils.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ImageUtils.class);
 
     private ImageUtils() {
         // Private constructor to prevent instantiation

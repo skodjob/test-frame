@@ -8,8 +8,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.skodjob.testframe.utils.LoggerUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,7 +28,7 @@ import java.util.function.Function;
  */
 public class TestEnvironmentVariables {
 
-    private static final Logger LOGGER = LogManager.getLogger(TestEnvironmentVariables.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestEnvironmentVariables.class);
 
     /* test */ private final Map<String, String> envMap;
     private Map<String, String> values = new HashMap<>();

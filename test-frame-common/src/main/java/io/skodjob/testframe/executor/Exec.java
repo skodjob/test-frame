@@ -30,8 +30,8 @@ import java.util.regex.Pattern;
 
 import io.fabric8.kubernetes.api.model.EnvVar;
 import io.skodjob.testframe.clients.KubeClusterException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static java.lang.String.join;
 
@@ -40,7 +40,7 @@ import static java.lang.String.join;
  */
 public class Exec {
 
-    private static final Logger LOGGER = LogManager.getLogger(Exec.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Exec.class);
 
     private static final Pattern ERROR_PATTERN = Pattern.compile("Error from server \\(([a-zA-Z0-9]+)\\):");
     private static final Pattern INVALID_PATTERN = Pattern
