@@ -102,7 +102,8 @@ public class KubeResourceManagerTest {
         testAppender.start();
 
         // print resources
-        KubeResourceManager.getInstance().printCurrentResources(Level.INFO);
+        KubeResourceManager.getInstance().printCurrentResources(org.slf4j.event.Level.INFO);
+        System.out.println(testAppender.getLogEvents());
         List<LogEvent> events = testAppender.getLogEvents();
 
         assertEquals(3, events.size());
@@ -113,7 +114,7 @@ public class KubeResourceManagerTest {
         testAppender.clean();
 
         // print all resources on debug output
-        KubeResourceManager.getInstance().printAllResources(Level.DEBUG);
+        KubeResourceManager.getInstance().printAllResources(org.slf4j.event.Level.DEBUG);
         events = testAppender.getLogEvents();
 
         assertEquals(4, events.size());

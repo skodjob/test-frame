@@ -7,16 +7,16 @@ package io.skodjob.testframe.utils;
 import java.util.Collections;
 
 import io.fabric8.kubernetes.api.model.HasMetadata;
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 
 /**
  * Utility methods for logging.
  */
 public final class LoggerUtils {
 
-    private static final Logger LOGGER = LogManager.getLogger(LoggerUtils.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LoggerUtils.class);
     static final String SEPARATOR_CHAR = "#";
 
     /**
@@ -71,11 +71,11 @@ public final class LoggerUtils {
      */
     public static <T extends HasMetadata> void logResource(String operation, Level logLevel, T resource) {
         if (resource.getMetadata().getNamespace() == null) {
-            LOGGER.log(logLevel, LoggerUtils.RESOURCE_LOGGER_PATTERN,
+            LOGGER.atLevel(logLevel).log(LoggerUtils.RESOURCE_LOGGER_PATTERN,
                 operation, resource.getKind(),
                 resource.getMetadata().getName());
         } else {
-            LOGGER.log(logLevel, LoggerUtils.RESOURCE_WITH_NAMESPACE_LOGGER_PATTERN,
+            LOGGER.atLevel(logLevel).log(LoggerUtils.RESOURCE_WITH_NAMESPACE_LOGGER_PATTERN,
                 operation,
                 resource.getKind(), resource.getMetadata().getName(), resource.getMetadata().getNamespace());
         }

@@ -33,10 +33,10 @@ import io.skodjob.testframe.clients.cmdClient.Oc;
 import io.skodjob.testframe.interfaces.NamespacedResourceType;
 import io.skodjob.testframe.interfaces.ResourceType;
 import io.skodjob.testframe.wait.Wait;
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.extension.ExtensionContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -45,7 +45,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Manages Kubernetes resources for testing purposes.
  */
 public class KubeResourceManager {
-    private static final Logger LOGGER = LogManager.getLogger(KubeResourceManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(KubeResourceManager.class);
 
     private static KubeResourceManager instance;
     private static KubeClient client;
@@ -197,12 +197,12 @@ public class KubeResourceManager {
     /**
      * Logs all managed resources across all test contexts with set log level
      *
-     * @param logLevel log4j2 log level
+     * @param logLevel slf4j log level event
      */
     public void printAllResources(Level logLevel) {
-        LOGGER.log(logLevel, "Printing all managed resources from all test contexts");
+        LOGGER.atLevel(logLevel).log("Printing all managed resources from all test contexts");
         STORED_RESOURCES.forEach((testName, resources) -> {
-            LOGGER.log(logLevel, "Context: {}", testName);
+            LOGGER.atLevel(logLevel).log("Context: {}", testName);
             resources.forEach(resourceItem -> {
                 if (resourceItem.resource() != null) {
                     LoggerUtils.logResource("Managed resource:", logLevel, resourceItem.resource());
@@ -214,10 +214,10 @@ public class KubeResourceManager {
     /**
      * Logs all managed resources in current test context with set log level
      *
-     * @param logLevel log4j2 log level
+     * @param logLevel slf4j log level event
      */
     public void printCurrentResources(Level logLevel) {
-        LOGGER.log(logLevel, "Printing all managed resources from current test context");
+        LOGGER.atLevel(logLevel).log("Printing all managed resources from current test context");
         STORED_RESOURCES.get(getTestContext().getDisplayName()).forEach(resourceItem -> {
             if (resourceItem.resource() != null) {
                 LoggerUtils.logResource("Managed resource:", logLevel, resourceItem.resource());

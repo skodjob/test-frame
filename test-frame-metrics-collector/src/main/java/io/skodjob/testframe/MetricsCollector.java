@@ -17,8 +17,8 @@ import io.skodjob.testframe.metrics.PrometheusTextFormatParser;
 import io.skodjob.testframe.resources.KubeResourceManager;
 import io.skodjob.testframe.wait.Wait;
 import io.skodjob.testframe.wait.WaitException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.security.InvalidParameterException;
@@ -51,7 +51,7 @@ import java.util.concurrent.ExecutionException;
  */
 public class MetricsCollector {
 
-    private static final Logger LOGGER = LogManager.getLogger(MetricsCollector.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MetricsCollector.class);
     private static final long EXEC_TIMEOUT_MS_DEFAULT = Duration.ofSeconds(20).toMillis();
 
     protected String namespaceName;

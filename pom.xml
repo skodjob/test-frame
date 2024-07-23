@@ -74,7 +74,7 @@
         <maven.compiler.release>17</maven.compiler.release>
 
         <fabric8.version>6.13.1</fabric8.version>
-        <log4j.version>2.17.2</log4j.version>
+        <log4j.version>2.23.1</log4j.version>
         <slf4j.version>2.0.13</slf4j.version>
 
         <!--  TEST dependencies  -->
@@ -85,6 +85,7 @@
         <spotbugs.version>4.8.6</spotbugs.version>
         <maven.spotbugs.version>4.8.6.2</maven.spotbugs.version>
         <maven.checkstyle.version>3.4.0</maven.checkstyle.version>
+        <maven.dependency.version>3.3.0</maven.dependency.version>
 
         <maven.compile.plugin.version>3.13.0</maven.compile.plugin.version>
         <maven.source.plugin.version>3.3.1</maven.source.plugin.version>
@@ -189,7 +190,7 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
-                <artifactId>log4j-slf4j-impl</artifactId>
+                <artifactId>log4j-slf4j2-impl</artifactId>
                 <version>${log4j.version}</version>
             </dependency>
             <dependency>
@@ -289,6 +290,45 @@
                         <goals>
                             <goal>check</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>${maven.dependency.version}</version>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>none</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <includeScope>runtime</includeScope>
+                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                            <prependGroupId>true</prependGroupId>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>false</overWriteSnapshots>
+                            <overWriteIfNewer>true</overWriteIfNewer>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>set-classpath</id>
+                        <phase>none</phase>
+                        <goals>
+                            <goal>build-classpath</goal>
+                        </goals>
+                        <configuration>
+                            <includeScope>runtime</includeScope>
+                            <outputProperty>project.dist.classpath</outputProperty>
+                            <attach>false</attach>
+                            <prefix>lib</prefix>
+                            <prependGroupId>true</prependGroupId>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>false</overWriteSnapshots>
+                            <overWriteIfNewer>true</overWriteIfNewer>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

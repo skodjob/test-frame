@@ -10,8 +10,8 @@ import io.fabric8.kubernetes.api.model.Pod;
 import io.skodjob.testframe.clients.KubeClient;
 import io.skodjob.testframe.clients.cmdClient.KubeCmdClient;
 import io.skodjob.testframe.clients.cmdClient.Kubectl;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,7 +27,7 @@ import java.util.function.Supplier;
  * LogCollector class containing all methods used for logs and YAML collection.
  */
 public class LogCollector {
-    private static final Logger LOGGER = LogManager.getLogger(LogCollector.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LogCollector.class);
     protected final List<String> namespacedResources;
     protected final List<String> clusterWideResources;
     protected String rootFolderPath;
