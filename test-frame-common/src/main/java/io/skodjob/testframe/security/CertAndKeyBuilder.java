@@ -110,7 +110,7 @@ public class CertAndKeyBuilder {
     /**
      * Returns builder for root CA
      *
-     * @return builder for root CA
+     * @return Returns builder for root CA
      */
     public static CertAndKeyBuilder rootCaCertBuilder() {
         KeyPair keyPair = generateKeyPair();
@@ -129,7 +129,7 @@ public class CertAndKeyBuilder {
      * Returns builder for intermediate CA
      *
      * @param caCert ca certificate
-     * @return builder for intermediate CA
+     * @return Returns builder for intermediate CA
      */
     public static CertAndKeyBuilder intermediateCaCertBuilder(CertAndKey caCert) {
         KeyPair keyPair = generateKeyPair();
@@ -149,7 +149,7 @@ public class CertAndKeyBuilder {
      * Returns builder for application cert
      *
      * @param caCert ca certificate
-     * @return builder for application cert
+     * @return Returns builder for application cert
      */
     public static CertAndKeyBuilder appCaCertBuilder(CertAndKey caCert) {
         KeyPair keyPair = generateKeyPair();
@@ -165,10 +165,10 @@ public class CertAndKeyBuilder {
     }
 
     /**
-     * Returns builder for end end entity cert
+     * Returns builder for end entity cert
      *
      * @param caCert ca certificate
-     * @return Returns builder for end end entity cert
+     * @return Returns builder for end entity cert
      */
     public static CertAndKeyBuilder endEntityCertBuilder(CertAndKey caCert) {
         KeyPair keyPair = generateKeyPair();
@@ -237,7 +237,7 @@ public class CertAndKeyBuilder {
     /**
      * Returns cert and key in memory from builder
      *
-     * @return cert and key in memory
+     * @return Returns cert and key in memory
      */
     public CertAndKey build() {
         try {
