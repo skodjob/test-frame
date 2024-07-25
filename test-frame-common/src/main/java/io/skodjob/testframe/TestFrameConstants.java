@@ -48,6 +48,16 @@ public interface TestFrameConstants {
     long GLOBAL_STABILITY_TIME = Duration.ofMinutes(1).toMillis();
 
     /**
+     * CA validity delay
+     */
+    long CA_CERT_VALIDITY_DELAY = 10;
+
+    /**
+     * Poll interval for resource readiness
+     */
+    long POLL_INTERVAL_FOR_RESOURCE_READINESS = Duration.ofSeconds(1).toMillis();
+
+    /**
      * OpenShift client type.
      */
     String OPENSHIFT_CLIENT = "oc";
