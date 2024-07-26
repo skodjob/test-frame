@@ -100,6 +100,7 @@
         <maven.surefire.version>3.3.1</maven.surefire.version>
         <jackson-dataformat-yaml.version>2.17.2</jackson-dataformat-yaml.version>
         <org.eclipse.sisu.version>0.9.0.M3</org.eclipse.sisu.version>
+        <bouncycastle.version>1.78.1</bouncycastle.version>
 
         <it.skip>true</it.skip>
         <!--suppress UnresolvedMavenProperty -->
@@ -220,6 +221,16 @@
                 <groupId>org.eclipse.sisu</groupId>
                 <artifactId>org.eclipse.sisu.inject</artifactId>
                 <version>${org.eclipse.sisu.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcpkix-jdk18on</artifactId>
+                <version>${bouncycastle.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-jdk18on</artifactId>
+                <version>${bouncycastle.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
