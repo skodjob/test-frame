@@ -4,6 +4,7 @@
  */
 package io.skodjob.testframe.test.integration;
 
+import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.kubernetes.api.model.NamespaceBuilder;
 import io.skodjob.testframe.clients.KubeClusterException;
@@ -14,6 +15,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.slf4j.event.Level;
+
+import java.io.IOException;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -66,5 +70,12 @@ public final class KubeResourceManagerCleanerIT extends AbstractIT {
         assertNotNull(KubeResourceManager.getKubeCmdClient().get("namespace", nsName2));
         assertThrows(KubeClusterException.class, () ->
             KubeResourceManager.getKubeCmdClient().get("namespace", nsName3));
+    }
+
+    @Test
+    void testCreateMultipleResourcesAsync() throws IOException {
+        List<HasMetadata> resources = KubeResourceManager.getKubeClient()
+            .readResourcesFromFile(getClass().getClassLoader().getResourceAsStream("metrics-example.yaml"));
+        KubeResourceManager.getInstance().createOrUpdateResourceAsyncWait(resources.toArray(new HasMetadata[0]));
     }
 }

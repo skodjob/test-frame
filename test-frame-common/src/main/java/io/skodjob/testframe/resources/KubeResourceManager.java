@@ -12,6 +12,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
@@ -233,7 +234,7 @@ public class KubeResourceManager {
      */
     @SafeVarargs
     public final <T extends HasMetadata> void createResourceWithoutWait(T... resources) {
-        createOrUpdateResource(false, false, resources);
+        createOrUpdateResource(false, false, false, resources);
     }
 
     /**
@@ -244,7 +245,7 @@ public class KubeResourceManager {
      */
     @SafeVarargs
     public final <T extends HasMetadata> void createResourceWithWait(T... resources) {
-        createOrUpdateResource(true, false, resources);
+        createOrUpdateResource(false, true, false, resources);
     }
 
     /**
@@ -255,7 +256,7 @@ public class KubeResourceManager {
      */
     @SafeVarargs
     public final <T extends HasMetadata> void createOrUpdateResourceWithWait(T... resources) {
-        createOrUpdateResource(true, true, resources);
+        createOrUpdateResource(false, true, true, resources);
     }
 
     /**
@@ -266,21 +267,46 @@ public class KubeResourceManager {
      */
     @SafeVarargs
     public final <T extends HasMetadata> void createOrUpdateResourceWithoutWait(T... resources) {
-        createOrUpdateResource(false, true, resources);
+        createOrUpdateResource(false, false, true, resources);
+    }
+
+    /**
+     * Creates or resources.
+     *
+     * @param resources The resources to create.
+     * @param <T>       The type of the resources.
+     */
+    @SafeVarargs
+    public final <T extends HasMetadata> void createResourceAsyncWait(T... resources) {
+        createOrUpdateResource(true, true, false, resources);
+    }
+
+    /**
+     * Creates or updates resources.
+     *
+     * @param resources The resources to create.
+     * @param <T>       The type of the resources.
+     */
+    @SafeVarargs
+    public final <T extends HasMetadata> void createOrUpdateResourceAsyncWait(T... resources) {
+        createOrUpdateResource(true, true, true, resources);
     }
 
     /**
      * Creates resources with or without waiting for readiness.
      *
+     * @param async       Flag waiting for all resources on the end
      * @param waitReady   Flag indicating whether to wait for readiness.
      * @param allowUpdate Flag indicating if update resource is allowed
      * @param resources   The resources to create.
      * @param <T>         The type of the resources.
      */
     @SafeVarargs
-    private <T extends HasMetadata> void createOrUpdateResource(boolean waitReady,
+    private <T extends HasMetadata> void createOrUpdateResource(boolean async,
+                                                                boolean waitReady,
                                                                 boolean allowUpdate,
                                                                 T... resources) {
+        List<CompletableFuture<Void>> waitExecutors = new LinkedList<>();
         for (T resource : resources) {
             ResourceType<T> type = findResourceType(resource);
             pushToStack(resource);
@@ -295,15 +321,21 @@ public class KubeResourceManager {
                     client.getClient().resource(resource).create();
                 }
                 if (waitReady) {
-                    assertTrue(waitResourceCondition(resource,
-                            new ResourceCondition<>(p -> {
-                                if (isResourceWithReadiness(resource)) {
-                                    return client.getClient().resource(resource).isReady();
-                                }
-                                return client.getClient().resource(resource) != null;
-                            }, "ready")),
-                        String.format("Timed out waiting for %s/%s in %s to be ready", resource.getKind(),
-                            resource.getMetadata().getName(), resource.getMetadata().getNamespace()));
+                    CompletableFuture<Void> c = CompletableFuture.runAsync(() ->
+                        assertTrue(waitResourceCondition(resource,
+                                new ResourceCondition<>(p -> {
+                                    if (isResourceWithReadiness(resource)) {
+                                        return client.getClient().resource(resource).isReady();
+                                    }
+                                    return client.getClient().resource(resource) != null;
+                                }, "ready")),
+                            String.format("Timed out waiting for %s/%s in %s to be ready", resource.getKind(),
+                                resource.getMetadata().getName(), resource.getMetadata().getNamespace())));
+                    if (async) {
+                        waitExecutors.add(c);
+                    } else {
+                        CompletableFuture.allOf(c).join();
+                    }
                 }
             } else {
                 // Create for typed resource implementing ResourceType
@@ -315,12 +347,21 @@ public class KubeResourceManager {
                     type.create(resource);
                 }
                 if (waitReady) {
-                    assertTrue(waitResourceCondition(resource, ResourceCondition.readiness(type)),
-                        String.format("Timed out waiting for %s/%s in %s to be ready", resource.getKind(),
-                            resource.getMetadata().getName(), resource.getMetadata().getNamespace()));
+                    CompletableFuture<Void> c = CompletableFuture.runAsync(() ->
+                        assertTrue(waitResourceCondition(resource, ResourceCondition.readiness(type)),
+                            String.format("Timed out waiting for %s/%s in %s to be ready", resource.getKind(),
+                                resource.getMetadata().getName(), resource.getMetadata().getNamespace())));
+                    if (async) {
+                        waitExecutors.add(c);
+                    } else {
+                        CompletableFuture.allOf(c).join();
+                    }
                 }
             }
             createCallbacks.forEach(callback -> callback.accept(resource));
+        }
+        if (!waitExecutors.isEmpty()) {
+            CompletableFuture.allOf(waitExecutors.toArray(new CompletableFuture[0])).join();
         }
     }
 
