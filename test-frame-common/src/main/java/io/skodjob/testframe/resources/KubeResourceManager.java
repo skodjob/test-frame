@@ -271,7 +271,7 @@ public class KubeResourceManager {
     }
 
     /**
-     * Creates or resources.
+     * Creates resources and wait on the end for all readiness.
      *
      * @param resources The resources to create.
      * @param <T>       The type of the resources.
@@ -282,7 +282,7 @@ public class KubeResourceManager {
     }
 
     /**
-     * Creates or updates resources.
+     * Creates or updates resources and wait on the end for all readiness.
      *
      * @param resources The resources to create.
      * @param <T>       The type of the resources.
