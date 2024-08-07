@@ -97,7 +97,7 @@ public class ServiceType implements NamespacedResourceType<Service> {
      * @return result of the readiness check
      */
     @Override
-    public boolean waitForReadiness(Service resource) {
+    public boolean isReady(Service resource) {
         return resource != null;
     }
 
@@ -108,7 +108,7 @@ public class ServiceType implements NamespacedResourceType<Service> {
      * @return result of the deletion
      */
     @Override
-    public boolean waitForDeletion(Service resource) {
+    public boolean isDeleted(Service resource) {
         return resource == null;
     }
 

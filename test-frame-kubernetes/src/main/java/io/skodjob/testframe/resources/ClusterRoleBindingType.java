@@ -98,7 +98,7 @@ public class ClusterRoleBindingType implements ResourceType<ClusterRoleBinding> 
      * @return result of the readiness check
      */
     @Override
-    public boolean waitForReadiness(ClusterRoleBinding resource) {
+    public boolean isReady(ClusterRoleBinding resource) {
         return resource != null;
     }
 
@@ -109,7 +109,7 @@ public class ClusterRoleBindingType implements ResourceType<ClusterRoleBinding> 
      * @return result of the deletion
      */
     @Override
-    public boolean waitForDeletion(ClusterRoleBinding resource) {
+    public boolean isDeleted(ClusterRoleBinding resource) {
         return resource == null;
     }
 }

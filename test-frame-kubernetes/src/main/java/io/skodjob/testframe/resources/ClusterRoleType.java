@@ -97,7 +97,7 @@ public class ClusterRoleType implements ResourceType<ClusterRole> {
      * @return result of the readiness check
      */
     @Override
-    public boolean waitForReadiness(ClusterRole resource) {
+    public boolean isReady(ClusterRole resource) {
         return resource != null;
     }
 
@@ -108,7 +108,7 @@ public class ClusterRoleType implements ResourceType<ClusterRole> {
      * @return result of the deletion
      */
     @Override
-    public boolean waitForDeletion(ClusterRole resource) {
+    public boolean isDeleted(ClusterRole resource) {
         return resource == null;
     }
 }

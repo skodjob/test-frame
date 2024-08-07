@@ -97,7 +97,7 @@ public class InstallPlanType implements NamespacedResourceType<InstallPlan> {
      * @return result of the readiness check
      */
     @Override
-    public boolean waitForReadiness(InstallPlan resource) {
+    public boolean isReady(InstallPlan resource) {
         return resource != null;
     }
 
@@ -108,7 +108,7 @@ public class InstallPlanType implements NamespacedResourceType<InstallPlan> {
      * @return result of the deletion
      */
     @Override
-    public boolean waitForDeletion(InstallPlan resource) {
+    public boolean isDeleted(InstallPlan resource) {
         return resource == null;
     }
 

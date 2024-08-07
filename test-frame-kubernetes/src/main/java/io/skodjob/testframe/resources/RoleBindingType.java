@@ -97,7 +97,7 @@ public class RoleBindingType implements NamespacedResourceType<RoleBinding> {
      * @return result of the readiness check
      */
     @Override
-    public boolean waitForReadiness(RoleBinding resource) {
+    public boolean isReady(RoleBinding resource) {
         return resource != null;
     }
 
@@ -108,7 +108,7 @@ public class RoleBindingType implements NamespacedResourceType<RoleBinding> {
      * @return result of the deletion
      */
     @Override
-    public boolean waitForDeletion(RoleBinding resource) {
+    public boolean isDeleted(RoleBinding resource) {
         return resource == null;
     }
 

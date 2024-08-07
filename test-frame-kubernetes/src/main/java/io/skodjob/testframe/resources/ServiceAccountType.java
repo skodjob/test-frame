@@ -97,7 +97,7 @@ public class ServiceAccountType implements NamespacedResourceType<ServiceAccount
      * @return result of the readiness check
      */
     @Override
-    public boolean waitForReadiness(ServiceAccount resource) {
+    public boolean isReady(ServiceAccount resource) {
         return resource != null;
     }
 
@@ -108,7 +108,7 @@ public class ServiceAccountType implements NamespacedResourceType<ServiceAccount
      * @return result of the deletion
      */
     @Override
-    public boolean waitForDeletion(ServiceAccount resource) {
+    public boolean isDeleted(ServiceAccount resource) {
         return resource == null;
     }
 

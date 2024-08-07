@@ -27,7 +27,7 @@ public record ResourceCondition<T extends HasMetadata>(Predicate<T> predicate, S
      * @return The ResourceCondition representing readiness.
      */
     public static <T extends HasMetadata> ResourceCondition<T> readiness(ResourceType<T> type) {
-        return new ResourceCondition<>(type::waitForReadiness, "readiness");
+        return new ResourceCondition<>(type::isReady, "readiness");
     }
 
     /**

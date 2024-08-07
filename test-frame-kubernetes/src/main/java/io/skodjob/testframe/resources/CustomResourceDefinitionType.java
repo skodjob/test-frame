@@ -98,7 +98,7 @@ public class CustomResourceDefinitionType implements ResourceType<CustomResource
      * @return result of the readiness check
      */
     @Override
-    public boolean waitForReadiness(CustomResourceDefinition resource) {
+    public boolean isReady(CustomResourceDefinition resource) {
         return resource != null;
     }
 
@@ -109,7 +109,7 @@ public class CustomResourceDefinitionType implements ResourceType<CustomResource
      * @return result of the deletion
      */
     @Override
-    public boolean waitForDeletion(CustomResourceDefinition resource) {
+    public boolean isDeleted(CustomResourceDefinition resource) {
         return resource == null;
     }
 }

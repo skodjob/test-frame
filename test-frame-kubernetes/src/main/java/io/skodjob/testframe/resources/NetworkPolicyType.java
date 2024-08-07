@@ -97,7 +97,7 @@ public class NetworkPolicyType implements NamespacedResourceType<NetworkPolicy> 
      * @return result of the readiness check
      */
     @Override
-    public boolean waitForReadiness(NetworkPolicy resource) {
+    public boolean isReady(NetworkPolicy resource) {
         return resource != null;
     }
 
@@ -108,7 +108,7 @@ public class NetworkPolicyType implements NamespacedResourceType<NetworkPolicy> 
      * @return result of the deletion
      */
     @Override
-    public boolean waitForDeletion(NetworkPolicy resource) {
+    public boolean isDeleted(NetworkPolicy resource) {
         return resource == null;
     }
 

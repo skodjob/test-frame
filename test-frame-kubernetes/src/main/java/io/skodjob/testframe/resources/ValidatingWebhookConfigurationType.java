@@ -102,7 +102,7 @@ public class ValidatingWebhookConfigurationType implements ResourceType<Validati
      * @return result of the readiness check
      */
     @Override
-    public boolean waitForReadiness(ValidatingWebhookConfiguration resource) {
+    public boolean isReady(ValidatingWebhookConfiguration resource) {
         return resource != null;
     }
 
@@ -113,7 +113,7 @@ public class ValidatingWebhookConfigurationType implements ResourceType<Validati
      * @return result of the deletion
      */
     @Override
-    public boolean waitForDeletion(ValidatingWebhookConfiguration resource) {
+    public boolean isDeleted(ValidatingWebhookConfiguration resource) {
         return resource == null;
     }
 }

@@ -113,7 +113,7 @@ public class NamespaceType implements ResourceType<Namespace> {
      * @return result of the readiness check
      */
     @Override
-    public boolean waitForReadiness(Namespace resource) {
+    public boolean isReady(Namespace resource) {
         return resource != null;
     }
 
@@ -124,7 +124,7 @@ public class NamespaceType implements ResourceType<Namespace> {
      * @return result of the deletion
      */
     @Override
-    public boolean waitForDeletion(Namespace resource) {
+    public boolean isDeleted(Namespace resource) {
         return resource == null;
     }
 }
