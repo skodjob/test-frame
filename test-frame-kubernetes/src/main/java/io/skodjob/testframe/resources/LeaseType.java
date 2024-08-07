@@ -97,7 +97,7 @@ public class LeaseType implements NamespacedResourceType<Lease> {
      * @return result of the readiness check
      */
     @Override
-    public boolean waitForReadiness(Lease resource) {
+    public boolean isReady(Lease resource) {
         return client.resource(resource).isReady();
     }
 
@@ -108,7 +108,7 @@ public class LeaseType implements NamespacedResourceType<Lease> {
      * @return result of the deletion
      */
     @Override
-    public boolean waitForDeletion(Lease resource) {
+    public boolean isDeleted(Lease resource) {
         return resource == null;
     }
 

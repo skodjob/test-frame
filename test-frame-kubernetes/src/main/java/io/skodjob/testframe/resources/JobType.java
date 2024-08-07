@@ -145,7 +145,7 @@ public class JobType implements NamespacedResourceType<Job> {
      * @return result of the readiness check
      */
     @Override
-    public boolean waitForReadiness(Job resource) {
+    public boolean isReady(Job resource) {
         return client.resource(resource).isReady();
     }
 
@@ -156,7 +156,7 @@ public class JobType implements NamespacedResourceType<Job> {
      * @return result of the deletion
      */
     @Override
-    public boolean waitForDeletion(Job resource) {
+    public boolean isDeleted(Job resource) {
         return resource == null;
     }
 }

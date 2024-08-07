@@ -97,7 +97,7 @@ public class RoleType implements NamespacedResourceType<Role> {
      * @return result of the readiness check
      */
     @Override
-    public boolean waitForReadiness(Role resource) {
+    public boolean isReady(Role resource) {
         return resource != null;
     }
 
@@ -108,7 +108,7 @@ public class RoleType implements NamespacedResourceType<Role> {
      * @return result of the deletion
      */
     @Override
-    public boolean waitForDeletion(Role resource) {
+    public boolean isDeleted(Role resource) {
         return resource == null;
     }
 

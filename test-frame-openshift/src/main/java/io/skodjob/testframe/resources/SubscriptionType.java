@@ -97,7 +97,7 @@ public class SubscriptionType implements NamespacedResourceType<Subscription> {
      * @return result of the readiness check
      */
     @Override
-    public boolean waitForReadiness(Subscription resource) {
+    public boolean isReady(Subscription resource) {
         return resource != null;
     }
 
@@ -108,7 +108,7 @@ public class SubscriptionType implements NamespacedResourceType<Subscription> {
      * @return result of the deletion
      */
     @Override
-    public boolean waitForDeletion(Subscription resource) {
+    public boolean isDeleted(Subscription resource) {
         return resource == null;
     }
 

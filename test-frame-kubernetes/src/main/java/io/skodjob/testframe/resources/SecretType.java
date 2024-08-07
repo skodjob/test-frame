@@ -116,7 +116,7 @@ public class SecretType implements NamespacedResourceType<Secret> {
      * @return result of the readiness check
      */
     @Override
-    public boolean waitForReadiness(Secret resource) {
+    public boolean isReady(Secret resource) {
         return false;
     }
 
@@ -127,7 +127,7 @@ public class SecretType implements NamespacedResourceType<Secret> {
      * @return result of the deletion
      */
     @Override
-    public boolean waitForDeletion(Secret resource) {
+    public boolean isDeleted(Secret resource) {
         return false;
     }
 

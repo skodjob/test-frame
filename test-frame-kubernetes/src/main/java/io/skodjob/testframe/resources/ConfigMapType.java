@@ -144,7 +144,7 @@ public class ConfigMapType implements NamespacedResourceType<ConfigMap> {
      * @return result of the readiness check
      */
     @Override
-    public boolean waitForReadiness(ConfigMap resource) {
+    public boolean isReady(ConfigMap resource) {
         return resource != null;
     }
 
@@ -155,7 +155,7 @@ public class ConfigMapType implements NamespacedResourceType<ConfigMap> {
      * @return result of the deletion
      */
     @Override
-    public boolean waitForDeletion(ConfigMap resource) {
+    public boolean isDeleted(ConfigMap resource) {
         return resource == null;
     }
 }

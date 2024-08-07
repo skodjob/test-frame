@@ -97,7 +97,7 @@ public class OperatorGroupType implements NamespacedResourceType<OperatorGroup> 
      * @return result of the readiness check
      */
     @Override
-    public boolean waitForReadiness(OperatorGroup resource) {
+    public boolean isReady(OperatorGroup resource) {
         return resource != null;
     }
 
@@ -108,7 +108,7 @@ public class OperatorGroupType implements NamespacedResourceType<OperatorGroup> 
      * @return result of the deletion
      */
     @Override
-    public boolean waitForDeletion(OperatorGroup resource) {
+    public boolean isDeleted(OperatorGroup resource) {
         return resource == null;
     }
 

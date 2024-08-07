@@ -97,7 +97,7 @@ public class DeploymentType implements NamespacedResourceType<Deployment> {
      * @return result of the readiness check
      */
     @Override
-    public boolean waitForReadiness(Deployment resource) {
+    public boolean isReady(Deployment resource) {
         return client.resource(resource).isReady();
     }
 
@@ -108,7 +108,7 @@ public class DeploymentType implements NamespacedResourceType<Deployment> {
      * @return result of the deletion
      */
     @Override
-    public boolean waitForDeletion(Deployment resource) {
+    public boolean isDeleted(Deployment resource) {
         return resource == null;
     }
 

@@ -61,18 +61,18 @@ public interface ResourceType<T extends HasMetadata> {
     void replace(String resourceName, Consumer<T> editor);
 
     /**
-     * Waits for {@link T} to be ready (created/running)
+     * Confirms that {@link T} is ready (created/running)
      *
      * @param resource resource
      * @return result of the readiness check
      */
-    boolean waitForReadiness(T resource);
+    boolean isReady(T resource);
 
     /**
-     * Waits for {@link T} to be deleted
+     * Confirms that {@link T} is deleted
      *
      * @param resource resource
      * @return result of the deletion
      */
-    boolean waitForDeletion(T resource);
+    boolean isDeleted(T resource);
 }
