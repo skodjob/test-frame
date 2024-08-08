@@ -10,12 +10,12 @@ import io.fabric8.kubernetes.api.model.batch.v1.Job;
 import io.fabric8.kubernetes.api.model.batch.v1.JobList;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.ScalableResource;
-import io.skodjob.testframe.interfaces.NamespacedResourceType;
+import io.skodjob.testframe.interfaces.ResourceType;
 
 /**
  * Implementation of ResourceType for specific kubernetes resource
  */
-public class JobType implements NamespacedResourceType<Job> {
+public class JobType implements ResourceType<Job> {
 
     private final MixedOperation<Job, JobList, ScalableResource<Job>> client;
 
@@ -47,61 +47,13 @@ public class JobType implements NamespacedResourceType<Job> {
     }
 
     /**
-     * Creates specific {@link Job} resource in Namespace specified by user
-     *
-     * @param namespaceName Namespace, where the resource should be created
-     * @param resource      {@link Job} resource
-     */
-    @Override
-    public void createInNamespace(String namespaceName, Job resource) {
-        client.inNamespace(namespaceName).resource(resource).create();
-    }
-
-    /**
-     * Updates specific {@link Job} resource in Namespace specified by user
-     *
-     * @param namespaceName Namespace, where the resource should be updated
-     * @param resource      {@link Job} updated resource
-     */
-    @Override
-    public void updateInNamespace(String namespaceName, Job resource) {
-        client.inNamespace(namespaceName).resource(resource).update();
-    }
-
-    /**
-     * Deletes {@link Job} resource from Namespace specified by user
-     *
-     * @param namespaceName Namespace, where the resource should be deleted
-     * @param resourceName  name of the {@link Job} that will be deleted
-     */
-    @Override
-    public void deleteFromNamespace(String namespaceName, String resourceName) {
-        client.inNamespace(namespaceName).withName(resourceName).delete();
-    }
-
-    /**
-     * Replaces {@link Job} resource in Namespace specified by user, using {@link Consumer}
-     * from which is the current {@link Job} resource updated
-     *
-     * @param namespaceName Namespace, where the resource should be replaced
-     * @param resourceName  name of the {@link Job} that will be replaced
-     * @param editor        {@link Consumer} containing updates to the resource
-     */
-    @Override
-    public void replaceInNamespace(String namespaceName, String resourceName, Consumer<Job> editor) {
-        Job toBeUpdated = client.inNamespace(namespaceName).withName(resourceName).get();
-        editor.accept(toBeUpdated);
-        updateInNamespace(namespaceName, toBeUpdated);
-    }
-
-    /**
      * Creates specific {@link Job} resource
      *
      * @param resource {@link Job} resource
      */
     @Override
     public void create(Job resource) {
-        client.resource(resource).create();
+        client.inNamespace(resource.getMetadata().getNamespace()).resource(resource).create();
     }
 
     /**
@@ -111,29 +63,30 @@ public class JobType implements NamespacedResourceType<Job> {
      */
     @Override
     public void update(Job resource) {
-        client.resource(resource).update();
+        client.inNamespace(resource.getMetadata().getNamespace()).resource(resource).update();
     }
 
     /**
      * Deletes {@link Job} resource from Namespace in current context
      *
-     * @param resourceName name of the {@link Job} that will be deleted
+     * @param resource {@link Job} resource that will be deleted
      */
     @Override
-    public void delete(String resourceName) {
-        client.withName(resourceName).delete();
+    public void delete(Job resource) {
+        client.inNamespace(resource.getMetadata().getNamespace()).withName(resource.getMetadata().getName()).delete();
     }
 
     /**
      * Replaces {@link Job} resource using {@link Consumer}
      * from which is the current {@link Job} resource updated
      *
-     * @param resourceName name of the {@link Job} that will be replaced
-     * @param editor       {@link Consumer} containing updates to the resource
+     * @param resource {@link Job} resource that will be replaced
+     * @param editor   {@link Consumer} containing updates to the resource
      */
     @Override
-    public void replace(String resourceName, Consumer<Job> editor) {
-        Job toBeUpdated = client.withName(resourceName).get();
+    public void replace(Job resource, Consumer<Job> editor) {
+        Job toBeUpdated = client.inNamespace(resource.getMetadata().getNamespace())
+            .withName(resource.getMetadata().getName()).get();
         editor.accept(toBeUpdated);
         update(toBeUpdated);
     }

@@ -47,18 +47,18 @@ public interface ResourceType<T extends HasMetadata> {
     /**
      * Deletes {@link T} resource from Namespace in current context
      *
-     * @param resourceName name of the {@link T} that will be deleted
+     * @param resource {@link T} resource that will be deleted
      */
-    void delete(String resourceName);
+    void delete(T resource);
 
     /**
      * Replaces {@link T} resource using {@link Consumer}
      * from which is the current {@link T} resource updated
      *
-     * @param resourceName name of the {@link T} that will be replaced
-     * @param editor       {@link Consumer} containing updates to the resource
+     * @param resource {@link T} resource that will be replaced
+     * @param editor   {@link Consumer} containing updates to the resource
      */
-    void replace(String resourceName, Consumer<T> editor);
+    void replace(T resource, Consumer<T> editor);
 
     /**
      * Confirms that {@link T} is ready (created/running)

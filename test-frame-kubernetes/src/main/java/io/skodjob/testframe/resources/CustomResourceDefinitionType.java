@@ -70,23 +70,23 @@ public class CustomResourceDefinitionType implements ResourceType<CustomResource
     /**
      * Deletes {@link CustomResourceDefinition} resource from Namespace in current context
      *
-     * @param resourceName name of the {@link CustomResourceDefinition} that will be deleted
+     * @param resource {@link CustomResourceDefinition} resource that will be deleted
      */
     @Override
-    public void delete(String resourceName) {
-        client.withName(resourceName).delete();
+    public void delete(CustomResourceDefinition resource) {
+        client.withName(resource.getMetadata().getName()).delete();
     }
 
     /**
      * Replaces {@link CustomResourceDefinition} resource using {@link Consumer}
      * from which is the current {@link CustomResourceDefinition} resource updated
      *
-     * @param resourceName name of the {@link CustomResourceDefinition} that will be replaced
+     * @param resource {@link CustomResourceDefinition} resource that will be replaced
      * @param editor       {@link Consumer} containing updates to the resource
      */
     @Override
-    public void replace(String resourceName, Consumer<CustomResourceDefinition> editor) {
-        CustomResourceDefinition toBeUpdated = client.withName(resourceName).get();
+    public void replace(CustomResourceDefinition resource, Consumer<CustomResourceDefinition> editor) {
+        CustomResourceDefinition toBeUpdated = client.withName(resource.getMetadata().getName()).get();
         editor.accept(toBeUpdated);
         update(toBeUpdated);
     }

@@ -74,23 +74,23 @@ public class ValidatingWebhookConfigurationType implements ResourceType<Validati
     /**
      * Deletes {@link ValidatingWebhookConfiguration} resource from Namespace in current context
      *
-     * @param resourceName name of the {@link ValidatingWebhookConfiguration} that will be deleted
+     * @param resource {@link ValidatingWebhookConfiguration} resource that will be deleted
      */
     @Override
-    public void delete(String resourceName) {
-        client.withName(resourceName).delete();
+    public void delete(ValidatingWebhookConfiguration resource) {
+        client.withName(resource.getMetadata().getName()).delete();
     }
 
     /**
      * Replaces {@link ValidatingWebhookConfiguration} resource using {@link Consumer}
      * from which is the current {@link ValidatingWebhookConfiguration} resource updated
      *
-     * @param resourceName name of the {@link ValidatingWebhookConfiguration} that will be replaced
-     * @param editor       {@link Consumer} containing updates to the resource
+     * @param resource {@link ValidatingWebhookConfiguration} resource that will be replaced
+     * @param editor   {@link Consumer} containing updates to the resource
      */
     @Override
-    public void replace(String resourceName, Consumer<ValidatingWebhookConfiguration> editor) {
-        ValidatingWebhookConfiguration toBeReplaced = client.withName(resourceName).get();
+    public void replace(ValidatingWebhookConfiguration resource, Consumer<ValidatingWebhookConfiguration> editor) {
+        ValidatingWebhookConfiguration toBeReplaced = client.withName(resource.getMetadata().getName()).get();
         editor.accept(toBeReplaced);
         update(toBeReplaced);
     }

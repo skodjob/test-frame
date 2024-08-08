@@ -10,12 +10,12 @@ import io.fabric8.kubernetes.api.model.networking.v1.NetworkPolicy;
 import io.fabric8.kubernetes.api.model.networking.v1.NetworkPolicyList;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
-import io.skodjob.testframe.interfaces.NamespacedResourceType;
+import io.skodjob.testframe.interfaces.ResourceType;
 
 /**
  * Implementation of ResourceType for specific kubernetes resource
  */
-public class NetworkPolicyType implements NamespacedResourceType<NetworkPolicy> {
+public class NetworkPolicyType implements ResourceType<NetworkPolicy> {
 
     private final MixedOperation<NetworkPolicy, NetworkPolicyList, Resource<NetworkPolicy>> client;
 
@@ -53,7 +53,7 @@ public class NetworkPolicyType implements NamespacedResourceType<NetworkPolicy> 
      */
     @Override
     public void create(NetworkPolicy resource) {
-        client.resource(resource).create();
+        client.inNamespace(resource.getMetadata().getNamespace()).resource(resource).create();
     }
 
     /**
@@ -63,29 +63,30 @@ public class NetworkPolicyType implements NamespacedResourceType<NetworkPolicy> 
      */
     @Override
     public void update(NetworkPolicy resource) {
-        client.resource(resource).update();
+        client.inNamespace(resource.getMetadata().getNamespace()).resource(resource).update();
     }
 
     /**
      * Deletes {@link NetworkPolicy} resource from Namespace in current context
      *
-     * @param resourceName name of the {@link NetworkPolicy} that will be deleted
+     * @param resource {@link NetworkPolicy} resource that will be deleted
      */
     @Override
-    public void delete(String resourceName) {
-        client.withName(resourceName).delete();
+    public void delete(NetworkPolicy resource) {
+        client.inNamespace(resource.getMetadata().getNamespace()).withName(resource.getMetadata().getName()).delete();
     }
 
     /**
      * Replaces {@link NetworkPolicy} resource using {@link Consumer}
      * from which is the current {@link NetworkPolicy} resource updated
      *
-     * @param resourceName name of the {@link NetworkPolicy} that will be replaced
-     * @param editor       {@link Consumer} containing updates to the resource
+     * @param resource {@link NetworkPolicy} resource that will be replaced
+     * @param editor   {@link Consumer} containing updates to the resource
      */
     @Override
-    public void replace(String resourceName, Consumer<NetworkPolicy> editor) {
-        NetworkPolicy toBeUpdated = client.withName(resourceName).get();
+    public void replace(NetworkPolicy resource, Consumer<NetworkPolicy> editor) {
+        NetworkPolicy toBeUpdated = client.inNamespace(resource.getMetadata().getNamespace())
+            .withName(resource.getMetadata().getName()).get();
         editor.accept(toBeUpdated);
         update(toBeUpdated);
     }
@@ -110,53 +111,5 @@ public class NetworkPolicyType implements NamespacedResourceType<NetworkPolicy> 
     @Override
     public boolean isDeleted(NetworkPolicy resource) {
         return resource == null;
-    }
-
-    /**
-     * Creates specific {@link NetworkPolicy} resource in Namespace specified by user
-     *
-     * @param namespaceName Namespace, where the resource should be created
-     * @param resource      {@link NetworkPolicy} resource
-     */
-    @Override
-    public void createInNamespace(String namespaceName, NetworkPolicy resource) {
-        client.inNamespace(namespaceName).resource(resource).create();
-    }
-
-    /**
-     * Updates specific {@link NetworkPolicy} resource in Namespace specified by user
-     *
-     * @param namespaceName Namespace, where the resource should be updated
-     * @param resource      {@link NetworkPolicy} updated resource
-     */
-    @Override
-    public void updateInNamespace(String namespaceName, NetworkPolicy resource) {
-        client.inNamespace(namespaceName).resource(resource).update();
-    }
-
-    /**
-     * Deletes {@link NetworkPolicy} resource from Namespace specified by user
-     *
-     * @param namespaceName Namespace, where the resource should be deleted
-     * @param resourceName  name of the {@link NetworkPolicy} that will be deleted
-     */
-    @Override
-    public void deleteFromNamespace(String namespaceName, String resourceName) {
-        client.inNamespace(namespaceName).withName(resourceName).delete();
-    }
-
-    /**
-     * Replaces {@link NetworkPolicy} resource in Namespace specified by user, using {@link Consumer}
-     * from which is the current {@link NetworkPolicy} resource updated
-     *
-     * @param namespaceName Namespace, where the resource should be replaced
-     * @param resourceName  name of the {@link NetworkPolicy} that will be replaced
-     * @param editor        {@link Consumer} containing updates to the resource
-     */
-    @Override
-    public void replaceInNamespace(String namespaceName, String resourceName, Consumer<NetworkPolicy> editor) {
-        NetworkPolicy toBeReplaced = client.inNamespace(namespaceName).withName(resourceName).get();
-        editor.accept(toBeReplaced);
-        updateInNamespace(namespaceName, toBeReplaced);
     }
 }

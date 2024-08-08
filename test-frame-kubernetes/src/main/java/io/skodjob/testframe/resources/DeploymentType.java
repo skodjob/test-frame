@@ -10,12 +10,12 @@ import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.apps.DeploymentList;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.RollableScalableResource;
-import io.skodjob.testframe.interfaces.NamespacedResourceType;
+import io.skodjob.testframe.interfaces.ResourceType;
 
 /**
  * Implementation of ResourceType for specific kubernetes resource
  */
-public class DeploymentType implements NamespacedResourceType<Deployment> {
+public class DeploymentType implements ResourceType<Deployment> {
 
     private final MixedOperation<Deployment, DeploymentList, RollableScalableResource<Deployment>> client;
 
@@ -53,7 +53,7 @@ public class DeploymentType implements NamespacedResourceType<Deployment> {
      */
     @Override
     public void create(Deployment resource) {
-        client.resource(resource).create();
+        client.inNamespace(resource.getMetadata().getNamespace()).resource(resource).create();
     }
 
     /**
@@ -63,29 +63,30 @@ public class DeploymentType implements NamespacedResourceType<Deployment> {
      */
     @Override
     public void update(Deployment resource) {
-        client.resource(resource).update();
+        client.inNamespace(resource.getMetadata().getNamespace()).resource(resource).update();
     }
 
     /**
      * Deletes {@link Deployment} resource from Namespace in current context
      *
-     * @param resourceName name of the {@link Deployment} that will be deleted
+     * @param resource {@link Deployment} resource that will be deleted
      */
     @Override
-    public void delete(String resourceName) {
-        client.withName(resourceName).delete();
+    public void delete(Deployment resource) {
+        client.inNamespace(resource.getMetadata().getNamespace()).withName(resource.getMetadata().getName()).delete();
     }
 
     /**
      * Replaces {@link Deployment} resource using {@link Consumer}
      * from which is the current {@link Deployment} resource updated
      *
-     * @param resourceName name of the {@link Deployment} that will be replaced
-     * @param editor       {@link Consumer} containing updates to the resource
+     * @param resource {@link Deployment} resource that will be replaced
+     * @param editor   {@link Consumer} containing updates to the resource
      */
     @Override
-    public void replace(String resourceName, Consumer<Deployment> editor) {
-        Deployment toBeUpdated = client.withName(resourceName).get();
+    public void replace(Deployment resource, Consumer<Deployment> editor) {
+        Deployment toBeUpdated = client.inNamespace(resource.getMetadata().getNamespace())
+            .withName(resource.getMetadata().getName()).get();
         editor.accept(toBeUpdated);
         update(toBeUpdated);
     }
@@ -110,53 +111,5 @@ public class DeploymentType implements NamespacedResourceType<Deployment> {
     @Override
     public boolean isDeleted(Deployment resource) {
         return resource == null;
-    }
-
-    /**
-     * Creates specific {@link Deployment} resource in Namespace specified by user
-     *
-     * @param namespaceName Namespace, where the resource should be created
-     * @param resource      {@link Deployment} resource
-     */
-    @Override
-    public void createInNamespace(String namespaceName, Deployment resource) {
-        client.inNamespace(namespaceName).resource(resource).create();
-    }
-
-    /**
-     * Updates specific {@link Deployment} resource in Namespace specified by user
-     *
-     * @param namespaceName Namespace, where the resource should be updated
-     * @param resource      {@link Deployment} updated resource
-     */
-    @Override
-    public void updateInNamespace(String namespaceName, Deployment resource) {
-        client.inNamespace(namespaceName).resource(resource).update();
-    }
-
-    /**
-     * Deletes {@link Deployment} resource from Namespace specified by user
-     *
-     * @param namespaceName Namespace, where the resource should be deleted
-     * @param resourceName  name of the {@link Deployment} that will be deleted
-     */
-    @Override
-    public void deleteFromNamespace(String namespaceName, String resourceName) {
-        client.inNamespace(namespaceName).withName(resourceName).delete();
-    }
-
-    /**
-     * Replaces {@link Deployment} resource in Namespace specified by user, using {@link Consumer}
-     * from which is the current {@link Deployment} resource updated
-     *
-     * @param namespaceName Namespace, where the resource should be replaced
-     * @param resourceName  name of the {@link Deployment} that will be replaced
-     * @param editor        {@link Consumer} containing updates to the resource
-     */
-    @Override
-    public void replaceInNamespace(String namespaceName, String resourceName, Consumer<Deployment> editor) {
-        Deployment toBeUpdated = client.inNamespace(namespaceName).withName(resourceName).get();
-        editor.accept(toBeUpdated);
-        updateInNamespace(namespaceName, toBeUpdated);
     }
 }

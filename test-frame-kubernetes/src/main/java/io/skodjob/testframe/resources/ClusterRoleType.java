@@ -69,23 +69,23 @@ public class ClusterRoleType implements ResourceType<ClusterRole> {
     /**
      * Deletes {@link ClusterRole} resource from Namespace in current context
      *
-     * @param resourceName name of the {@link ClusterRole} that will be deleted
+     * @param resource {@link ClusterRole} resource that will be deleted
      */
     @Override
-    public void delete(String resourceName) {
-        client.withName(resourceName).delete();
+    public void delete(ClusterRole resource) {
+        client.withName(resource.getMetadata().getName()).delete();
     }
 
     /**
      * Replaces {@link ClusterRole} resource using {@link Consumer}
      * from which is the current {@link ClusterRole} resource updated
      *
-     * @param resourceName name of the {@link ClusterRole} that will be replaced
-     * @param editor       {@link Consumer} containing updates to the resource
+     * @param resource {@link ClusterRole} resource that will be replaced
+     * @param editor   {@link Consumer} containing updates to the resource
      */
     @Override
-    public void replace(String resourceName, Consumer<ClusterRole> editor) {
-        ClusterRole toBeUpdated = client.withName(resourceName).get();
+    public void replace(ClusterRole resource, Consumer<ClusterRole> editor) {
+        ClusterRole toBeUpdated = client.withName(resource.getMetadata().getName()).get();
         editor.accept(toBeUpdated);
         update(toBeUpdated);
     }

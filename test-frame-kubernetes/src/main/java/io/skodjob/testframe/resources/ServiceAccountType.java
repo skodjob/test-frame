@@ -10,12 +10,12 @@ import io.fabric8.kubernetes.api.model.ServiceAccount;
 import io.fabric8.kubernetes.api.model.ServiceAccountList;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.ServiceAccountResource;
-import io.skodjob.testframe.interfaces.NamespacedResourceType;
+import io.skodjob.testframe.interfaces.ResourceType;
 
 /**
  * Implementation of ResourceType for specific kubernetes resource
  */
-public class ServiceAccountType implements NamespacedResourceType<ServiceAccount> {
+public class ServiceAccountType implements ResourceType<ServiceAccount> {
 
     private final MixedOperation<ServiceAccount, ServiceAccountList, ServiceAccountResource> client;
 
@@ -43,7 +43,7 @@ public class ServiceAccountType implements NamespacedResourceType<ServiceAccount
      */
     @Override
     public void create(ServiceAccount resource) {
-        client.resource(resource).create();
+        client.inNamespace(resource.getMetadata().getNamespace()).resource(resource).create();
     }
 
     /**
@@ -63,29 +63,30 @@ public class ServiceAccountType implements NamespacedResourceType<ServiceAccount
      */
     @Override
     public void update(ServiceAccount resource) {
-        client.resource(resource).update();
+        client.inNamespace(resource.getMetadata().getNamespace()).resource(resource).update();
     }
 
     /**
      * Deletes {@link ServiceAccount} resource from Namespace in current context
      *
-     * @param resourceName name of the {@link ServiceAccount} that will be deleted
+     * @param resource {@link ServiceAccount} resource that will be deleted
      */
     @Override
-    public void delete(String resourceName) {
-        client.withName(resourceName).delete();
+    public void delete(ServiceAccount resource) {
+        client.inNamespace(resource.getMetadata().getNamespace()).withName(resource.getMetadata().getName()).delete();
     }
 
     /**
      * Replaces {@link ServiceAccount} resource using {@link Consumer}
      * from which is the current {@link ServiceAccount} resource updated
      *
-     * @param resourceName name of the {@link ServiceAccount} that will be replaced
-     * @param editor       {@link Consumer} containing updates to the resource
+     * @param resource {@link ServiceAccount} resource that will be replaced
+     * @param editor   {@link Consumer} containing updates to the resource
      */
     @Override
-    public void replace(String resourceName, Consumer<ServiceAccount> editor) {
-        ServiceAccount toBeReplaced = client.withName(resourceName).get();
+    public void replace(ServiceAccount resource, Consumer<ServiceAccount> editor) {
+        ServiceAccount toBeReplaced = client.inNamespace(resource.getMetadata().getNamespace())
+            .withName(resource.getMetadata().getName()).get();
         editor.accept(toBeReplaced);
         update(toBeReplaced);
     }
@@ -110,53 +111,5 @@ public class ServiceAccountType implements NamespacedResourceType<ServiceAccount
     @Override
     public boolean isDeleted(ServiceAccount resource) {
         return resource == null;
-    }
-
-    /**
-     * Creates specific {@link ServiceAccount} resource in Namespace specified by user
-     *
-     * @param namespaceName Namespace, where the resource should be created
-     * @param resource      {@link ServiceAccount} resource
-     */
-    @Override
-    public void createInNamespace(String namespaceName, ServiceAccount resource) {
-        client.inNamespace(namespaceName).resource(resource).create();
-    }
-
-    /**
-     * Updates specific {@link ServiceAccount} resource in Namespace specified by user
-     *
-     * @param namespaceName Namespace, where the resource should be updated
-     * @param resource      {@link ServiceAccount} updated resource
-     */
-    @Override
-    public void updateInNamespace(String namespaceName, ServiceAccount resource) {
-        client.inNamespace(namespaceName).resource(resource).update();
-    }
-
-    /**
-     * Deletes {@link ServiceAccount} resource from Namespace specified by user
-     *
-     * @param namespaceName Namespace, where the resource should be deleted
-     * @param resourceName  name of the {@link ServiceAccount} that will be deleted
-     */
-    @Override
-    public void deleteFromNamespace(String namespaceName, String resourceName) {
-        client.inNamespace(namespaceName).withName(resourceName).delete();
-    }
-
-    /**
-     * Replaces {@link ServiceAccount} resource in Namespace specified by user, using {@link Consumer}
-     * from which is the current {@link ServiceAccount} resource updated
-     *
-     * @param namespaceName Namespace, where the resource should be replaced
-     * @param resourceName  name of the {@link ServiceAccount} that will be replaced
-     * @param editor        {@link Consumer} containing updates to the resource
-     */
-    @Override
-    public void replaceInNamespace(String namespaceName, String resourceName, Consumer<ServiceAccount> editor) {
-        ServiceAccount toBeReplaced = client.inNamespace(namespaceName).withName(resourceName).get();
-        editor.accept(toBeReplaced);
-        updateInNamespace(namespaceName, toBeReplaced);
     }
 }

@@ -70,23 +70,23 @@ public class ClusterRoleBindingType implements ResourceType<ClusterRoleBinding> 
     /**
      * Deletes {@link ClusterRoleBinding} resource from Namespace in current context
      *
-     * @param resourceName name of the {@link ClusterRoleBinding} that will be deleted
+     * @param resource {@link ClusterRoleBinding} resource that will be deleted
      */
     @Override
-    public void delete(String resourceName) {
-        client.withName(resourceName).delete();
+    public void delete(ClusterRoleBinding resource) {
+        client.withName(resource.getMetadata().getName()).delete();
     }
 
     /**
      * Replaces {@link ClusterRoleBinding} resource using {@link Consumer}
      * from which is the current {@link ClusterRoleBinding} resource updated
      *
-     * @param resourceName name of the {@link ClusterRoleBinding} that will be replaced
-     * @param editor       {@link Consumer} containing updates to the resource
+     * @param resource {@link ClusterRoleBinding} resource that will be replaced
+     * @param editor   {@link Consumer} containing updates to the resource
      */
     @Override
-    public void replace(String resourceName, Consumer<ClusterRoleBinding> editor) {
-        ClusterRoleBinding toBeUpdated = client.withName(resourceName).get();
+    public void replace(ClusterRoleBinding resource, Consumer<ClusterRoleBinding> editor) {
+        ClusterRoleBinding toBeUpdated = client.withName(resource.getMetadata().getName()).get();
         editor.accept(toBeUpdated);
         update(toBeUpdated);
     }
