@@ -31,7 +31,6 @@ import io.skodjob.testframe.clients.KubeClient;
 import io.skodjob.testframe.clients.cmdClient.KubeCmdClient;
 import io.skodjob.testframe.clients.cmdClient.Kubectl;
 import io.skodjob.testframe.clients.cmdClient.Oc;
-import io.skodjob.testframe.interfaces.NamespacedResourceType;
 import io.skodjob.testframe.interfaces.ResourceType;
 import io.skodjob.testframe.wait.Wait;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -383,12 +382,7 @@ public class KubeResourceManager {
                         String.format("Timed out deleting %s/%s in %s", resource.getKind(),
                             resource.getMetadata().getName(), resource.getMetadata().getNamespace()));
                 } else {
-                    if (type instanceof NamespacedResourceType<T>) {
-                        ((NamespacedResourceType<T>) type).deleteFromNamespace(resource.getMetadata().getNamespace(),
-                            resource.getMetadata().getName());
-                    } else {
-                        type.delete(resource.getMetadata().getName());
-                    }
+                    type.delete(resource);
                     assertTrue(waitResourceCondition(resource, ResourceCondition.deletion()),
                         String.format("Timed out deleting %s/%s in %s", resource.getKind(),
                             resource.getMetadata().getName(), resource.getMetadata().getNamespace()));
@@ -418,12 +412,7 @@ public class KubeResourceManager {
             LoggerUtils.logResource("Updating", resource);
             ResourceType<T> type = findResourceType(resource);
             if (type != null) {
-                if (type instanceof NamespacedResourceType<T>) {
-                    ((NamespacedResourceType<T>) type).updateInNamespace(resource.getMetadata().getNamespace(),
-                        resource);
-                } else {
-                    type.update(resource);
-                }
+                type.update(resource);
             } else {
                 client.getClient().resource(resource).update();
             }
@@ -459,7 +448,7 @@ public class KubeResourceManager {
                 if (type == null) {
                     client.getClient().resource(resource).delete();
                 } else {
-                    type.delete(res.getMetadata().getName());
+                    type.delete(res);
                 }
             });
 

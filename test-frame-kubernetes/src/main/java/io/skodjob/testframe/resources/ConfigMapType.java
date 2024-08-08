@@ -10,12 +10,12 @@ import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.api.model.ConfigMapList;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
-import io.skodjob.testframe.interfaces.NamespacedResourceType;
+import io.skodjob.testframe.interfaces.ResourceType;
 
 /**
  * Implementation of ResourceType for specific kubernetes resource
  */
-public class ConfigMapType implements NamespacedResourceType<ConfigMap> {
+public class ConfigMapType implements ResourceType<ConfigMap> {
     private final MixedOperation<ConfigMap, ConfigMapList, Resource<ConfigMap>> client;
 
     /**
@@ -46,95 +46,48 @@ public class ConfigMapType implements NamespacedResourceType<ConfigMap> {
     }
 
     /**
-     * Creates specific {@link ConfigMap} resource in Namespace specified by user
-     *
-     * @param namespaceName Namespace, where the resource should be created
-     * @param resource      {@link ConfigMap} resource
-     */
-    @Override
-    public void createInNamespace(String namespaceName, ConfigMap resource) {
-        client.inNamespace(namespaceName).resource(resource).create();
-    }
-
-    /**
-     * Updates specific {@link ConfigMap} resource in Namespace specified by user
-     *
-     * @param namespaceName Namespace, where the resource should be updated
-     * @param resource      {@link ConfigMap} updated resource
-     */
-    @Override
-    public void updateInNamespace(String namespaceName, ConfigMap resource) {
-        client.inNamespace(namespaceName).resource(resource).update();
-    }
-
-    /**
-     * Deletes {@link ConfigMap} resource from Namespace specified by user
-     *
-     * @param namespaceName Namespace, where the resource should be deleted
-     * @param resourceName  name of the {@link ConfigMap} that will be deleted
-     */
-    @Override
-    public void deleteFromNamespace(String namespaceName, String resourceName) {
-        client.inNamespace(namespaceName).withName(resourceName).delete();
-    }
-
-    /**
-     * Replaces {@link ConfigMap} resource in Namespace specified by user, using {@link Consumer}
-     * from which is the current {@link ConfigMap} resource updated
-     *
-     * @param namespaceName Namespace, where the resource should be replaced
-     * @param resourceName  name of the {@link ConfigMap} that will be replaced
-     * @param editor        {@link Consumer} containing updates to the resource
-     */
-    @Override
-    public void replaceInNamespace(String namespaceName, String resourceName, Consumer<ConfigMap> editor) {
-        ConfigMap toBeUpdated = client.inNamespace(namespaceName).withName(resourceName).get();
-        editor.accept(toBeUpdated);
-        updateInNamespace(namespaceName, toBeUpdated);
-    }
-
-    /**
      * Creates specific {@link ConfigMap} resource
      *
      * @param resource {@link ConfigMap} resource
      */
     @Override
     public void create(ConfigMap resource) {
-        client.resource(resource).create();
+        client.inNamespace(resource.getMetadata().getNamespace()).resource(resource).create();
     }
 
     /**
      * Updates specific {@link ConfigMap} resource
      *
-     * @param resource {@link ConfigMap} resource that will be updated
+     * @param resource {@link ConfigMap} updated resource
      */
     @Override
     public void update(ConfigMap resource) {
-        client.resource(resource).update();
-    }
-
-    /**
-     * Deletes {@link ConfigMap} resource from Namespace in current context
-     *
-     * @param resourceName name of the {@link ConfigMap} that will be deleted
-     */
-    @Override
-    public void delete(String resourceName) {
-        client.withName(resourceName).delete();
+        client.inNamespace(resource.getMetadata().getNamespace()).resource(resource).update();
     }
 
     /**
      * Replaces {@link ConfigMap} resource using {@link Consumer}
      * from which is the current {@link ConfigMap} resource updated
      *
-     * @param resourceName name of the {@link ConfigMap} that will be replaced
-     * @param editor       {@link Consumer} containing updates to the resource
+     * @param resource {@link ConfigMap} replaced resource
+     * @param editor   {@link Consumer} containing updates to the resource
      */
     @Override
-    public void replace(String resourceName, Consumer<ConfigMap> editor) {
-        ConfigMap toBeUpdated = client.withName(resourceName).get();
+    public void replace(ConfigMap resource, Consumer<ConfigMap> editor) {
+        ConfigMap toBeUpdated = client.inNamespace(resource.getMetadata().getNamespace())
+            .withName(resource.getMetadata().getName()).get();
         editor.accept(toBeUpdated);
         update(toBeUpdated);
+    }
+
+    /**
+     * Deletes {@link ConfigMap} resource
+     *
+     * @param resource {@link ConfigMap} deleted resource
+     */
+    @Override
+    public void delete(ConfigMap resource) {
+        client.inNamespace(resource.getMetadata().getNamespace()).withName(resource.getMetadata().getName()).delete();
     }
 
     /**

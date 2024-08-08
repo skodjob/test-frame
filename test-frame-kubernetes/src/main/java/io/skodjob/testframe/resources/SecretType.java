@@ -10,12 +10,12 @@ import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.api.model.SecretList;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
-import io.skodjob.testframe.interfaces.NamespacedResourceType;
+import io.skodjob.testframe.interfaces.ResourceType;
 
 /**
  * Implementation of ResourceType for specific kubernetes resource
  */
-public class SecretType implements NamespacedResourceType<Secret> {
+public class SecretType implements ResourceType<Secret> {
 
     private final MixedOperation<Secret, SecretList, Resource<Secret>> client;
 
@@ -43,7 +43,7 @@ public class SecretType implements NamespacedResourceType<Secret> {
      */
     @Override
     public void create(Secret resource) {
-        client.resource(resource).create();
+        client.inNamespace(resource.getMetadata().getNamespace()).resource(resource).create();
     }
 
     /**
@@ -57,54 +57,33 @@ public class SecretType implements NamespacedResourceType<Secret> {
     }
 
     /**
-     * Creates specific {@link Secret} resource in specified namespace
-     *
-     * @param namespaceName name of Namespace, where the {@link Secret} should be created
-     * @param resource      {@link Secret} resource
-     */
-    @Override
-    public void createInNamespace(String namespaceName, Secret resource) {
-        client.inNamespace(namespaceName).resource(resource).create();
-    }
-
-    /**
      * Updates specific {@link Secret} resource
      *
      * @param resource {@link Secret} resource that will be updated
      */
     @Override
     public void update(Secret resource) {
-        client.resource(resource).update();
-    }
-
-    /**
-     * Updates specific {@link Secret} resource in specified Namespace
-     *
-     * @param namespaceName name of Namespace, where the {@link Secret} should be updated
-     * @param resource      {@link Secret} resource that will be updated
-     */
-    @Override
-    public void updateInNamespace(String namespaceName, Secret resource) {
-        client.inNamespace(namespaceName).resource(resource).update();
+        client.inNamespace(resource.getMetadata().getNamespace()).resource(resource).update();
     }
 
     /**
      * Deletes {@link Secret} resource from Namespace in current context
      *
-     * @param resourceName name of the {@link Secret} that will be deleted
+     * @param resource {@link Secret} resource that will be deleted
      */
     @Override
-    public void delete(String resourceName) {
-        client.withName(resourceName).delete();
+    public void delete(Secret resource) {
+        client.inNamespace(resource.getMetadata().getNamespace()).withName(resource.getMetadata().getName()).delete();
     }
 
     /**
-     * @param resourceName name
-     * @param editor       modifier
+     * @param resource name
+     * @param editor   modifier
      */
     @Override
-    public void replace(String resourceName, Consumer<Secret> editor) {
-        Secret toBeReplaced = client.withName(resourceName).get();
+    public void replace(Secret resource, Consumer<Secret> editor) {
+        Secret toBeReplaced = client.inNamespace(resource.getMetadata().getNamespace())
+            .withName(resource.getMetadata().getName()).get();
         editor.accept(toBeReplaced);
         update(toBeReplaced);
     }
@@ -129,28 +108,5 @@ public class SecretType implements NamespacedResourceType<Secret> {
     @Override
     public boolean isDeleted(Secret resource) {
         return false;
-    }
-
-    /**
-     * Deletes {@link Secret} resource from specified Namespace
-     *
-     * @param namespaceName name of Namespace, from where the {@link Secret} will be deleted
-     * @param resourceName  name of the {@link Secret} resource
-     */
-    @Override
-    public void deleteFromNamespace(String namespaceName, String resourceName) {
-        client.inNamespace(namespaceName).withName(resourceName).delete();
-    }
-
-    /**
-     * @param namespaceName namespace
-     * @param resourceName  resource
-     * @param editor        modifier
-     */
-    @Override
-    public void replaceInNamespace(String namespaceName, String resourceName, Consumer<Secret> editor) {
-        Secret toBeReplaced = client.inNamespace(namespaceName).withName(resourceName).get();
-        editor.accept(toBeReplaced);
-        updateInNamespace(namespaceName, toBeReplaced);
     }
 }

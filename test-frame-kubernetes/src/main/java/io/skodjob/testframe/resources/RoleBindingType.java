@@ -10,12 +10,12 @@ import io.fabric8.kubernetes.api.model.rbac.RoleBinding;
 import io.fabric8.kubernetes.api.model.rbac.RoleBindingList;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
-import io.skodjob.testframe.interfaces.NamespacedResourceType;
+import io.skodjob.testframe.interfaces.ResourceType;
 
 /**
  * Implementation of ResourceType for specific kubernetes resource
  */
-public class RoleBindingType implements NamespacedResourceType<RoleBinding> {
+public class RoleBindingType implements ResourceType<RoleBinding> {
 
     private final MixedOperation<RoleBinding, RoleBindingList, Resource<RoleBinding>> client;
 
@@ -53,7 +53,7 @@ public class RoleBindingType implements NamespacedResourceType<RoleBinding> {
      */
     @Override
     public void create(RoleBinding resource) {
-        client.resource(resource).create();
+        client.inNamespace(resource.getMetadata().getNamespace()).resource(resource).create();
     }
 
     /**
@@ -63,29 +63,30 @@ public class RoleBindingType implements NamespacedResourceType<RoleBinding> {
      */
     @Override
     public void update(RoleBinding resource) {
-        client.resource(resource).update();
+        client.inNamespace(resource.getMetadata().getNamespace()).resource(resource).update();
     }
 
     /**
      * Deletes {@link RoleBinding} resource from Namespace in current context
      *
-     * @param resourceName name of the {@link RoleBinding} that will be deleted
+     * @param resource {@link RoleBinding} resource that will be deleted
      */
     @Override
-    public void delete(String resourceName) {
-        client.withName(resourceName).delete();
+    public void delete(RoleBinding resource) {
+        client.inNamespace(resource.getMetadata().getNamespace()).withName(resource.getMetadata().getName()).delete();
     }
 
     /**
      * Replaces {@link RoleBinding} resource using {@link Consumer}
      * from which is the current {@link RoleBinding} resource updated
      *
-     * @param resourceName name of the {@link RoleBinding} that will be replaced
-     * @param editor       {@link Consumer} containing updates to the resource
+     * @param resource {@link RoleBinding} resource that will be replaced
+     * @param editor   {@link Consumer} containing updates to the resource
      */
     @Override
-    public void replace(String resourceName, Consumer<RoleBinding> editor) {
-        RoleBinding toBeUpdated = client.withName(resourceName).get();
+    public void replace(RoleBinding resource, Consumer<RoleBinding> editor) {
+        RoleBinding toBeUpdated = client.inNamespace(resource.getMetadata().getNamespace())
+            .withName(resource.getMetadata().getName()).get();
         editor.accept(toBeUpdated);
         update(toBeUpdated);
     }
@@ -110,53 +111,5 @@ public class RoleBindingType implements NamespacedResourceType<RoleBinding> {
     @Override
     public boolean isDeleted(RoleBinding resource) {
         return resource == null;
-    }
-
-    /**
-     * Creates specific {@link RoleBinding} resource in Namespace specified by user
-     *
-     * @param namespaceName Namespace, where the resource should be created
-     * @param resource      {@link RoleBinding} resource
-     */
-    @Override
-    public void createInNamespace(String namespaceName, RoleBinding resource) {
-        client.inNamespace(namespaceName).resource(resource).create();
-    }
-
-    /**
-     * Updates specific {@link RoleBinding} resource in Namespace specified by user
-     *
-     * @param namespaceName Namespace, where the resource should be updated
-     * @param resource      {@link RoleBinding} updated resource
-     */
-    @Override
-    public void updateInNamespace(String namespaceName, RoleBinding resource) {
-        client.inNamespace(namespaceName).resource(resource).update();
-    }
-
-    /**
-     * Deletes {@link RoleBinding} resource from Namespace specified by user
-     *
-     * @param namespaceName Namespace, where the resource should be deleted
-     * @param resourceName  name of the {@link RoleBinding} that will be deleted
-     */
-    @Override
-    public void deleteFromNamespace(String namespaceName, String resourceName) {
-        client.inNamespace(namespaceName).withName(resourceName).delete();
-    }
-
-    /**
-     * Replaces {@link RoleBinding} resource in Namespace specified by user, using {@link Consumer}
-     * from which is the current {@link RoleBinding} resource updated
-     *
-     * @param namespaceName Namespace, where the resource should be replaced
-     * @param resourceName  name of the {@link RoleBinding} that will be replaced
-     * @param editor        {@link Consumer} containing updates to the resource
-     */
-    @Override
-    public void replaceInNamespace(String namespaceName, String resourceName, Consumer<RoleBinding> editor) {
-        RoleBinding toBeReplaced = client.inNamespace(namespaceName).withName(resourceName).get();
-        editor.accept(toBeReplaced);
-        updateInNamespace(namespaceName, toBeReplaced);
     }
 }

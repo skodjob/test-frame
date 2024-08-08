@@ -85,23 +85,23 @@ public class NamespaceType implements ResourceType<Namespace> {
     /**
      * Deletes {@link Namespace} resource from Namespace in current context
      *
-     * @param resourceName name of the {@link Namespace} that will be deleted
+     * @param resource {@link Namespace} resource that will be deleted
      */
     @Override
-    public void delete(String resourceName) {
-        client.withName(resourceName).delete();
+    public void delete(Namespace resource) {
+        client.withName(resource.getMetadata().getName()).delete();
     }
 
     /**
      * Replaces {@link Namespace} resource using {@link Consumer}
      * from which is the current {@link Namespace} resource updated
      *
-     * @param resourceName name of the {@link Namespace} that will be replaced
-     * @param editor       {@link Consumer} containing updates to the resource
+     * @param resource {@link Namespace} resource that will be replaced
+     * @param editor   {@link Consumer} containing updates to the resource
      */
     @Override
-    public void replace(String resourceName, Consumer<Namespace> editor) {
-        Namespace toBeUpdated = client.withName(resourceName).get();
+    public void replace(Namespace resource, Consumer<Namespace> editor) {
+        Namespace toBeUpdated = client.withName(resource.getMetadata().getName()).get();
         editor.accept(toBeUpdated);
         update(toBeUpdated);
     }

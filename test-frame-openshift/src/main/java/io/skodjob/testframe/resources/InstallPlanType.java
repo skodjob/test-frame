@@ -8,14 +8,14 @@ import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
 import io.fabric8.openshift.api.model.operatorhub.v1alpha1.InstallPlan;
 import io.fabric8.openshift.api.model.operatorhub.v1alpha1.InstallPlanList;
-import io.skodjob.testframe.interfaces.NamespacedResourceType;
+import io.skodjob.testframe.interfaces.ResourceType;
 
 import java.util.function.Consumer;
 
 /**
  * Implementation of ResourceType for specific kubernetes resource
  */
-public class InstallPlanType implements NamespacedResourceType<InstallPlan> {
+public class InstallPlanType implements ResourceType<InstallPlan> {
 
     private final MixedOperation<InstallPlan, InstallPlanList, Resource<InstallPlan>> client;
 
@@ -53,7 +53,7 @@ public class InstallPlanType implements NamespacedResourceType<InstallPlan> {
      */
     @Override
     public void create(InstallPlan resource) {
-        client.resource(resource).create();
+        client.inNamespace(resource.getMetadata().getNamespace()).resource(resource).create();
     }
 
     /**
@@ -63,29 +63,30 @@ public class InstallPlanType implements NamespacedResourceType<InstallPlan> {
      */
     @Override
     public void update(InstallPlan resource) {
-        client.resource(resource).update();
+        client.inNamespace(resource.getMetadata().getNamespace()).resource(resource).update();
     }
 
     /**
      * Deletes {@link InstallPlan} resource from Namespace in current context
      *
-     * @param resourceName name of the {@link InstallPlan} that will be deleted
+     * @param resource {@link InstallPlan} resource that will be deleted
      */
     @Override
-    public void delete(String resourceName) {
-        client.withName(resourceName).delete();
+    public void delete(InstallPlan resource) {
+        client.inNamespace(resource.getMetadata().getNamespace()).withName(resource.getMetadata().getName()).delete();
     }
 
     /**
      * Replaces {@link InstallPlan} resource using {@link Consumer}
      * from which is the current {@link InstallPlan} resource updated
      *
-     * @param resourceName name of the {@link InstallPlan} that will be replaced
+     * @param resource {@link InstallPlan} resource that will be replaced
      * @param editor       {@link Consumer} containing updates to the resource
      */
     @Override
-    public void replace(String resourceName, Consumer<InstallPlan> editor) {
-        InstallPlan toBeReplaced = client.withName(resourceName).get();
+    public void replace(InstallPlan resource, Consumer<InstallPlan> editor) {
+        InstallPlan toBeReplaced = client.inNamespace(resource.getMetadata().getNamespace())
+            .withName(resource.getMetadata().getName()).get();
         editor.accept(toBeReplaced);
         update(toBeReplaced);
     }
@@ -110,53 +111,5 @@ public class InstallPlanType implements NamespacedResourceType<InstallPlan> {
     @Override
     public boolean isDeleted(InstallPlan resource) {
         return resource == null;
-    }
-
-    /**
-     * Creates specific {@link InstallPlan} resource in Namespace specified by user
-     *
-     * @param namespaceName Namespace, where the resource should be created
-     * @param resource      {@link InstallPlan} resource
-     */
-    @Override
-    public void createInNamespace(String namespaceName, InstallPlan resource) {
-        client.inNamespace(namespaceName).resource(resource).create();
-    }
-
-    /**
-     * Updates specific {@link InstallPlan} resource in Namespace specified by user
-     *
-     * @param namespaceName Namespace, where the resource should be updated
-     * @param resource      {@link InstallPlan} updated resource
-     */
-    @Override
-    public void updateInNamespace(String namespaceName, InstallPlan resource) {
-        client.inNamespace(namespaceName).resource(resource).update();
-    }
-
-    /**
-     * Deletes {@link InstallPlan} resource from Namespace specified by user
-     *
-     * @param namespaceName Namespace, where the resource should be deleted
-     * @param resourceName  name of the {@link InstallPlan} that will be deleted
-     */
-    @Override
-    public void deleteFromNamespace(String namespaceName, String resourceName) {
-        client.inNamespace(namespaceName).withName(resourceName).delete();
-    }
-
-    /**
-     * Replaces {@link InstallPlan} resource in Namespace specified by user, using {@link Consumer}
-     * from which is the current {@link InstallPlan} resource updated
-     *
-     * @param namespaceName Namespace, where the resource should be replaced
-     * @param resourceName  name of the {@link InstallPlan} that will be replaced
-     * @param editor        {@link Consumer} containing updates to the resource
-     */
-    @Override
-    public void replaceInNamespace(String namespaceName, String resourceName, Consumer<InstallPlan> editor) {
-        InstallPlan toBeReplaced = client.inNamespace(namespaceName).withName(resourceName).get();
-        editor.accept(toBeReplaced);
-        updateInNamespace(namespaceName, toBeReplaced);
     }
 }
