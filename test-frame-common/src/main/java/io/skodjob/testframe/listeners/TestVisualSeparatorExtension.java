@@ -24,14 +24,14 @@ public class TestVisualSeparatorExtension implements BeforeEachCallback, AfterEa
     @Override
     public void beforeEach(ExtensionContext extensionContext) {
         LoggerUtils.logSeparator();
-        logger.info(String.format("%s.%s-STARTED", extensionContext.getRequiredTestClass().getName(),
-            extensionContext.getDisplayName().replace("()", "")));
+        logger.info("{}.{}-STARTED", extensionContext.getRequiredTestClass().getName(),
+            extensionContext.getDisplayName().replace("()", ""));
     }
 
     @Override
     public void afterEach(ExtensionContext extensionContext) {
-        logger.info(String.format("%s.%s-FINISHED", extensionContext.getRequiredTestClass().getName(),
-            extensionContext.getDisplayName().replace("()", "")));
+        logger.info("{}.{}-FINISHED", extensionContext.getRequiredTestClass().getName(),
+            extensionContext.getDisplayName().replace("()", ""));
         LoggerUtils.logSeparator();
     }
 }
