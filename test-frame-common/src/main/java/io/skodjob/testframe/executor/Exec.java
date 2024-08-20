@@ -45,7 +45,7 @@ public class Exec {
     private static final Pattern ERROR_PATTERN = Pattern.compile("Error from server \\(([a-zA-Z0-9]+)\\):");
     private static final Pattern INVALID_PATTERN = Pattern
         .compile("The ([a-zA-Z0-9]+) \"([a-z0-9.-]+)\" is invalid:");
-    private static final Pattern PATH_SPLITTER = Pattern.compile(System.getProperty("path.separator"));
+    private static final Pattern PATH_SPLITTER = Pattern.compile(File.pathSeparator);
     private static final int MAXIMUM_EXEC_LOG_CHARACTER_SIZE = 2000;
     private static final Object LOCK = new Object();
 
@@ -271,7 +271,7 @@ public class Exec {
      */
     public int execute(String input, List<String> commands, Set<EnvVar> envVars, long timeoutMs)
         throws IOException, InterruptedException, ExecutionException {
-        LOGGER.trace("Running command - " + join(" ", commands.toArray(new String[0])));
+        LOGGER.trace("Running command - {}", join(" ", commands.toArray(new String[0])));
         ProcessBuilder builder = new ProcessBuilder();
         builder.command(commands);
         if (envVars != null) {
@@ -432,7 +432,7 @@ public class Exec {
                     while (scanner.hasNextLine()) {
                         data.append(scanner.nextLine());
                         if (appendLineSeparator) {
-                            data.append(System.getProperty("line.separator"));
+                            data.append(System.lineSeparator());
                         }
                     }
                     scanner.close();
