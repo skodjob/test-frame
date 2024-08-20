@@ -4,6 +4,7 @@
  */
 package io.skodjob.testframe.executor;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 /**
@@ -11,6 +12,7 @@ import java.io.Serializable;
  */
 public class ExecResult implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**
@@ -84,11 +86,9 @@ public class ExecResult implements Serializable {
      */
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("ExecResult{");
-        sb.append("returnCode=").append(returnCode);
-        sb.append(", stdOut='").append(stdOut).append('\'');
-        sb.append(", stdErr='").append(stdErr).append('\'');
-        sb.append('}');
-        return sb.toString();
+        return "ExecResult{" + "returnCode=" + returnCode +
+            ", stdOut='" + stdOut + '\'' +
+            ", stdErr='" + stdErr + '\'' +
+            '}';
     }
 }
