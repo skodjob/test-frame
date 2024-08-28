@@ -372,20 +372,23 @@ public class KubeResourceManager {
      */
     @SafeVarargs
     public final <T extends HasMetadata> void deleteResource(T... resources) {
+        List<CompletableFuture<Void>> waitExecutors = new LinkedList<>();
         for (T resource : resources) {
             ResourceType<T> type = findResourceType(resource);
             LoggerUtils.logResource("Deleting", resource);
             try {
                 if (type == null) {
                     client.getClient().resource(resource).delete();
-                    assertTrue(waitResourceCondition(resource, ResourceCondition.deletion()),
-                        String.format("Timed out deleting %s/%s in %s", resource.getKind(),
-                            resource.getMetadata().getName(), resource.getMetadata().getNamespace()));
+                    waitExecutors.add(CompletableFuture.runAsync(() ->
+                        assertTrue(waitResourceCondition(resource, ResourceCondition.deletion()),
+                            String.format("Timed out deleting %s/%s in %s", resource.getKind(),
+                                resource.getMetadata().getName(), resource.getMetadata().getNamespace()))));
                 } else {
                     type.delete(resource);
-                    assertTrue(waitResourceCondition(resource, ResourceCondition.deletion()),
-                        String.format("Timed out deleting %s/%s in %s", resource.getKind(),
-                            resource.getMetadata().getName(), resource.getMetadata().getNamespace()));
+                    waitExecutors.add(CompletableFuture.runAsync(() ->
+                        assertTrue(waitResourceCondition(resource, ResourceCondition.deletion()),
+                            String.format("Timed out deleting %s/%s in %s", resource.getKind(),
+                                resource.getMetadata().getName(), resource.getMetadata().getNamespace()))));
                 }
             } catch (Exception e) {
                 if (resource.getMetadata().getNamespace() == null) {
@@ -395,6 +398,9 @@ public class KubeResourceManager {
                     LOGGER.error(LoggerUtils.RESOURCE_WITH_NAMESPACE_LOGGER_PATTERN, "Deleting", resource.getKind(),
                         resource.getMetadata().getName(), resource.getMetadata().getNamespace(), e);
                 }
+            }
+            if (!waitExecutors.isEmpty()) {
+                CompletableFuture.allOf(waitExecutors.toArray(new CompletableFuture[0])).join();
             }
             deleteCallbacks.forEach(callback -> callback.accept(resource));
         }
@@ -474,12 +480,18 @@ public class KubeResourceManager {
             new AtomicInteger(0);
         while (STORED_RESOURCES.containsKey(getTestContext().getDisplayName()) && numberOfResources.get() > 0) {
             Stack<ResourceItem<?>> s = STORED_RESOURCES.get(getTestContext().getDisplayName());
-
+            List<CompletableFuture<Void>> waitExecutors = new LinkedList<>();
             while (!s.isEmpty()) {
                 ResourceItem<?> resourceItem = s.pop();
 
                 try {
-                    resourceItem.throwableRunner().run();
+                    waitExecutors.add(CompletableFuture.runAsync(() -> {
+                        try {
+                            resourceItem.throwableRunner().run();
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                    }));
                 } catch (Exception e) {
                     LOGGER.error(e.getMessage(), e);
                 }
@@ -489,6 +501,9 @@ public class KubeResourceManager {
                         callback.accept(resourceItem.resource());
                     }
                 });
+            }
+            if (!waitExecutors.isEmpty()) {
+                CompletableFuture.allOf(waitExecutors.toArray(new CompletableFuture[0])).join();
             }
         }
         STORED_RESOURCES.remove(getTestContext().getDisplayName());
