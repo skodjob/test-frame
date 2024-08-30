@@ -25,6 +25,15 @@ public class Counter extends Metric {
     }
 
     /**
+     * Returns value
+     *
+     * @return value
+     */
+    public double getValue() {
+        return value;
+    }
+
+    /**
      * Metric string representation
      *
      * @return string representation
