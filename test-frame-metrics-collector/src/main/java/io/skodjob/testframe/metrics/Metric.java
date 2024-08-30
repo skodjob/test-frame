@@ -13,18 +13,21 @@ public abstract class Metric {
     String name;
     Map<String, String> labels;
     MetricType type;
+    String stringMetric;
 
     /**
      * constructor
      *
-     * @param name   name of metric
-     * @param labels labels
-     * @param type   type
+     * @param name          name of metric
+     * @param labels        labels
+     * @param type          type
+     * @param stringMetric  original (not parsed) metric in String
      */
-    Metric(String name, Map<String, String> labels, MetricType type) {
+    Metric(String name, Map<String, String> labels, MetricType type, String stringMetric) {
         this.name = name;
         this.labels = labels;
         this.type = type;
+        this.stringMetric = stringMetric;
     }
 
     /**
@@ -52,6 +55,15 @@ public abstract class Metric {
      */
     public String getName() {
         return name;
+    }
+
+    /**
+     * Get original metric, from which was the object created.
+     *
+     * @return original metric
+     */
+    public String getStringMetric() {
+        return stringMetric;
     }
 
     /**

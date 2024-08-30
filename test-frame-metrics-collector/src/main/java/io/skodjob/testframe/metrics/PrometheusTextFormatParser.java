@@ -49,10 +49,10 @@ public class PrometheusTextFormatParser {
                 Map<String, String> labels = parseLabels(nameAndLabels[1]);
 
                 if (name.endsWith("_total")) {
-                    metrics.add(new Counter(name, labels, value));
+                    metrics.add(new Counter(name, labels, line, value));
                 } else if (name.contains("_bucket")) {
                     if (currentHistogram == null || !currentHistogram.name.equals(name)) {
-                        currentHistogram = new Histogram(name, labels);
+                        currentHistogram = new Histogram(name, labels, line);
                         metrics.add(currentHistogram);
                     }
                     double upperBound = labels.get("le").contains("+Inf") ?
@@ -72,13 +72,13 @@ public class PrometheusTextFormatParser {
                     }
                 } else if (name.contains("{quantile=")) {
                     if (currentSummary == null || !currentSummary.name.equals(name)) {
-                        currentSummary = new Summary(name, labels);
+                        currentSummary = new Summary(name, labels, line);
                         metrics.add(currentSummary);
                     }
                     double quantile = Double.parseDouble(labels.get("quantile"));
                     currentSummary.addQuantile(quantile, value);
                 } else {
-                    metrics.add(new Gauge(name, labels, value));
+                    metrics.add(new Gauge(name, labels, line, value));
                 }
             }
         }

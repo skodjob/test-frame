@@ -55,7 +55,7 @@ class MetricsCollectorTest {
         // Setup
         HashMap<String, List<Metric>> invalidData = new HashMap<>();
         invalidData.put("pod", Collections.singletonList(new Gauge("metric_name",
-            Collections.singletonMap("label", "value"), 32)));
+            Collections.singletonMap("label", "value"), "metric_name {label=value} 32", 32)));
         this.metricsCollector.setCollectedData(invalidData);
 
         // Execution
@@ -76,7 +76,7 @@ class MetricsCollectorTest {
     void testCollectMetricWithLabelsMatchingEntries() {
         HashMap<String, List<Metric>> invalidData = new HashMap<>();
         invalidData.put("pod", Collections.singletonList(new Gauge("metric_name",
-            Collections.singletonMap("label", "value"), 100)));
+            Collections.singletonMap("label", "value"), "metric_name {label=value} 100", 100)));
         this.metricsCollector.setCollectedData(invalidData);
 
         List<Metric>  results = this.metricsCollector.collectMetricWithLabels("pod", "label");

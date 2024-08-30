@@ -15,12 +15,13 @@ public class Untyped extends Metric {
     /**
      * Constructor
      *
-     * @param name   name of metric
-     * @param labels labels
-     * @param value  value
+     * @param name          name of metric
+     * @param labels        labels
+     * @param value         value
+     * @param stringMetric  original (not parsed) metric in String
      */
-    public Untyped(String name, Map<String, String> labels, double value) {
-        super(name, labels, MetricType.UNTYPED);
+    public Untyped(String name, Map<String, String> labels, String stringMetric, double value) {
+        super(name, labels, MetricType.UNTYPED, stringMetric);
         this.value = value;
     }
 
