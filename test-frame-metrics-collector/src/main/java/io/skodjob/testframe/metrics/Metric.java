@@ -77,6 +77,7 @@ public abstract class Metric {
             "name='" + name + '\'' +
             ", labels=" + labels +
             ", type=" + type +
+            ", stringMetric=" + stringMetric +
             '}';
     }
 }

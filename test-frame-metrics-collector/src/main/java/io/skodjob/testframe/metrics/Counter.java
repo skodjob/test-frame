@@ -46,6 +46,7 @@ public class Counter extends Metric {
             ", labels=" + labels +
             ", value=" + value +
             ", type=" + type +
+            ", stringMetric=" + stringMetric +
             '}';
     }
 }

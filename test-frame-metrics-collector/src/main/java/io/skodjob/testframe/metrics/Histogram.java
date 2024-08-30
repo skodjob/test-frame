@@ -95,6 +95,7 @@ public class Histogram extends Metric {
             ", sum=" + sum +
             ", count=" + count +
             ", type=" + type +
+            ", stringMetric=" + stringMetric +
             '}';
     }
 }

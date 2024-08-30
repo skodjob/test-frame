@@ -46,6 +46,7 @@ public class Gauge extends Metric {
             ", labels=" + labels +
             ", value=" + value +
             ", type=" + type +
+            ", stringMetric=" + stringMetric +
             '}';
     }
 }
