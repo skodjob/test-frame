@@ -18,11 +18,12 @@ public class Summary extends Metric {
     /**
      * Constructor
      *
-     * @param name   name of metric
-     * @param labels labels
+     * @param name          name of metric
+     * @param labels        labels
+     * @param stringMetric  original (not parsed) metric in String
      */
-    public Summary(String name, Map<String, String> labels) {
-        super(name, labels, MetricType.SUMMARY);
+    public Summary(String name, Map<String, String> labels, String stringMetric) {
+        super(name, labels, MetricType.SUMMARY, stringMetric);
     }
 
     /**
@@ -94,6 +95,7 @@ public class Summary extends Metric {
             ", sum=" + sum +
             ", count=" + count +
             ", type=" + type +
+            ", stringMetric=" + stringMetric +
             '}';
     }
 }

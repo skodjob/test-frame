@@ -15,12 +15,13 @@ public class Counter extends Metric {
     /**
      * Constructor
      *
-     * @param name   name of metric
-     * @param labels labels
-     * @param value  value
+     * @param name          name of metric
+     * @param labels        labels
+     * @param value         value
+     * @param stringMetric  original (not parsed) metric in String
      */
-    public Counter(String name, Map<String, String> labels, double value) {
-        super(name, labels, MetricType.COUNTER);
+    public Counter(String name, Map<String, String> labels, String stringMetric, double value) {
+        super(name, labels, MetricType.COUNTER, stringMetric);
         this.value = value;
     }
 
@@ -45,6 +46,7 @@ public class Counter extends Metric {
             ", labels=" + labels +
             ", value=" + value +
             ", type=" + type +
+            ", stringMetric=" + stringMetric +
             '}';
     }
 }

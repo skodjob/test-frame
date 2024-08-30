@@ -18,11 +18,12 @@ public class Histogram extends Metric {
     /**
      * Constructor
      *
-     * @param name   name of metric
-     * @param labels labels
+     * @param name          name of metric
+     * @param labels        labels
+     * @param stringMetric  original (not parsed) metric in String
      */
-    public Histogram(String name, Map<String, String> labels) {
-        super(name, labels, MetricType.HISTOGRAM);
+    public Histogram(String name, Map<String, String> labels, String stringMetric) {
+        super(name, labels, MetricType.HISTOGRAM, stringMetric);
     }
 
     /**
@@ -94,6 +95,7 @@ public class Histogram extends Metric {
             ", sum=" + sum +
             ", count=" + count +
             ", type=" + type +
+            ", stringMetric=" + stringMetric +
             '}';
     }
 }
