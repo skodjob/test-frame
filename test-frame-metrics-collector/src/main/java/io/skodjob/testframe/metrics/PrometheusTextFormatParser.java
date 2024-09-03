@@ -32,14 +32,20 @@ public class PrometheusTextFormatParser {
         List<Metric> metrics = new ArrayList<>();
         BufferedReader reader = new BufferedReader(new StringReader(data));
         String line;
+        String type = "";
         Histogram currentHistogram = null;
         Summary currentSummary = null;
 
         while ((line = reader.readLine()) != null) {
-            if (line.startsWith("#")) {
-                continue; // Skip comments and type/help definitions
-            }
             String[] parts = line.split(" ");
+
+            if (line.startsWith("#")) {
+                if (line.contains("TYPE")) {
+                    type = parts[3];
+                }
+                continue; // Skip comments and help definition
+            }
+
             if (parts.length == 2) {
                 String metricNameAndLabels = parts[0];
                 double value = Double.parseDouble(parts[1]);
@@ -47,32 +53,48 @@ public class PrometheusTextFormatParser {
                 String[] nameAndLabels = parseNameAndLabels(metricNameAndLabels);
                 String name = nameAndLabels[0];
                 Map<String, String> labels = parseLabels(nameAndLabels[1]);
+                // `customLabels` represents labels that are not part of the Prometheus metrics
+                // (like buckets or summary) - the `le` and `quantile` labels are removed,
+                // because they are parsed in a different way
+                Map<String, String> customLabels = getCustomLabels(labels);
 
                 if (name.endsWith("_total")) {
-                    metrics.add(new Counter(name, labels, line, value));
+                    metrics.add(new Counter(name, customLabels, line, value));
                 } else if (name.contains("_bucket")) {
-                    if (currentHistogram == null || !currentHistogram.name.equals(name)) {
-                        currentHistogram = new Histogram(name, labels, line);
+                    if (currentHistogram == null || !currentHistogram.name.equals(name)
+                        || !currentHistogram.labels.equals(customLabels)) {
+                        currentHistogram = new Histogram(name, customLabels, line);
                         metrics.add(currentHistogram);
                     }
                     double upperBound = labels.get("le").contains("+Inf") ?
                         Double.MAX_VALUE : Double.parseDouble(labels.get("le"));
                     currentHistogram.addBucket(upperBound, value);
                 } else if (name.endsWith("_sum")) {
-                    if (currentHistogram != null && currentHistogram.name.equals(name.replace("_sum", "_bucket"))) {
+                    if (currentHistogram != null && currentHistogram.name.equals(name.replace("_sum", "_bucket"))
+                        && currentHistogram.labels.equals(customLabels)) {
                         currentHistogram.setSum(value);
-                    } else if (currentSummary != null && currentSummary.name.equals(name.replace("_sum", ""))) {
+                    } else if (currentSummary != null && currentSummary.name.equals(name.replace("_sum", ""))
+                        && currentSummary.labels.equals(customLabels)) {
                         currentSummary.setSum(value);
                     }
                 } else if (name.endsWith("_count")) {
-                    if (currentHistogram != null && currentHistogram.name.equals(name.replace("_count", "_bucket"))) {
+                    if (currentHistogram != null && currentHistogram.name.equals(name.replace("_count", "_bucket"))
+                        && currentHistogram.labels.equals(customLabels)) {
                         currentHistogram.setCount((int) value);
-                    } else if (currentSummary != null && currentSummary.name.equals(name.replace("_count", ""))) {
+                    } else if (currentSummary != null && currentSummary.name.equals(name.replace("_count", ""))
+                        && currentSummary.labels.equals(customLabels)) {
                         currentSummary.setCount((int) value);
+                    } else if (type != null) {
+                        if (type.equals("gauge")) {
+                            metrics.add(new Gauge(name, customLabels, line, value));
+                        } else if (type.equals("counter")) {
+                            metrics.add(new Counter(name, customLabels, line, value));
+                        }
                     }
                 } else if (name.contains("{quantile=")) {
-                    if (currentSummary == null || !currentSummary.name.equals(name)) {
-                        currentSummary = new Summary(name, labels, line);
+                    if (currentSummary == null || !currentSummary.name.equals(name)
+                        || !currentSummary.labels.equals(customLabels)) {
+                        currentSummary = new Summary(name, customLabels, line);
                         metrics.add(currentSummary);
                     }
                     double quantile = Double.parseDouble(labels.get("quantile"));
@@ -83,6 +105,22 @@ public class PrometheusTextFormatParser {
             }
         }
         return metrics;
+    }
+
+    /**
+     * Method that "removes" Prometheus labels (connected to buckets or summary) and returns just the custom labels
+     * provided by the user or application.
+     *
+     * @param labels    parsed labels from the Prometheus metric
+     * @return  custom labels from the metric
+     */
+    private static Map<String, String> getCustomLabels(Map<String, String> labels) {
+        Map<String, String> customLabels = new HashMap<>(labels);
+
+        customLabels.remove("le");
+        customLabels.remove("quantile");
+
+        return customLabels;
     }
 
     private static String[] parseNameAndLabels(String metricNameAndLabels) {
