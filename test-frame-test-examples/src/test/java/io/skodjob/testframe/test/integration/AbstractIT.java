@@ -36,6 +36,9 @@ public abstract class AbstractIT {
             new DeploymentType()
         );
 
+        // Allow storing yaml files
+        KubeResourceManager.setStoreYamlPath(LOG_DIR.toString());
+
         // Register callback which are called with every create resource method for every resource
         KubeResourceManager.getInstance().addCreateCallback(r -> {
             isCreateHandlerCalled.set(true);
