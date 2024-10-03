@@ -4,9 +4,13 @@
  */
 package io.skodjob.testframe.resources;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -24,6 +28,7 @@ import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.apps.ReplicaSet;
 import io.fabric8.kubernetes.api.model.apps.StatefulSet;
+import io.fabric8.kubernetes.client.utils.Serialization;
 import io.skodjob.testframe.utils.LoggerUtils;
 import io.skodjob.testframe.TestFrameConstants;
 import io.skodjob.testframe.TestFrameEnv;
@@ -56,6 +61,8 @@ public class KubeResourceManager {
 
     private static final ThreadLocal<ExtensionContext> TEST_CONTEXT = new ThreadLocal<>();
     private static final Map<String, Stack<ResourceItem<?>>> STORED_RESOURCES = new LinkedHashMap<>();
+
+    private static String storeYamlPath = null;
 
     private KubeResourceManager() {
         // Private constructor to prevent instantiation
@@ -141,6 +148,24 @@ public class KubeResourceManager {
      */
     public final void addDeleteCallback(Consumer<HasMetadata> callback) {
         this.deleteCallbacks.add(callback);
+    }
+
+    /**
+     * Set path for storing yaml resources
+     *
+     * @param path root path for storing
+     */
+    public static void setStoreYamlPath(String path) {
+        storeYamlPath = path;
+    }
+
+    /**
+     * Returns root path of stored yaml resources
+     *
+     * @return path
+     */
+    public static String getStoreYamlPath() {
+        return storeYamlPath;
     }
 
     /**
@@ -309,6 +334,9 @@ public class KubeResourceManager {
         for (T resource : resources) {
             ResourceType<T> type = findResourceType(resource);
             pushToStack(resource);
+            if (storeYamlPath != null) {
+                writeResourceAsYaml(resource);
+            }
 
             if (type == null) {
                 // Generic create for any resource
@@ -537,5 +565,32 @@ public class KubeResourceManager {
             || resource instanceof Endpoints
             || resource instanceof Node
             || resource instanceof StatefulSet;
+    }
+
+    private void writeResourceAsYaml(HasMetadata resource) {
+        File logDir = Paths.get(storeYamlPath)
+            .resolve("test-files").resolve(getTestContext().getRequiredTestClass().getName()).toFile();
+        if (getTestContext().getTestMethod().isPresent()) {
+            logDir = logDir.toPath().resolve(getTestContext().getRequiredTestMethod().getName()).toFile();
+        }
+
+        if (!logDir.exists()) {
+            if (!logDir.mkdirs()) {
+                throw new RuntimeException(
+                    String.format("Failed to create root log directories on path: %s", logDir.getAbsolutePath())
+                );
+            }
+        }
+
+        String r = Serialization.asYaml(resource);
+        try {
+            Files.writeString(logDir.toPath().resolve(
+                resource.getKind() + "-" +
+                    (resource.getMetadata().getNamespace() == null ? "" :
+                        (resource.getMetadata().getNamespace() + "-")) +
+                    resource.getMetadata().getName() + ".yaml"), r, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

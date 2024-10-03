@@ -18,12 +18,11 @@ public class ResourceManagerExtension
     implements BeforeAllCallback, BeforeEachCallback, AfterAllCallback, AfterEachCallback {
 
     private ResourceManagerExtension() {
-        // Private constructor to prevent instantiation
+        KubeResourceManager.getInstance();
     }
 
     @Override
     public void beforeAll(ExtensionContext extensionContext) {
-        KubeResourceManager.getInstance();
         KubeResourceManager.setTestContext(extensionContext);
     }
 
