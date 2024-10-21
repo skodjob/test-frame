@@ -7,7 +7,7 @@
     <parent>
         <artifactId>test-frame</artifactId>
         <groupId>io.skodjob</groupId>
-        <version>0.8.0-SNAPSHOT</version>
+        <version>0.7.1</version>
     </parent>
 
     <artifactId>test-frame-common</artifactId>
