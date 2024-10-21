@@ -476,14 +476,6 @@ public class KubeResourceManager {
                 T res = getKubeClient().getClient().resource(resource).get();
                 resourceReady[0] = condition.predicate().test(res);
                 return resourceReady[0];
-            },
-            () -> {
-                T res = getKubeClient().getClient().resource(resource).get();
-                if (type == null) {
-                    client.getClient().resource(resource).delete();
-                } else {
-                    type.delete(res);
-                }
             });
 
         return resourceReady[0];
