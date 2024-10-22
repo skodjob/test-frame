@@ -419,26 +419,10 @@ public class KubeResourceManager {
             try {
                 if (type == null) {
                     client.getClient().resource(resource).delete();
-                    CompletableFuture<Void> c = CompletableFuture.runAsync(() ->
-                        assertTrue(waitResourceCondition(resource, ResourceCondition.deletion()),
-                            String.format("Timed out deleting %s/%s in %s", resource.getKind(),
-                                resource.getMetadata().getName(), resource.getMetadata().getNamespace())));
-                    if (async) {
-                        waitExecutors.add(c);
-                    } else {
-                        CompletableFuture.allOf(c).join();
-                    }
+                    decideDeleteWaitAsync(waitExecutors, async, resource);
                 } else {
                     type.delete(resource);
-                    CompletableFuture<Void> c = CompletableFuture.runAsync(() ->
-                        assertTrue(waitResourceCondition(resource, ResourceCondition.deletion()),
-                            String.format("Timed out deleting %s/%s in %s", resource.getKind(),
-                                resource.getMetadata().getName(), resource.getMetadata().getNamespace())));
-                    if (async) {
-                        waitExecutors.add(c);
-                    } else {
-                        CompletableFuture.allOf(c).join();
-                    }
+                    decideDeleteWaitAsync(waitExecutors, async, resource);
                 }
             } catch (Exception e) {
                 if (resource.getMetadata().getNamespace() == null) {
@@ -619,6 +603,19 @@ public class KubeResourceManager {
                     resource.getMetadata().getName() + ".yaml"), r, StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private <T extends HasMetadata> void decideDeleteWaitAsync(List<CompletableFuture<Void>> waitExecutors,
+                                                               boolean async, T resource) {
+        CompletableFuture<Void> c = CompletableFuture.runAsync(() ->
+            assertTrue(waitResourceCondition(resource, ResourceCondition.deletion()),
+                String.format("Timed out deleting %s/%s in %s", resource.getKind(),
+                    resource.getMetadata().getName(), resource.getMetadata().getNamespace())));
+        if (async) {
+            waitExecutors.add(c);
+        } else {
+            CompletableFuture.allOf(c).join();
         }
     }
 }
