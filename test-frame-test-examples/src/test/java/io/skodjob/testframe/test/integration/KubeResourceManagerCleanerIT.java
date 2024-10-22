@@ -7,6 +7,7 @@ package io.skodjob.testframe.test.integration;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.kubernetes.api.model.NamespaceBuilder;
+import io.skodjob.testframe.annotations.ResourceManager;
 import io.skodjob.testframe.clients.KubeClusterException;
 import io.skodjob.testframe.resources.KubeResourceManager;
 import org.junit.jupiter.api.AfterAll;
@@ -25,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ResourceManager(asyncDeletion = false)
 public final class KubeResourceManagerCleanerIT extends AbstractIT {
 
     @BeforeAll
