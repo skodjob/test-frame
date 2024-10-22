@@ -400,6 +400,18 @@ public class KubeResourceManager {
      */
     @SafeVarargs
     public final <T extends HasMetadata> void deleteResource(T... resources) {
+        deleteResource(true, resources);
+    }
+
+    /**
+     * Deletes resources.
+     *
+     * @param async     Enables async deletion
+     * @param resources The resources to delete.
+     * @param <T>       The type of the resources.
+     */
+    @SafeVarargs
+    public final <T extends HasMetadata> void deleteResource(boolean async, T... resources) {
         List<CompletableFuture<Void>> waitExecutors = new LinkedList<>();
         for (T resource : resources) {
             ResourceType<T> type = findResourceType(resource);
@@ -407,16 +419,10 @@ public class KubeResourceManager {
             try {
                 if (type == null) {
                     client.getClient().resource(resource).delete();
-                    waitExecutors.add(CompletableFuture.runAsync(() ->
-                        assertTrue(waitResourceCondition(resource, ResourceCondition.deletion()),
-                            String.format("Timed out deleting %s/%s in %s", resource.getKind(),
-                                resource.getMetadata().getName(), resource.getMetadata().getNamespace()))));
+                    decideDeleteWaitAsync(waitExecutors, async, resource);
                 } else {
                     type.delete(resource);
-                    waitExecutors.add(CompletableFuture.runAsync(() ->
-                        assertTrue(waitResourceCondition(resource, ResourceCondition.deletion()),
-                            String.format("Timed out deleting %s/%s in %s", resource.getKind(),
-                                resource.getMetadata().getName(), resource.getMetadata().getNamespace()))));
+                    decideDeleteWaitAsync(waitExecutors, async, resource);
                 }
             } catch (Exception e) {
                 if (resource.getMetadata().getNamespace() == null) {
@@ -485,6 +491,15 @@ public class KubeResourceManager {
      * Deletes all stored resources.
      */
     public void deleteResources() {
+        deleteResources(true);
+    }
+
+    /**
+     * Deletes all stored resources.
+     *
+     * @param async sets async or sequential deletion
+     */
+    public void deleteResources(boolean async) {
         LoggerUtils.logSeparator();
         if (!STORED_RESOURCES.containsKey(getTestContext().getDisplayName())
             || STORED_RESOURCES.get(getTestContext().getDisplayName()).isEmpty()) {
@@ -505,13 +520,18 @@ public class KubeResourceManager {
                 ResourceItem<?> resourceItem = s.pop();
 
                 try {
-                    waitExecutors.add(CompletableFuture.runAsync(() -> {
+                    CompletableFuture<Void> c = CompletableFuture.runAsync(() -> {
                         try {
                             resourceItem.throwableRunner().run();
                         } catch (Exception e) {
                             throw new RuntimeException(e);
                         }
-                    }));
+                    });
+                    if (async) {
+                        waitExecutors.add(c);
+                    } else {
+                        CompletableFuture.allOf(c).join();
+                    }
                 } catch (Exception e) {
                     LOGGER.error(e.getMessage(), e);
                 }
@@ -583,6 +603,19 @@ public class KubeResourceManager {
                     resource.getMetadata().getName() + ".yaml"), r, StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private <T extends HasMetadata> void decideDeleteWaitAsync(List<CompletableFuture<Void>> waitExecutors,
+                                                               boolean async, T resource) {
+        CompletableFuture<Void> c = CompletableFuture.runAsync(() ->
+            assertTrue(waitResourceCondition(resource, ResourceCondition.deletion()),
+                String.format("Timed out deleting %s/%s in %s", resource.getKind(),
+                    resource.getMetadata().getName(), resource.getMetadata().getNamespace())));
+        if (async) {
+            waitExecutors.add(c);
+        } else {
+            CompletableFuture.allOf(c).join();
         }
     }
 }

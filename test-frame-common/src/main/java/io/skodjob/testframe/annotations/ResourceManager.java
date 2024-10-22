@@ -34,4 +34,11 @@ public @interface ResourceManager {
      * @return enable/disable cleaner
      */
     boolean cleanResources() default true;
+
+    /**
+     * Enables async deletion of resources
+     *
+     * @return enable/disable async cleaning
+     */
+    boolean asyncDeletion() default true;
 }
