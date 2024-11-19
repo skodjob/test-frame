@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
  */
 public class TestVisualSeparatorExtension implements BeforeEachCallback, AfterEachCallback,
     BeforeAllCallback, AfterAllCallback {
-    private final Logger logger = LoggerFactory.getLogger(TestVisualSeparatorExtension.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestVisualSeparatorExtension.class);
 
     private TestVisualSeparatorExtension() {
         // Private constructor to prevent instantiation
@@ -27,26 +27,31 @@ public class TestVisualSeparatorExtension implements BeforeEachCallback, AfterEa
     @Override
     public void beforeAll(ExtensionContext extensionContext) {
         LoggerUtils.logSeparator();
-        logger.info("TestClass {} STARTED", extensionContext.getRequiredTestClass().getName());
+        LOGGER.info("TestClass {} STARTED", extensionContext.getRequiredTestClass().getName());
     }
 
     @Override
     public void afterAll(ExtensionContext extensionContext) {
-        logger.info("TestClass {} FINISHED", extensionContext.getRequiredTestClass().getName());
+        LOGGER.info("TestClass {} FINISHED", extensionContext.getRequiredTestClass().getName());
         LoggerUtils.logSeparator();
     }
 
     @Override
     public void beforeEach(ExtensionContext extensionContext) {
         LoggerUtils.logSeparator();
-        logger.info("Test {}.{} STARTED", extensionContext.getRequiredTestClass().getName(),
+        LOGGER.info("Test {}.{} STARTED", extensionContext.getRequiredTestClass().getName(),
             extensionContext.getDisplayName().replace("()", ""));
     }
 
     @Override
     public void afterEach(ExtensionContext extensionContext) {
-        logger.info("Test {}.{} FINISHED", extensionContext.getRequiredTestClass().getName(),
-            extensionContext.getDisplayName().replace("()", ""));
+        String state = "SUCCEEDED";
+        if (extensionContext.getExecutionException().isPresent()) {
+            state = "FAILED";
+        }
+
+        LOGGER.info("Test {}.{} {}", extensionContext.getRequiredTestClass().getName(),
+            extensionContext.getDisplayName().replace("()", ""), state);
         LoggerUtils.logSeparator();
     }
 }
