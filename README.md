@@ -100,6 +100,7 @@ Examples are stored in [test-frame-test-examples](test-frame-test-examples/src/t
 * [strimzi.io](https://github.com/strimzi/strimzi-kafka-operator) Strimzi Kafka operator - [e2e](https://github.com/strimzi/strimzi-kafka-operator/tree/main/systemtest)
 * [strimzi.io](https://github.com/strimzi/kafka-access-operator) Kafka access operator - [e2e](https://github.com/strimzi/kafka-access-operator/tree/main/systemtest)
 * [debezium.io](https://github.com/debezium/debezium-operator) Debezium Operator - [e2e](https://github.com/debezium/debezium-operator/tree/main/systemtests)
+* [streamshub](https://github.com/streamshub) Streams E2E - [e2e](https://github.com/streamshub/streams-e2e)
 
 ## Maintainers
 * [David Kornel](https://github.com/kornys) <kornys@outlook.com>
