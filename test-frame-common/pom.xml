@@ -63,6 +63,10 @@
     <dependencies>
         <dependency>
             <groupId>io.fabric8</groupId>
+            <artifactId>kubernetes-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.fabric8</groupId>
             <artifactId>kubernetes-client-api</artifactId>
         </dependency>
         <dependency>
@@ -157,6 +161,8 @@
                                 <ignoredUnusedDeclaredDependencies>
                                     <!-- Needed for logging in tests used by test-frame (uses SLF4J) -->
                                     <ignoredUnusedDeclaredDependency>org.apache.logging.log4j:log4j-slf4j2-impl</ignoredUnusedDeclaredDependency>
+                                    <!-- Needed for importing KubernetesClientImpl -->
+                                    <ignoredUnusedDeclaredDependency>io.fabric8:kubernetes-client</ignoredUnusedDeclaredDependency>
                                 </ignoredUnusedDeclaredDependencies>
                             </configuration>
                         </execution>
