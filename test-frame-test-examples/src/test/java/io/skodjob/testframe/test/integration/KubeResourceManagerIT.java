@@ -23,22 +23,22 @@ public final class KubeResourceManagerIT extends AbstractIT {
 
     @BeforeEach
     void setupEach() {
-        KubeResourceManager.getInstance().createResourceWithWait(ns1);
+        KubeResourceManager.get().createResourceWithWait(ns1);
     }
 
     @AfterEach
     void afterEach() {
         assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName(nsName2).get());
-        KubeResourceManager.getInstance().deleteResources();
+        KubeResourceManager.get().deleteResources();
     }
 
     @Test
     void createResource() {
-        KubeResourceManager.getInstance().createResourceWithWait(
+        KubeResourceManager.get().createResourceWithWait(
             new NamespaceBuilder().withNewMetadata().withName("test2").endMetadata().build());
         assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName(nsName1).get());
         assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName(nsName2).get());
-        KubeResourceManager.getInstance().deleteResource(false, ns1);
+        KubeResourceManager.get().deleteResource(false, ns1);
         assertTrue(isDeleteHandlerCalled.get());
     }
 }

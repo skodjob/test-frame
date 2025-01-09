@@ -22,7 +22,7 @@ public final class KubeClientIT extends AbstractIT {
         List<HasMetadata> resources = KubeResourceManager.getKubeClient()
             .readResourcesFromFile(getClass().getClassLoader().getResourceAsStream("resources.yaml"));
 
-        KubeResourceManager.getInstance().createResourceWithWait(resources.toArray(new HasMetadata[0]));
+        KubeResourceManager.get().createResourceWithWait(resources.toArray(new HasMetadata[0]));
 
         assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName(nsName4).get());
         assertNotNull(KubeResourceManager.getKubeClient().getClient().serviceAccounts()

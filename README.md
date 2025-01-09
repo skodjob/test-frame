@@ -70,7 +70,7 @@ class Test {
 class Test {
     @Test
     void testMethod() {
-        KubeResourceManager.getInstance().createResourceWithWait(
+        KubeResourceManager.get().createResourceWithWait(
                 new NamespaceBuilder().withNewMetadata().withName("test").endMetadata().build());
         assertNotNull(KubeResourceManager.getKubeCmdClient().get("namespace", "test"));
     }
@@ -79,7 +79,7 @@ class Test {
 ```
 ### Register `ResourceType` or `NamespacedResourceType` classes into `KubeResourceManager`
 ```java
-KubeResourceManager.getInstance().setResourceTypes(
+KubeResourceManager.get().setResourceTypes(
         new NamespaceType(),
         new JobType(),
         new NetworkPolicyType()

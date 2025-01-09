@@ -66,7 +66,7 @@ public class LogCollectorIT extends AbstractIT {
 
         int deploymentReplicas = 2;
 
-        KubeResourceManager.getInstance().createResourceWithWait(
+        KubeResourceManager.get().createResourceWithWait(
             new NamespaceBuilder()
                 .editOrNewMetadata()
                     .withName(namespaceName1)
@@ -79,7 +79,7 @@ public class LogCollectorIT extends AbstractIT {
                 .build()
         );
 
-        KubeResourceManager.getInstance().createResourceWithWait(
+        KubeResourceManager.get().createResourceWithWait(
             new DeploymentBuilder()
                 .editOrNewMetadata()
                     .withNamespace(namespaceName1)

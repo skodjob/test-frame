@@ -46,27 +46,27 @@ public class KubeResourceManagerTest {
 
     @Test
     void testCreateDeleteNamespace() {
-        KubeResourceManager.getInstance().createResourceWithWait(
+        KubeResourceManager.get().createResourceWithWait(
             new NamespaceBuilder().withNewMetadata().withName("test").endMetadata().build());
         assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName("test").get());
     }
 
     @Test
     void testDeleteAllResources() {
-        KubeResourceManager.getInstance().createResourceWithWait(
+        KubeResourceManager.get().createResourceWithWait(
             new NamespaceBuilder().withNewMetadata().withName("test2").endMetadata().build());
         assertNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName("test").get());
         assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName("test2").get());
-        KubeResourceManager.getInstance().deleteResources();
+        KubeResourceManager.get().deleteResources();
         assertNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName("test2").get());
     }
 
     @Test
     void testUpdateResource() {
         Namespace ns = new NamespaceBuilder().withNewMetadata().withName("test3").endMetadata().build();
-        KubeResourceManager.getInstance().createResourceWithWait(ns);
+        KubeResourceManager.get().createResourceWithWait(ns);
         assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName("test3").get());
-        KubeResourceManager.getInstance().updateResource(ns.edit()
+        KubeResourceManager.get().updateResource(ns.edit()
             .editMetadata().addToLabels(Collections.singletonMap("test-label", "true")).endMetadata().build());
         assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName("test3").get()
             .getMetadata().getLabels().get("test-label"));
@@ -75,20 +75,20 @@ public class KubeResourceManagerTest {
     @Test
     void testCreateOrUpdateResource() {
         Namespace ns = new NamespaceBuilder().withNewMetadata().withName("test4").endMetadata().build();
-        KubeResourceManager.getInstance().createResourceWithWait(ns);
+        KubeResourceManager.get().createResourceWithWait(ns);
         assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName("test4").get());
-        KubeResourceManager.getInstance().createOrUpdateResourceWithWait(ns);
+        KubeResourceManager.get().createOrUpdateResourceWithWait(ns);
         assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName("test4").get());
-        KubeResourceManager.getInstance().createOrUpdateResourceWithoutWait(ns);
+        KubeResourceManager.get().createOrUpdateResourceWithoutWait(ns);
         assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName("test4").get());
     }
 
     @Test
     void testLoggingManagedResources() {
         // create resources
-        KubeResourceManager.getInstance().createResourceWithWait(
+        KubeResourceManager.get().createResourceWithWait(
             new NamespaceBuilder().withNewMetadata().withName("test-ns").endMetadata().build());
-        KubeResourceManager.getInstance().createResourceWithWait(
+        KubeResourceManager.get().createResourceWithWait(
             new ServiceAccountBuilder().withNewMetadata().withName("test-sa").endMetadata().build());
 
         // setup mock logger appender
@@ -102,7 +102,7 @@ public class KubeResourceManagerTest {
         testAppender.start();
 
         // print resources
-        KubeResourceManager.getInstance().printCurrentResources(org.slf4j.event.Level.INFO);
+        KubeResourceManager.get().printCurrentResources(org.slf4j.event.Level.INFO);
         System.out.println(testAppender.getLogEvents());
         List<LogEvent> events = testAppender.getLogEvents();
 
@@ -114,7 +114,7 @@ public class KubeResourceManagerTest {
         testAppender.clean();
 
         // print all resources on debug output
-        KubeResourceManager.getInstance().printAllResources(org.slf4j.event.Level.DEBUG);
+        KubeResourceManager.get().printAllResources(org.slf4j.event.Level.DEBUG);
         events = testAppender.getLogEvents();
 
         assertEquals(4, events.size());

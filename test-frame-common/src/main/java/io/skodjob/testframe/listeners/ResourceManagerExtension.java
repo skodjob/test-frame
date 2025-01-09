@@ -18,26 +18,26 @@ public class ResourceManagerExtension
     implements BeforeAllCallback, BeforeEachCallback, AfterAllCallback, AfterEachCallback {
 
     private ResourceManagerExtension() {
-        KubeResourceManager.getInstance();
+        KubeResourceManager.get();
     }
 
     @Override
     public void beforeAll(ExtensionContext extensionContext) {
-        KubeResourceManager.setTestContext(extensionContext);
+        KubeResourceManager.get().setTestContext(extensionContext);
     }
 
     @Override
     public void beforeEach(ExtensionContext extensionContext) {
-        KubeResourceManager.setTestContext(extensionContext);
+        KubeResourceManager.get().setTestContext(extensionContext);
     }
 
     @Override
     public void afterAll(ExtensionContext extensionContext) {
-        KubeResourceManager.setTestContext(extensionContext);
+        KubeResourceManager.get().setTestContext(extensionContext);
     }
 
     @Override
     public void afterEach(ExtensionContext extensionContext) {
-        KubeResourceManager.setTestContext(extensionContext);
+        KubeResourceManager.get().setTestContext(extensionContext);
     }
 }

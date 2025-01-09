@@ -31,13 +31,13 @@ public final class KubeResourceManagerCleanerIT extends AbstractIT {
 
     @BeforeAll
     void setupAll() {
-        KubeResourceManager.getInstance().createResourceWithWait(
+        KubeResourceManager.get().createResourceWithWait(
             new NamespaceBuilder().withNewMetadata().withName(nsName1).endMetadata().build());
     }
 
     @BeforeEach
     void setupEach() {
-        KubeResourceManager.getInstance().createResourceWithWait(
+        KubeResourceManager.get().createResourceWithWait(
             new NamespaceBuilder().withNewMetadata().withName(nsName2).endMetadata().build());
     }
 
@@ -51,12 +51,12 @@ public final class KubeResourceManagerCleanerIT extends AbstractIT {
     @Test
     void createResource() {
         Namespace ns = new NamespaceBuilder().withNewMetadata().withName(nsName3).endMetadata().build();
-        KubeResourceManager.getInstance().createResourceWithWait(ns);
+        KubeResourceManager.get().createResourceWithWait(ns);
         assertTrue(isCreateHandlerCalled.get());
-        KubeResourceManager.getInstance().createOrUpdateResourceWithWait(ns);
+        KubeResourceManager.get().createOrUpdateResourceWithWait(ns);
         assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName(nsName3).get()
             .getMetadata().getLabels().get("test-label"));
-        KubeResourceManager.getInstance().printAllResources(Level.INFO);
+        KubeResourceManager.get().printAllResources(Level.INFO);
     }
 
     @Test
@@ -78,6 +78,6 @@ public final class KubeResourceManagerCleanerIT extends AbstractIT {
     void testCreateMultipleResourcesAsync() throws IOException {
         List<HasMetadata> resources = KubeResourceManager.getKubeClient()
             .readResourcesFromFile(getClass().getClassLoader().getResourceAsStream("metrics-example.yaml"));
-        KubeResourceManager.getInstance().createOrUpdateResourceAsyncWait(resources.toArray(new HasMetadata[0]));
+        KubeResourceManager.get().createOrUpdateResourceAsyncWait(resources.toArray(new HasMetadata[0]));
     }
 }

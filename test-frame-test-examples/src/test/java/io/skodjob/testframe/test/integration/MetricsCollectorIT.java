@@ -31,7 +31,7 @@ public final class MetricsCollectorIT extends AbstractIT {
         List<HasMetadata> resources = KubeResourceManager.getKubeClient()
             .readResourcesFromFile(getClass().getClassLoader().getResourceAsStream("metrics-example.yaml"));
 
-        KubeResourceManager.getInstance().createResourceAsyncWait(resources.toArray(new HasMetadata[0]));
+        KubeResourceManager.get().createResourceAsyncWait(resources.toArray(new HasMetadata[0]));
 
         // Check deployment is not null
         assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName("metrics-test").get());
@@ -77,7 +77,7 @@ public final class MetricsCollectorIT extends AbstractIT {
             .readResourcesFromFile(getClass().getClassLoader().getResourceAsStream("metrics-example.yaml"))
             .stream().filter(resource -> !resource.getMetadata().getName().equals("scraper-pod")).toList();
 
-        KubeResourceManager.getInstance().createResourceWithWait(resources.toArray(new HasMetadata[0]));
+        KubeResourceManager.get().createResourceWithWait(resources.toArray(new HasMetadata[0]));
 
         // Check deployment is not null
         assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName("metrics-test").get());

@@ -39,9 +39,9 @@ public class UtilsTest {
 
     @Test
     void testPodUtils() {
-        KubeResourceManager.getInstance().createResourceWithWait(
+        KubeResourceManager.get().createResourceWithWait(
             new NamespaceBuilder().withNewMetadata().withName("test").endMetadata().build());
-        KubeResourceManager.getInstance().createResourceWithoutWait(
+        KubeResourceManager.get().createResourceWithoutWait(
             new PodBuilder()
                 .withNewMetadata()
                     .withName("test-pod")
@@ -71,7 +71,7 @@ public class UtilsTest {
 
     @Test
     void testKubeUtils() {
-        KubeResourceManager.getInstance().createResourceWithWait(
+        KubeResourceManager.get().createResourceWithWait(
             new NamespaceBuilder().withNewMetadata().withName("test").endMetadata().build());
 
         KubeUtils.labelNamespace("test", "test-label", "true");

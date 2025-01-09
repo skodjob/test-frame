@@ -30,17 +30,17 @@ public abstract class AbstractIT {
 
     static {
         // Register resources which KRM uses for handling instead of native status check
-        KubeResourceManager.getInstance().setResourceTypes(
+        KubeResourceManager.get().setResourceTypes(
             new NamespaceType(),
             new ServiceAccountType(),
             new DeploymentType()
         );
 
         // Allow storing yaml files
-        KubeResourceManager.setStoreYamlPath(LOG_DIR.toString());
+        KubeResourceManager.get().setStoreYamlPath(LOG_DIR.toString());
 
         // Register callback which are called with every create resource method for every resource
-        KubeResourceManager.getInstance().addCreateCallback(r -> {
+        KubeResourceManager.get().addCreateCallback(r -> {
             isCreateHandlerCalled.set(true);
             if (r.getKind().equals("Namespace")) {
                 KubeUtils.labelNamespace(r.getMetadata().getName(), "test-label", "true");
@@ -48,7 +48,7 @@ public abstract class AbstractIT {
         });
 
         // Register callback which are called with every delete resource method for every resource
-        KubeResourceManager.getInstance().addDeleteCallback(r -> {
+        KubeResourceManager.get().addDeleteCallback(r -> {
             isDeleteHandlerCalled.set(true);
             if (r.getKind().equals("Namespace")) {
                 LoggerUtils.logResource("Deleted", r);
