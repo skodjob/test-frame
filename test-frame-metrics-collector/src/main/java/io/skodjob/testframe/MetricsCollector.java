@@ -207,8 +207,8 @@ public class MetricsCollector {
 
     private synchronized KubernetesClient getKubeClient() {
         if (kubeClient == null) {
-            KubeResourceManager resourceManager = KubeResourceManager.getInstance();
-            kubeClient = resourceManager.getKubeClient().getClient();
+            KubeResourceManager resourceManager = KubeResourceManager.get();
+            kubeClient = KubeResourceManager.getKubeClient().getClient();
             if (kubeClient == null) {
                 throw new IllegalStateException("KubeClient is not available");
             }
@@ -219,8 +219,8 @@ public class MetricsCollector {
 
     private synchronized KubeCmdClient<?> getKubeCmdClient() {
         if (kubeCmdClient == null) {
-            final KubeResourceManager resourceManager = KubeResourceManager.getInstance();
-            kubeCmdClient = resourceManager.getKubeCmdClient();
+            final KubeResourceManager resourceManager = KubeResourceManager.get();
+            kubeCmdClient = KubeResourceManager.getKubeCmdClient();
             if (kubeCmdClient == null) {
                 throw new IllegalStateException("KubeCmdClient is not available");
             }
@@ -411,14 +411,14 @@ public class MetricsCollector {
                 .endContainer()
             .endSpec()
             .build();
-        KubeResourceManager.getInstance().createResourceWithWait(scraperPod);
+        KubeResourceManager.get().createResourceWithWait(scraperPod);
     }
 
     /**
      * Delete own scraper pod
      */
     private void deleteScraperPod() {
-        KubeResourceManager.getInstance().deleteResource(
+        KubeResourceManager.get().deleteResource(
             new PodBuilder()
                 .withNewMetadata()
                     .withName(this.scraperPodName)

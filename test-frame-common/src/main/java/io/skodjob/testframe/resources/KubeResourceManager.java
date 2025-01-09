@@ -62,7 +62,7 @@ public class KubeResourceManager {
     private static final ThreadLocal<ExtensionContext> TEST_CONTEXT = new ThreadLocal<>();
     private static final Map<String, Stack<ResourceItem<?>>> STORED_RESOURCES = new LinkedHashMap<>();
 
-    private static String storeYamlPath = null;
+    private String storeYamlPath = null;
 
     private KubeResourceManager() {
         // Private constructor to prevent instantiation
@@ -72,8 +72,20 @@ public class KubeResourceManager {
      * Retrieves the singleton instance of KubeResourceManager.
      *
      * @return The singleton instance of KubeResourceManager.
+     * @deprecated Will be removed in future release.
      */
+    @Deprecated
     public static synchronized KubeResourceManager getInstance() {
+        return get();
+    }
+
+
+    /**
+     * Retrieves the singleton instance of KubeResourceManager.
+     *
+     * @return The singleton instance of KubeResourceManager.
+     */
+    public static synchronized KubeResourceManager get() {
         if (instance == null) {
             instance = new KubeResourceManager();
             instance.resourceTypes = new ResourceType[]{};
@@ -110,7 +122,7 @@ public class KubeResourceManager {
      *
      * @param context The extension context.
      */
-    public static void setTestContext(ExtensionContext context) {
+    public void setTestContext(ExtensionContext context) {
         TEST_CONTEXT.set(context);
     }
 
@@ -119,7 +131,7 @@ public class KubeResourceManager {
      *
      * @return The extension context.
      */
-    public static ExtensionContext getTestContext() {
+    public ExtensionContext getTestContext() {
         return TEST_CONTEXT.get();
     }
 
@@ -155,7 +167,7 @@ public class KubeResourceManager {
      *
      * @param path root path for storing
      */
-    public static void setStoreYamlPath(String path) {
+    public void setStoreYamlPath(String path) {
         storeYamlPath = path;
     }
 
@@ -164,7 +176,7 @@ public class KubeResourceManager {
      *
      * @return path
      */
-    public static String getStoreYamlPath() {
+    public String getStoreYamlPath() {
         return storeYamlPath;
     }
 
