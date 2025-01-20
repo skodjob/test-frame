@@ -82,7 +82,7 @@
         <apache.commons.version>2.18.0</apache.commons.version>
 
         <!--   Build tools' properties     -->
-        <spotbugs.version>4.8.6</spotbugs.version>
+        <spotbugs.version>4.9.0</spotbugs.version>
         <maven.spotbugs.version>4.8.6.6</maven.spotbugs.version>
         <maven.checkstyle.version>3.6.0</maven.checkstyle.version>
         <maven.dependency.version>3.8.1</maven.dependency.version>
@@ -100,7 +100,7 @@
         <maven.surefire.version>3.5.2</maven.surefire.version>
         <jackson-dataformat-yaml.version>2.18.2</jackson-dataformat-yaml.version>
         <org.eclipse.sisu.version>0.9.0.M3</org.eclipse.sisu.version>
-        <bouncycastle.version>1.79</bouncycastle.version>
+        <bouncycastle.version>1.80</bouncycastle.version>
 
         <it.skip>true</it.skip>
         <!--suppress UnresolvedMavenProperty -->
