@@ -212,7 +212,7 @@ public interface KubeCmdClient<K extends KubeCmdClient<K>> {
     ExecResult exec(boolean throwError, boolean logToOutput, String... command);
 
     /**
-     * Execute the given {@code command}. You can specify if potential failure will thrown the exception or not.
+     * Execute the given {@code command}. You can specify if potential failure will throw the exception or not.
      *
      * @param throwError  parameter which control thrown exception in case of failure
      * @param command     The command

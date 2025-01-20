@@ -224,7 +224,7 @@ public class KubeResourceManager {
         synchronized (this) {
             STORED_RESOURCES.computeIfAbsent(getTestContext().getDisplayName(), k -> new Stack<>());
             STORED_RESOURCES.get(getTestContext().getDisplayName()).push(
-                new ResourceItem<T>(
+                new ResourceItem<>(
                     () -> deleteResource(resource),
                     resource
                 ));
@@ -484,7 +484,6 @@ public class KubeResourceManager {
         assertNotNull(resource.getMetadata());
         assertNotNull(resource.getMetadata().getName());
 
-        ResourceType<T> type = findResourceType(resource);
         boolean[] resourceReady = new boolean[1];
 
         Wait.until(String.format("Resource condition: %s to be fulfilled for resource %s/%s",

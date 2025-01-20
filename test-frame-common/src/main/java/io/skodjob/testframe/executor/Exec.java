@@ -194,7 +194,7 @@ public class Exec {
      */
     public static ExecResult exec(String input, List<String> command, Set<EnvVar> envVars, int timeout,
                                   boolean logToOutput, boolean throwErrors) {
-        int ret = 1;
+        int ret;
         ExecResult execResult;
         try {
             Exec executor = new Exec();
@@ -275,9 +275,7 @@ public class Exec {
         ProcessBuilder builder = new ProcessBuilder();
         builder.command(commands);
         if (envVars != null) {
-            envVars.forEach(e -> {
-                builder.environment().put(e.getName(), e.getValue());
-            });
+            envVars.forEach(e -> builder.environment().put(e.getName(), e.getValue()));
         }
         builder.directory(new File(System.getProperty("user.dir")));
         process = builder.start();

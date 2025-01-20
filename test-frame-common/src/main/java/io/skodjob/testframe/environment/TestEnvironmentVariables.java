@@ -31,7 +31,7 @@ public class TestEnvironmentVariables {
     private static final Logger LOGGER = LoggerFactory.getLogger(TestEnvironmentVariables.class);
 
     /* test */ private final Map<String, String> envMap;
-    private Map<String, String> values = new HashMap<>();
+    private final Map<String, String> values = new HashMap<>();
     private Map<String, Object> yamlData = new HashMap<>();
     private final String configFilePath;
     private final String configFilePathEnv = "ENV_FILE";
