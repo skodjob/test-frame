@@ -24,7 +24,8 @@ public class CustomResourceDefinitionType implements ResourceType<CustomResource
      * Constructor
      */
     public CustomResourceDefinitionType() {
-        this.client = KubeResourceManager.getKubeClient().getClient().apiextensions().v1().customResourceDefinitions();
+        this.client = KubeResourceManager.get().kubeClient()
+            .getClient().apiextensions().v1().customResourceDefinitions();
     }
 
     /**
@@ -82,7 +83,7 @@ public class CustomResourceDefinitionType implements ResourceType<CustomResource
      * from which is the current {@link CustomResourceDefinition} resource updated
      *
      * @param resource {@link CustomResourceDefinition} resource that will be replaced
-     * @param editor       {@link Consumer} containing updates to the resource
+     * @param editor   {@link Consumer} containing updates to the resource
      */
     @Override
     public void replace(CustomResourceDefinition resource, Consumer<CustomResourceDefinition> editor) {

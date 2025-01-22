@@ -43,8 +43,8 @@ public final class KubeResourceManagerCleanerIT extends AbstractIT {
 
     @AfterAll
     void afterAll() {
-        assertNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName(nsName2).get());
-        assertNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName(nsName3).get());
+        assertNull(KubeResourceManager.get().kubeClient().getClient().namespaces().withName(nsName2).get());
+        assertNull(KubeResourceManager.get().kubeClient().getClient().namespaces().withName(nsName3).get());
         assertTrue(isDeleteHandlerCalled.get());
     }
 
@@ -54,29 +54,29 @@ public final class KubeResourceManagerCleanerIT extends AbstractIT {
         KubeResourceManager.get().createResourceWithWait(ns);
         assertTrue(isCreateHandlerCalled.get());
         KubeResourceManager.get().createOrUpdateResourceWithWait(ns);
-        assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName(nsName3).get()
+        assertNotNull(KubeResourceManager.get().kubeClient().getClient().namespaces().withName(nsName3).get()
             .getMetadata().getLabels().get("test-label"));
         KubeResourceManager.get().printAllResources(Level.INFO);
     }
 
     @Test
     void testKubeClientNamespacesExists() {
-        assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName(nsName1).get());
-        assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName(nsName2).get());
-        assertNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName(nsName3).get());
+        assertNotNull(KubeResourceManager.get().kubeClient().getClient().namespaces().withName(nsName1).get());
+        assertNotNull(KubeResourceManager.get().kubeClient().getClient().namespaces().withName(nsName2).get());
+        assertNull(KubeResourceManager.get().kubeClient().getClient().namespaces().withName(nsName3).get());
     }
 
     @Test
     void testKubeCmdClientNamespacesExists() {
-        assertNotNull(KubeResourceManager.getKubeCmdClient().get("namespace", nsName1));
-        assertNotNull(KubeResourceManager.getKubeCmdClient().get("namespace", nsName2));
+        assertNotNull(KubeResourceManager.get().kubeCmdClient().get("namespace", nsName1));
+        assertNotNull(KubeResourceManager.get().kubeCmdClient().get("namespace", nsName2));
         assertThrows(KubeClusterException.class, () ->
-            KubeResourceManager.getKubeCmdClient().get("namespace", nsName3));
+            KubeResourceManager.get().kubeCmdClient().get("namespace", nsName3));
     }
 
     @Test
     void testCreateMultipleResourcesAsync() throws IOException {
-        List<HasMetadata> resources = KubeResourceManager.getKubeClient()
+        List<HasMetadata> resources = KubeResourceManager.get().kubeClient()
             .readResourcesFromFile(getClass().getClassLoader().getResourceAsStream("metrics-example.yaml"));
         KubeResourceManager.get().createOrUpdateResourceAsyncWait(resources.toArray(new HasMetadata[0]));
     }

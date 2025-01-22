@@ -104,7 +104,7 @@ public class KubeResourceManager {
      *
      * @return The Kubernetes client.
      */
-    public static KubeClient getKubeClient() {
+    public KubeClient kubeClient() {
         return client;
     }
 
@@ -113,7 +113,7 @@ public class KubeResourceManager {
      *
      * @return The Kubernetes command-line client.
      */
-    public static KubeCmdClient<?> getKubeCmdClient() {
+    public KubeCmdClient<?> kubeCmdClient() {
         return kubeCmdClient;
     }
 
@@ -490,7 +490,7 @@ public class KubeResourceManager {
                 condition.conditionName(), resource.getKind(), resource.getMetadata().getName()),
             TestFrameConstants.GLOBAL_POLL_INTERVAL_MEDIUM, TestFrameConstants.GLOBAL_TIMEOUT,
             () -> {
-                T res = getKubeClient().getClient().resource(resource).get();
+                T res = kubeClient().getClient().resource(resource).get();
                 resourceReady[0] = condition.predicate().test(res);
                 return resourceReady[0];
             });

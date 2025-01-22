@@ -41,34 +41,34 @@ public class KubeResourceManagerTest {
 
     @BeforeEach
     void setupClient() {
-        KubeResourceManager.getKubeClient().testReconnect(kubernetesClient.getConfiguration());
+        KubeResourceManager.get().kubeClient().testReconnect(kubernetesClient.getConfiguration());
     }
 
     @Test
     void testCreateDeleteNamespace() {
         KubeResourceManager.get().createResourceWithWait(
             new NamespaceBuilder().withNewMetadata().withName("test").endMetadata().build());
-        assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName("test").get());
+        assertNotNull(KubeResourceManager.get().kubeClient().getClient().namespaces().withName("test").get());
     }
 
     @Test
     void testDeleteAllResources() {
         KubeResourceManager.get().createResourceWithWait(
             new NamespaceBuilder().withNewMetadata().withName("test2").endMetadata().build());
-        assertNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName("test").get());
-        assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName("test2").get());
+        assertNull(KubeResourceManager.get().kubeClient().getClient().namespaces().withName("test").get());
+        assertNotNull(KubeResourceManager.get().kubeClient().getClient().namespaces().withName("test2").get());
         KubeResourceManager.get().deleteResources();
-        assertNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName("test2").get());
+        assertNull(KubeResourceManager.get().kubeClient().getClient().namespaces().withName("test2").get());
     }
 
     @Test
     void testUpdateResource() {
         Namespace ns = new NamespaceBuilder().withNewMetadata().withName("test3").endMetadata().build();
         KubeResourceManager.get().createResourceWithWait(ns);
-        assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName("test3").get());
+        assertNotNull(KubeResourceManager.get().kubeClient().getClient().namespaces().withName("test3").get());
         KubeResourceManager.get().updateResource(ns.edit()
             .editMetadata().addToLabels(Collections.singletonMap("test-label", "true")).endMetadata().build());
-        assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName("test3").get()
+        assertNotNull(KubeResourceManager.get().kubeClient().getClient().namespaces().withName("test3").get()
             .getMetadata().getLabels().get("test-label"));
     }
 
@@ -76,11 +76,11 @@ public class KubeResourceManagerTest {
     void testCreateOrUpdateResource() {
         Namespace ns = new NamespaceBuilder().withNewMetadata().withName("test4").endMetadata().build();
         KubeResourceManager.get().createResourceWithWait(ns);
-        assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName("test4").get());
+        assertNotNull(KubeResourceManager.get().kubeClient().getClient().namespaces().withName("test4").get());
         KubeResourceManager.get().createOrUpdateResourceWithWait(ns);
-        assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName("test4").get());
+        assertNotNull(KubeResourceManager.get().kubeClient().getClient().namespaces().withName("test4").get());
         KubeResourceManager.get().createOrUpdateResourceWithoutWait(ns);
-        assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName("test4").get());
+        assertNotNull(KubeResourceManager.get().kubeClient().getClient().namespaces().withName("test4").get());
     }
 
     @Test

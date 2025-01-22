@@ -34,7 +34,7 @@ public class UtilsTest {
 
     @BeforeEach
     void setupClient() {
-        KubeResourceManager.getKubeClient().testReconnect(kubernetesClient.getConfiguration());
+        KubeResourceManager.get().kubeClient().testReconnect(kubernetesClient.getConfiguration());
     }
 
     @Test
@@ -61,7 +61,7 @@ public class UtilsTest {
         LabelSelector lb = new LabelSelectorBuilder()
             .withMatchLabels(Collections.singletonMap("test-label", "true")).build();
 
-        assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName("test").get());
+        assertNotNull(KubeResourceManager.get().kubeClient().getClient().namespaces().withName("test").get());
 
         PodUtils.waitForPodsReady("test", false, () -> {
         });
@@ -75,7 +75,7 @@ public class UtilsTest {
             new NamespaceBuilder().withNewMetadata().withName("test").endMetadata().build());
 
         KubeUtils.labelNamespace("test", "test-label", "true");
-        assertEquals("true", KubeResourceManager.getKubeClient().getClient()
+        assertEquals("true", KubeResourceManager.get().kubeClient().getClient()
             .namespaces().withName("test").get().getMetadata().getLabels().get("test-label"));
     }
 }

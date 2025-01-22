@@ -23,7 +23,7 @@ public class SecretType implements ResourceType<Secret> {
      * Constructor
      */
     public SecretType() {
-        this.client = KubeResourceManager.getKubeClient().getClient().secrets();
+        this.client = KubeResourceManager.get().kubeClient().getClient().secrets();
     }
 
     /**

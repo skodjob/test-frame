@@ -23,7 +23,7 @@ public class SubscriptionType implements ResourceType<Subscription> {
      * Constructor
      */
     public SubscriptionType() {
-        this.client = KubeResourceManager.getKubeClient().getOpenShiftClient().operatorHub().subscriptions();
+        this.client = KubeResourceManager.get().kubeClient().getOpenShiftClient().operatorHub().subscriptions();
     }
 
     /**

@@ -23,7 +23,7 @@ public class OperatorGroupType implements ResourceType<OperatorGroup> {
      * Constructor
      */
     public OperatorGroupType() {
-        this.client = KubeResourceManager.getKubeClient().getOpenShiftClient().operatorHub().operatorGroups();
+        this.client = KubeResourceManager.get().kubeClient().getOpenShiftClient().operatorHub().operatorGroups();
     }
 
     /**
