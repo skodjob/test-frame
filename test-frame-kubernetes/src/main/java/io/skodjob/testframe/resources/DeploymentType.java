@@ -23,7 +23,7 @@ public class DeploymentType implements ResourceType<Deployment> {
      * Constructor
      */
     public DeploymentType() {
-        this.client = KubeResourceManager.getKubeClient().getClient().apps().deployments();
+        this.client = KubeResourceManager.get().kubeClient().getClient().apps().deployments();
     }
 
     /**

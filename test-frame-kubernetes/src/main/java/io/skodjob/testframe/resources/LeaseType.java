@@ -23,7 +23,7 @@ public class LeaseType implements ResourceType<Lease> {
      * Constructor
      */
     public LeaseType() {
-        this.client = KubeResourceManager.getKubeClient().getClient().leases();
+        this.client = KubeResourceManager.get().kubeClient().getClient().leases();
     }
 
     /**

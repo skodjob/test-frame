@@ -23,7 +23,7 @@ public class ServiceType implements ResourceType<Service> {
      * Constructor
      */
     public ServiceType() {
-        this.client = KubeResourceManager.getKubeClient().getClient().services();
+        this.client = KubeResourceManager.get().kubeClient().getClient().services();
     }
 
     /**

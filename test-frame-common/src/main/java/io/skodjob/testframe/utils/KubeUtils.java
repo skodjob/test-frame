@@ -36,7 +36,7 @@ public final class KubeUtils {
         Wait.until("InstallPlan approval", TestFrameConstants.GLOBAL_POLL_INTERVAL_SHORT, 15_000, () -> {
             try {
                 InstallPlan installPlan =
-                    new InstallPlanBuilder(KubeResourceManager.getKubeClient()
+                    new InstallPlanBuilder(KubeResourceManager.get().kubeClient()
                         .getOpenShiftClient().operatorHub().installPlans()
                         .inNamespace(namespaceName).withName(installPlanName).get())
                         .editSpec()
@@ -44,7 +44,7 @@ public final class KubeUtils {
                         .endSpec()
                         .build();
 
-                KubeResourceManager.getKubeClient().getOpenShiftClient().operatorHub().installPlans()
+                KubeResourceManager.get().kubeClient().getOpenShiftClient().operatorHub().installPlans()
                     .inNamespace(namespaceName).withName(installPlanName).patch(installPlan);
                 return true;
             } catch (Exception ex) {
@@ -62,7 +62,7 @@ public final class KubeUtils {
      * @return list of not approved install-plans
      */
     public static InstallPlan getNonApprovedInstallPlan(String namespaceName, String csvPrefix) {
-        return KubeResourceManager.getKubeClient().getOpenShiftClient().operatorHub().installPlans()
+        return KubeResourceManager.get().kubeClient().getOpenShiftClient().operatorHub().installPlans()
             .inNamespace(namespaceName).list().getItems().stream()
             .filter(installPlan -> !installPlan.getSpec().getApproved()
                 && installPlan.getSpec().getClusterServiceVersionNames().toString().contains(csvPrefix))
@@ -77,11 +77,11 @@ public final class KubeUtils {
      * @param value     label value
      */
     public static void labelNamespace(String namespace, String key, String value) {
-        if (KubeResourceManager.getKubeClient().namespaceExists(namespace)) {
+        if (KubeResourceManager.get().kubeClient().namespaceExists(namespace)) {
             Wait.until(String.format("Namespace %s has label: %s", namespace, key),
                 TestFrameConstants.GLOBAL_POLL_INTERVAL_1_SEC, TestFrameConstants.GLOBAL_STABILITY_TIME, () -> {
                     try {
-                        KubeResourceManager.getKubeClient().getClient().namespaces().withName(namespace).edit(n ->
+                        KubeResourceManager.get().kubeClient().getClient().namespaces().withName(namespace).edit(n ->
                             new NamespaceBuilder(n)
                                 .editMetadata()
                                 .addToLabels(key, value)
@@ -90,7 +90,7 @@ public final class KubeUtils {
                     } catch (Exception ex) {
                         return false;
                     }
-                    Namespace n = KubeResourceManager.getKubeClient()
+                    Namespace n = KubeResourceManager.get().kubeClient()
                         .getClient().namespaces().withName(namespace).get();
                     if (n != null) {
                         return n.getMetadata().getLabels().get(key) != null;

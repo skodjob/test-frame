@@ -23,7 +23,7 @@ public class JobType implements ResourceType<Job> {
      * Constructor
      */
     public JobType() {
-        this.client = KubeResourceManager.getKubeClient().getClient().batch().v1().jobs();
+        this.client = KubeResourceManager.get().kubeClient().getClient().batch().v1().jobs();
     }
 
     /**

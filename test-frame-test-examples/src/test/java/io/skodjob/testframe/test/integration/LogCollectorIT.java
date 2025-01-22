@@ -157,10 +157,11 @@ public class LogCollectorIT extends AbstractIT {
         logCollector.collectClusterWideResourcesToFolder(folderPath);
         logCollector.collectClusterWideResourcesToFolder(false, folderPath);
 
-        List<String> podNames = KubeResourceManager.getKubeClient()
+        List<String> podNames = KubeResourceManager.get().kubeClient()
             .listPods(namespaceName1).stream().map(pod -> pod.getMetadata().getName()).toList();
-        List<String> secretNames = KubeResourceManager.getKubeClient().getClient().secrets().inNamespace(namespaceName1)
-            .list().getItems().stream().map(secret -> secret.getMetadata().getName()).toList();
+        List<String> secretNames = KubeResourceManager.get().kubeClient()
+            .getClient().secrets().inNamespace(namespaceName1).list().getItems().stream()
+            .map(secret -> secret.getMetadata().getName()).toList();
 
         File rootFolder = Paths.get(fullFolderPath).toFile();
 
@@ -229,7 +230,7 @@ public class LogCollectorIT extends AbstractIT {
                 assertTrue(configMapFolderFileNames
                         .contains(LogCollectorUtils.getYamlFileNameForResource(configMapName)));
             } else if (namespaceFolder.getName().equals(CollectorConstants.CLUSTER_WIDE_FOLDER)) {
-                int countOfNodes = KubeResourceManager.getKubeClient().getClient().nodes().list().getItems().size();
+                int countOfNodes = KubeResourceManager.get().kubeClient().getClient().nodes().list().getItems().size();
                 int countOfFiles = Objects.requireNonNull(
                     Arrays.stream(Objects.requireNonNull(namespaceFolder.listFiles()))
                         .filter(file -> file.getName().equals("nodes")).toList()

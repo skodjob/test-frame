@@ -42,7 +42,7 @@ public final class PodUtils {
         Wait.until("readiness of all Pods in namespace " + namespaceName,
             TestFrameConstants.GLOBAL_POLL_INTERVAL_MEDIUM, READINESS_TIMEOUT,
             () -> {
-                List<Pod> pods = KubeResourceManager.getKubeClient().getClient()
+                List<Pod> pods = KubeResourceManager.get().kubeClient().getClient()
                     .pods().inNamespace(namespaceName).list().getItems();
                 if (pods.isEmpty()) {
                     LOGGER.debug("There are no existing Pods in Namespace {}", namespaceName);
@@ -84,7 +84,7 @@ public final class PodUtils {
         Wait.until("readiness of all Pods matching " + selector + " in Namespace " + namespaceName,
             TestFrameConstants.GLOBAL_POLL_INTERVAL_MEDIUM, READINESS_TIMEOUT,
             () -> {
-                List<Pod> pods = KubeResourceManager.getKubeClient().getClient().pods()
+                List<Pod> pods = KubeResourceManager.get().kubeClient().getClient().pods()
                     .inNamespace(namespaceName).withLabelSelector(selector).list().getItems();
                 if (pods.isEmpty() && expectPodsCount == 0) {
                     LOGGER.debug("All expected Pods {} in Namespace {} are ready", selector, namespaceName);
@@ -135,9 +135,9 @@ public final class PodUtils {
             });
         } catch (Exception ex) {
             LOGGER.warn("Pods {}/{} are not ready. Going to restart them", namespaceName, selector);
-            KubeResourceManager.getKubeClient().getClient().pods()
+            KubeResourceManager.get().kubeClient().getClient().pods()
                 .inNamespace(namespaceName).withLabelSelector(selector).list().getItems().forEach(p ->
-                    KubeResourceManager.getKubeClient().getClient().resource(p).delete());
+                    KubeResourceManager.get().kubeClient().getClient().resource(p).delete());
             waitForPodsReady(namespaceName, selector, expectedPodsCount, containersReady, () -> {
             });
         }
@@ -152,7 +152,7 @@ public final class PodUtils {
      * @return key value map podName -> uid
      */
     public static Map<String, String> podSnapshot(String namespaceName, LabelSelector selector) {
-        List<Pod> pods = KubeResourceManager.getKubeClient().getClient().pods()
+        List<Pod> pods = KubeResourceManager.get().kubeClient().getClient().pods()
             .inNamespace(namespaceName).withLabelSelector(selector).list().getItems();
         return pods.stream()
             .collect(
@@ -174,7 +174,7 @@ public final class PodUtils {
                 namespaceName, selector, phase),
             TestFrameConstants.GLOBAL_POLL_INTERVAL_SHORT, TestFrameConstants.GLOBAL_TIMEOUT,
             () -> {
-                List<Pod> existingPod = KubeResourceManager.getKubeClient().getClient().pods()
+                List<Pod> existingPod = KubeResourceManager.get().kubeClient().getClient().pods()
                     .inNamespace(namespaceName).withLabelSelector(selector).list().getItems();
                 LOGGER.debug("Considering the following Pods {}", existingPod.stream()
                     .map(p -> p.getMetadata().getName()).toList());

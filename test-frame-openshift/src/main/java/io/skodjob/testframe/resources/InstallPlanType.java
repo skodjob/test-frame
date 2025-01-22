@@ -23,7 +23,7 @@ public class InstallPlanType implements ResourceType<InstallPlan> {
      * Constructor
      */
     public InstallPlanType() {
-        this.client = KubeResourceManager.getKubeClient().getOpenShiftClient().operatorHub().installPlans();
+        this.client = KubeResourceManager.get().kubeClient().getOpenShiftClient().operatorHub().installPlans();
     }
 
     /**

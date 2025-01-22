@@ -28,22 +28,22 @@ public final class MetricsCollectorIT extends AbstractIT {
     @Test
     void testCollectMetrics() throws IOException {
         //Create deployment
-        List<HasMetadata> resources = KubeResourceManager.getKubeClient()
+        List<HasMetadata> resources = KubeResourceManager.get().kubeClient()
             .readResourcesFromFile(getClass().getClassLoader().getResourceAsStream("metrics-example.yaml"));
 
         KubeResourceManager.get().createResourceAsyncWait(resources.toArray(new HasMetadata[0]));
 
         // Check deployment is not null
-        assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName("metrics-test").get());
-        assertNotNull(KubeResourceManager.getKubeClient().getClient().apps().deployments()
+        assertNotNull(KubeResourceManager.get().kubeClient().getClient().namespaces().withName("metrics-test").get());
+        assertNotNull(KubeResourceManager.get().kubeClient().getClient().apps().deployments()
             .inNamespace("metrics-test").withName("prometheus-example").get());
-        assertNotNull(KubeResourceManager.getKubeClient().getClient().apps().deployments()
+        assertNotNull(KubeResourceManager.get().kubeClient().getClient().apps().deployments()
             .inNamespace("metrics-test").withName("scraper-pod").get());
 
         // Create metrics collector
         MetricsCollector collector = new MetricsCollector.Builder()
             .withNamespaceName("metrics-test")
-            .withScraperPodName(KubeResourceManager.getKubeClient()
+            .withScraperPodName(KubeResourceManager.get().kubeClient()
                 .listPodsByPrefixInName("metrics-test", "scraper-pod").get(0)
                 .getMetadata().getName())
             .withComponent(new MetricsComponent() {
@@ -65,7 +65,7 @@ public final class MetricsCollectorIT extends AbstractIT {
 
         assertDoesNotThrow(() -> collector.collectMetricsFromPods(30000)); // timeout in milliseconds
         Map<String, List<Metric>> metrics = collector.getCollectedData();
-        assertTrue(metrics.containsKey(KubeResourceManager.getKubeClient()
+        assertTrue(metrics.containsKey(KubeResourceManager.get().kubeClient()
             .listPodsByPrefixInName("metrics-test", "prometheus-example").get(0)
             .getMetadata().getName()));
     }
@@ -73,15 +73,15 @@ public final class MetricsCollectorIT extends AbstractIT {
     @Test
     void testCollectMetricsWithAutoDeployedPod() throws IOException {
         //Create deployment
-        List<HasMetadata> resources = KubeResourceManager.getKubeClient()
+        List<HasMetadata> resources = KubeResourceManager.get().kubeClient()
             .readResourcesFromFile(getClass().getClassLoader().getResourceAsStream("metrics-example.yaml"))
             .stream().filter(resource -> !resource.getMetadata().getName().equals("scraper-pod")).toList();
 
         KubeResourceManager.get().createResourceWithWait(resources.toArray(new HasMetadata[0]));
 
         // Check deployment is not null
-        assertNotNull(KubeResourceManager.getKubeClient().getClient().namespaces().withName("metrics-test").get());
-        assertNotNull(KubeResourceManager.getKubeClient().getClient().apps().deployments()
+        assertNotNull(KubeResourceManager.get().kubeClient().getClient().namespaces().withName("metrics-test").get());
+        assertNotNull(KubeResourceManager.get().kubeClient().getClient().apps().deployments()
             .inNamespace("metrics-test").withName("prometheus-example").get());
 
         // Create metrics collector
@@ -110,7 +110,7 @@ public final class MetricsCollectorIT extends AbstractIT {
         // Collect metrics
         assertDoesNotThrow(() -> collector.collectMetricsFromPods(30000)); // timeout in milliseconds
         Map<String, List<Metric>> metrics = collector.getCollectedData();
-        assertTrue(metrics.containsKey(KubeResourceManager.getKubeClient()
+        assertTrue(metrics.containsKey(KubeResourceManager.get().kubeClient()
             .listPodsByPrefixInName("metrics-test", "prometheus-example").get(0)
             .getMetadata().getName()));
 
@@ -120,7 +120,7 @@ public final class MetricsCollectorIT extends AbstractIT {
         // Collect metrics
         assertDoesNotThrow(() -> collector2.collectMetricsFromPods(30000)); // timeout in milliseconds
         Map<String, List<Metric>> metrics2 = collector.getCollectedData();
-        assertTrue(metrics2.containsKey(KubeResourceManager.getKubeClient()
+        assertTrue(metrics2.containsKey(KubeResourceManager.get().kubeClient()
             .listPodsByPrefixInName("metrics-test", "prometheus-example").get(0)
             .getMetadata().getName()));
     }

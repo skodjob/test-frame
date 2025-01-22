@@ -23,7 +23,7 @@ public class RoleBindingType implements ResourceType<RoleBinding> {
      * Constructor
      */
     public RoleBindingType() {
-        this.client = KubeResourceManager.getKubeClient().getClient().rbac().roleBindings();
+        this.client = KubeResourceManager.get().kubeClient().getClient().rbac().roleBindings();
     }
 
     /**

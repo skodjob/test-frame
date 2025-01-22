@@ -72,7 +72,7 @@ class Test {
     void testMethod() {
         KubeResourceManager.get().createResourceWithWait(
                 new NamespaceBuilder().withNewMetadata().withName("test").endMetadata().build());
-        assertNotNull(KubeResourceManager.getKubeCmdClient().get("namespace", "test"));
+        assertNotNull(KubeResourceManager.get().kubeCmdClient().get("namespace", "test"));
     }
 }
 //...
