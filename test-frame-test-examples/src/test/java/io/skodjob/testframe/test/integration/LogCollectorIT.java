@@ -97,7 +97,7 @@ public class LogCollectorIT extends AbstractIT {
                         .editOrNewSpec()
                             .addToContainers(new ContainerBuilder()
                                 .withName("nginx")
-                                .withImage("quay.io/jitesoft/nginx")
+                                .withImage("quay.io/nginx/nginx-unprivileged")
                                 .withPorts(new ContainerPortBuilder()
                                     .withContainerPort(80)
                                     .build())
