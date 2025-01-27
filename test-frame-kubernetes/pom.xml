@@ -33,14 +33,6 @@
         <url>https://github.com/skodjob/test-frame/issues</url>
     </issueManagement>
 
-    <distributionManagement>
-        <repository>
-            <id>github</id>
-            <name>GitHub Apache Maven Packages</name>
-            <url>https://maven.pkg.github.com/skodjob/test-frame</url>
-        </repository>
-    </distributionManagement>
-
     <developers>
         <developer>
             <id>im-konge</id>
