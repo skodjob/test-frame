@@ -40,8 +40,34 @@ together with the usage and installation.
 <dependency>
     <groupId>io.skodjob</groupId>
     <artifactId>test-frame-common</artifactId>
+    <version>0.10.0</version>
 </dependency>
 ```
+### Or use snapshot releases
+```xml
+<repositories>
+  <repository>
+    <name>Central Portal Snapshots</name>
+    <id>central-portal-snapshots</id>
+    <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+    <releases>
+      <enabled>false</enabled>
+    </releases>
+    <snapshots>
+      <enabled>true</enabled>
+    </snapshots>
+  </repository>
+</repositories>
+
+...
+
+<dependency>
+    <groupId>io.skodjob</groupId>
+    <artifactId>test-frame-common</artifactId>
+    <version>0.11.0-SNAPSHOT</version>
+</dependency>
+```
+
 ### Use annotations for working with `KubeResourceManager` or other provided functionality
 ```java
 //...
