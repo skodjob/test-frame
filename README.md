@@ -140,8 +140,6 @@ KubeResourceManager.get().setResourceTypes(
 );
 ```
 
-
-
 ## Examples
 Examples are stored in [test-frame-test-examples](test-frame-test-examples/src/test/java/io/skodjob/testframe/test/integration) module.
 
