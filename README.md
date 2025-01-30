@@ -95,19 +95,48 @@ class Test {
 class Test {
     @Test
     void testMethod() {
-        KubeResourceManager.get().createResourceWithWait(
-                new NamespaceBuilder().withNewMetadata().withName("test").endMetadata().build());
+        Namespace ns = new NamespaceBuilder().withNewMetadata().withName("test").endMetadata().build();
+        KubeResourceManager.get().createResourceWithWait(ns);
         assertNotNull(KubeResourceManager.get().kubeCmdClient().get("namespace", "test"));
+
+        ...
+
+        KubeResourceManager.get().deleteResource(ns);
     }
 }
 //...
 ```
 ### Register `ResourceType` or `NamespacedResourceType` classes into `KubeResourceManager`
+Include `test-frame-kubernetes` or for openshift specific resources include also `test-frame-openshift` package.
+```xml
+...
+<dependency>
+    <groupId>io.skodjob</groupId>
+    <artifactId>test-frame-common</artifactId>
+    <version>0.10.0</version>
+</dependency>
+<dependency>
+    <groupId>io.skodjob</groupId>
+    <artifactId>test-frame-kubernetes</artifactId>
+    <version>0.10.0</version>
+</dependency>
+<dependency>
+    <groupId>io.skodjob</groupId>
+    <artifactId>test-frame-openshift</artifactId>
+    <version>0.10.0</version>
+</dependency>
+...
+```
+Then register resources which will be handled specifically by KubeResourceManager.
+If resource is not registered then it is handled as common kubernetes resource with no special readiness check.
+If you have any own resource for your operator then you can implement `ResourceType` interface with your specific readiness and handling.
 ```java
 KubeResourceManager.get().setResourceTypes(
         new NamespaceType(),
         new JobType(),
-        new NetworkPolicyType()
+        new NetworkPolicyType(),
+        new SubsciptionType(),
+        new OperatorGroupType()
 );
 ```
 
