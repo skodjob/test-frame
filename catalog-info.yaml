@@ -17,8 +17,6 @@ metadata:
     - title: Help
       url: https://github.com/skodjob/test-frame/blob/main/README.md
       icon: help
-    - title: Blogpost
-      url: https://skodjob.io/tools/test-frame-introduction/
 spec:
   type: library
   lifecycle: production
