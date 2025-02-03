@@ -475,7 +475,6 @@
                         <extensions>true</extensions>
                         <configuration>
                             <publishingServerId>central</publishingServerId>
-                            <tokenAuth>true</tokenAuth>
                             <checksums>all</checksums>
                             <autoPublish>true</autoPublish>
                         </configuration>
