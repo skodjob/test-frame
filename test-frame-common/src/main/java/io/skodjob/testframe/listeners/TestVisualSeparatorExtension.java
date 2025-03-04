@@ -4,6 +4,7 @@
  */
 package io.skodjob.testframe.listeners;
 
+import io.skodjob.testframe.annotations.TestVisualSeparator;
 import io.skodjob.testframe.utils.LoggerUtils;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.AfterEachCallback;
@@ -12,6 +13,10 @@ import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Optional;
+
+import static org.junit.platform.commons.support.AnnotationSupport.findAnnotation;
 
 /**
  * jUnit5 specific class which listening on test callbacks
@@ -26,19 +31,19 @@ public class TestVisualSeparatorExtension implements BeforeEachCallback, AfterEa
 
     @Override
     public void beforeAll(ExtensionContext extensionContext) {
-        LoggerUtils.logSeparator();
+        logSeparator(extensionContext);
         LOGGER.info("TestClass {} STARTED", extensionContext.getRequiredTestClass().getName());
     }
 
     @Override
     public void afterAll(ExtensionContext extensionContext) {
         LOGGER.info("TestClass {} FINISHED", extensionContext.getRequiredTestClass().getName());
-        LoggerUtils.logSeparator();
+        logSeparator(extensionContext);
     }
 
     @Override
     public void beforeEach(ExtensionContext extensionContext) {
-        LoggerUtils.logSeparator();
+        logSeparator(extensionContext);
         LOGGER.info("Test {}.{} STARTED", extensionContext.getRequiredTestClass().getName(),
             extensionContext.getDisplayName().replace("()", ""));
     }
@@ -52,6 +57,16 @@ public class TestVisualSeparatorExtension implements BeforeEachCallback, AfterEa
 
         LOGGER.info("Test {}.{} {}", extensionContext.getRequiredTestClass().getName(),
             extensionContext.getDisplayName().replace("()", ""), state);
-        LoggerUtils.logSeparator();
+        logSeparator(extensionContext);
+    }
+
+    private void logSeparator(ExtensionContext extensionContext) {
+        Optional<TestVisualSeparator> annotation =
+            findAnnotation(extensionContext.getRequiredTestClass(), TestVisualSeparator.class);
+        if (annotation.isPresent()) {
+            LoggerUtils.logSeparator(annotation.get().separator(), annotation.get().lineLength());
+        } else {
+            LoggerUtils.logSeparator();
+        }
     }
 }
