@@ -20,7 +20,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @ResourceManager
-@TestVisualSeparator
+@TestVisualSeparator(separator = "=")
 public abstract class AbstractIT {
     static AtomicBoolean isCreateHandlerCalled = new AtomicBoolean(false);
     static AtomicBoolean isDeleteHandlerCalled = new AtomicBoolean(false);
