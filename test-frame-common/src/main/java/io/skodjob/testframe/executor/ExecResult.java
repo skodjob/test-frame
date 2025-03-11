@@ -4,44 +4,14 @@
  */
 package io.skodjob.testframe.executor;
 
-import java.io.Serial;
-import java.io.Serializable;
-
 /**
  * Represents the result of an execution.
+ *
+ * @param returnCode ecode of execution
+ * @param out        standard output
+ * @param err        standard error output
  */
-public class ExecResult implements Serializable {
-
-    @Serial
-    private static final long serialVersionUID = 1L;
-
-    /**
-     * Return code of the execution
-     */
-    private final int returnCode;
-
-    /**
-     * standard output
-     */
-    private final String stdOut;
-
-    /**
-     * Error output
-     */
-    private final String stdErr;
-
-    /**
-     * Constructs a new ExecResult with the specified return code, standard output, and standard error.
-     *
-     * @param returnCode The return code.
-     * @param stdOut     The standard output.
-     * @param stdErr     The standard error.
-     */
-    public ExecResult(int returnCode, String stdOut, String stdErr) {
-        this.returnCode = returnCode;
-        this.stdOut = stdOut;
-        this.stdErr = stdErr;
-    }
+public record ExecResult(int returnCode, String out, String err) {
 
     /**
      * Checks if the execution was successful.
@@ -53,33 +23,6 @@ public class ExecResult implements Serializable {
     }
 
     /**
-     * Gets the return code of the execution.
-     *
-     * @return The return code.
-     */
-    public int returnCode() {
-        return returnCode;
-    }
-
-    /**
-     * Gets the standard output of the execution.
-     *
-     * @return The standard output.
-     */
-    public String out() {
-        return stdOut;
-    }
-
-    /**
-     * Gets the standard error of the execution.
-     *
-     * @return The standard error.
-     */
-    public String err() {
-        return stdErr;
-    }
-
-    /**
      * Returns a string representation of the ExecResult.
      *
      * @return A string representation of the ExecResult.
@@ -87,8 +30,8 @@ public class ExecResult implements Serializable {
     @Override
     public String toString() {
         return "ExecResult{" + "returnCode=" + returnCode +
-            ", stdOut='" + stdOut + '\'' +
-            ", stdErr='" + stdErr + '\'' +
+            ", stdOut='" + out + '\'' +
+            ", stdErr='" + err + '\'' +
             '}';
     }
 }
