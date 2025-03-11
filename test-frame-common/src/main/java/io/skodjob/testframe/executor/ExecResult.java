@@ -4,9 +4,6 @@
  */
 package io.skodjob.testframe.executor;
 
-import java.io.Serial;
-import java.io.Serializable;
-
 /**
  * Represents the result of an execution.
  *
@@ -14,10 +11,7 @@ import java.io.Serializable;
  * @param out        standard output
  * @param err        standard error output
  */
-public record ExecResult(int returnCode, String out, String err) implements Serializable {
-
-    @Serial
-    private static final long serialVersionUID = 1L;
+public record ExecResult(int returnCode, String out, String err) {
 
     /**
      * Checks if the execution was successful.

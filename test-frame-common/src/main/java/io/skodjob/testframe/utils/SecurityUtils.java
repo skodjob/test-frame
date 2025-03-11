@@ -31,7 +31,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 /**
  * Utils for manipulating with certs
  */
-public class SecurityUtils {
+public final class SecurityUtils {
 
     private SecurityUtils() {
         // empty constructor
