@@ -10,6 +10,7 @@ import io.fabric8.kubernetes.api.model.apiextensions.v1.CustomResourceDefinition
 import io.fabric8.kubernetes.api.model.apiextensions.v1.CustomResourceDefinitionList;
 import io.fabric8.kubernetes.client.dsl.NonNamespaceOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
+import io.skodjob.testframe.TestFrameConstants;
 import io.skodjob.testframe.interfaces.ResourceType;
 
 /**
@@ -36,6 +37,16 @@ public class CustomResourceDefinitionType implements ResourceType<CustomResource
     @Override
     public String getKind() {
         return "CustomResourceDefinition";
+    }
+
+    /**
+     * Timeout for resource readiness
+     *
+     * @return timeout for resource readiness
+     */
+    @Override
+    public Long getTimeoutForResourceReadiness() {
+        return TestFrameConstants.GLOBAL_TIMEOUT_SHORT;
     }
 
     /**

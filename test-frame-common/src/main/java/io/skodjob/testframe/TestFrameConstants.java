@@ -43,6 +43,11 @@ public interface TestFrameConstants {
     long GLOBAL_TIMEOUT = Duration.ofMinutes(10).toMillis();
 
     /**
+     * Global timeout in milliseconds.
+     */
+    long GLOBAL_TIMEOUT_SHORT = Duration.ofMinutes(5).toMillis();
+
+    /**
      * Stability timeout in milliseconds
      */
     long GLOBAL_STABILITY_TIME = Duration.ofMinutes(1).toMillis();

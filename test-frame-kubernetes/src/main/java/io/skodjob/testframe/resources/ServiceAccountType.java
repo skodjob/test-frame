@@ -10,6 +10,7 @@ import io.fabric8.kubernetes.api.model.ServiceAccount;
 import io.fabric8.kubernetes.api.model.ServiceAccountList;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.ServiceAccountResource;
+import io.skodjob.testframe.TestFrameConstants;
 import io.skodjob.testframe.interfaces.ResourceType;
 
 /**
@@ -34,6 +35,16 @@ public class ServiceAccountType implements ResourceType<ServiceAccount> {
     @Override
     public String getKind() {
         return "ServiceAccount";
+    }
+
+    /**
+     * Timeout for resource readiness
+     *
+     * @return timeout for resource readiness
+     */
+    @Override
+    public Long getTimeoutForResourceReadiness() {
+        return TestFrameConstants.GLOBAL_TIMEOUT_SHORT;
     }
 
     /**

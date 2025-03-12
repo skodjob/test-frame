@@ -8,6 +8,7 @@ import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
 import io.fabric8.openshift.api.model.operatorhub.v1alpha1.Subscription;
 import io.fabric8.openshift.api.model.operatorhub.v1alpha1.SubscriptionList;
+import io.skodjob.testframe.TestFrameConstants;
 import io.skodjob.testframe.interfaces.ResourceType;
 
 import java.util.function.Consumer;
@@ -34,6 +35,16 @@ public class SubscriptionType implements ResourceType<Subscription> {
     @Override
     public String getKind() {
         return "Subscription";
+    }
+
+    /**
+     * Timeout for resource readiness
+     *
+     * @return timeout for resource readiness
+     */
+    @Override
+    public Long getTimeoutForResourceReadiness() {
+        return TestFrameConstants.GLOBAL_TIMEOUT_SHORT;
     }
 
     /**

@@ -10,6 +10,7 @@ import io.fabric8.openshift.api.model.Build;
 import io.fabric8.openshift.api.model.BuildConfig;
 import io.fabric8.openshift.api.model.BuildConfigList;
 import io.fabric8.openshift.client.dsl.BuildConfigResource;
+import io.skodjob.testframe.TestFrameConstants;
 import io.skodjob.testframe.interfaces.ResourceType;
 
 import java.util.function.Consumer;
@@ -46,6 +47,16 @@ public class BuildConfigType implements ResourceType<BuildConfig> {
     @Override
     public String getKind() {
         return "BuildConfig";
+    }
+
+    /**
+     * Timeout for resource readiness
+     *
+     * @return timeout for resource readiness
+     */
+    @Override
+    public Long getTimeoutForResourceReadiness() {
+        return TestFrameConstants.GLOBAL_TIMEOUT_SHORT;
     }
 
     /**

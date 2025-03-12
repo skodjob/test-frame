@@ -9,6 +9,7 @@ import io.fabric8.kubernetes.client.dsl.NonNamespaceOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
 import io.fabric8.openshift.api.model.ImageStream;
 import io.fabric8.openshift.api.model.ImageStreamList;
+import io.skodjob.testframe.TestFrameConstants;
 import io.skodjob.testframe.interfaces.ResourceType;
 
 import java.util.function.Consumer;
@@ -45,6 +46,16 @@ public class ImageStreamType implements ResourceType<ImageStream> {
     @Override
     public String getKind() {
         return "ImageStream";
+    }
+
+    /**
+     * Timeout for resource readiness
+     *
+     * @return timeout for resource readiness
+     */
+    @Override
+    public Long getTimeoutForResourceReadiness() {
+        return TestFrameConstants.GLOBAL_TIMEOUT_SHORT;
     }
 
     /**

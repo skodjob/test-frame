@@ -31,6 +31,13 @@ public interface ResourceType<T extends HasMetadata> {
     String getKind();
 
     /**
+     * Timeout for resource readiness
+     *
+     * @return  timeout for resource readiness
+     */
+    Long getTimeoutForResourceReadiness();
+
+    /**
      * Creates specific {@link T} resource
      *
      * @param resource {@link T} resource

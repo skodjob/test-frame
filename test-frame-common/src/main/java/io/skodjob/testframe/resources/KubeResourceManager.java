@@ -15,6 +15,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Stack;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -386,8 +387,10 @@ public class KubeResourceManager {
                     type.create(resource);
                 }
                 if (waitReady) {
+                    long resourceTimeout = Objects.requireNonNullElse(type.getTimeoutForResourceReadiness(),
+                        TestFrameConstants.GLOBAL_TIMEOUT);
                     CompletableFuture<Void> c = CompletableFuture.runAsync(() ->
-                        assertTrue(waitResourceCondition(resource, ResourceCondition.readiness(type)),
+                        assertTrue(waitResourceCondition(resource, ResourceCondition.readiness(type), resourceTimeout),
                             String.format("Timed out waiting for %s/%s in %s to be ready", resource.getKind(),
                                 resource.getMetadata().getName(), resource.getMetadata().getNamespace())));
                     if (async) {
@@ -474,12 +477,29 @@ public class KubeResourceManager {
     /**
      * Waits for a resource condition to be fulfilled.
      *
-     * @param resource  The resource to wait for.
-     * @param condition The condition to fulfill.
-     * @param <T>       The type of the resource.
+     * @param resource      The resource to wait for.
+     * @param condition     The condition to fulfill.
+     * @param <T>           The type of the resource.
      * @return True if the condition is fulfilled, false otherwise.
      */
     public final <T extends HasMetadata> boolean waitResourceCondition(T resource, ResourceCondition<T> condition) {
+        return waitResourceCondition(resource, condition, TestFrameConstants.GLOBAL_TIMEOUT);
+    }
+
+    /**
+     * Waits for a resource condition to be fulfilled.
+     *
+     * @param resource              The resource to wait for.
+     * @param condition             The condition to fulfill.
+     * @param <T>                   The type of the resource.
+     * @param resourceTimeout       Timeout for resource condition
+     * @return True if the condition is fulfilled, false otherwise.
+     */
+    public final <T extends HasMetadata> boolean waitResourceCondition(
+        T resource,
+        ResourceCondition<T> condition,
+        long resourceTimeout
+    ) {
         assertNotNull(resource);
         assertNotNull(resource.getMetadata());
         assertNotNull(resource.getMetadata().getName());
@@ -488,7 +508,7 @@ public class KubeResourceManager {
 
         Wait.until(String.format("Resource condition: %s to be fulfilled for resource %s/%s",
                 condition.conditionName(), resource.getKind(), resource.getMetadata().getName()),
-            TestFrameConstants.GLOBAL_POLL_INTERVAL_MEDIUM, TestFrameConstants.GLOBAL_TIMEOUT,
+            TestFrameConstants.GLOBAL_POLL_INTERVAL_MEDIUM, resourceTimeout,
             () -> {
                 T res = kubeClient().getClient().resource(resource).get();
                 resourceReady[0] = condition.predicate().test(res);
