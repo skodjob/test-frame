@@ -10,7 +10,6 @@ import io.fabric8.kubernetes.api.model.rbac.ClusterRoleBinding;
 import io.fabric8.kubernetes.api.model.rbac.ClusterRoleBindingList;
 import io.fabric8.kubernetes.client.dsl.NonNamespaceOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
-import io.skodjob.testframe.TestFrameConstants;
 import io.skodjob.testframe.interfaces.ResourceType;
 
 /**
@@ -46,16 +45,6 @@ public class ClusterRoleBindingType implements ResourceType<ClusterRoleBinding> 
     @Override
     public String getKind() {
         return "ClusterRoleBinding";
-    }
-
-    /**
-     * Timeout for resource readiness
-     *
-     * @return timeout for resource readiness
-     */
-    @Override
-    public Long getTimeoutForResourceReadiness() {
-        return TestFrameConstants.GLOBAL_TIMEOUT_SHORT;
     }
 
     /**

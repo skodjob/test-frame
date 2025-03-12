@@ -10,7 +10,6 @@ import io.fabric8.kubernetes.api.model.batch.v1.Job;
 import io.fabric8.kubernetes.api.model.batch.v1.JobList;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.ScalableResource;
-import io.skodjob.testframe.TestFrameConstants;
 import io.skodjob.testframe.interfaces.ResourceType;
 
 /**
@@ -35,16 +34,6 @@ public class JobType implements ResourceType<Job> {
     @Override
     public String getKind() {
         return "Job";
-    }
-
-    /**
-     * Timeout for resource readiness
-     *
-     * @return timeout for resource readiness
-     */
-    @Override
-    public Long getTimeoutForResourceReadiness() {
-        return TestFrameConstants.GLOBAL_TIMEOUT_SHORT;
     }
 
     /**

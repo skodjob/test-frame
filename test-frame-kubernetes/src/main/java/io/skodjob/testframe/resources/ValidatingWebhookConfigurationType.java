@@ -10,7 +10,6 @@ import io.fabric8.kubernetes.api.model.admissionregistration.v1.ValidatingWebhoo
 import io.fabric8.kubernetes.api.model.admissionregistration.v1.ValidatingWebhookConfigurationList;
 import io.fabric8.kubernetes.client.dsl.NonNamespaceOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
-import io.skodjob.testframe.TestFrameConstants;
 import io.skodjob.testframe.interfaces.ResourceType;
 
 /**
@@ -40,16 +39,6 @@ public class ValidatingWebhookConfigurationType implements ResourceType<Validati
     @Override
     public String getKind() {
         return "ValidatingWebhookConfiguration";
-    }
-
-    /**
-     * Timeout for resource readiness
-     *
-     * @return timeout for resource readiness
-     */
-    @Override
-    public Long getTimeoutForResourceReadiness() {
-        return TestFrameConstants.GLOBAL_TIMEOUT_SHORT;
     }
 
     /**

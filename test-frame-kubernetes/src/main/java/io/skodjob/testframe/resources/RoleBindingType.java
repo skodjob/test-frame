@@ -10,7 +10,6 @@ import io.fabric8.kubernetes.api.model.rbac.RoleBinding;
 import io.fabric8.kubernetes.api.model.rbac.RoleBindingList;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
-import io.skodjob.testframe.TestFrameConstants;
 import io.skodjob.testframe.interfaces.ResourceType;
 
 /**
@@ -35,16 +34,6 @@ public class RoleBindingType implements ResourceType<RoleBinding> {
     @Override
     public String getKind() {
         return "RoleBinding";
-    }
-
-    /**
-     * Timeout for resource readiness
-     *
-     * @return timeout for resource readiness
-     */
-    @Override
-    public Long getTimeoutForResourceReadiness() {
-        return TestFrameConstants.GLOBAL_TIMEOUT_SHORT;
     }
 
     /**

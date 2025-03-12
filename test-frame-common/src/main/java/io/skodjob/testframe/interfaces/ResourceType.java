@@ -8,6 +8,7 @@ import java.util.function.Consumer;
 
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.client.dsl.NonNamespaceOperation;
+import io.skodjob.testframe.TestFrameConstants;
 
 /**
  * Class for encapsulating methods related to {@link T} resource.
@@ -35,7 +36,9 @@ public interface ResourceType<T extends HasMetadata> {
      *
      * @return  timeout for resource readiness
      */
-    Long getTimeoutForResourceReadiness();
+    default Long getTimeoutForResourceReadiness() {
+        return TestFrameConstants.GLOBAL_TIMEOUT_SHORT;
+    }
 
     /**
      * Creates specific {@link T} resource
