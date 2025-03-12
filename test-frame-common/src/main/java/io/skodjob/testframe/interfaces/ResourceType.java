@@ -32,7 +32,8 @@ public interface ResourceType<T extends HasMetadata> {
     String getKind();
 
     /**
-     * Timeout for resource readiness
+     * Timeout for resource readiness.
+     * Defaults to {@link TestFrameConstants#GLOBAL_TIMEOUT_SHORT}.
      *
      * @return  timeout for resource readiness
      */
