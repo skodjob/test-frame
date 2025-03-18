@@ -27,12 +27,12 @@ public class OperatorSdkRunBuilderTest {
 
         assertNotNull(operatorSdkRun);
 
-        assertEquals(operatorSdkRun.bundleImage, "my-bundle-image");
-        assertEquals(operatorSdkRun.timeout, "2m");
-        assertEquals(operatorSdkRun.indexImage, "my-index-image");
-        assertEquals(operatorSdkRun.namespace, "namespace-1");
-        assertEquals(operatorSdkRun.installMode, "automatic");
-        assertEquals(operatorSdkRun.kubeconfig, "path-to-kubeconfig");
+        assertEquals("my-bundle-image", operatorSdkRun.bundleImage);
+        assertEquals("2m", operatorSdkRun.timeout);
+        assertEquals("my-index-image", operatorSdkRun.indexImage);
+        assertEquals("namespace-1", operatorSdkRun.namespace);
+        assertEquals("automatic", operatorSdkRun.installMode);
+        assertEquals("path-to-kubeconfig", operatorSdkRun.kubeconfig);
     }
 
     @Test

@@ -44,6 +44,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -64,7 +65,7 @@ public class LogCollectorIT {
     private KubeClient mockClient;
     private KubeCmdClient mockCmdClient;
     private NonNamespaceOperation<Namespace, NamespaceList, Resource<Namespace>> mockNamespaceOperation;
-    private KubernetesClient mockKubernetesClient = mock(KubernetesClient.class);
+    private final KubernetesClient mockKubernetesClient = mock(KubernetesClient.class);
 
     private static final String SECRET = "secret";
     private static final String CONFIG_MAP = "configmap";
@@ -586,7 +587,7 @@ public class LogCollectorIT {
 
     private void assertFolderExistsAndContainsCorrectNumberOfFiles(File folder, int expectedNumOfFiles) {
         assertNotNull(folder);
-        assertTrue(Objects.requireNonNull(folder.list()).length == expectedNumOfFiles);
+        assertEquals(expectedNumOfFiles, Objects.requireNonNull(folder.list()).length);
     }
 
     private void assertFolderContainsFolders(File folder, String... folders) {

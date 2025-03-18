@@ -13,7 +13,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.security.cert.CertificateEncodingException;
 
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
@@ -52,7 +51,7 @@ public class SecurityUtilsTest {
     }
 
     @Test
-    void testExportCertsToPem() throws IOException, CertificateEncodingException {
+    void testExportCertsToPem() throws IOException {
         CertAndKeyFiles all = SecurityUtils.exportToPemFiles(ca, intermediateCa, appCert);
 
         String content = Files.readString(Paths.get(all.getCertPath()));
