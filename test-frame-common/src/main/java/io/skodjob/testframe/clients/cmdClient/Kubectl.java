@@ -4,6 +4,8 @@
  */
 package io.skodjob.testframe.clients.cmdClient;
 
+import io.skodjob.testframe.executor.Exec;
+
 /**
  * A {@link KubeCmdClient} wrapping {@code kubectl}.
  */
@@ -83,7 +85,6 @@ public class Kubectl extends BaseCmdKubeClient<Kubectl> {
      */
     @Override
     public String getUsername() {
-        // TODO - implement this!
-        return null;
+        return Exec.exec(cmd(), "auth", "whoami", "-o", "jsonpath='{.status.userInfo.username}'").out();
     }
 }
