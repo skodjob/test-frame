@@ -17,7 +17,7 @@ import io.skodjob.testframe.interfaces.ResourceType;
  */
 public class LeaseType implements ResourceType<Lease> {
 
-    private MixedOperation<Lease, LeaseList, Resource<Lease>> client;
+    private final MixedOperation<Lease, LeaseList, Resource<Lease>> client;
 
     /**
      * Constructor
