@@ -33,7 +33,7 @@ public class InstallPlanType implements ResourceType<InstallPlan> {
      */
     @Override
     public String getKind() {
-        return "OperatorGroup";
+        return "InstallPlan";
     }
 
     /**
