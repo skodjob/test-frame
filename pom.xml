@@ -88,7 +88,7 @@
         <maven.plugin.plugin.version>3.9.0</maven.plugin.plugin.version>
         <junit.jupiter.version>5.12.1</junit.jupiter.version>
         <junit.platform.version>1.12.1</junit.platform.version>
-        <maven.surefire.version>3.5.2</maven.surefire.version>
+        <maven.surefire.version>3.5.3</maven.surefire.version>
         <jackson-dataformat-yaml.version>2.18.3</jackson-dataformat-yaml.version>
         <org.eclipse.sisu.version>0.9.0.M3</org.eclipse.sisu.version>
         <bouncycastle.version>1.80</bouncycastle.version>
