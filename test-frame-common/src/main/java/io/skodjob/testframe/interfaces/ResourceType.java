@@ -33,12 +33,12 @@ public interface ResourceType<T extends HasMetadata> {
 
     /**
      * Timeout for resource readiness.
-     * Defaults to {@link TestFrameConstants#GLOBAL_TIMEOUT_SHORT}.
+     * Defaults to {@link TestFrameConstants#GLOBAL_TIMEOUT_MEDIUM}.
      *
      * @return  timeout for resource readiness
      */
     default Long getTimeoutForResourceReadiness() {
-        return TestFrameConstants.GLOBAL_TIMEOUT_SHORT;
+        return TestFrameConstants.GLOBAL_TIMEOUT_MEDIUM;
     }
 
     /**

@@ -45,7 +45,7 @@ public interface TestFrameConstants {
     /**
      * Global timeout in milliseconds.
      */
-    long GLOBAL_TIMEOUT_SHORT = Duration.ofMinutes(5).toMillis();
+    long GLOBAL_TIMEOUT_SHORT = Duration.ofMinutes(3).toMillis();
 
     /**
      * Stability timeout in milliseconds
