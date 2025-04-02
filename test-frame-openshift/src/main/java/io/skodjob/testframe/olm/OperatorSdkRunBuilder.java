@@ -15,6 +15,7 @@ public class OperatorSdkRunBuilder {
     private String indexImage;
     private String kubeconfig;
     private String bundleImage;
+    private boolean skipTlsVerify;
 
 
     /**
@@ -30,6 +31,7 @@ public class OperatorSdkRunBuilder {
         this.indexImage = operatorSdkRun.indexImage;
         this.kubeconfig = operatorSdkRun.kubeconfig;
         this.bundleImage = operatorSdkRun.bundleImage;
+        this.skipTlsVerify = operatorSdkRun.skipTlsVerify;
     }
 
     /**
@@ -107,6 +109,17 @@ public class OperatorSdkRunBuilder {
     }
 
     /**
+     * Method for setting the skip TLS certificate verification for container image registries while pulling bundles
+     *
+     * @param skipTlsVerify set skip tls verify
+     * @return {@link OperatorSdkRunBuilder} object
+     */
+    public OperatorSdkRunBuilder withSkipTlsVerify(boolean skipTlsVerify) {
+        this.skipTlsVerify = skipTlsVerify;
+        return this;
+    }
+
+    /**
      * Get namespace
      *
      * @return namespace
@@ -158,6 +171,15 @@ public class OperatorSdkRunBuilder {
      */
     public String getBundleImage() {
         return bundleImage;
+    }
+
+    /**
+     * Get skipTlsVerify
+     *
+     * @return skipTlsVerify
+     */
+    public boolean getSkipTlsVerify() {
+        return skipTlsVerify;
     }
 
     /**

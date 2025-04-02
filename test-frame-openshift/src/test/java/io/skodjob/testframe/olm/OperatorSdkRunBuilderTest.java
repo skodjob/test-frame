@@ -11,6 +11,7 @@ import java.security.InvalidParameterException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class OperatorSdkRunBuilderTest {
 
@@ -23,6 +24,7 @@ public class OperatorSdkRunBuilderTest {
             .withIndexImage("my-index-image")
             .withKubeConfig("path-to-kubeconfig")
             .withInstallMode("automatic")
+            .withSkipTlsVerify(true)
             .build();
 
         assertNotNull(operatorSdkRun);
@@ -33,6 +35,7 @@ public class OperatorSdkRunBuilderTest {
         assertEquals("namespace-1", operatorSdkRun.namespace);
         assertEquals("automatic", operatorSdkRun.installMode);
         assertEquals("path-to-kubeconfig", operatorSdkRun.kubeconfig);
+        assertTrue(operatorSdkRun.skipTlsVerify);
     }
 
     @Test

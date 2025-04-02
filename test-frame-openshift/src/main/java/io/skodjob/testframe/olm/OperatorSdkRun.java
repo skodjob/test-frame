@@ -26,12 +26,14 @@ public class OperatorSdkRun {
     protected String indexImage;
     protected String kubeconfig;
     protected String bundleImage;
+    protected boolean skipTlsVerify;
 
     private static final String OPTION_INDEX_IMAGE = "--index-image";
     private static final String OPTION_NAMESPACE = "--namespace";
     private static final String OPTION_KUBECONFIG = "--kubeconfig";
     private static final String OPTION_TIMEOUT = "--timeout";
     private static final String OPTION_INSTALL_MODE = "--install-mode";
+    private static final String OPTION_SKIP_TLS_VERIFY = "--skip-tls-verify";
     private static final String CMD = "operator-sdk";
     private static final String RUN = "run";
     private static final String BUNDLE = "bundle";
@@ -60,6 +62,7 @@ public class OperatorSdkRun {
         this.timeout = operatorSdkRunBuilder.getTimeout();
         this.indexImage = operatorSdkRunBuilder.getIndexImage();
         this.kubeconfig = operatorSdkRunBuilder.getKubeconfig();
+        this.skipTlsVerify = operatorSdkRunBuilder.getSkipTlsVerify();
     }
 
     /**
@@ -82,12 +85,16 @@ public class OperatorSdkRun {
 
         if (timeout != null) {
             command.add(OPTION_TIMEOUT);
-            command.add(String.valueOf(timeout));
+            command.add(timeout);
         }
 
         if (kubeconfig != null) {
             command.add(OPTION_KUBECONFIG);
             command.add(kubeconfig);
+        }
+
+        if (skipTlsVerify) {
+            command.add(OPTION_SKIP_TLS_VERIFY);
         }
 
         return Exec.exec(command);
