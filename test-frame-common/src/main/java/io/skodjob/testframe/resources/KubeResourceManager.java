@@ -388,7 +388,7 @@ public class KubeResourceManager {
                 }
                 if (waitReady) {
                     long resourceTimeout = Objects.requireNonNullElse(type.getTimeoutForResourceReadiness(),
-                        TestFrameConstants.GLOBAL_TIMEOUT_SHORT);
+                        TestFrameConstants.GLOBAL_TIMEOUT_MEDIUM);
                     CompletableFuture<Void> c = CompletableFuture.runAsync(() ->
                         assertTrue(waitResourceCondition(resource, ResourceCondition.readiness(type), resourceTimeout),
                             String.format("Timed out waiting for %s/%s in %s to be ready", resource.getKind(),
