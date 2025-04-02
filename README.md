@@ -32,7 +32,7 @@ To Log Collector's [README](test-frame-log-collector/README.md) contains detaile
 together with the usage and installation.
 
 ### Utils
-`TestFrame` contains also tweaks and utils for better working with kubernetes cluster.
+`TestFrame` contains also tweaks and [utils](test-frame-common/src/main/java/io/skodjob/testframe/utils) for better working with kubernetes cluster.
 
 ## Usage
 ### Include dependency to your maven test project
