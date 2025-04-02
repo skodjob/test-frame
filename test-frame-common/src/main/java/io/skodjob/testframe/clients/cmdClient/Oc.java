@@ -122,4 +122,41 @@ public class Oc extends BaseCmdKubeClient<Oc> {
     public String getUsername() {
         return Exec.exec(cmd(), "whoami").out();
     }
+
+    /**
+     * Set node unschedule
+     *
+     * @param nodeName name of node
+     */
+    @Override
+    public void cordon(String nodeName) {
+        Exec.exec(cmd(), "adm", "cordon", nodeName);
+    }
+
+    /**
+     * Set node schedule
+     *
+     * @param nodeName name of node
+     */
+    @Override
+    public void uncordon(String nodeName) {
+        Exec.exec(cmd(), "adm", "uncordon", nodeName);
+    }
+
+    /**
+     * Drain node
+     *
+     * @param nodeName         name of the node
+     * @param ignoreDaemonSets ignore DaemonSet-managed pods
+     * @param disableEviction  force drain to use delete, even if eviction is supported.
+     *                         This will bypass checking PodDisruptionBudgets, use with caution.
+     * @param timeoutInSeconds the length of time to wait before giving up, zero means infinite
+     */
+    @Override
+    public void drain(String nodeName, boolean ignoreDaemonSets, boolean disableEviction, long timeoutInSeconds) {
+        Exec.exec(cmd(), "adm", "drain", nodeName,
+            "--ignore-daemonsets", String.valueOf(ignoreDaemonSets),
+            "--disable-eviction", String.valueOf(disableEviction),
+            "--timeout", timeoutInSeconds + "s");
+    }
 }

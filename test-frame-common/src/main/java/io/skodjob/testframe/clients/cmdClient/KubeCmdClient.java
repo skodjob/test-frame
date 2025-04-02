@@ -364,4 +364,30 @@ public interface KubeCmdClient<K extends KubeCmdClient<K>> {
      * @return The username.
      */
     String getUsername();
+
+    /**
+     * Set node unschedule
+     *
+     * @param nodeName name of node
+     */
+    void cordon(String nodeName);
+
+
+    /**
+     * Set node schedule
+     *
+     * @param nodeName name of node
+     */
+    void uncordon(String nodeName);
+
+    /**
+     * Drain node
+     *
+     * @param nodeName         name of the node
+     * @param ignoreDaemonSets ignore DaemonSet-managed pods
+     * @param disableEviction  force drain to use delete, even if eviction is supported.
+     *                         This will bypass checking PodDisruptionBudgets, use with caution.
+     * @param timeoutInSeconds the length of time to wait before giving up, zero means infinite
+     */
+    void drain(String nodeName, boolean ignoreDaemonSets, boolean disableEviction, long timeoutInSeconds);
 }
