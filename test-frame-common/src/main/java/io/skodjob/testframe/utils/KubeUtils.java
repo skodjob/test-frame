@@ -99,4 +99,23 @@ public final class KubeUtils {
                 });
         }
     }
+
+    /**
+     * Is current cluster openshift
+     *
+     * @return true if cluster is openshift
+     */
+    public static boolean isOcp() {
+        return KubeResourceManager.get().kubeCmdClient()
+            .exec(false, false, "api-versions").out().contains("openshift.io");
+    }
+
+    /**
+     * Is multinode cluster
+     *
+     * @return true if cluster is multinode
+     */
+    public static boolean isMultinode() {
+        return KubeResourceManager.get().kubeClient().getClient().nodes().list().getItems().size() > 1;
+    }
 }
