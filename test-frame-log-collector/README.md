@@ -189,3 +189,44 @@ namespaceName: my-namespace
 
 final full path for log collection: /tmp/logs/run1/my-namespace/
 ```
+
+### Using MustGather with LogCollector
+
+In case you want to use `MustGather` for automatically call your log collector in case of test failure or test lifecycle failure you can use annotation `@MustGather` like in following example.
+
+```java
+import io.skodjob.testframe.annotations.MustGather;
+import org.junit.jupiter.api.Test;
+
+@MustGather(config = MyMustGatherSupplierImplementation.class)
+class Tests {
+    @Test
+    void someTest() {
+
+    }
+}
+```
+where `MyMustGatherSupplierImplementation` is implementation of [MustGatherSupplier](src/main/java/io/skodjob/testframe/interfaces/MustGatherSupplier.java) interface.
+
+```java
+import io.skodjob.testframe.LogCollector;
+import io.skodjob.testframe.interfaces.MustGatherSupplier;
+
+public class MyMustGatherSupplierImplementation implements MustGatherSupplier {
+    @Override
+    public void saveKubernetesState(ExtensionContext context) {
+        LogCollector logCollector = new LogCollectorBuilder()
+            .withNamespacedResources(
+                "configmap",
+                "secret"
+            )
+            .withClusterWideResources("node")
+            .withKubeClient(KubeResourceManager.get().kubeClient())
+            .withKubeCmdClient(KubeResourceManager.get().kubeCmdClient())
+            .withRootFolderPath("/some/path/to/store/logs")
+            .build();
+        logCollector.collectFromNamespace("default");
+        logCollector.collectClusterWideResources();
+    }
+}
+```
