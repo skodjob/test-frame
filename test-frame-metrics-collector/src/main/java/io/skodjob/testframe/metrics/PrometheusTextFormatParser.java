@@ -58,7 +58,9 @@ public class PrometheusTextFormatParser {
             if (name.endsWith("_total")) {
                 metrics.add(new Counter(name, customLabels, line, value));
             } else if (name.contains("_bucket")) {
-                if (currentHistogram == null || !currentHistogram.name.equals(name) || !currentHistogram.labels.equals(customLabels)) {
+                if (currentHistogram == null
+                    || !currentHistogram.name.equals(name)
+                    || !currentHistogram.labels.equals(customLabels)) {
                     currentHistogram = new Histogram(name, customLabels, line);
                     metrics.add(currentHistogram);
                 }
@@ -90,7 +92,9 @@ public class PrometheusTextFormatParser {
                     }
                 }
             } else if (labels.containsKey("quantile")) {
-                if (currentSummary == null || !currentSummary.name.equals(name) || !currentSummary.labels.equals(customLabels)) {
+                if (currentSummary == null
+                    || !currentSummary.name.equals(name)
+                    || !currentSummary.labels.equals(customLabels)) {
                     currentSummary = new Summary(name, customLabels, line);
                     metrics.add(currentSummary);
                 }
