@@ -75,6 +75,9 @@ public class PrometheusTextFormatParser {
                 } else if (currentSummary != null && currentSummary.name.equals(baseName)
                     && currentSummary.labels.equals(customLabels)) {
                     currentSummary.setSum(value);
+                } else {
+                    // Fallback: treat orphaned _sum as a Gauge.
+                    metrics.add(new Gauge(name, customLabels, line, value));
                 }
             } else if (name.endsWith("_count")) {
                 String baseName = name.substring(0, name.length() - 6);
@@ -138,9 +141,12 @@ public class PrometheusTextFormatParser {
         labelString = labelString.substring(1, labelString.length() - 1); // Remove curly braces
         String[] labelPairs = labelString.split(",");
         for (String labelPair : labelPairs) {
-            String[] keyValue = labelPair.split("=");
-            String key = keyValue[0];
-            String value = keyValue[1].replaceAll("^\"|\"$", "");
+            labelPair = labelPair.trim();
+            if (labelPair.isEmpty()) continue;  // Skip empty tokens
+            String[] keyValue = labelPair.split("=", 2);
+            if (keyValue.length < 2) continue;
+            String key = keyValue[0].trim();
+            String value = keyValue[1].replaceAll("^\"|\"$", "").trim();
             labels.put(key, value);
         }
         return labels;

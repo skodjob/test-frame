@@ -107,4 +107,17 @@ public class PrometheusTextFormatParserTest {
 
         assertEquals(8, metrics.size());
     }
+
+    @Test
+    void testParseSumWithTrailingComma() throws IOException {
+        String data = "# TYPE strimzi_describe_topics_duration_seconds_sum gauge\n" +
+            "strimzi_describe_topics_duration_seconds_sum{kind=\"KafkaTopic\",namespace=\"co-namespace\"," +
+            "selector=\"strimzi.io/cluster=cluster-5e6e237c\",} 0.864833836\n";
+        List<Metric> metrics = PrometheusTextFormatParser.parse(data);
+        // The orphaned _sum metric is parsed as a Gauge.
+        assertEquals(1, metrics.size());
+        Metric m = metrics.get(0);
+        assertTrue(m instanceof Gauge);
+        assertEquals(0.864833836, ((Gauge) m).getValue(), 0.000001);
+    }
 }
