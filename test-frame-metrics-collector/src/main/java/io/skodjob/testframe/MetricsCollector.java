@@ -207,7 +207,6 @@ public class MetricsCollector {
 
     private synchronized KubernetesClient getKubeClient() {
         if (kubeClient == null) {
-            KubeResourceManager resourceManager = KubeResourceManager.get();
             kubeClient = KubeResourceManager.get().kubeClient().getClient();
             if (kubeClient == null) {
                 throw new IllegalStateException("KubeClient is not available");
@@ -219,7 +218,6 @@ public class MetricsCollector {
 
     private synchronized KubeCmdClient<?> getKubeCmdClient() {
         if (kubeCmdClient == null) {
-            final KubeResourceManager resourceManager = KubeResourceManager.get();
             kubeCmdClient = KubeResourceManager.get().kubeCmdClient();
             if (kubeCmdClient == null) {
                 throw new IllegalStateException("KubeCmdClient is not available");
