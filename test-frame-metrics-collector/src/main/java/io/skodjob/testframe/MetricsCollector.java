@@ -592,7 +592,7 @@ public class MetricsCollector {
                 final String metrics = collectMetrics(podIP, podName);
                 final List<Metric> parsedMetrics = PrometheusTextFormatParser.parse(metrics);
 
-                map.put(podName, PrometheusTextFormatParser.parse(metrics));
+                map.put(podName, parsedMetrics);
                 LOGGER.info("Finished metrics collection from {}", podName);
                 LOGGER.debug("Collected metrics from {}: {}", podName, metrics);
                 LOGGER.debug("Parsed metrics from {}:\n{}", podName, parsedMetrics);
