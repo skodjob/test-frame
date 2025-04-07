@@ -93,19 +93,20 @@ public class PrometheusTextFormatParserTest {
     }
 
     @Test
-    void testParseAllMetrics() throws IOException {
-        String data = "# TYPE jvm_memory_used_bytes gauge\n" +
-            "jvm_memory_used_bytes{area=\"nonheap\",id=\"CodeHeap 'profiled nmethods'\",} 1.635584E7\n" +
-            "jvm_memory_used_bytes{area=\"heap\",id=\"G1 Survivor Space\",} 1981904.0\n" +
-            "jvm_memory_used_bytes{area=\"heap\",id=\"G1 Old Gen\",} 1.76768E7\n" +
-            "jvm_memory_used_bytes{area=\"nonheap\",id=\"Metaspace\",} 4.9460992E7\n" +
-            "jvm_memory_used_bytes{area=\"nonheap\",id=\"CodeHeap 'non-nmethods'\",} 1374848.0\n" +
-            "jvm_memory_used_bytes{area=\"heap\",id=\"G1 Eden Space\",} 2097152.0\n" +
-            "jvm_memory_used_bytes{area=\"nonheap\",id=\"Compressed Class Space\",} 5468744.0\n" +
-            "jvm_memory_used_bytes{area=\"nonheap\",id=\"CodeHeap 'non-profiled nmethods'\",} 4937600.0\n";
+    void testParseMultipleGaugeMetrics() throws IOException {
+        String data = "# TYPE custom_memory_used_bytes gauge\n" +
+            "custom_memory_used_bytes{type=\"nonheap\",segment=\"segmentA\",} 1000.0\n" +
+            "custom_memory_used_bytes{type=\"heap\",segment=\"segmentB\",} 2000.0\n" +
+            "custom_memory_used_bytes{type=\"heap\",segment=\"segmentC\",} 3000.0\n" +
+            "custom_memory_used_bytes{type=\"nonheap\",segment=\"segmentD\",} 4000.0\n" +
+            "custom_memory_used_bytes{type=\"nonheap\",segment=\"segmentE\",} 5000.0\n" +
+            "custom_memory_used_bytes{type=\"heap\",segment=\"segmentF\",} 6000.0\n" +
+            "custom_memory_used_bytes{type=\"nonheap\",segment=\"segmentG\",} 7000.0\n" +
+            "custom_memory_used_bytes{type=\"nonheap\",segment=\"segmentH\",} 8000.0\n";
         List<Metric> metrics = PrometheusTextFormatParser.parse(data);
 
         assertEquals(8, metrics.size());
+        metrics.forEach(m -> assertTrue(m instanceof Gauge));
     }
 
     @Test
