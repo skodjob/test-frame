@@ -207,7 +207,6 @@ public class MetricsCollector {
 
     private synchronized KubernetesClient getKubeClient() {
         if (kubeClient == null) {
-            KubeResourceManager resourceManager = KubeResourceManager.get();
             kubeClient = KubeResourceManager.get().kubeClient().getClient();
             if (kubeClient == null) {
                 throw new IllegalStateException("KubeClient is not available");
@@ -219,7 +218,6 @@ public class MetricsCollector {
 
     private synchronized KubeCmdClient<?> getKubeCmdClient() {
         if (kubeCmdClient == null) {
-            final KubeResourceManager resourceManager = KubeResourceManager.get();
             kubeCmdClient = KubeResourceManager.get().kubeCmdClient();
             if (kubeCmdClient == null) {
                 throw new IllegalStateException("KubeCmdClient is not available");
@@ -592,9 +590,12 @@ public class MetricsCollector {
 
             try {
                 final String metrics = collectMetrics(podIP, podName);
-                map.put(podName, PrometheusTextFormatParser.parse(metrics));
+                final List<Metric> parsedMetrics = PrometheusTextFormatParser.parse(metrics);
+
+                map.put(podName, parsedMetrics);
                 LOGGER.info("Finished metrics collection from {}", podName);
                 LOGGER.debug("Collected metrics from {}: {}", podName, metrics);
+                LOGGER.debug("Parsed metrics from {}:\n{}", podName, parsedMetrics);
             } catch (InterruptedException | ExecutionException | IOException e) {
                 LOGGER.error("Failed to collect metrics from {}: {}", podName, e.getMessage());
                 errorMap.put(podName, e.getMessage()); // Store the error message
