@@ -590,9 +590,12 @@ public class MetricsCollector {
 
             try {
                 final String metrics = collectMetrics(podIP, podName);
+                final List<Metric> parsedMetrics = PrometheusTextFormatParser.parse(metrics);
+
                 map.put(podName, PrometheusTextFormatParser.parse(metrics));
                 LOGGER.info("Finished metrics collection from {}", podName);
                 LOGGER.debug("Collected metrics from {}: {}", podName, metrics);
+                LOGGER.debug("Parsed metrics from {}:\n{}", podName, parsedMetrics);
             } catch (InterruptedException | ExecutionException | IOException e) {
                 LOGGER.error("Failed to collect metrics from {}: {}", podName, e.getMessage());
                 errorMap.put(podName, e.getMessage()); // Store the error message

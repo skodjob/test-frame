@@ -55,7 +55,7 @@ public class PrometheusTextFormatParserTest {
             "my_histogram_sum 10.0\n" +
             "my_histogram_count 7\n";
         List<Metric> metrics = PrometheusTextFormatParser.parse(data);
-        assertEquals(1, metrics.size());
+        assertEquals(2, metrics.size());
         Histogram hist = (Histogram) metrics.get(0);
         assertEquals(10.0, hist.getSum(), 0.0001);
         assertEquals(7, hist.getCount());
@@ -75,7 +75,7 @@ public class PrometheusTextFormatParserTest {
             "my_summary_count 2\n";
         List<Metric> metrics = PrometheusTextFormatParser.parse(data);
         // Only one summary should be created.
-        assertEquals(1, metrics.size());
+        assertEquals(2, metrics.size());
         Summary summary = (Summary) metrics.get(0);
         assertEquals(7.0, summary.getSum(), 0.0001);
         assertEquals(2, summary.getCount());
@@ -118,5 +118,94 @@ public class PrometheusTextFormatParserTest {
         Metric m = metrics.get(0);
         assertTrue(m instanceof Gauge);
         assertEquals(1.23456789, ((Gauge) m).getValue(), 0.000001);
+    }
+
+    @Test
+    void testParseHugeMixedMetrics() throws IOException {
+        // A single blob containing:
+        // - Gauges
+        // - Counters (with _total suffix)
+        // - Histograms (with buckets, _sum, and _count)
+        // - Summaries (with quantiles, _sum, and _count)
+        // - Various label orders, trailing commas, scientific notation, etc.
+        String data = """
+            # TYPE test_gauge gauge
+            test_gauge 123.456
+    
+            # TYPE test_counter counter
+            test_counter_total{mode="simple"} 777
+            test_counter_total{mode="complex",extra="true",} 888.888e2
+    
+            # TYPE test_histogram histogram
+            test_histogram_bucket{le="0.1",type="speed"} 2
+            test_histogram_bucket{type="speed",le="1.0"} 5
+            test_histogram_bucket{le="+Inf",type="speed"} 9
+            test_histogram_sum{type="speed"} 22.0
+            test_histogram_count{type="speed"} 9
+    
+            # TYPE test_summary summary
+            test_summary{quantile="0.5",app="myapp"} 42
+            test_summary{quantile="0.9",app="myapp"} 84
+            test_summary{quantile="0.9",app="myapp"} 84
+            test_summary_sum{app="myapp"} 139
+            test_summary_count{app="myapp"} 2
+    
+            # TYPE custom_sum_is_gauge gauge
+            custom_sum_is_gauge_sum{label="trailing_comma",} 3.14
+    
+            # Additional lines
+            # TYPE fancy_metric gauge
+            fancy_metric{label1="X", label2="Y"} 456.789
+            """;
+
+        List<Metric> metrics = PrometheusTextFormatParser.parse(data);
+
+        assertEquals(9, metrics.size(), "Expected 7 top-level Metric objects to be parsed");
+
+        // Check we have a histogram with correct sum and count
+        Histogram hist = metrics.stream()
+            .filter(m -> m instanceof Histogram && m.getName().startsWith("test_histogram_bucket"))
+            .map(m -> (Histogram) m)
+            .findFirst()
+            .orElseThrow(() -> new AssertionError("No histogram named 'test_histogram_bucket' found"));
+
+        // Buckets: 0.1 =>2, 1.0 =>5, +Inf =>9
+        assertEquals(3, hist.getBuckets().size());
+        assertEquals(2, hist.getBuckets().get(0.1), 0.0001);
+        assertEquals(5, hist.getBuckets().get(1.0), 0.0001);
+        assertEquals(9, hist.getBuckets().get(Double.MAX_VALUE), 0.0001);
+        assertEquals(22.0, hist.getSum(), 0.0001);
+        assertEquals(9, hist.getCount());
+
+        // Check summary with two quantiles
+        Summary summ = metrics.stream()
+            .filter(m -> m instanceof Summary && m.getName().equals("test_summary"))
+            .map(m -> (Summary) m)
+            .findFirst()
+            .orElseThrow(() -> new AssertionError("No summary named 'test_summary' found"));
+
+        assertEquals(2, summ.getQuantiles().size());
+        assertEquals(42, summ.getQuantiles().get(0.5), 0.0001);
+        assertEquals(84, summ.getQuantiles().get(0.9), 0.0001);
+        assertEquals(139, summ.getSum(), 0.0001);
+        assertEquals(2, summ.getCount());
+
+        Gauge customSumGauge = metrics.stream()
+            .filter(m -> m instanceof Gauge && m.getName().equals("custom_sum_is_gauge_sum"))
+            .map(m -> (Gauge) m)
+            .findFirst()
+            .orElseThrow(() -> new AssertionError("No gauge named 'custom_sum_is_gauge_sum' found"));
+        assertEquals(3.14, customSumGauge.getValue(), 0.0001);
+
+        List<Counter> counters = metrics.stream()
+            .filter(m -> m instanceof Counter && m.getName().equals("test_counter_total"))
+            .map(m -> (Counter) m)
+            .toList();
+        assertEquals(2, counters.size());
+
+        double[] expectedValues = {777.0, 88888.8};
+        for (int i = 0; i < counters.size(); i++) {
+            assertEquals(expectedValues[i], counters.get(i).getValue(), 0.001);
+        }
     }
 }

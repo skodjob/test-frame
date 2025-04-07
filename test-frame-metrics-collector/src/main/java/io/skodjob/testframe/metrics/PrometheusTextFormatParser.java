@@ -40,12 +40,17 @@ public class PrometheusTextFormatParser {
             if (line.startsWith("#")) {
                 if (line.contains("TYPE")) {
                     String[] parts = line.split(" ");
+                    // e.g. # TYPE metric_name histogram => "histogram" is at parts[3]
                     type = parts[3];
                 }
                 continue;
             }
             int lastSpace = line.lastIndexOf(' ');
-            if (lastSpace == -1) continue;
+            if (lastSpace == -1) {
+                // Invalid line, skip
+                continue;
+            }
+
             String metricNameAndLabels = line.substring(0, lastSpace);
             String valueStr = line.substring(lastSpace + 1).trim();
             double value = Double.parseDouble(valueStr);
@@ -56,45 +61,66 @@ public class PrometheusTextFormatParser {
             Map<String, String> customLabels = getCustomLabels(labels);
 
             if (name.endsWith("_total")) {
+                // Standard Prometheus pattern for counters
                 metrics.add(new Counter(name, customLabels, line, value));
+
             } else if (name.contains("_bucket")) {
+                // It's a bucket line (histogram)
                 if (currentHistogram == null
                     || !currentHistogram.name.equals(name)
                     || !currentHistogram.labels.equals(customLabels)) {
                     currentHistogram = new Histogram(name, customLabels, line);
                     metrics.add(currentHistogram);
                 }
-                double upperBound = labels.get("le").contains("+Inf") ?
-                    Double.MAX_VALUE : Double.parseDouble(labels.get("le"));
+                double upperBound = labels.get("le").contains("+Inf")
+                    ? Double.MAX_VALUE
+                    : Double.parseDouble(labels.get("le"));
                 currentHistogram.addBucket(upperBound, value);
+
             } else if (name.endsWith("_sum")) {
+                // Possibly part of a histogram or summary
                 String baseName = name.substring(0, name.length() - 4);
-                if (currentHistogram != null && currentHistogram.name.equals(baseName + "_bucket")
+
+                // If it matches the ongoing histogram
+                if (currentHistogram != null
+                    && currentHistogram.name.equals(baseName + "_bucket")
                     && currentHistogram.labels.equals(customLabels)) {
                     currentHistogram.setSum(value);
-                } else if (currentSummary != null && currentSummary.name.equals(baseName)
+                // If it matches the ongoing summary
+                } else if (currentSummary != null
+                    && currentSummary.name.equals(baseName)
                     && currentSummary.labels.equals(customLabels)) {
                     currentSummary.setSum(value);
-                } else {
-                    // Fallback: treat orphaned _sum as a Gauge.
-                    metrics.add(new Gauge(name, customLabels, line, value));
                 }
+
+                // Regardless of histogram/summary match, also treat it as a Gauge for easy collection
+                metrics.add(new Gauge(name, customLabels, line, value));
+
             } else if (name.endsWith("_count")) {
+                // Possibly part of a histogram or summary
                 String baseName = name.substring(0, name.length() - 6);
-                if (currentHistogram != null && currentHistogram.name.equals(baseName + "_bucket")
+
+                if (currentHistogram != null
+                    && currentHistogram.name.equals(baseName + "_bucket")
                     && currentHistogram.labels.equals(customLabels)) {
                     currentHistogram.setCount((int) value);
-                } else if (currentSummary != null && currentSummary.name.equals(baseName)
+
+                } else if (currentSummary != null
+                    && currentSummary.name.equals(baseName)
                     && currentSummary.labels.equals(customLabels)) {
                     currentSummary.setCount((int) value);
+
                 } else if (type != null) {
+                    // If type is known gauge/counter, parse accordingly
                     if (type.equals("gauge")) {
                         metrics.add(new Gauge(name, customLabels, line, value));
                     } else if (type.equals("counter")) {
                         metrics.add(new Counter(name, customLabels, line, value));
                     }
                 }
+
             } else if (labels.containsKey("quantile")) {
+                // Summaries: quantiles
                 if (currentSummary == null
                     || !currentSummary.name.equals(name)
                     || !currentSummary.labels.equals(customLabels)) {
@@ -103,12 +129,15 @@ public class PrometheusTextFormatParser {
                 }
                 double quantile = Double.parseDouble(labels.get("quantile"));
                 currentSummary.addQuantile(quantile, value);
+
             } else {
+                // Plain gauge
                 metrics.add(new Gauge(name, labels, line, value));
             }
         }
         return metrics;
     }
+
 
     /**
      * Method that "removes" Prometheus labels (connected to buckets or summary) and returns just the custom labels
@@ -124,7 +153,6 @@ public class PrometheusTextFormatParser {
         return customLabels;
     }
 
-
     private static String[] parseNameAndLabels(String metricNameAndLabels) {
         int labelStartIndex = metricNameAndLabels.indexOf('{');
         if (labelStartIndex == -1) {
@@ -137,12 +165,15 @@ public class PrometheusTextFormatParser {
 
     private static Map<String, String> parseLabels(String labelString) {
         Map<String, String> labels = new HashMap<>();
-        if (labelString.isEmpty()) return labels;
-        labelString = labelString.substring(1, labelString.length() - 1); // Remove curly braces
+        if (labelString.isEmpty()) {
+            return labels;
+        }
+        // Remove surrounding '{' and '}'
+        labelString = labelString.substring(1, labelString.length() - 1);
         String[] labelPairs = labelString.split(",");
         for (String labelPair : labelPairs) {
             labelPair = labelPair.trim();
-            if (labelPair.isEmpty()) continue;  // Skip empty tokens
+            if (labelPair.isEmpty()) continue;
             String[] keyValue = labelPair.split("=", 2);
             if (keyValue.length < 2) continue;
             String key = keyValue[0].trim();
