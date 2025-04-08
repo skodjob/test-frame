@@ -411,6 +411,13 @@
                             <goal>prepare-agent</goal>
                         </goals>
                     </execution>
+                    <execution>
+                        <id>report-each-module</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
                 </executions>
             </plugin>
         </plugins>
@@ -444,18 +451,6 @@
                 <module>test-frame-test-examples</module>
                 <module>test-frame-metrics-collector</module>
                 <module>test-frame-log-collector</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>coverage</id>
-            <modules>
-                <module>test-frame-common</module>
-                <module>test-frame-kubernetes</module>
-                <module>test-frame-openshift</module>
-                <module>test-frame-test-examples</module>
-                <module>test-frame-metrics-collector</module>
-                <module>test-frame-log-collector</module>
-                <module>report-aggregate</module>
             </modules>
         </profile>
         <profile>
