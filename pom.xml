@@ -98,6 +98,9 @@
         <ut.skip>${skipTests}</ut.skip>
 
         <checkstyle.config.location>checkstyle.xml</checkstyle.config.location>
+        <sonar.organization>skodjob</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        <jacoco-plugin.version>0.8.13</jacoco-plugin.version>
     </properties>
 
     <dependencyManagement>
@@ -246,13 +249,15 @@
             <plugin>
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-maven-plugin</artifactId>
-                <version>${maven.spotbugs.version}</version><dependencies>
-                <!-- overwrite dependency on spotbugs if you want to specify the version of˓→spotbugs -->
-                <dependency>
-                    <groupId>com.github.spotbugs</groupId>
-                    <artifactId>spotbugs</artifactId>
-                    <version>${spotbugs.version}</version>
-                </dependency></dependencies>
+                <version>${maven.spotbugs.version}</version>
+                <dependencies>
+                    <!-- overwrite dependency on spotbugs if you want to specify the version of˓→spotbugs -->
+                    <dependency>
+                        <groupId>com.github.spotbugs</groupId>
+                        <artifactId>spotbugs</artifactId>
+                        <version>${spotbugs.version}</version>
+                    </dependency>
+                </dependencies>
                 <configuration>
                     <effort>Max</effort>
                     <!-- Reports all bugs (other values are medium and max) -->
@@ -391,6 +396,26 @@
                     </properties>
                     <skipTests>${ut.skip}</skipTests>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report-each-module</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
