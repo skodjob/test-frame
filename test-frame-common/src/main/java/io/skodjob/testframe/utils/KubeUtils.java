@@ -66,7 +66,7 @@ public final class KubeUtils {
             .inNamespace(namespaceName).list().getItems().stream()
             .filter(installPlan -> !installPlan.getSpec().getApproved()
                 && installPlan.getSpec().getClusterServiceVersionNames().toString().contains(csvPrefix))
-            .findFirst().get();
+            .findFirst().orElse(null);
     }
 
     /**

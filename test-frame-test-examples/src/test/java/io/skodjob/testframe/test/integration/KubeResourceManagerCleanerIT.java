@@ -79,5 +79,6 @@ public final class KubeResourceManagerCleanerIT extends AbstractIT {
         List<HasMetadata> resources = KubeResourceManager.get().kubeClient()
             .readResourcesFromFile(getClass().getClassLoader().getResourceAsStream("metrics-example.yaml"));
         KubeResourceManager.get().createOrUpdateResourceAsyncWait(resources.toArray(new HasMetadata[0]));
+        assertTrue(KubeResourceManager.get().kubeClient().namespaceExists("metrics-test"));
     }
 }
