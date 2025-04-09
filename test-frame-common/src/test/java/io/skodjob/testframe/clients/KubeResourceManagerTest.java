@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -81,6 +82,18 @@ public class KubeResourceManagerTest {
         assertNotNull(KubeResourceManager.get().kubeClient().getClient().namespaces().withName("test4").get());
         KubeResourceManager.get().createOrUpdateResourceWithoutWait(ns);
         assertNotNull(KubeResourceManager.get().kubeClient().getClient().namespaces().withName("test4").get());
+    }
+
+    @Test
+    void testReplaceResource() {
+        Namespace ns = new NamespaceBuilder().withNewMetadata().withName("test5").endMetadata().build();
+        KubeResourceManager.get().createResourceWithWait(ns);
+        assertNotNull(KubeResourceManager.get().kubeClient().getClient().namespaces().withName("test5").get());
+
+        KubeResourceManager.get().replaceResource(ns,
+            resource -> resource.getMetadata().setLabels(Map.of("my-label", "here")));
+        assertNotNull(KubeResourceManager.get().kubeClient().getClient().namespaces().withName("test5").get()
+            .getMetadata().getLabels().get("my-label"));
     }
 
     @Test
