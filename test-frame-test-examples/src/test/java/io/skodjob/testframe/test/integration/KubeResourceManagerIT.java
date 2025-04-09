@@ -8,10 +8,10 @@ import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.kubernetes.api.model.NamespaceBuilder;
 import io.skodjob.testframe.annotations.ResourceManager;
 import io.skodjob.testframe.resources.KubeResourceManager;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import io.skodjob.testframe.resources.NamespaceType;
+import org.junit.jupiter.api.*;
+
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -21,24 +21,43 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public final class KubeResourceManagerIT extends AbstractIT {
     Namespace ns1 = new NamespaceBuilder().withNewMetadata().withName(nsName1).endMetadata().build();
 
-    @BeforeEach
-    void setupEach() {
+    @BeforeAll
+    void setupAll() {
         KubeResourceManager.get().createResourceWithWait(ns1);
     }
 
     @AfterEach
     void afterEach() {
-        assertNotNull(KubeResourceManager.get().kubeClient().getClient().namespaces().withName(nsName2).get());
+        Namespace ns2 = KubeResourceManager.get().kubeClient().getClient().namespaces().withName(nsName2).get();
+        assertNotNull(ns2);
+        KubeResourceManager.get().deleteResource(false, ns2);
+        assertTrue(isDeleteHandlerCalled.get());
+    }
+
+    @AfterAll
+    void afterAll() {
+        assertNotNull(KubeResourceManager.get().kubeClient().getClient().namespaces().withName(nsName1).get());
         KubeResourceManager.get().deleteResources();
     }
 
+
     @Test
     void createResource() {
-        KubeResourceManager.get().createResourceWithWait(
-            new NamespaceBuilder().withNewMetadata().withName("test2").endMetadata().build());
+        Namespace ns2 = new NamespaceBuilder().withNewMetadata().withName(nsName2).endMetadata().build();
+        KubeResourceManager.get().createResourceWithWait(ns2);
         assertNotNull(KubeResourceManager.get().kubeClient().getClient().namespaces().withName(nsName1).get());
         assertNotNull(KubeResourceManager.get().kubeClient().getClient().namespaces().withName(nsName2).get());
-        KubeResourceManager.get().deleteResource(false, ns1);
-        assertTrue(isDeleteHandlerCalled.get());
+    }
+
+    @Test
+    void replaceResource() {
+        Namespace ns = new NamespaceBuilder().withNewMetadata().withName(nsName2).endMetadata().build();
+        KubeResourceManager.get().createResourceWithWait(ns);
+        assertNotNull(KubeResourceManager.get().kubeClient().getClient().namespaces().withName(nsName2).get());
+
+        KubeResourceManager.get().replaceResource(ns,
+            resource -> resource.getMetadata().setLabels(Map.of("my-label", "here")));
+        assertNotNull(KubeResourceManager.get().kubeClient().getClient().namespaces().withName(nsName2).get()
+            .getMetadata().getLabels().get("my-label"));
     }
 }
