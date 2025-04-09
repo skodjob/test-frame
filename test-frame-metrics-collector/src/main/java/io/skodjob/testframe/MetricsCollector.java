@@ -191,12 +191,12 @@ public class MetricsCollector {
 
     // Additional setter methods for dependency injection
     /* test */
-    protected void setKubeClient(KubernetesClient client) {
+    protected synchronized void setKubeClient(KubernetesClient client) {
         this.kubeClient = client;
     }
 
     /* test */
-    protected void setKubeCmdClient(KubeCmdClient<?> client) {
+    protected synchronized void setKubeCmdClient(KubeCmdClient<?> client) {
         this.kubeCmdClient = client;
     }
 

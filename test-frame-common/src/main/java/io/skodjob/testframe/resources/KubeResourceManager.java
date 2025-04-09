@@ -137,6 +137,13 @@ public class KubeResourceManager {
     }
 
     /**
+     * Clean the test context.
+     */
+    public void cleanTestContext() {
+        TEST_CONTEXT.remove();
+    }
+
+    /**
      * Sets the resource types.
      *
      * @param types The resource types implementing {@link ResourceType}
