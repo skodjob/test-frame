@@ -8,6 +8,7 @@ import io.skodjob.testframe.metrics.Counter;
 import io.skodjob.testframe.metrics.Gauge;
 import io.skodjob.testframe.metrics.Histogram;
 import io.skodjob.testframe.metrics.Metric;
+import io.skodjob.testframe.metrics.MetricType;
 import io.skodjob.testframe.metrics.PrometheusTextFormatParser;
 import io.skodjob.testframe.metrics.Summary;
 import org.junit.jupiter.api.Test;
@@ -31,6 +32,11 @@ public class PrometheusTextFormatParserTest {
         assertTrue(m instanceof Gauge);
         assertEquals(123.45, ((Gauge) m).getValue(), 0.0001);
         assertEquals("value", m.getLabels().get("label"));
+        assertEquals("my_gauge", m.getName());
+        assertEquals("my_gauge{label=\"value\"} 123.45", m.getStringMetric());
+        assertTrue(m.toString().contains("my_gauge"));
+        assertEquals(MetricType.GAUGE, m.getType());
+
     }
 
     @Test
@@ -43,7 +49,9 @@ public class PrometheusTextFormatParserTest {
         for (Metric m : metrics) {
             assertTrue(m instanceof Counter);
             assertEquals(10, ((Counter) m).getValue(), 0.0001);
+            assertEquals(MetricType.COUNTER, m.getType());
         }
+
     }
 
     @Test
@@ -57,6 +65,7 @@ public class PrometheusTextFormatParserTest {
         List<Metric> metrics = PrometheusTextFormatParser.parse(data);
         assertEquals(2, metrics.size());
         Histogram hist = (Histogram) metrics.get(0);
+        assertEquals(MetricType.HISTOGRAM, hist.getType());
         assertEquals(10.0, hist.getSum(), 0.0001);
         assertEquals(7, hist.getCount());
         Map<Double, Double> buckets = hist.getBuckets();
@@ -77,6 +86,7 @@ public class PrometheusTextFormatParserTest {
         // Only one summary should be created.
         assertEquals(2, metrics.size());
         Summary summary = (Summary) metrics.get(0);
+        assertEquals(MetricType.SUMMARY, summary.getType());
         assertEquals(7.0, summary.getSum(), 0.0001);
         assertEquals(2, summary.getCount());
         Map<Double, Double> quantiles = summary.getQuantiles();

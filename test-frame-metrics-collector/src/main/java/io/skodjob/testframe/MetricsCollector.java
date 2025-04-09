@@ -280,7 +280,7 @@ public class MetricsCollector {
         return collectedData;
     }
 
-    private Exec getExec() {
+    /* test */ protected Exec getExec() {
         return exec;
     }
 
@@ -497,12 +497,17 @@ public class MetricsCollector {
         }
     }
 
-    private MetricsCollectionException determineExceptionFromStatus(MetricsCollectionStatus status) {
+    /* test */ MetricsCollectionException determineExceptionFromStatus(MetricsCollectionStatus status) {
+        MetricsCollectionStatus.Type type = status.getType();
+
+        if (type == null) {
+            return new MetricsCollectionException("Unknown error occurred during metrics collection");
+        }
+
         return switch (status.getType()) {
             case NO_DATA -> new NoPodsFoundException(status.getMessage());
             case INCOMPLETE_DATA -> new IncompleteMetricsException(status.getMessage());
             case ERROR -> new MetricsCollectionException(status.getMessage(), status.getException());
-            default -> new MetricsCollectionException("Unknown error occurred during metrics collection");
         };
     }
 
