@@ -6,17 +6,23 @@ package io.skodjob.testframe;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.spy;
 
 import io.fabric8.kubernetes.api.model.LabelSelector;
 import io.fabric8.kubernetes.api.model.LabelSelectorBuilder;
+import io.fabric8.kubernetes.client.KubernetesClientException;
+import io.skodjob.testframe.exceptions.IncompleteMetricsException;
 import io.skodjob.testframe.exceptions.MetricsCollectionException;
+import io.skodjob.testframe.exceptions.NoPodsFoundException;
 import io.skodjob.testframe.metrics.Gauge;
 import io.skodjob.testframe.metrics.Metric;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.security.InvalidParameterException;
 import java.util.Collections;
@@ -86,8 +92,8 @@ class MetricsCollectorTest {
 
     @Test
     public void testCollectMetricsHandlesNPE() {
-        MetricsCollector collector = Mockito.spy(metricsCollector);
-        Mockito.doThrow(new NullPointerException("Null pointer access"))
+        MetricsCollector collector = spy(metricsCollector);
+        doThrow(new NullPointerException("Null pointer access"))
             .when(collector).collectMetricsFromPodsWithoutWait();
 
         // Assert that a MetricsCollectionException is thrown when an NPE occurs
@@ -97,6 +103,121 @@ class MetricsCollectorTest {
         // Verify that the exception message contains specific information about the NPE
         assertTrue(ex.getMessage().contains("Null pointer access"),
             "Exception message should indicate the nature of the NPE.");
+    }
+
+    @Test
+    void testBuilderWithScraperPodImageAndDeploy() {
+        MetricsCollector collector = new MetricsCollector.Builder()
+            .withNamespaceName("namespace")
+            .withScraperPodName("scraper-pod")
+            .withScraperPodImage("quay.io/curl/curl:7.85")
+            .withDeployScraperPod()
+            .withComponent(new DummyMetricsComponent())
+            .build();
+
+        assertEquals("quay.io/curl/curl:7.85", collector.getScraperPodImage());
+        assertTrue(collector.getDeployScraperPod());
+    }
+
+    @Test
+    void testGetKubeClientFallbackThrowsWhenNull() {
+        MetricsCollector collector = new MetricsCollector.Builder()
+            .withNamespaceName("namespace")
+            .withScraperPodName("scraperPod")
+            .withComponent(new DummyMetricsComponent())
+            .build();
+
+        // Don’t inject kubeClient, force fallback
+        assertThrows(KubernetesClientException.class, () -> {
+            collector.collectMetricsFromPodsWithoutWait(); // triggers internal call
+        });
+    }
+
+    @Test
+    void testDetermineExceptionNoData() {
+        MetricsCollector collector = new MetricsCollector.Builder()
+            .withNamespaceName("ns")
+            .withScraperPodName("pod")
+            .withComponent(new MetricsCollectorTest.DummyMetricsComponent())
+            .build();
+
+        MetricsCollector.MetricsCollectionStatus status = new MetricsCollector.MetricsCollectionStatus();
+        status.setType(MetricsCollector.MetricsCollectionStatus.Type.NO_DATA);
+        status.setMessage("No data available");
+
+        MetricsCollectionException ex = collector.determineExceptionFromStatus(status);
+        assertInstanceOf(NoPodsFoundException.class, ex);
+        assertEquals("No data available", ex.getMessage());
+    }
+
+    @Test
+    void testDetermineExceptionIncompleteData() {
+        MetricsCollector collector = new MetricsCollector.Builder()
+            .withNamespaceName("ns")
+            .withScraperPodName("pod")
+            .withComponent(new MetricsCollectorTest.DummyMetricsComponent())
+            .build();
+
+        MetricsCollector.MetricsCollectionStatus status = new MetricsCollector.MetricsCollectionStatus();
+        status.setType(MetricsCollector.MetricsCollectionStatus.Type.INCOMPLETE_DATA);
+        status.setMessage("Metrics incomplete");
+
+        MetricsCollectionException ex = collector.determineExceptionFromStatus(status);
+        assertInstanceOf(IncompleteMetricsException.class, ex);
+        assertEquals("Metrics incomplete", ex.getMessage());
+    }
+
+    @Test
+    void testDetermineExceptionErrorWithCause() {
+        MetricsCollector collector = new MetricsCollector.Builder()
+            .withNamespaceName("ns")
+            .withScraperPodName("pod")
+            .withComponent(new MetricsCollectorTest.DummyMetricsComponent())
+            .build();
+
+        Exception root = new IllegalStateException("Something failed");
+        MetricsCollector.MetricsCollectionStatus status = new MetricsCollector.MetricsCollectionStatus();
+        status.setType(MetricsCollector.MetricsCollectionStatus.Type.ERROR);
+        status.setMessage("Error during scraping");
+        status.setException(root);
+
+        MetricsCollectionException ex = collector.determineExceptionFromStatus(status);
+        assertInstanceOf(MetricsCollectionException.class, ex);
+        assertEquals("Error during scraping", ex.getMessage());
+        assertSame(root, ex.getCause());
+    }
+
+    @Test
+    void testDetermineExceptionDefaultFallback() {
+        MetricsCollector collector = new MetricsCollector.Builder()
+            .withNamespaceName("ns")
+            .withScraperPodName("pod")
+            .withComponent(new MetricsCollectorTest.DummyMetricsComponent())
+            .build();
+
+        MetricsCollector.MetricsCollectionStatus status = new MetricsCollector.MetricsCollectionStatus();
+        status.setType(null); // default fallback path
+
+        MetricsCollectionException ex = collector.determineExceptionFromStatus(status);
+        assertInstanceOf(MetricsCollectionException.class, ex);
+        assertEquals("Unknown error occurred during metrics collection", ex.getMessage());
+    }
+
+    @Test
+    void testWaitTimeoutPathInCollectMetrics() {
+        MetricsCollector collector = spy(new MetricsCollector.Builder()
+            .withNamespaceName("ns")
+            .withScraperPodName("pod")
+            .withComponent(new MetricsCollectorTest.DummyMetricsComponent())
+            .build());
+
+        doThrow(new RuntimeException("Timeout test exception")).when(collector).collectMetricsFromPodsWithoutWait();
+
+        MetricsCollectionException ex = assertThrows(MetricsCollectionException.class,
+            () -> collector.collectMetricsFromPods(1000));
+
+        assertTrue(ex.getMessage().contains("Timeout test exception"),
+            "Exception message should reflect cause during timeout wait");
     }
 
     static class DummyMetricsComponent implements MetricsComponent {

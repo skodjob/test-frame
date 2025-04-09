@@ -17,13 +17,20 @@ import io.skodjob.testframe.exceptions.IncompleteMetricsException;
 import io.skodjob.testframe.exceptions.MetricsCollectionException;
 import io.skodjob.testframe.exceptions.NoPodsFoundException;
 import io.skodjob.testframe.executor.Exec;
+import io.skodjob.testframe.metrics.Gauge;
+import io.skodjob.testframe.metrics.Metric;
+import io.skodjob.testframe.resources.KubeResourceManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -34,12 +41,14 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @SuppressWarnings("unchecked")
-public class MetricsCollectorIT {
+public class MetricsCollectorMockTest {
 
     private KubernetesClient mockClient;
     private KubeCmdClient mockCmdClient;
@@ -224,5 +233,163 @@ public class MetricsCollectorIT {
         // Verify interactions
         verify(mockExec, atLeastOnce()).execute(any(), any(), any(), anyLong());
         assertTrue(metricsCollector.getCollectedData().isEmpty());
+    }
+
+    @Test
+    void testSetExecInjectsExecProperly() {
+        Exec mockExec = mock(Exec.class);
+        metricsCollector.setExec(mockExec);
+
+        assertEquals(mockExec, metricsCollector.getExec());
+    }
+
+    @Test
+    void testDeployAndDeleteScraperPodCalledDuringMetricsCollection() throws Exception {
+        // Arrange
+        Exec execMock = mock(Exec.class);
+        when(execMock.execute(any(), any(), any(), anyLong())).thenReturn(0);
+        when(execMock.out()).thenReturn("metric_name 100");
+
+        MetricsCollector collector = spy(new MetricsCollector.Builder()
+            .withNamespaceName("test-namespace")
+            .withScraperPodName("scraper-pod")
+            .withScraperPodImage("custom-image:latest")
+            .withDeployScraperPod() // IMPORTANT to activate deploy logic
+            .withComponent(new MetricsCollectorTest.DummyMetricsComponent())
+            .build());
+
+        collector.setExec(execMock);
+
+        // Stub kubeCmdClient to avoid NPE during getKubeCmdClient().inNamespace(...)
+        KubeCmdClient mockCmdClient = mock(KubeCmdClient.class);
+        when(mockCmdClient.inNamespace(anyString())).thenReturn(new Kubectl());
+        collector.setKubeCmdClient(mockCmdClient);
+
+        // Mock static access to KubeResourceManager
+        try (MockedStatic<KubeResourceManager> mockedStatic = mockStatic(KubeResourceManager.class)) {
+            KubeResourceManager resourceManagerMock = mock(KubeResourceManager.class);
+            mockedStatic.when(KubeResourceManager::get).thenReturn(resourceManagerMock);
+
+            // Act
+            collector.collectMetrics("192.168.0.1", "pod-name");
+
+            // Assert: verify both deploy and delete were triggered
+            verify(resourceManagerMock).createResourceWithWait(any(Pod.class));
+            verify(resourceManagerMock).deleteResource(any(Pod.class));
+        }
+    }
+
+    @Test
+    void testCollectMetricsHandlesMissingPodIp() throws Exception {
+        var kubeClient = mock(io.fabric8.kubernetes.client.KubernetesClient.class);
+        var podsOp = mock(io.fabric8.kubernetes.client.dsl.MixedOperation.class);
+        var nsOp = mock(io.fabric8.kubernetes.client.dsl.MixedOperation.class);
+
+        var pod = new io.fabric8.kubernetes.api.model.PodBuilder()
+            .withNewMetadata().withName("pod1").endMetadata()
+            .withNewStatus().withPodIP(null).endStatus()
+            .build();
+
+        var podList = new io.fabric8.kubernetes.api.model.PodList();
+        podList.setItems(List.of(pod));
+
+        when(kubeClient.pods()).thenReturn(podsOp);
+        when(podsOp.inNamespace(anyString())).thenReturn(nsOp);
+        when(nsOp.withLabelSelector((LabelSelector) any())).thenReturn(nsOp);
+        when(nsOp.list()).thenReturn(podList);
+
+        var exec = mock(io.skodjob.testframe.executor.Exec.class);
+        when(exec.execute(any(), any(), any(), anyLong())).thenReturn(0);
+        when(exec.out()).thenReturn("metric_no_ip 1.0");
+
+        MetricsCollector collector = new MetricsCollector.Builder()
+            .withNamespaceName("ns")
+            .withScraperPodName("pod")
+            .withComponent(new MetricsCollectorTest.DummyMetricsComponent())
+            .build();
+
+        collector.setKubeClient(kubeClient);
+        collector.setExec(exec);
+        collector.setKubeCmdClient(mock(io.skodjob.testframe.clients.cmdClient.KubeCmdClient.class));
+
+        assertThrows(MetricsCollectionException.class,
+            () -> collector.collectMetricsFromPods(1000),
+            "Expected error due to missing pod IP");
+    }
+
+    @Test
+    void testCollectMetricsIPv6Wrapping() throws Exception {
+        System.setProperty("io.skodjob.testframe.env.IP_FAMILY", "IPv6");
+
+        var kubeClient = mock(io.fabric8.kubernetes.client.KubernetesClient.class);
+        var podsOp = mock(io.fabric8.kubernetes.client.dsl.MixedOperation.class);
+        var nsOp = mock(io.fabric8.kubernetes.client.dsl.MixedOperation.class);
+
+        var pod = new io.fabric8.kubernetes.api.model.PodBuilder()
+            .withNewMetadata().withName("pod-ipv6").endMetadata()
+            .withNewStatus().withPodIP("fe80::1").endStatus()
+            .build();
+
+        var podList = new io.fabric8.kubernetes.api.model.PodList();
+        podList.setItems(List.of(pod));
+
+        when(kubeClient.pods()).thenReturn(podsOp);
+        when(podsOp.inNamespace(anyString())).thenReturn(nsOp);
+        when(nsOp.withLabelSelector((LabelSelector) any())).thenReturn(nsOp);
+        when(nsOp.list()).thenReturn(podList);
+
+        var exec = mock(io.skodjob.testframe.executor.Exec.class);
+        when(exec.execute(any(), any(), any(), anyLong())).thenReturn(0);
+        when(exec.out()).thenReturn("metric_ipv6 123");
+
+        MetricsCollector collector = new MetricsCollector.Builder()
+            .withNamespaceName("ns")
+            .withScraperPodName("pod")
+            .withComponent(new MetricsCollectorTest.DummyMetricsComponent())
+            .build();
+
+        var mockCmdClient = mock(KubeCmdClient.class);
+        when(mockCmdClient.inNamespace(anyString())).thenReturn(mockCmdClient);
+
+        collector.setKubeClient(kubeClient);
+        collector.setExec(exec);
+        collector.setKubeCmdClient(mockCmdClient);
+
+        collector.collectMetricsFromPods(3000);
+        assertFalse(collector.getCollectedData().isEmpty(), "Metrics should be collected for IPv6 wrapped address");
+    }
+
+    @Test
+    void testBuilderUpdateCopiesAllFieldsCorrectly() {
+        Exec mockExec = new Exec();
+        Map<String, List<Metric>> dummyData = Map.of("pod1", List.of(new Gauge("name", Map.of(), "", 1.0)));
+
+        MetricsCollector original = new MetricsCollector.Builder()
+            .withNamespaceName("ns")
+            .withScraperPodName("scraper-pod")
+            .withScraperPodImage("image:v1")
+            .withDeployScraperPod()
+            .withComponent(new MetricsCollectorTest.DummyMetricsComponent())
+            .withCollectedData(dummyData)
+            .withExec(mockExec)
+            .build();
+
+        // Inject a kubeClient and test setter coverage
+        KubernetesClient kubeClient = mock(KubernetesClient.class);
+        original.setKubeClient(kubeClient);
+        assertNotNull(kubeClient); // trivially touches the injected client
+
+        // Act: Copy to a new builder using updateBuilder()
+        MetricsCollector.Builder copyBuilder = original.toBuilder();
+        MetricsCollector copy = copyBuilder.build();
+
+        // Assert: All values are preserved
+        assertEquals("ns", copy.getNamespaceName());
+        assertEquals("scraper-pod", copy.getScraperPodName());
+        assertEquals("image:v1", copy.getScraperPodImage());
+        assertTrue(copy.getDeployScraperPod());
+        assertEquals(dummyData, copy.getCollectedData());
+        assertEquals(mockExec, copy.getExec());
+        assertNotNull(copy.getComponent());
     }
 }
