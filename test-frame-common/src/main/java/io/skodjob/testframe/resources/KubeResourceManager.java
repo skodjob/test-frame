@@ -482,6 +482,25 @@ public class KubeResourceManager {
     }
 
     /**
+     * Based on {@param resource} and {@param editor} replaces the current resource.
+     * In case that the {@link ResourceType} is not found, the default client is used.
+     *
+     * @param resource  The resource that should be updated.
+     * @param editor    Editor containing all changes that should be propagated to resource
+     * @param <T>       The type of the resource.
+     */
+    public final <T extends HasMetadata> void replaceResource(T resource, Consumer<T> editor) {
+        ResourceType<T> type = findResourceType(resource);
+        if (type != null) {
+            type.replace(resource, editor);
+        } else {
+            T toBeReplaced = client.getClient().resource(resource).get();
+            editor.accept(toBeReplaced);
+            client.getClient().resource(toBeReplaced).update();
+        }
+    }
+
+    /**
      * Waits for a resource condition to be fulfilled.
      *
      * @param resource      The resource to wait for.
