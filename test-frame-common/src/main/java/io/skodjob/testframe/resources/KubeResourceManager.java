@@ -53,9 +53,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class KubeResourceManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(KubeResourceManager.class);
 
-    private static KubeResourceManager instance;
-    private static KubeClient client;
-    private static KubeCmdClient<?> kubeCmdClient;
+    private final KubeClient client;
+    private final KubeCmdClient<?> kubeCmdClient;
     private ResourceType<?>[] resourceTypes;
     private final List<Consumer<HasMetadata>> createCallbacks = new LinkedList<>();
     private final List<Consumer<HasMetadata>> deleteCallbacks = new LinkedList<>();
@@ -66,7 +65,20 @@ public class KubeResourceManager {
     private String storeYamlPath = null;
 
     private KubeResourceManager() {
-        // Private constructor to prevent instantiation
+        this.resourceTypes = new ResourceType[]{};
+        client = new KubeClient();
+        if (TestFrameEnv.CLIENT_TYPE.equals(TestFrameConstants.KUBERNETES_CLIENT)) {
+            kubeCmdClient = new Kubectl(client.getKubeconfigPath());
+        } else {
+            kubeCmdClient = new Oc(client.getKubeconfigPath());
+        }
+    }
+
+    /**
+     * Helper class to hold instance
+     */
+    private static class SingletonHolder {
+        private static final KubeResourceManager INSTANCE = new KubeResourceManager();
     }
 
     /**
@@ -75,8 +87,8 @@ public class KubeResourceManager {
      * @return The singleton instance of KubeResourceManager.
      * @deprecated Will be removed in future release.
      */
-    @Deprecated
-    public static synchronized KubeResourceManager getInstance() {
+    @Deprecated(since = "release 0.9.0")
+    public static KubeResourceManager getInstance() {
         return get();
     }
 
@@ -86,18 +98,8 @@ public class KubeResourceManager {
      *
      * @return The singleton instance of KubeResourceManager.
      */
-    public static synchronized KubeResourceManager get() {
-        if (instance == null) {
-            instance = new KubeResourceManager();
-            instance.resourceTypes = new ResourceType[]{};
-            client = new KubeClient();
-            if (TestFrameEnv.CLIENT_TYPE.equals(TestFrameConstants.KUBERNETES_CLIENT)) {
-                kubeCmdClient = new Kubectl(client.getKubeconfigPath());
-            } else {
-                kubeCmdClient = new Oc(client.getKubeconfigPath());
-            }
-        }
-        return instance;
+    public static KubeResourceManager get() {
+        return SingletonHolder.INSTANCE;
     }
 
     /**
