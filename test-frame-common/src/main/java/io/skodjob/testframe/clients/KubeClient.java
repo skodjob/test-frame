@@ -10,7 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 import io.fabric8.kubernetes.api.model.HasMetadata;
@@ -126,7 +126,7 @@ public class KubeClient {
      * @param resources resources
      * @param modifier  modifier
      */
-    public void create(List<HasMetadata> resources, Function<HasMetadata, HasMetadata> modifier) {
+    public void create(List<HasMetadata> resources, UnaryOperator<HasMetadata> modifier) {
         create(null, resources, modifier);
     }
 
@@ -136,7 +136,7 @@ public class KubeClient {
      * @param resources resources
      * @param modifier  modifier
      */
-    public void update(List<HasMetadata> resources, Function<HasMetadata, HasMetadata> modifier) {
+    public void update(List<HasMetadata> resources, UnaryOperator<HasMetadata> modifier) {
         update(null, resources, modifier);
     }
 
@@ -147,7 +147,7 @@ public class KubeClient {
      * @param resources resources
      * @param modifier  modifier
      */
-    public void create(String namespace, List<HasMetadata> resources, Function<HasMetadata, HasMetadata> modifier) {
+    public void create(String namespace, List<HasMetadata> resources, UnaryOperator<HasMetadata> modifier) {
         resources.forEach(res -> {
             HasMetadata h = modifier.apply(res);
             LOGGER.debug(LoggerUtils.RESOURCE_WITH_NAMESPACE_LOGGER_PATTERN,
@@ -167,7 +167,7 @@ public class KubeClient {
      * @param resources resources
      * @param modifier  modifier
      */
-    public void update(String namespace, List<HasMetadata> resources, Function<HasMetadata, HasMetadata> modifier) {
+    public void update(String namespace, List<HasMetadata> resources, UnaryOperator<HasMetadata> modifier) {
         resources.forEach(res -> {
             HasMetadata h = modifier.apply(res);
             LOGGER.debug(LoggerUtils.RESOURCE_WITH_NAMESPACE_LOGGER_PATTERN,
@@ -186,7 +186,7 @@ public class KubeClient {
      * @param resources resources
      * @param modifier  modifier method
      */
-    public void createOrUpdate(List<HasMetadata> resources, Function<HasMetadata, HasMetadata> modifier) {
+    public void createOrUpdate(List<HasMetadata> resources, UnaryOperator<HasMetadata> modifier) {
         createOrUpdate(null, resources, modifier);
     }
 
@@ -197,7 +197,7 @@ public class KubeClient {
      * @param resources resources
      * @param modifier  modifier method
      */
-    public void createOrUpdate(String ns, List<HasMetadata> resources, Function<HasMetadata, HasMetadata> modifier) {
+    public void createOrUpdate(String ns, List<HasMetadata> resources, UnaryOperator<HasMetadata> modifier) {
         resources.forEach(i -> {
             HasMetadata h = modifier.apply(i);
             if (h != null) {
