@@ -15,7 +15,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public final class KubeClientIT extends AbstractIT {
+final class KubeClientIT extends AbstractIT {
 
     @Test
     void testCreateResourcesFromYaml() throws IOException {

@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @EnableKubernetesMockClient(crud = true)
 @ResourceManager
 @TestVisualSeparator
-public class UtilsTest {
+class UtilsTest {
     private KubernetesClient kubernetesClient;
     private KubernetesMockServer server;
 

@@ -30,7 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-class MetricsCollectorTest {
+final class MetricsCollectorTest {
 
     private MetricsCollector metricsCollector;
 

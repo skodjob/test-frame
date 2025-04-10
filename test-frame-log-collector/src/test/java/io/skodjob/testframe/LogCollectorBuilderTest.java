@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @TestVisualSeparator
-public class LogCollectorBuilderTest {
+final class LogCollectorBuilderTest {
 
     @Test
     void testPassingPodAndPodsAsResourcesToLogCollectorBuilder() {

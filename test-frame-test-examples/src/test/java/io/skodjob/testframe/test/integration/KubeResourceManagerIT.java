@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ResourceManager(cleanResources = false) // override default behavior and do not clean resources
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public final class KubeResourceManagerIT extends AbstractIT {
+final class KubeResourceManagerIT extends AbstractIT {
     Namespace ns1 = new NamespaceBuilder().withNewMetadata().withName(nsName1).endMetadata().build();
 
     @BeforeEach

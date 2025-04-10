@@ -20,7 +20,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class PrometheusTextFormatParserTest {
+final class PrometheusTextFormatParserTest {
 
     @Test
     void testParseGaugeMetric() throws IOException {
