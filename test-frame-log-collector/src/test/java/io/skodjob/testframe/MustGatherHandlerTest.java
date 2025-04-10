@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 @ExtendWith(TestListener.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @MustGather(config = MustGatherTestSupplier.class)
-public class MustGatherHandlerTest {
+final class MustGatherHandlerTest {
 
     @Test
     @Order(1)

@@ -39,7 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public final class LogCollectorIT extends AbstractIT {
+final class LogCollectorIT extends AbstractIT {
     private final String folderRoot = "/tmp/log-collector-examples";
     private final String[] resourcesToBeCollected = new String[] {"secret", "configmap", "deployment"};
     private final LogCollector logCollector = new LogCollectorBuilder()

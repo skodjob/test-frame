@@ -60,7 +60,7 @@ import static org.mockito.Mockito.when;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestVisualSeparator
 @SuppressWarnings("unchecked")
-public class LogCollectorIT {
+final class LogCollectorIT {
 
     private KubeClient mockClient;
     private KubeCmdClient mockCmdClient;

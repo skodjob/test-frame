@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ResourceManager(asyncDeletion = false)
-public final class KubeResourceManagerCleanerIT extends AbstractIT {
+final class KubeResourceManagerCleanerIT extends AbstractIT {
 
     @BeforeAll
     void setupAll() {

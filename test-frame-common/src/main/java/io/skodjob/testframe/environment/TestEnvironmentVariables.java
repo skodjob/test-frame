@@ -34,7 +34,7 @@ public class TestEnvironmentVariables {
     private final Map<String, String> values = new HashMap<>();
     private Map<String, Object> yamlData = new HashMap<>();
     private final String configFilePath;
-    private final String configFilePathEnv = "ENV_FILE";
+    private static final String CONFIG_FILE_PATH_ENV = "ENV_FILE";
 
     /**
      * {@link TestEnvironmentVariables} object initialization, where the config file is loaded to {@link #yamlData}
@@ -52,7 +52,7 @@ public class TestEnvironmentVariables {
      */
     public TestEnvironmentVariables(Map<String, String> envMap) {
         this.envMap = envMap;
-        this.configFilePath = envMap.getOrDefault(configFilePathEnv,
+        this.configFilePath = envMap.getOrDefault(CONFIG_FILE_PATH_ENV,
             Paths.get(System.getProperty("user.dir"), "config.yaml").toAbsolutePath().toString());
         this.yamlData = loadConfigurationFile();
     }
@@ -98,7 +98,7 @@ public class TestEnvironmentVariables {
     }
 
     /**
-     * Method that loads configuration file - either from specified path by {@link #configFilePathEnv} or from
+     * Method that loads configuration file - either from specified path by {@link #CONFIG_FILE_PATH_ENV} or from
      * the default path (in the `config.yaml` file on the `user.dir` path).
      * If the file doesn't exist, the info log is printed and empty Map is returned.
      *

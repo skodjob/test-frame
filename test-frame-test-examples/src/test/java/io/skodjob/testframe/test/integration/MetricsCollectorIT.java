@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public final class MetricsCollectorIT extends AbstractIT {
+final class MetricsCollectorIT extends AbstractIT {
 
     @Test
     void testCollectMetrics() throws IOException {

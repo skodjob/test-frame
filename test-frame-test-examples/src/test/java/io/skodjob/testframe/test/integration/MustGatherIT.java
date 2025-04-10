@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 @ExtendWith(TestListener.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @MustGather(config = MustGatherSupplierImpl.class)
-public final class MustGatherIT extends AbstractIT {
+final class MustGatherIT extends AbstractIT {
 
     @Test
     @Order(1)

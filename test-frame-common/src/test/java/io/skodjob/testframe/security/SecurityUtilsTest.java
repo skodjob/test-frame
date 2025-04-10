@@ -17,7 +17,7 @@ import java.nio.file.Paths;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class SecurityUtilsTest {
+class SecurityUtilsTest {
     static final String ROOT_CA = "C=COM, L=Boston, O=Example, CN=ExampleRootCA";
     static final String INTERMEDIATE_CA = "C=COM, L=Boston, O=Example, CN=ExampleIntermediateCA";
     static final String END_SUBJECT = "C=COM, L=Boston, O=Example, CN=end-app.example.io";

@@ -12,7 +12,7 @@ import java.util.Locale;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @TestVisualSeparator
-public class LogCollectorUtilsTest {
+final class LogCollectorUtilsTest {
 
     @Test
     void testYamlFileNameForResource() {
