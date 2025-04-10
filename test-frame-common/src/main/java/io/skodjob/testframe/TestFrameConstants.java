@@ -11,6 +11,10 @@ import java.time.Duration;
  */
 public final class TestFrameConstants {
 
+    private TestFrameConstants() {
+        // Private constructor to prevent instantiation
+    }
+
     /**
      * Global poll interval in milliseconds (long).
      */
