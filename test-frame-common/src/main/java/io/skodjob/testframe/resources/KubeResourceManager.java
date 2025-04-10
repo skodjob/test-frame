@@ -53,8 +53,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class KubeResourceManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(KubeResourceManager.class);
 
-    private static KubeClient client;
-    private static KubeCmdClient<?> kubeCmdClient;
+    private final KubeClient client;
+    private final KubeCmdClient<?> kubeCmdClient;
     private ResourceType<?>[] resourceTypes;
     private final List<Consumer<HasMetadata>> createCallbacks = new LinkedList<>();
     private final List<Consumer<HasMetadata>> deleteCallbacks = new LinkedList<>();
