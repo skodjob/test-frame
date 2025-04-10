@@ -3,6 +3,7 @@ Library for easy testing of Kubernetes deployments and operators using Fabric8 A
 
 [![Build](https://github.com/skodjob/test-frame/actions/workflows/build.yaml/badge.svg?branch=main)](https://github.com/skodjob/test-frame/actions/workflows/build.yaml)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=skodjob_test-frame&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=skodjob_test-frame)
 [![GitHub Release](https://img.shields.io/github/v/release/skodjob/test-frame)](https://github.com/skodjob/test-frame/releases)
 [![Maven Central Version](https://img.shields.io/maven-central/v/io.skodjob/test-frame)](https://central.sonatype.com/search?q=io.skodjob.test-frame)
 
