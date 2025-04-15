@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Stack;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
@@ -29,6 +30,7 @@ import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.apps.ReplicaSet;
 import io.fabric8.kubernetes.api.model.apps.StatefulSet;
+import io.fabric8.kubernetes.client.KubernetesClientException;
 import io.fabric8.kubernetes.client.utils.Serialization;
 import io.skodjob.testframe.utils.LoggerUtils;
 import io.skodjob.testframe.TestFrameConstants;
@@ -481,6 +483,74 @@ public class KubeResourceManager {
                 client.getClient().resource(resource).update();
             }
         }
+    }
+
+    /**
+     * Method for replacing the resource with retries.
+     * It uses {@link #replaceResource(HasMetadata, Consumer)} in try-catch block and in case
+     * that the exception is thrown, it checks if we got conflict exception (meaning that we
+     * should re-apply the changes on updated resource).
+     * Otherwise, the {@link RuntimeException} is thrown (as we are not in conflict and there
+     * is something else).
+     * This encapsulates {@link #replaceResourceWithRetries(HasMetadata, Consumer, int)}
+     * where the default number of retries is 3.
+     *
+     * @param resource  The resource that should be updated.
+     * @param editor    Editor containing all changes that should be propagated to resource
+     * @param <T>       The type of the resource.
+     */
+    public final <T extends HasMetadata> void replaceResourceWithRetries(T resource, Consumer<T> editor) {
+        replaceResourceWithRetries(resource, editor, 3);
+    }
+
+    /**
+     * Method for replacing the resource with retries.
+     * It uses {@link #replaceResource(HasMetadata, Consumer)} in try-catch block and in case
+     * that the exception is thrown, it checks if we got conflict exception (meaning that we
+     * should re-apply the changes on updated resource).
+     * Otherwise, the {@link RuntimeException} is thrown (as we are not in conflict and there
+     * is something else).
+     * This is retried for number of times specified in {@param retries}.
+     *
+     * @param resource  The resource that should be updated.
+     * @param editor    Editor containing all changes that should be propagated to resource
+     * @param retries   Number of retries with which we should try to replace the resource
+     * @param <T>       The type of the resource.
+     */
+    public final <T extends HasMetadata> void replaceResourceWithRetries(
+        T resource,
+        Consumer<T> editor,
+        final int retries
+    ) {
+        int attempt = 0;
+
+        while(true) {
+            try {
+                replaceResource(resource, editor);
+                return;
+            } catch (CompletionException ce) {
+                Throwable cause = ce.getCause();
+                if (!isConflict(cause) || ++attempt >= retries) {
+                    throw (cause instanceof RuntimeException re) ? re : new RuntimeException(cause);
+                }
+            } catch (KubernetesClientException e) {
+                if (!isConflict(e) || ++attempt >= retries) {
+                    throw e;
+                }
+            }
+        }
+    }
+
+    /**
+     * Checks if the {@link Throwable} is instance of {@link KubernetesClientException}
+     * and if the code is 409 - which means that we got conflict exception during operation.
+     *
+     * @param t     throwable thrown during operation
+     *
+     * @return  boolean value if we got conflict during K8s operation or not
+     */
+    private static boolean isConflict(Throwable t) {
+        return t instanceof KubernetesClientException kce && kce.getCode() == 409;
     }
 
     /**

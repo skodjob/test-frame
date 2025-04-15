@@ -31,6 +31,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 @EnableKubernetesMockClient(crud = true)
@@ -94,6 +95,97 @@ class KubeResourceManagerTest {
             resource -> resource.getMetadata().setLabels(Map.of("my-label", "here")));
         assertNotNull(KubeResourceManager.get().kubeClient().getClient().namespaces().withName("test5").get()
             .getMetadata().getLabels().get("my-label"));
+    }
+
+    @Test
+    void testReplaceResourceWithRetries() {
+        String namespaceName = "test6";
+
+        // Check if replace will be retried when there is conflict once
+        server
+            .expect()
+            .put()
+            .withPath("/api/v1/namespaces/" + namespaceName)
+            .andReturn(409, "{\"message\":\"Conflict\"}")
+            .once();
+
+        Namespace ns = new NamespaceBuilder().withNewMetadata().withName(namespaceName).endMetadata().build();
+        KubeResourceManager.get().createResourceWithWait(ns);
+        assertNotNull(KubeResourceManager.get().kubeClient().getClient().namespaces().withName(namespaceName).get());
+
+        KubeResourceManager.get().replaceResourceWithRetries(ns,
+            resource -> resource.getMetadata().setLabels(Map.of("my-label", "here")));
+        assertNotNull(KubeResourceManager.get().kubeClient().getClient().namespaces().withName(namespaceName).get()
+            .getMetadata().getLabels().get("my-label"));
+
+        // Check retries will fail when it reaches the max retries (default 3)
+        server
+            .expect()
+            .put()
+            .withPath("/api/v1/namespaces/" + namespaceName)
+            .andReturn(409, "{\"message\":\"Conflict\"}")
+            .times(3);
+
+        assertThrows(RuntimeException.class, () -> KubeResourceManager.get().replaceResourceWithRetries(ns,
+            resource -> resource.getMetadata().setLabels(Map.of("my-label2", "not-here"))));
+
+        // Check retries will fail if the exception is not Conflict code
+        server
+            .expect()
+            .put()
+            .withPath("/api/v1/namespaces/" + namespaceName)
+            .andReturn(404, "{\"message\":\"Not-Found\"}")
+            .once();
+
+        assertThrows(RuntimeException.class, () -> KubeResourceManager.get().replaceResourceWithRetries(ns,
+            resource -> resource.getMetadata().setLabels(Map.of("my-label2", "not-here"))));
+    }
+
+    @Test
+    void testReplaceResourceWithRetriesSpecifiedByUser() {
+        String namespaceName = "test7";
+        int maxRetries = 6;
+
+        // Check if replace will be retried when there is conflict once
+        server
+            .expect()
+            .put()
+            .withPath("/api/v1/namespaces/" + namespaceName)
+            .andReturn(409, "{\"message\":\"Conflict\"}")
+            .once();
+
+        Namespace ns = new NamespaceBuilder().withNewMetadata().withName(namespaceName).endMetadata().build();
+        KubeResourceManager.get().createResourceWithWait(ns);
+        assertNotNull(KubeResourceManager.get().kubeClient().getClient().namespaces().withName(namespaceName).get());
+
+        KubeResourceManager.get().replaceResourceWithRetries(ns,
+            resource -> resource.getMetadata().setLabels(Map.of("my-label", "here")), maxRetries);
+        assertNotNull(KubeResourceManager.get().kubeClient().getClient().namespaces().withName(namespaceName).get()
+            .getMetadata().getLabels().get("my-label"));
+
+        // Check retries will fail when it reaches the max retries (default 3)
+        server
+            .expect()
+            .put()
+            .withPath("/api/v1/namespaces/" + namespaceName)
+            .andReturn(409, "{\"message\":\"Conflict\"}")
+            .times(5);
+
+        KubeResourceManager.get().replaceResourceWithRetries(ns,
+            resource -> resource.getMetadata().setLabels(Map.of("my-label2", "not-here")), maxRetries);
+        assertNotNull(KubeResourceManager.get().kubeClient().getClient().namespaces().withName(namespaceName).get()
+            .getMetadata().getLabels().get("my-label2"));
+
+        // Check retries will fail if the exception is not Conflict code
+        server
+            .expect()
+            .put()
+            .withPath("/api/v1/namespaces/" + namespaceName)
+            .andReturn(404, "{\"message\":\"Not-Found\"}")
+            .once();
+
+        assertThrows(RuntimeException.class, () -> KubeResourceManager.get().replaceResourceWithRetries(ns,
+            resource -> resource.getMetadata().setLabels(Map.of("my-label2", "not-here")), maxRetries));
     }
 
     @Test
