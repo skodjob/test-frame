@@ -70,9 +70,9 @@ public class KubeResourceManager {
         this.resourceTypes = new ResourceType[]{};
         client = new KubeClient();
         if (TestFrameEnv.CLIENT_TYPE.equals(TestFrameConstants.KUBERNETES_CLIENT)) {
-            kubeCmdClient = new Kubectl(client.getKubeconfigPath());
+            kubeCmdClient = new Kubectl(kubeClient().getKubeconfigPath());
         } else {
-            kubeCmdClient = new Oc(client.getKubeconfigPath());
+            kubeCmdClient = new Oc(kubeClient().getKubeconfigPath());
         }
     }
 
@@ -200,7 +200,7 @@ public class KubeResourceManager {
      * @throws IOException If an I/O error occurs reading from the file.
      */
     public List<HasMetadata> readResourcesFromFile(Path file) throws IOException {
-        return client.readResourcesFromFile(file);
+        return kubeClient().readResourcesFromFile(file);
     }
 
     /**
@@ -211,7 +211,7 @@ public class KubeResourceManager {
      * @throws IOException If an I/O error occurs.
      */
     public List<HasMetadata> readResourcesFromFile(InputStream is) throws IOException {
-        return client.readResourcesFromFile(is);
+        return kubeClient().readResourcesFromFile(is);
     }
 
     /**
@@ -364,21 +364,21 @@ public class KubeResourceManager {
 
             if (type == null) {
                 // Generic create for any resource
-                if (allowUpdate && client.getClient().resource(resource).get() != null) {
+                if (allowUpdate && kubeClient().getClient().resource(resource).get() != null) {
                     LoggerUtils.logResource("Updating", resource);
-                    client.getClient().resource(resource).update();
+                    kubeClient().getClient().resource(resource).update();
                 } else {
                     LoggerUtils.logResource("Creating", resource);
-                    client.getClient().resource(resource).create();
+                    kubeClient().getClient().resource(resource).create();
                 }
                 if (waitReady) {
                     CompletableFuture<Void> c = CompletableFuture.runAsync(() ->
                         assertTrue(waitResourceCondition(resource,
                                 new ResourceCondition<>(p -> {
                                     if (isResourceWithReadiness(resource)) {
-                                        return client.getClient().resource(resource).isReady();
+                                        return kubeClient().getClient().resource(resource).isReady();
                                     }
-                                    return client.getClient().resource(resource) != null;
+                                    return kubeClient().getClient().resource(resource) != null;
                                 }, "ready")),
                             String.format("Timed out waiting for %s/%s in %s to be ready", resource.getKind(),
                                 resource.getMetadata().getName(), resource.getMetadata().getNamespace())));
@@ -390,7 +390,7 @@ public class KubeResourceManager {
                 }
             } else {
                 // Create for typed resource implementing ResourceType
-                if (allowUpdate && client.getClient().resource(resource).get() != null) {
+                if (allowUpdate && kubeClient().getClient().resource(resource).get() != null) {
                     LoggerUtils.logResource("Updating", resource);
                     type.update(resource);
                 } else {
@@ -444,7 +444,7 @@ public class KubeResourceManager {
             LoggerUtils.logResource("Deleting", resource);
             try {
                 if (type == null) {
-                    client.getClient().resource(resource).delete();
+                    kubeClient().getClient().resource(resource).delete();
                     decideDeleteWaitAsync(waitExecutors, async, resource);
                 } else {
                     type.delete(resource);
@@ -480,7 +480,7 @@ public class KubeResourceManager {
             if (type != null) {
                 type.update(resource);
             } else {
-                client.getClient().resource(resource).update();
+                kubeClient().getClient().resource(resource).update();
             }
         }
     }
@@ -566,9 +566,9 @@ public class KubeResourceManager {
         if (type != null) {
             type.replace(resource, editor);
         } else {
-            T toBeReplaced = client.getClient().resource(resource).get();
+            T toBeReplaced = kubeClient().getClient().resource(resource).get();
             editor.accept(toBeReplaced);
-            client.getClient().resource(toBeReplaced).update();
+            kubeClient().getClient().resource(toBeReplaced).update();
         }
     }
 
