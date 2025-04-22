@@ -12,6 +12,7 @@ import java.nio.file.Paths;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -25,15 +26,29 @@ class TestEnvironmentVariablesTest {
             .resolve("target").resolve("config.yaml")));
     }
 
+    @Test
+    void testKubernetesContextLoad() {
+        assertEquals(3, MyEnvs.CLUSTER_CONFIGS.size());
+        assertNotNull(MyEnvs.CLUSTER_CONFIGS.get("main"));
+        assertNotNull(MyEnvs.CLUSTER_CONFIGS.get("prod"));
+        assertNotNull(MyEnvs.CLUSTER_CONFIGS.get("stage"));
+    }
+
     public static class MyEnvs {
         private static final Map<String, String> ENVS_MAP = Map.of(
             "MY_ENV", "this",
-            "THIRD_ENV", "that"
+            "THIRD_ENV", "that",
+            "KUBECONFIG", "/user/home/kornys.config",
+            "KUBECONFIG_PROD", "/user/home/kornys.config",
+            "KUBE_URL_STAGE", "https://pepa.com:6443",
+            "KUBE_TOKEN_STAGE", "TOKEN"
         );
 
         public static final TestEnvironmentVariables ENVIRONMENT_VARIABLES = new TestEnvironmentVariables(ENVS_MAP);
         public static final String MY_ENV = ENVIRONMENT_VARIABLES.getOrDefault("MY_ENV", "");
         public static final String SECOND_ENV = ENVIRONMENT_VARIABLES.getOrDefault("SECOND_ENV", "23");
+        public static final Map<String, TestEnvironmentVariables.ClusterConfig> CLUSTER_CONFIGS =
+            ENVIRONMENT_VARIABLES.discoverClusterConfigs();
 
         static {
             ENVIRONMENT_VARIABLES.logEnvironmentVariables();

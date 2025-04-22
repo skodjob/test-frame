@@ -7,6 +7,7 @@ package io.skodjob.testframe.environment;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import io.skodjob.testframe.TestFrameConstants;
 import io.skodjob.testframe.utils.LoggerUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -152,5 +153,58 @@ public class TestEnvironmentVariables {
             });
 
         LoggerUtils.logSeparator("-", 30);
+    }
+
+    /**
+     * Container for kubernetes connection
+     *
+     * @param url            api url
+     * @param token          api token
+     * @param kubeconfigPath kubeconfig
+     */
+    public record ClusterConfig(String url, String token, String kubeconfigPath) {
+    }
+
+    /**
+     * Load cluster configs
+     *
+     * @return map of cluster configs
+     */
+    public Map<String, ClusterConfig> discoverClusterConfigs() {
+        Map<String, ClusterConfig> out = new HashMap<>();
+
+        /* ---------- default context ---------- */
+        String defKC = envMap.get("KUBECONFIG");
+        String defURL = envMap.get("KUBE_URL");
+        String defTok = envMap.get("KUBE_TOKEN");
+        if (defKC != null && !defKC.isBlank()) {
+            out.put(TestFrameConstants.DEFAULT_CONTEXT_NAME, new ClusterConfig(null, null, defKC));
+            values.put("KUBECONFIG", defKC);
+        } else if (defURL != null && defTok != null) {
+            out.put(TestFrameConstants.DEFAULT_CONTEXT_NAME, new ClusterConfig(defURL, defTok, null));
+            values.put("KUBE_URL", defURL);
+            values.put("KUBE_TOKEN", defTok);
+        } else {
+            out.put(TestFrameConstants.DEFAULT_CONTEXT_NAME,
+                new ClusterConfig(null, null, null));   // auto-config
+        }
+
+        envMap.keySet().forEach(k -> {
+            if (k.startsWith("KUBE_URL_") || k.startsWith("KUBE_TOKEN_") || k.startsWith("KUBECONFIG_")) {
+                String id = k.substring(k.lastIndexOf('_') + 1).toLowerCase();
+                String url = envMap.get("KUBE_URL_" + id.toUpperCase());
+                String tok = envMap.get("KUBE_TOKEN_" + id.toUpperCase());
+                String kc = envMap.get("KUBECONFIG_" + id.toUpperCase());
+                if (kc != null) {
+                    out.put(id, new ClusterConfig(null, null, kc));
+                    values.put("KUBECONFIG_" + id.toUpperCase(), kc);
+                } else if (url != null && tok != null) {
+                    out.put(id, new ClusterConfig(url, tok, null));
+                    values.put("KUBE_URL_" + id.toUpperCase(), url);
+                    values.put("KUBE_TOKEN_" + id.toUpperCase(), tok);
+                }
+            }
+        });
+        return Collections.unmodifiableMap(out);
     }
 }

@@ -41,7 +41,7 @@ together with the usage and installation.
 <dependency>
     <groupId>io.skodjob</groupId>
     <artifactId>test-frame-common</artifactId>
-    <version>0.10.0</version>
+    <version>0.12.0</version>
 </dependency>
 ```
 ### Or use snapshot releases
@@ -65,7 +65,7 @@ together with the usage and installation.
 <dependency>
     <groupId>io.skodjob</groupId>
     <artifactId>test-frame-common</artifactId>
-    <version>0.11.0-SNAPSHOT</version>
+    <version>0.13.0-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -103,6 +103,27 @@ class Test {
         ...
 
         KubeResourceManager.get().deleteResource(ns);
+    }
+}
+//...
+```
+### Switch between cluster contexts
+KubeResourceManager always uses context `main`, if you want to use different configured kube cluster context use followed syntax.
+```java
+//...
+@ResourceManager
+class Test {
+    @Test
+    void testMethod() {
+        Namespace ns = new NamespaceBuilder().withNewMetadata().withName("test").endMetadata().build();
+        KubeResourceManager.get().createResourceWithWait(ns);
+        assertNotNull(KubeResourceManager.get().kubeCmdClient().get("namespace", "test"));
+
+        try (var ctx = KubeResourceManager.get().useContext("prod")) {
+            Namespace ns = new NamespaceBuilder().withNewMetadata().withName("test-prod").endMetadata().build();
+            KubeResourceManager.get().createResourceWithWait(ns);
+            assertNotNull(KubeResourceManager.get().kubeCmdClient().get("namespace", "test-prod"));
+        }
     }
 }
 //...
@@ -148,7 +169,11 @@ Examples are stored in [test-frame-test-examples](test-frame-test-examples/src/t
 * **ENV_FILE** - path to YAML file with env variables values
 * **KUBE_TOKEN** - token of Kube access (use instead of username/password)
 * **KUBE_URL** - URL of the cluster (API URL)
+* **KUBECONFIG** - Path to kubeconfig (Overwrites token and url)
 * **CLIENT_TYPE** - Switch between `kubectl` or `oc` cmd client
+* **KUBE_TOKEN_XXX** - token of Kube access (additional cluster use suffix like PROD, DEV, TEST)
+* **KUBE_TOKEN_URL** - URL of the cluster (additional cluster use suffix like PROD, DEV, TEST)
+* **KUBECONFIG_XXX** - Path to kubeconfig (additional cluster use suffix like PROD, DEV, TEST)
 
 ## Adopters
 * [opendatahub.io](https://github.com/opendatahub-io/opendatahub-operator) operator test suite - [odh-e2e](https://github.com/skodjob/odh-e2e)

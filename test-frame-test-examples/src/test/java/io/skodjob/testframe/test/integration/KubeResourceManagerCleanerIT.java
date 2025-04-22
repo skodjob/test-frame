@@ -7,6 +7,7 @@ package io.skodjob.testframe.test.integration;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.kubernetes.api.model.NamespaceBuilder;
+import io.skodjob.testframe.TestFrameConstants;
 import io.skodjob.testframe.annotations.ResourceManager;
 import io.skodjob.testframe.clients.KubeClusterException;
 import io.skodjob.testframe.resources.KubeResourceManager;
@@ -80,5 +81,13 @@ final class KubeResourceManagerCleanerIT extends AbstractIT {
             .readResourcesFromFile(getClass().getClassLoader().getResourceAsStream("metrics-example.yaml"));
         KubeResourceManager.get().createOrUpdateResourceAsyncWait(resources.toArray(new HasMetadata[0]));
         assertTrue(KubeResourceManager.get().kubeClient().namespaceExists("metrics-test"));
+    }
+
+    @Test
+    void testMultiClusterAccess() throws Exception{
+        try (var ctx = KubeResourceManager.get().useContext(TestFrameConstants.DEFAULT_CONTEXT_NAME)) {
+            KubeResourceManager.get().createResourceWithWait(
+                new NamespaceBuilder().withNewMetadata().withName("kornys").endMetadata().build());
+        }
     }
 }

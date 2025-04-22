@@ -211,7 +211,6 @@ public class MetricsCollector {
             if (kubeClient == null) {
                 throw new IllegalStateException("KubeClient is not available");
             }
-            kubeClient = KubeResourceManager.get().kubeClient().getClient();
         }
         return kubeClient;
     }

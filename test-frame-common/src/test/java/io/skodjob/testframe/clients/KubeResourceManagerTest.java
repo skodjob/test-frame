@@ -6,10 +6,12 @@ package io.skodjob.testframe.clients;
 
 import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.kubernetes.api.model.NamespaceBuilder;
+import io.fabric8.kubernetes.api.model.ServiceAccount;
 import io.fabric8.kubernetes.api.model.ServiceAccountBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.server.mock.EnableKubernetesMockClient;
 import io.fabric8.kubernetes.client.server.mock.KubernetesMockServer;
+import io.skodjob.testframe.TestFrameConstants;
 import io.skodjob.testframe.annotations.ResourceManager;
 import io.skodjob.testframe.annotations.TestVisualSeparator;
 import io.skodjob.testframe.helper.TestLoggerAppender;
@@ -32,6 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 @EnableKubernetesMockClient(crud = true)
@@ -222,9 +225,28 @@ class KubeResourceManagerTest {
         KubeResourceManager.get().printAllResources(org.slf4j.event.Level.DEBUG);
         events = testAppender.getLogEvents();
 
-        assertEquals(4, events.size());
-        assertEquals("Managed resource: Namespace/test-ns", events.get(2).getMessage().getFormattedMessage());
-        assertEquals("Managed resource: ServiceAccount/test-sa", events.get(3).getMessage().getFormattedMessage());
+        assertEquals(5, events.size());
+        assertEquals("Managed resource: Namespace/test-ns", events.get(3).getMessage().getFormattedMessage());
+        assertEquals("Managed resource: ServiceAccount/test-sa", events.get(4).getMessage().getFormattedMessage());
         assertEquals(Level.DEBUG, events.get(0).getLevel());
+    }
+
+    @Test
+    void testUseContext() throws Exception {
+        // create resources
+        Namespace ns = new NamespaceBuilder().withNewMetadata().withName("test-ns-2").endMetadata().build();
+        ServiceAccount sa = new ServiceAccountBuilder().withNewMetadata().withName("test-sa-2")
+            .withNamespace("test-ns-2").endMetadata().build();
+
+        KubeResourceManager.get().createResourceWithWait(ns);
+        KubeResourceManager.get().createResourceWithWait(sa);
+
+        try (var ignored = KubeResourceManager.get().useContext(TestFrameConstants.DEFAULT_CONTEXT_NAME)) {
+            assertTrue(KubeResourceManager.get().kubeClient().namespaceExists("test-ns-2"));
+            KubeResourceManager.get().deleteResource(sa);
+        }
+
+        assertNull(KubeResourceManager.get().kubeClient().getClient()
+            .serviceAccounts().inNamespace("test-ns-2").withName("test-sa-2").get());
     }
 }

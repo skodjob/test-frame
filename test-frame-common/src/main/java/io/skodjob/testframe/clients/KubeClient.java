@@ -6,6 +6,7 @@ package io.skodjob.testframe.clients;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -22,10 +23,9 @@ import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientBuilder;
 import io.fabric8.openshift.client.OpenShiftClient;
-import io.skodjob.testframe.utils.LoggerUtils;
-import io.skodjob.testframe.TestFrameConstants;
 import io.skodjob.testframe.TestFrameEnv;
 import io.skodjob.testframe.executor.Exec;
+import io.skodjob.testframe.utils.LoggerUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,16 +36,62 @@ import org.slf4j.LoggerFactory;
 public class KubeClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(KubeClient.class);
 
-
     private KubernetesClient client;
+
+    /**
+     * Path of kube‑config file (explicit or temp). May be {@code null}.
+     */
     private String kubeconfigPath;
+
+    /* --------------------------------------------------------------------- */
+    /* Constructors / factories                                              */
+    /* --------------------------------------------------------------------- */
 
     /**
      * Initializes the Kubernetes client with configuration derived from environment variables or default context.
      */
     public KubeClient() {
-        Config config = getConfig();
-        this.client = new KubernetesClientBuilder().withConfig(config).build();
+        Config cfg = Config.autoConfigure(null);
+        this.client = new KubernetesClientBuilder().withConfig(cfg).build();
+    }
+
+    /**
+     * Build the client from an explicit kube‑config file.
+     *
+     * @param kubeconfigPath path to kubeconfig YAML
+     */
+    public KubeClient(String kubeconfigPath) {
+        this.kubeconfigPath = kubeconfigPath;
+        Config cfg = Config.fromKubeconfig(readFile(kubeconfigPath));
+        this.client = new KubernetesClientBuilder().withConfig(cfg).build();
+    }
+
+    /**
+     * Build the client from API and URL + bearer token.
+     *
+     * @param apiUrl API server URL (e.g.https://api.cluster:6443)
+     * @param token  OAuth/bearer token
+     */
+    public KubeClient(String apiUrl, String token) {
+        Config cfg = new ConfigBuilder()
+            .withMasterUrl(apiUrl)
+            .withOauthToken(token)
+            .withTrustCerts(true)
+            .withDisableHostnameVerification(true)
+            .build();
+        this.client = new KubernetesClientBuilder().withConfig(cfg).build();
+        this.kubeconfigPath = generateTempKubeconfig(apiUrl, token);
+    }
+
+    /**
+     * Convenience factory matching the old static helper name.
+     *
+     * @param apiUrl url of cluster
+     * @param token  token
+     * @return kube client
+     */
+    public static KubeClient fromUrlAndToken(String apiUrl, String token) {
+        return new KubeClient(apiUrl, token);
     }
 
     /**
@@ -59,7 +105,7 @@ public class KubeClient {
 
     /**
      * Test method only
-     * Reconnect client with new config
+     * Reconnect a client with new config
      *
      * @param config kubernetes config
      */
@@ -333,93 +379,48 @@ public class KubeClient {
         }
     }
 
-    /**
-     * Determines the appropriate Kubernetes configuration based on environment variables.
-     *
-     * @return Config The Kubernetes client configuration.
-     */
-    private Config getConfig() {
-        if (TestFrameEnv.KUBE_URL != null && TestFrameEnv.KUBE_TOKEN != null) {
-            kubeconfigPath = createLocalKubeconfig();
-            return new ConfigBuilder()
-                .withOauthToken(TestFrameEnv.KUBE_TOKEN)
-                .withMasterUrl(TestFrameEnv.KUBE_URL)
-                .withDisableHostnameVerification(true)
-                .withTrustCerts(true)
-                .build();
-        } else {
-            return Config.autoConfigure(System.getenv().getOrDefault("KUBE_CONTEXT", null));
+    /* --------------------------------------------------------------------- */
+    /* Helper methods                                                        */
+    /* --------------------------------------------------------------------- */
+
+    private static String readFile(String path) {
+        try {
+            return Files.readString(Path.of(path), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new RuntimeException("Cannot read " + path, e);
         }
     }
 
     /**
-     * Creates a local kubeconfig file based on environment variables and configuration settings.
-     *
-     * @return The path to the created kubeconfig file or null if creation failed.
+     * Generates a user‑specific temporary kube‑config on disk so external
+     * kubectl/oc commands (used elsewhere in the framework) have authentication.
      */
-    private String createLocalKubeconfig() {
+    private String generateTempKubeconfig(String url, String token) {
         try {
-            if (TestFrameEnv.CLIENT_TYPE.equals(TestFrameConstants.OPENSHIFT_CLIENT)) {
-                createLocalOcKubeconfig(TestFrameEnv.KUBE_TOKEN, TestFrameEnv.KUBE_URL);
-            } else {
-                createLocalKubectlContext(TestFrameEnv.KUBE_TOKEN, TestFrameEnv.KUBE_URL);
-            }
-            return TestFrameEnv.USER_PATH + "/test.kubeconfig";
+            String host = java.net.URI.create(url).getHost().replaceAll("[^\\w]", "-");
+            String suffix = Integer.toHexString((host + token).hashCode()).substring(0, 6);
+            String path = Path.of(TestFrameEnv.USER_PATH,
+                "test-" + host + "-" + suffix + ".kubeconfig").toString();
+
+            Exec.exec(null, Arrays.asList("kubectl", "config", "set-credentials",
+                    "tf-user-" + suffix, "--token", token, "--kubeconfig", path),
+                0, false, true);
+            Exec.exec(null, Arrays.asList("kubectl", "config", "set-cluster",
+                    "tf-cluster-" + suffix, "--insecure-skip-tls-verify=true",
+                    "--server", url, "--kubeconfig", path),
+                0, false, true);
+            Exec.exec(null, Arrays.asList("kubectl", "config", "set-context",
+                    "tf-context-" + suffix, "--user", "tf-user-" + suffix,
+                    "--cluster", "tf-cluster-" + suffix, "--namespace", "default",
+                    "--kubeconfig", path),
+                0, false, true);
+            Exec.exec(null, Arrays.asList("kubectl", "config", "use-context",
+                    "tf-context-" + suffix, "--kubeconfig", path),
+                0, false, true);
+            return path;
         } catch (Exception ex) {
-            LOGGER.error(ex.getMessage(), ex);
+            LOGGER.warn("Could not generate temp kubeconfig: {}", ex.getMessage());
             return null;
         }
-    }
-
-    /**
-     * Configures a local kubeconfig for OpenShift using oc login with a token.
-     *
-     * @param token  The token for OpenShift login.
-     * @param apiUrl The URL of the OpenShift cluster API.
-     */
-    private void createLocalOcKubeconfig(String token, String apiUrl) {
-        Exec.exec(null, Arrays.asList("oc", "login", "--token", token,
-            "--insecure-skip-tls-verify",
-            "--kubeconfig", TestFrameEnv.USER_PATH + "/test.kubeconfig",
-            apiUrl), 0, false, true);
-    }
-
-    /**
-     * Configures a local kubeconfig for Kubernetes using kubectl to set credentials with a token.
-     *
-     * @param token  The token for Kubernetes login.
-     * @param apiUrl The URL of the Kubernetes cluster API.
-     */
-    private void createLocalKubectlContext(String token, String apiUrl) {
-        Exec.exec(null, Arrays.asList("kubectl", "config",
-                "set-credentials", "test-user",
-                "--token", token,
-                "--kubeconfig", TestFrameEnv.USER_PATH + "/test.kubeconfig"),
-            0, false, true);
-        buildKubectlContext(apiUrl);
-    }
-
-    /**
-     * Builds the kubeconfig context for Kubernetes using kubectl, setting up cluster, user, and context information.
-     *
-     * @param apiUrl The URL of the Kubernetes cluster API.
-     */
-    private void buildKubectlContext(String apiUrl) {
-        Exec.exec(null, Arrays.asList("kubectl", "config",
-                "set-cluster", "test-cluster",
-                "--insecure-skip-tls-verify=true", "--server", apiUrl,
-                "--kubeconfig", TestFrameEnv.USER_PATH + "/test.kubeconfig"),
-            0, false, true);
-        Exec.exec(null, Arrays.asList("kubectl", "config",
-                "set-context", "test-context",
-                "--user", "test-user",
-                "--cluster", "test-cluster",
-                "--namespace", "default",
-                "--kubeconfig", TestFrameEnv.USER_PATH + "/test.kubeconfig"),
-            0, false, true);
-        Exec.exec(null, Arrays.asList("kubectl", "config",
-                "use-context", "test-context",
-                "--kubeconfig", TestFrameEnv.USER_PATH + "/test.kubeconfig"),
-            0, false, true);
     }
 }
