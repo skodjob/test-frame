@@ -96,7 +96,7 @@ public class SecretType implements ResourceType<Secret> {
      */
     @Override
     public boolean isReady(Secret resource) {
-        return false;
+        return resource != null;
     }
 
     /**
@@ -107,6 +107,6 @@ public class SecretType implements ResourceType<Secret> {
      */
     @Override
     public boolean isDeleted(Secret resource) {
-        return false;
+        return resource == null;
     }
 }
