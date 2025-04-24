@@ -4,6 +4,7 @@
  */
 package io.skodjob.testframe.clients;
 
+import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.kubernetes.api.model.NamespaceBuilder;
 import io.fabric8.kubernetes.api.model.ServiceAccount;
@@ -27,6 +28,8 @@ import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -260,5 +263,12 @@ class KubeResourceManagerTest {
 
         assertEquals("prefixdeployment", KubeResourceManager.get().kubeClient()
             .getDeploymentNameByPrefix("test", "pre"));
+    }
+
+    @Test
+    void readFilesFromYaml() throws IOException {
+        List<HasMetadata> res = KubeResourceManager.get()
+            .readResourcesFromFile(Path.of(getClass().getClassLoader().getResource("resources.yaml").getPath()));
+        assertEquals(2, res.size());
     }
 }

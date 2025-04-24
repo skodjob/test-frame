@@ -1,0 +1,14 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    test: true
+  name: test4
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: skodjob-test-user
+  namespace: test4
