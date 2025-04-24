@@ -99,7 +99,7 @@ public final class KubeResourceManager {
 
     private static final KubeResourceManager INSTANCE = new KubeResourceManager();
 
-    private volatile ResourceType<?>[] resourceTypes = new ResourceType<?>[]{};
+    private ResourceType<?>[] resourceTypes = new ResourceType<?>[]{};
     private final List<Consumer<HasMetadata>> createCallbacks = new CopyOnWriteArrayList<>();
     private final List<Consumer<HasMetadata>> deleteCallbacks = new CopyOnWriteArrayList<>();
 
@@ -283,6 +283,13 @@ public final class KubeResourceManager {
      * Clean test extension context
      */
     public void cleanTestContext() {
+        TEST_CONTEXT.remove();
+    }
+
+    /**
+     * Clean test extension context
+     */
+    public void cleanClusterContext() {
         CURRENT_CLUSTER_CONTEXT.remove();
     }
 
