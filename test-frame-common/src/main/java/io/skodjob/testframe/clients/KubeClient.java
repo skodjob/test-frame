@@ -379,10 +379,6 @@ public class KubeClient {
         }
     }
 
-    /* --------------------------------------------------------------------- */
-    /* Helper methods                                                        */
-    /* --------------------------------------------------------------------- */
-
     private static String readFile(String path) {
         try {
             return Files.readString(Path.of(path), StandardCharsets.UTF_8);
