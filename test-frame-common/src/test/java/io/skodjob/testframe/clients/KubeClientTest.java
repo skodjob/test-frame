@@ -16,9 +16,9 @@ import java.nio.file.Path;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
 
 @EnableKubernetesMockClient(crud = true)
 @TestVisualSeparator
@@ -41,7 +41,7 @@ class KubeClientTest {
     }
 
     @Test
-    void testCreateResources() throws IOException {
+    void testCreateDeleteResources() throws IOException {
         KubeClient cl = KubeClient.fromUrlAndToken(kubernetesClient.getConfiguration().getMasterUrl(),
             kubernetesClient.getConfiguration().getOauthToken());
         List<HasMetadata> res = cl.readResourcesFromFile(
@@ -53,5 +53,9 @@ class KubeClientTest {
         });
 
         assertTrue(cl.namespaceExists("test4"));
+
+        cl.delete(res);
+
+        assertFalse(cl.namespaceExists("test4"));
     }
 }

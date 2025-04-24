@@ -16,8 +16,10 @@ import io.fabric8.kubernetes.client.server.mock.KubernetesMockServer;
 import io.skodjob.testframe.TestFrameConstants;
 import io.skodjob.testframe.annotations.ResourceManager;
 import io.skodjob.testframe.annotations.TestVisualSeparator;
+import io.skodjob.testframe.helper.NamespaceType;
 import io.skodjob.testframe.helper.TestLoggerAppender;
 import io.skodjob.testframe.resources.KubeResourceManager;
+import io.skodjob.testframe.utils.LoggerUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LogEvent;
@@ -40,7 +42,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-
 @EnableKubernetesMockClient(crud = true)
 @ResourceManager
 @TestVisualSeparator
@@ -51,6 +52,13 @@ class KubeResourceManagerTest {
     @BeforeEach
     void setupClient() {
         KubeResourceManager.get().kubeClient().testReconnect(kubernetesClient.getConfiguration());
+        KubeResourceManager.get().setResourceTypes(new NamespaceType());
+        KubeResourceManager.get().addCreateCallback(r ->
+            LoggerUtils.logResource("Create", r)
+        );
+        KubeResourceManager.get().addDeleteCallback(r ->
+            LoggerUtils.logResource("Delete", r)
+        );
     }
 
     @Test

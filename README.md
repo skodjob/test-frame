@@ -172,7 +172,7 @@ Examples are stored in [test-frame-test-examples](test-frame-test-examples/src/t
 * **KUBECONFIG** - Path to kubeconfig (Overwrites token and url)
 * **CLIENT_TYPE** - Switch between `kubectl` or `oc` cmd client
 * **KUBE_TOKEN_XXX** - token of Kube access (additional cluster use suffix like PROD, DEV, TEST)
-* **KUBE_TOKEN_URL** - URL of the cluster (additional cluster use suffix like PROD, DEV, TEST)
+* **KUBE_URL_XXX** - URL of the cluster (additional cluster use suffix like PROD, DEV, TEST)
 * **KUBECONFIG_XXX** - Path to kubeconfig (additional cluster use suffix like PROD, DEV, TEST)
 
 ## Adopters

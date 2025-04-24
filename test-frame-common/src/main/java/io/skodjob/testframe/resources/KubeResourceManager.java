@@ -283,7 +283,7 @@ public final class KubeResourceManager {
      * Clean test extension context
      */
     public void cleanTestContext() {
-        TEST_CONTEXT.remove();
+        CURRENT_CLUSTER_CONTEXT.remove();
     }
 
     /**
