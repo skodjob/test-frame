@@ -147,13 +147,13 @@ public final class KubeResourceManager {
         String ctxId = Optional.ofNullable(id).orElse(TestFrameConstants.DEFAULT_CONTEXT_NAME).toLowerCase();
         if (!CLUSTER_CONFIGS.containsKey(ctxId)) {
             throw new IllegalArgumentException("Unknown context '" + ctxId +
-                "'. Define env vars with _" + ctxId.toUpperCase());
+                "'. Define env vars [KUBE_URL|KUBE_TOKEN|KUBECONFIG]_" + ctxId.toUpperCase());
         }
-        LOGGER.info("Switch to context {}", ctxId);
+        LOGGER.info("Switching to context {}", ctxId);
         String prev = CURRENT_CLUSTER_CONTEXT.get();
         CURRENT_CLUSTER_CONTEXT.set(ctxId);
         return () -> {
-            LOGGER.info("Closing context {}", prev);
+            LOGGER.info("Closing context {}", ctxId);
             CURRENT_CLUSTER_CONTEXT.set(prev);
         };
     }
