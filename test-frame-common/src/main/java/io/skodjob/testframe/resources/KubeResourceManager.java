@@ -92,8 +92,8 @@ public final class KubeResourceManager {
         TestFrameEnv.CLUSTER_CONFIGS;
     private String storeYamlPath;
 
-    private final Map<String, ClusterCtx> clientCache = new ConcurrentHashMap<>();
-    private static final ThreadLocal<String> CURRENT_CTX = ThreadLocal.withInitial(() ->
+    private final Map<String, ClusterContext> clientCache = new ConcurrentHashMap<>();
+    private static final ThreadLocal<String> CURRENT_CLUSTER_CONTEXT = ThreadLocal.withInitial(() ->
         TestFrameConstants.DEFAULT_CONTEXT_NAME);
     private static final ThreadLocal<ExtensionContext> TEST_CONTEXT = new ThreadLocal<>();
 
@@ -111,7 +111,7 @@ public final class KubeResourceManager {
      * @param kubeClient kube client
      * @param cmdClient  cmd client
      */
-    private record ClusterCtx(KubeClient kubeClient, KubeCmdClient<?> cmdClient) {
+    private record ClusterContext(KubeClient kubeClient, KubeCmdClient<?> cmdClient) {
     }
 
     private KubeResourceManager() {
@@ -150,11 +150,11 @@ public final class KubeResourceManager {
                 "'. Define env vars with _" + ctxId.toUpperCase());
         }
         LOGGER.info("Switch to context {}", ctxId);
-        String prev = CURRENT_CTX.get();
-        CURRENT_CTX.set(ctxId);
+        String prev = CURRENT_CLUSTER_CONTEXT.get();
+        CURRENT_CLUSTER_CONTEXT.set(ctxId);
         return () -> {
             LOGGER.info("Closing context {}", prev);
-            CURRENT_CTX.set(prev);
+            CURRENT_CLUSTER_CONTEXT.set(prev);
         };
     }
 
@@ -164,7 +164,7 @@ public final class KubeResourceManager {
      * @param id id of cluster
      * @return context
      */
-    private ClusterCtx ctx(String id) {
+    private ClusterContext clusterContext(String id) {
         return clientCache.computeIfAbsent(id, cid -> {
             TestEnvironmentVariables.ClusterConfig c = CLUSTER_CONFIGS.get(cid);
             if (c == null) {
@@ -183,7 +183,7 @@ public final class KubeResourceManager {
             KubeCmdClient<?> cmd = TestFrameEnv.CLIENT_TYPE.equals(TestFrameConstants.KUBERNETES_CLIENT)
                 ? new Kubectl(kube.getKubeconfigPath())
                 : new Oc(kube.getKubeconfigPath());
-            return new ClusterCtx(kube, cmd);
+            return new ClusterContext(kube, cmd);
         });
     }
 
@@ -192,8 +192,8 @@ public final class KubeResourceManager {
      *
      * @return context
      */
-    private ClusterCtx ctx() {
-        return ctx(CURRENT_CTX.get());
+    private ClusterContext clusterContext() {
+        return clusterContext(CURRENT_CLUSTER_CONTEXT.get());
     }
 
     /* ───────────────  kube clients accessors  ─────────────── */
@@ -204,7 +204,7 @@ public final class KubeResourceManager {
      * @return kube client
      */
     public KubeClient kubeClient() {
-        return ctx().kubeClient;
+        return clusterContext().kubeClient;
     }
 
     /**
@@ -213,7 +213,7 @@ public final class KubeResourceManager {
      * @return kube cmd client
      */
     public KubeCmdClient<?> kubeCmdClient() {
-        return ctx().cmdClient;
+        return clusterContext().cmdClient;
     }
 
     /**
@@ -294,7 +294,7 @@ public final class KubeResourceManager {
      */
     public <T extends HasMetadata> void pushToStack(T resource) {
         STORED_RESOURCES
-            .computeIfAbsent(CURRENT_CTX.get(), c -> new ConcurrentHashMap<>())
+            .computeIfAbsent(CURRENT_CLUSTER_CONTEXT.get(), c -> new ConcurrentHashMap<>())
             .computeIfAbsent(getTestContext().getDisplayName(), t -> new Stack<>())
             .push(new ResourceItem<>(() -> deleteResource(resource), resource));
     }
@@ -306,7 +306,7 @@ public final class KubeResourceManager {
      */
     public void pushToStack(ResourceItem<?> item) {
         STORED_RESOURCES
-            .computeIfAbsent(CURRENT_CTX.get(), c -> new ConcurrentHashMap<>())
+            .computeIfAbsent(CURRENT_CLUSTER_CONTEXT.get(), c -> new ConcurrentHashMap<>())
             .computeIfAbsent(getTestContext().getDisplayName(), t -> new Stack<>())
             .push(item);
     }
@@ -361,7 +361,7 @@ public final class KubeResourceManager {
      * @param logLevel slf4j log level event
      */
     public void printCurrentResources(Level logLevel) {
-        String ctxId = CURRENT_CTX.get();
+        String ctxId = CURRENT_CLUSTER_CONTEXT.get();
         String test = getTestContext().getDisplayName();
         LOGGER.atLevel(logLevel).log("Resources in [{}]/{}", ctxId, test);
         Optional.ofNullable(STORED_RESOURCES.get(ctxId))
@@ -710,7 +710,7 @@ public final class KubeResourceManager {
      */
     public void deleteResources(boolean async) {
         LoggerUtils.logSeparator();
-        String ctxId = CURRENT_CTX.get();
+        String ctxId = CURRENT_CLUSTER_CONTEXT.get();
         String testName = getTestContext().getDisplayName();
         Map<String, Stack<ResourceItem<?>>> byTest = STORED_RESOURCES.get(ctxId);
         if (byTest == null || byTest.get(testName) == null || byTest.get(testName).isEmpty()) {
@@ -777,7 +777,7 @@ public final class KubeResourceManager {
     }
 
     private void writeResourceAsYaml(HasMetadata res) {
-        File dir = Paths.get(storeYamlPath).resolve(CURRENT_CTX.get()).resolve("test-files")
+        File dir = Paths.get(storeYamlPath).resolve(CURRENT_CLUSTER_CONTEXT.get()).resolve("test-files")
             .resolve(getTestContext().getRequiredTestClass().getName())
             .toFile();
         if (getTestContext().getTestMethod().isPresent()) {

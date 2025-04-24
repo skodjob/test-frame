@@ -8,6 +8,7 @@ import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.kubernetes.api.model.NamespaceBuilder;
 import io.fabric8.kubernetes.api.model.ServiceAccount;
 import io.fabric8.kubernetes.api.model.ServiceAccountBuilder;
+import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.server.mock.EnableKubernetesMockClient;
 import io.fabric8.kubernetes.client.server.mock.KubernetesMockServer;
@@ -248,5 +249,16 @@ class KubeResourceManagerTest {
 
         assertNull(KubeResourceManager.get().kubeClient().getClient()
             .serviceAccounts().inNamespace("test-ns-2").withName("test-sa-2").get());
+    }
+
+    @Test
+    void testListPrefixedDeployments() {
+        KubeResourceManager.get().createResourceWithoutWait(
+            new DeploymentBuilder().withNewMetadata()
+                .withName("prefixdeployment").withNamespace("test").endMetadata().build()
+        );
+
+        assertEquals("prefixdeployment", KubeResourceManager.get().kubeClient()
+            .getDeploymentNameByPrefix("test", "pre"));
     }
 }
