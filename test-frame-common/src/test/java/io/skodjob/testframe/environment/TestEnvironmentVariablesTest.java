@@ -29,7 +29,7 @@ class TestEnvironmentVariablesTest {
     @Test
     void testKubernetesContextLoad() {
         assertEquals(3, MyEnvs.CLUSTER_CONFIGS.size());
-        assertNotNull(MyEnvs.CLUSTER_CONFIGS.get("main"));
+        assertNotNull(MyEnvs.CLUSTER_CONFIGS.get("default"));
         assertNotNull(MyEnvs.CLUSTER_CONFIGS.get("prod"));
         assertNotNull(MyEnvs.CLUSTER_CONFIGS.get("stage"));
     }

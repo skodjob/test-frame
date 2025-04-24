@@ -79,5 +79,5 @@ public final class TestFrameConstants {
     /**
      * Default cluster context name
      */
-    public static final String DEFAULT_CONTEXT_NAME = "main";
+    public static final String DEFAULT_CONTEXT_NAME = "default";
 }
