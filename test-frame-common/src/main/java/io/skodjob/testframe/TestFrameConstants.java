@@ -75,4 +75,9 @@ public final class TestFrameConstants {
      * Kubernetes client type.
      */
     public static final String KUBERNETES_CLIENT = "kubectl";
+
+    /**
+     * Default cluster context name
+     */
+    public static final String DEFAULT_CONTEXT_NAME = "default";
 }

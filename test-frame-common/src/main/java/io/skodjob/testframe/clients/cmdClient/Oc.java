@@ -120,7 +120,7 @@ public class Oc extends BaseCmdKubeClient<Oc> {
      */
     @Override
     public String getUsername() {
-        return Exec.exec(cmd(), "whoami").out();
+        return Exec.exec(command("whoami")).out();
     }
 
     /**
@@ -130,7 +130,7 @@ public class Oc extends BaseCmdKubeClient<Oc> {
      */
     @Override
     public void cordon(String nodeName) {
-        Exec.exec(cmd(), "adm", "cordon", nodeName);
+        Exec.exec(command("adm", "cordon", nodeName));
     }
 
     /**
@@ -140,7 +140,7 @@ public class Oc extends BaseCmdKubeClient<Oc> {
      */
     @Override
     public void uncordon(String nodeName) {
-        Exec.exec(cmd(), "adm", "uncordon", nodeName);
+        Exec.exec(command("adm", "uncordon", nodeName));
     }
 
     /**
@@ -154,9 +154,9 @@ public class Oc extends BaseCmdKubeClient<Oc> {
      */
     @Override
     public void drain(String nodeName, boolean ignoreDaemonSets, boolean disableEviction, long timeoutInSeconds) {
-        Exec.exec(cmd(), "adm", "drain", nodeName,
+        Exec.exec(command("adm", "drain", nodeName,
             "--ignore-daemonsets", String.valueOf(ignoreDaemonSets),
             "--disable-eviction", String.valueOf(disableEviction),
-            "--timeout", timeoutInSeconds + "s");
+            "--timeout", timeoutInSeconds + "s"));
     }
 }

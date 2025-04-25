@@ -7,6 +7,7 @@ package io.skodjob.testframe.environment;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import io.skodjob.testframe.TestFrameConstants;
 import io.skodjob.testframe.utils.LoggerUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +19,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -152,5 +154,62 @@ public class TestEnvironmentVariables {
             });
 
         LoggerUtils.logSeparator("-", 30);
+    }
+
+    /**
+     * Container for kubernetes connection
+     *
+     * @param url            api url
+     * @param token          api token
+     * @param kubeconfigPath kubeconfig
+     */
+    public record ClusterConfig(String url, String token, String kubeconfigPath) {
+    }
+
+    /**
+     * Load cluster configs
+     *
+     * @return map of cluster configs
+     */
+    public Map<String, ClusterConfig> discoverClusterConfigs() {
+        Map<String, ClusterConfig> out = new HashMap<>();
+
+        /* ---------- default context ---------- */
+        String defKC = getOrDefault("KUBECONFIG", null);
+        String defURL = getOrDefault("KUBE_URL", null);
+        String defTok = getOrDefault("KUBE_TOKEN", null);
+
+        if (defKC != null) {
+            out.put(TestFrameConstants.DEFAULT_CONTEXT_NAME,
+                new ClusterConfig(null, null, defKC));
+        } else if (defURL != null && defTok != null) {
+            out.put(TestFrameConstants.DEFAULT_CONTEXT_NAME,
+                new ClusterConfig(defURL, defTok, null));
+        } else {
+            out.put(TestFrameConstants.DEFAULT_CONTEXT_NAME,
+                new ClusterConfig(null, null, null));
+        }
+
+        /* ---------- suffixed contexts ---------- */
+        var keySource = new HashSet<>(envMap.keySet());
+        if (yamlData != null) keySource.addAll(yamlData.keySet());
+
+        keySource.stream()
+            .filter(k -> k.startsWith("KUBECONFIG_") || k.startsWith("KUBE_URL_") || k.startsWith("KUBE_TOKEN_"))
+            .map(k -> k.substring(k.lastIndexOf('_') + 1).toLowerCase())
+            .distinct()
+            .forEach(id -> {
+                String kc = getOrDefault("KUBECONFIG_" + id.toUpperCase(), null);
+                String url = getOrDefault("KUBE_URL_" + id.toUpperCase(), null);
+                String tok = getOrDefault("KUBE_TOKEN_" + id.toUpperCase(), null);
+
+                if (kc != null) {
+                    out.put(id, new ClusterConfig(null, null, kc));
+                } else if (url != null && tok != null) {
+                    out.put(id, new ClusterConfig(url, tok, null));
+                }
+            });
+
+        return java.util.Collections.unmodifiableMap(out);
     }
 }

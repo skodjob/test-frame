@@ -1,0 +1,19 @@
+apiVersion: v1
+clusters:
+- cluster:
+    insecure-skip-tls-verify: true
+    server: https://localhost:55313/
+  name: tf-cluster-c3293c
+contexts:
+- context:
+    cluster: tf-cluster-c3293c
+    namespace: default
+    user: tf-user-c3293c
+  name: tf-context-c3293c
+current-context: tf-context-c3293c
+kind: Config
+preferences: {}
+users:
+- name: tf-user-c3293c
+  user:
+    token: secret

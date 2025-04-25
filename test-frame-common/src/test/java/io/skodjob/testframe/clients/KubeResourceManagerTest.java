@@ -4,16 +4,22 @@
  */
 package io.skodjob.testframe.clients;
 
+import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.kubernetes.api.model.NamespaceBuilder;
+import io.fabric8.kubernetes.api.model.ServiceAccount;
 import io.fabric8.kubernetes.api.model.ServiceAccountBuilder;
+import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.server.mock.EnableKubernetesMockClient;
 import io.fabric8.kubernetes.client.server.mock.KubernetesMockServer;
+import io.skodjob.testframe.TestFrameConstants;
 import io.skodjob.testframe.annotations.ResourceManager;
 import io.skodjob.testframe.annotations.TestVisualSeparator;
+import io.skodjob.testframe.helper.NamespaceType;
 import io.skodjob.testframe.helper.TestLoggerAppender;
 import io.skodjob.testframe.resources.KubeResourceManager;
+import io.skodjob.testframe.utils.LoggerUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LogEvent;
@@ -24,6 +30,8 @@ import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +40,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @EnableKubernetesMockClient(crud = true)
 @ResourceManager
@@ -44,6 +52,13 @@ class KubeResourceManagerTest {
     @BeforeEach
     void setupClient() {
         KubeResourceManager.get().kubeClient().testReconnect(kubernetesClient.getConfiguration());
+        KubeResourceManager.get().setResourceTypes(new NamespaceType());
+        KubeResourceManager.get().addCreateCallback(r ->
+            LoggerUtils.logResource("Create", r)
+        );
+        KubeResourceManager.get().addDeleteCallback(r ->
+            LoggerUtils.logResource("Delete", r)
+        );
     }
 
     @Test
@@ -222,9 +237,46 @@ class KubeResourceManagerTest {
         KubeResourceManager.get().printAllResources(org.slf4j.event.Level.DEBUG);
         events = testAppender.getLogEvents();
 
-        assertEquals(4, events.size());
-        assertEquals("Managed resource: Namespace/test-ns", events.get(2).getMessage().getFormattedMessage());
-        assertEquals("Managed resource: ServiceAccount/test-sa", events.get(3).getMessage().getFormattedMessage());
+        assertEquals(5, events.size());
+        assertEquals("Managed resource: Namespace/test-ns", events.get(3).getMessage().getFormattedMessage());
+        assertEquals("Managed resource: ServiceAccount/test-sa", events.get(4).getMessage().getFormattedMessage());
         assertEquals(Level.DEBUG, events.get(0).getLevel());
+    }
+
+    @Test
+    void testUseContext() throws Exception {
+        // create resources
+        Namespace ns = new NamespaceBuilder().withNewMetadata().withName("test-ns-2").endMetadata().build();
+        ServiceAccount sa = new ServiceAccountBuilder().withNewMetadata().withName("test-sa-2")
+            .withNamespace("test-ns-2").endMetadata().build();
+
+        KubeResourceManager.get().createResourceWithWait(ns);
+        KubeResourceManager.get().createResourceWithWait(sa);
+
+        try (var ignored = KubeResourceManager.get().useContext(TestFrameConstants.DEFAULT_CONTEXT_NAME)) {
+            assertTrue(KubeResourceManager.get().kubeClient().namespaceExists("test-ns-2"));
+            KubeResourceManager.get().deleteResource(sa);
+        }
+
+        assertNull(KubeResourceManager.get().kubeClient().getClient()
+            .serviceAccounts().inNamespace("test-ns-2").withName("test-sa-2").get());
+    }
+
+    @Test
+    void testListPrefixedDeployments() {
+        KubeResourceManager.get().createResourceWithoutWait(
+            new DeploymentBuilder().withNewMetadata()
+                .withName("prefixdeployment").withNamespace("test").endMetadata().build()
+        );
+
+        assertEquals("prefixdeployment", KubeResourceManager.get().kubeClient()
+            .getDeploymentNameByPrefix("test", "pre"));
+    }
+
+    @Test
+    void readFilesFromYaml() throws IOException {
+        List<HasMetadata> res = KubeResourceManager.get()
+            .readResourcesFromFile(Path.of(getClass().getClassLoader().getResource("resources.yaml").getPath()));
+        assertEquals(2, res.size());
     }
 }
