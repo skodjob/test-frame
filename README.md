@@ -108,7 +108,7 @@ class Test {
 //...
 ```
 ### Switch between cluster contexts
-KubeResourceManager always uses context `main`, if you want to use different configured kube cluster context use followed syntax.
+KubeResourceManager always uses context `default`, if you want to use different configured kube cluster context use followed syntax.
 ```java
 //...
 @ResourceManager
