@@ -111,8 +111,7 @@ public final class KubeResourceManager {
      * @param kubeClient kube client
      * @param cmdClient  cmd client
      */
-    private record ClusterContext(KubeClient kubeClient, KubeCmdClient<?> cmdClient) {
-    }
+    private record ClusterContext<K extends KubeCmdClient<K>>(KubeClient kubeClient, K cmdClient) { }
 
     private KubeResourceManager() {
         // Private constructor
@@ -210,10 +209,11 @@ public final class KubeResourceManager {
     /**
      * Returns kube cmd client for current context
      *
+     * @param <K> Type extending {@link KubeCmdClient}
      * @return kube cmd client
      */
-    public KubeCmdClient<?> kubeCmdClient() {
-        return clusterContext().cmdClient;
+    public <K extends KubeCmdClient<K>> K kubeCmdClient() {
+        return (K) clusterContext().cmdClient;
     }
 
     /**
