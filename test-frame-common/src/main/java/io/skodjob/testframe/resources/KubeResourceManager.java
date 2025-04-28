@@ -92,7 +92,7 @@ public final class KubeResourceManager {
         TestFrameEnv.CLUSTER_CONFIGS;
     private String storeYamlPath;
 
-    private final Map<String, ClusterContext> clientCache = new ConcurrentHashMap<>();
+    private final Map<String, ClusterContext<? extends KubeCmdClient<?>>> clientCache = new ConcurrentHashMap<>();
     private static final ThreadLocal<String> CURRENT_CLUSTER_CONTEXT = ThreadLocal.withInitial(() ->
         TestFrameConstants.DEFAULT_CONTEXT_NAME);
     private static final ThreadLocal<ExtensionContext> TEST_CONTEXT = new ThreadLocal<>();
@@ -163,7 +163,7 @@ public final class KubeResourceManager {
      * @param id id of cluster
      * @return context
      */
-    private ClusterContext clusterContext(String id) {
+    private ClusterContext<? extends KubeCmdClient<?>> clusterContext(String id) {
         return clientCache.computeIfAbsent(id, cid -> {
             TestEnvironmentVariables.ClusterConfig c = CLUSTER_CONFIGS.get(cid);
             if (c == null) {
@@ -191,7 +191,7 @@ public final class KubeResourceManager {
      *
      * @return context
      */
-    private ClusterContext clusterContext() {
+    private ClusterContext<? extends KubeCmdClient<?>>clusterContext() {
         return clusterContext(CURRENT_CLUSTER_CONTEXT.get());
     }
 
