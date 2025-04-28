@@ -346,7 +346,7 @@ public final class KubeResourceManager {
 
 
     /**
-     * Logs all managed resources across all test contexts with set log level
+     * Logs all managed resources across all test contexts with a set log level
      *
      * @param logLevel slf4j log level event
      */
@@ -692,7 +692,8 @@ public final class KubeResourceManager {
         assertNotNull(resource.getMetadata());
         assertNotNull(resource.getMetadata().getName());
         boolean[] ready = new boolean[1];
-        Wait.until("Condition " + condition.conditionName(),
+        Wait.until(String.format("Resource condition: %s to be fulfilled for resource %s/%s",
+                condition.conditionName(), resource.getKind(), resource.getMetadata().getName()),
             TestFrameConstants.GLOBAL_POLL_INTERVAL_MEDIUM, resourceTimeout, () -> {
                 T r = kubeClient().getClient().resource(resource).get();
                 ready[0] = condition.predicate().test(r);
