@@ -15,7 +15,6 @@ import static org.mockito.Mockito.spy;
 
 import io.fabric8.kubernetes.api.model.LabelSelector;
 import io.fabric8.kubernetes.api.model.LabelSelectorBuilder;
-import io.fabric8.kubernetes.client.KubernetesClientException;
 import io.skodjob.testframe.exceptions.IncompleteMetricsException;
 import io.skodjob.testframe.exceptions.MetricsCollectionException;
 import io.skodjob.testframe.exceptions.NoPodsFoundException;
@@ -117,20 +116,6 @@ final class MetricsCollectorTest {
 
         assertEquals("quay.io/curl/curl:7.85", collector.getScraperPodImage());
         assertTrue(collector.getDeployScraperPod());
-    }
-
-    @Test
-    void testGetKubeClientFallbackThrowsWhenNull() {
-        MetricsCollector collector = new MetricsCollector.Builder()
-            .withNamespaceName("namespace")
-            .withScraperPodName("scraperPod")
-            .withComponent(new DummyMetricsComponent())
-            .build();
-
-        // Don’t inject kubeClient, force fallback
-        assertThrows(KubernetesClientException.class, () -> {
-            collector.collectMetricsFromPodsWithoutWait(); // triggers internal call
-        });
     }
 
     @Test

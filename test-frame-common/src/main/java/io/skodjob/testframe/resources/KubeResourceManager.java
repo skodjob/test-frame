@@ -92,7 +92,7 @@ public final class KubeResourceManager {
         TestFrameEnv.CLUSTER_CONFIGS;
     private String storeYamlPath;
 
-    private final Map<String, ClusterContext> clientCache = new ConcurrentHashMap<>();
+    private final Map<String, ClusterContext<? extends KubeCmdClient<?>>> clientCache = new ConcurrentHashMap<>();
     private static final ThreadLocal<String> CURRENT_CLUSTER_CONTEXT = ThreadLocal.withInitial(() ->
         TestFrameConstants.DEFAULT_CONTEXT_NAME);
     private static final ThreadLocal<ExtensionContext> TEST_CONTEXT = new ThreadLocal<>();
@@ -111,8 +111,7 @@ public final class KubeResourceManager {
      * @param kubeClient kube client
      * @param cmdClient  cmd client
      */
-    private record ClusterContext(KubeClient kubeClient, KubeCmdClient<?> cmdClient) {
-    }
+    private record ClusterContext<K extends KubeCmdClient<K>>(KubeClient kubeClient, K cmdClient) { }
 
     private KubeResourceManager() {
         // Private constructor
@@ -164,7 +163,7 @@ public final class KubeResourceManager {
      * @param id id of cluster
      * @return context
      */
-    private ClusterContext clusterContext(String id) {
+    private ClusterContext<? extends KubeCmdClient<?>> clusterContext(String id) {
         return clientCache.computeIfAbsent(id, cid -> {
             TestEnvironmentVariables.ClusterConfig c = CLUSTER_CONFIGS.get(cid);
             if (c == null) {
@@ -180,10 +179,13 @@ public final class KubeResourceManager {
                 kube = new KubeClient();
             }
 
-            KubeCmdClient<?> cmd = TestFrameEnv.CLIENT_TYPE.equals(TestFrameConstants.KUBERNETES_CLIENT)
-                ? new Kubectl(kube.getKubeconfigPath())
-                : new Oc(kube.getKubeconfigPath());
-            return new ClusterContext(kube, cmd);
+            if (TestFrameEnv.CLIENT_TYPE.equals(TestFrameConstants.KUBERNETES_CLIENT)) {
+                Kubectl kubectl = new Kubectl(kube.getKubeconfigPath());
+                return new ClusterContext<>(kube, kubectl);
+            } else {
+                Oc oc = new Oc(kube.getKubeconfigPath());
+                return new ClusterContext<>(kube, oc);
+            }
         });
     }
 
@@ -192,7 +194,7 @@ public final class KubeResourceManager {
      *
      * @return context
      */
-    private ClusterContext clusterContext() {
+    private ClusterContext<? extends KubeCmdClient<?>> clusterContext() {
         return clusterContext(CURRENT_CLUSTER_CONTEXT.get());
     }
 
@@ -210,10 +212,11 @@ public final class KubeResourceManager {
     /**
      * Returns kube cmd client for current context
      *
+     * @param <K> Type extending {@link KubeCmdClient}
      * @return kube cmd client
      */
-    public KubeCmdClient<?> kubeCmdClient() {
-        return clusterContext().cmdClient;
+    public <K extends KubeCmdClient<K>> K kubeCmdClient() {
+        return (K) clusterContext().cmdClient;
     }
 
     /**

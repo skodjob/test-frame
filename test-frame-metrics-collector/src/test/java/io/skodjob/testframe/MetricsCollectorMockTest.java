@@ -11,6 +11,7 @@ import io.fabric8.kubernetes.api.model.PodList;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.PodResource;
+import io.skodjob.testframe.clients.KubeClient;
 import io.skodjob.testframe.clients.cmdClient.KubeCmdClient;
 import io.skodjob.testframe.clients.cmdClient.Kubectl;
 import io.skodjob.testframe.exceptions.IncompleteMetricsException;
@@ -391,5 +392,48 @@ final class MetricsCollectorMockTest {
         assertEquals(dummyData, copy.getCollectedData());
         assertEquals(mockExec, copy.getExec());
         assertNotNull(copy.getComponent());
+    }
+
+    @Test
+    void testGetKubeClientFallbackThrowsWhenNoClientAvailable() {
+        final MetricsCollector collector = new MetricsCollector.Builder()
+            .withNamespaceName("namespace")
+            .withScraperPodName("scraperPod")
+            .withComponent(new MetricsCollectorTest.DummyMetricsComponent())
+            .build();
+
+        // Mock KubeResourceManager.get() -> .kubeClient() -> .getClient()
+        try (MockedStatic<KubeResourceManager> mockedStatic = mockStatic(KubeResourceManager.class)) {
+            final KubeResourceManager resourceManager = mock(KubeResourceManager.class);
+            when(KubeResourceManager.get()).thenReturn(resourceManager);
+
+            // Simulate kubeClient().getClient() returning null
+            final KubeClient kubeCmdClient = mock(KubeClient.class);
+            when(resourceManager.kubeClient()).thenReturn(kubeCmdClient);
+            when(kubeCmdClient.getClient()).thenReturn(null);
+
+            // Then when we try to collect metrics, it should trigger fallback and fail
+            assertThrows(IllegalStateException.class, collector::collectMetricsFromPodsWithoutWait);
+        }
+    }
+
+    @Test
+    void testGetKubeCmdClientFallbackThrowsWhenNoClientAvailable() {
+        final MetricsCollector collector = new MetricsCollector.Builder()
+            .withNamespaceName("namespace")
+            .withScraperPodName("scraperPod")
+            .withComponent(new MetricsCollectorTest.DummyMetricsComponent())
+            .build();
+
+        // Don't inject kubeCmdClient manually
+        try (MockedStatic<KubeResourceManager> mockedStatic = mockStatic(KubeResourceManager.class)) {
+            final KubeResourceManager resourceManager = mock(KubeResourceManager.class);
+            when(KubeResourceManager.get()).thenReturn(resourceManager);
+
+            // Simulate kubeCmdClient() returns null
+            when(resourceManager.kubeCmdClient()).thenReturn(null);
+
+            assertThrows(IllegalStateException.class, collector::getKubeCmdClient);
+        }
     }
 }

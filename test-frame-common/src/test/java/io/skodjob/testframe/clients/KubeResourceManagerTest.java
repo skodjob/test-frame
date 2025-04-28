@@ -263,6 +263,17 @@ class KubeResourceManagerTest {
     }
 
     @Test
+    void testUseContextThrowsExceptionWhenContextMissing() {
+        String nonExistingContext = "non-existing-context";
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+            () -> KubeResourceManager.get().useContext(nonExistingContext));
+
+        assertTrue(ex.getMessage().contains("Unknown context '" + nonExistingContext + "'"),
+            "Exception message should mention the unknown context");
+    }
+
+    @Test
     void testListPrefixedDeployments() {
         KubeResourceManager.get().createResourceWithoutWait(
             new DeploymentBuilder().withNewMetadata()
