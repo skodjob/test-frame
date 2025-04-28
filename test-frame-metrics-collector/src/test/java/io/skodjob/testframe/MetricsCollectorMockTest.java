@@ -413,7 +413,7 @@ final class MetricsCollectorMockTest {
             when(kubeCmdClient.getClient()).thenReturn(null);
 
             // Then when we try to collect metrics, it should trigger fallback and fail
-            assertThrows(IllegalStateException.class, () -> collector.collectMetricsFromPodsWithoutWait());
+            assertThrows(IllegalStateException.class, collector::collectMetricsFromPodsWithoutWait);
         }
     }
 
@@ -433,7 +433,7 @@ final class MetricsCollectorMockTest {
             // Simulate kubeCmdClient() returns null
             when(resourceManager.kubeCmdClient()).thenReturn(null);
 
-            assertThrows(IllegalStateException.class, () -> collector.getKubeCmdClient());
+            assertThrows(IllegalStateException.class, collector::getKubeCmdClient);
         }
     }
 }
