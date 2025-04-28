@@ -179,10 +179,13 @@ public final class KubeResourceManager {
                 kube = new KubeClient();
             }
 
-            KubeCmdClient<?> cmd = TestFrameEnv.CLIENT_TYPE.equals(TestFrameConstants.KUBERNETES_CLIENT)
-                ? new Kubectl(kube.getKubeconfigPath())
-                : new Oc(kube.getKubeconfigPath());
-            return new ClusterContext(kube, cmd);
+            if (TestFrameEnv.CLIENT_TYPE.equals(TestFrameConstants.KUBERNETES_CLIENT)) {
+                Kubectl kubectl = new Kubectl(kube.getKubeconfigPath());
+                return new ClusterContext<>(kube, kubectl);
+            } else {
+                Oc oc = new Oc(kube.getKubeconfigPath());
+                return new ClusterContext<>(kube, oc);
+            }
         });
     }
 
@@ -191,7 +194,7 @@ public final class KubeResourceManager {
      *
      * @return context
      */
-    private ClusterContext<? extends KubeCmdClient<?>>clusterContext() {
+    private ClusterContext<? extends KubeCmdClient<?>> clusterContext() {
         return clusterContext(CURRENT_CLUSTER_CONTEXT.get());
     }
 

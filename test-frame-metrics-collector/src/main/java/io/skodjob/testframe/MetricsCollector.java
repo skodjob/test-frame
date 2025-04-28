@@ -215,14 +215,14 @@ public class MetricsCollector {
         return kubeClient;
     }
 
-    synchronized KubeCmdClient<?> getKubeCmdClient() {
+    synchronized <K extends KubeCmdClient<K>> K getKubeCmdClient() {
         if (kubeCmdClient == null) {
             kubeCmdClient = KubeResourceManager.get().kubeCmdClient();
             if (kubeCmdClient == null) {
                 throw new IllegalStateException("KubeCmdClient is not available");
             }
         }
-        return kubeCmdClient;
+        return (K) kubeCmdClient;
     }
 
     /**
