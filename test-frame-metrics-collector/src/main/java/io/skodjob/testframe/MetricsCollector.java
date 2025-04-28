@@ -205,7 +205,7 @@ public class MetricsCollector {
         this.exec = exec;
     }
 
-    private synchronized KubernetesClient getKubeClient() {
+    synchronized KubernetesClient getKubeClient() {
         if (kubeClient == null) {
             kubeClient = KubeResourceManager.get().kubeClient().getClient();
             if (kubeClient == null) {
@@ -215,7 +215,7 @@ public class MetricsCollector {
         return kubeClient;
     }
 
-    private synchronized KubeCmdClient<?> getKubeCmdClient() {
+    synchronized KubeCmdClient<?> getKubeCmdClient() {
         if (kubeCmdClient == null) {
             kubeCmdClient = KubeResourceManager.get().kubeCmdClient();
             if (kubeCmdClient == null) {
