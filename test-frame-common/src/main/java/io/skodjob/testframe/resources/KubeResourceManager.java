@@ -559,10 +559,9 @@ public final class KubeResourceManager {
     }
 
     /**
-     * Deletes resources.
+     * @deprecated as of release 0.13.0, use {@link #deleteResourceWithAsyncWait(HasMetadata[])} instead.
      *
-     * IMPORTANT: This method is now deprecated.
-     * You should use {@link #deleteResourceWithAsyncWait(HasMetadata[])} instead.
+     * Deletes resources.
      *
      * @param resources The resources to delete.
      * @param <T>       The type of the resources.
@@ -574,10 +573,9 @@ public final class KubeResourceManager {
     }
 
     /**
-     * Deletes resources.
+     * @deprecated as of release 0.13.0, use {@link #deleteResourceWithWait(HasMetadata[])} instead.
      *
-     * IMPORTANT: This method is now deprecated.
-     * You should use {@link #deleteResourceWithWait(HasMetadata[])} instead.
+     * Deletes resources.
      *
      * @param async     Enables async deletion
      * @param resources The resources to delete.
