@@ -84,10 +84,11 @@ final class KubeResourceManagerCleanerIT extends AbstractIT {
     }
 
     @Test
-    void testMultiClusterAccess() throws Exception{
+    void testMultiClusterAccess() throws Exception {
         try (var ctx = KubeResourceManager.get().useContext(TestFrameConstants.DEFAULT_CONTEXT_NAME)) {
             KubeResourceManager.get().createResourceWithWait(
                 new NamespaceBuilder().withNewMetadata().withName("kornys").endMetadata().build());
         }
+        assertTrue(KubeResourceManager.get().kubeClient().namespaceExists("kornys"));
     }
 }
