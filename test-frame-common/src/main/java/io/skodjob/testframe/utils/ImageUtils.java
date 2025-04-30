@@ -107,7 +107,8 @@ public final class ImageUtils {
     }
 
     /**
-     * Method that, for specified {@param image}, replaces the registry, organization, imageName and tag, based on the parameters.
+     * Method that, for specified {@param image}, replaces the registry, organization, imageName and tag,
+     * based on the parameters.
      *
      * @param image the image
      * @param newRegistry the new registry
@@ -116,7 +117,8 @@ public final class ImageUtils {
      * @param newTag the new tag
      * @return the string
      */
-    public static String changeRegistryOrgImageAndTag(String image, String newRegistry, String newOrg, String newImageName, String newTag) {
+    public static String changeRegistryOrgImageAndTag(String image, String newRegistry, String newOrg,
+                                                      String newImageName, String newTag) {
         Matcher m = IMAGE_PATTERN_FULL_PATH.matcher(image);
 
         if (m.find()) {
