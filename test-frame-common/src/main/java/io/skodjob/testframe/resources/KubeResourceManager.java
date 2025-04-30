@@ -306,7 +306,7 @@ public final class KubeResourceManager {
         STORED_RESOURCES
             .computeIfAbsent(CURRENT_CLUSTER_CONTEXT.get(), c -> new ConcurrentHashMap<>())
             .computeIfAbsent(getTestContext().getDisplayName(), t -> new Stack<>())
-            .push(new ResourceItem<>(() -> deleteResource(resource), resource));
+            .push(new ResourceItem<>(() -> deleteResourceWithWait(resource), resource));
     }
 
     /**
@@ -526,17 +526,55 @@ public final class KubeResourceManager {
     }
 
     /**
+     * Deletes resources with wait asynchronously.
+     *
+     * @param resources     The resources to delete.
+     * @param <T>           The type of the resources.
+     */
+    @SafeVarargs
+    public final <T extends HasMetadata> void deleteResourceAsyncWait(T... resources) {
+        deleteResource(true, true, resources);
+    }
+
+    /**
+     * Deletes resources with wait.
+     *
+     * @param resources     The resources to delete.
+     * @param <T>           The type of the resources.
+     */
+    @SafeVarargs
+    public final <T extends HasMetadata> void deleteResourceWithWait(T... resources) {
+        deleteResource(false, true, resources);
+    }
+
+    /**
+     * Deletes resources without wait.
+     *
+     * @param resources     The resources to delete.
+     * @param <T>           The type of the resources.
+     */
+    @SafeVarargs
+    public final <T extends HasMetadata> void deleteResourceWithoutWait(T... resources) {
+        deleteResource(false, false, resources);
+    }
+
+    /**
+     * @deprecated as of release 0.13.0, use {@link #deleteResourceAsyncWait(HasMetadata[])} instead.
+     *
      * Deletes resources.
      *
      * @param resources The resources to delete.
      * @param <T>       The type of the resources.
      */
     @SafeVarargs
+    @Deprecated(since = "0.13.0")
     public final <T extends HasMetadata> void deleteResource(T... resources) {
         deleteResource(true, resources);
     }
 
     /**
+     * @deprecated as of release 0.13.0, use {@link #deleteResourceWithWait(HasMetadata[])} instead.
+     *
      * Deletes resources.
      *
      * @param async     Enables async deletion
@@ -544,7 +582,21 @@ public final class KubeResourceManager {
      * @param <T>       The type of the resources.
      */
     @SafeVarargs
+    @Deprecated(since = "0.13.0")
     public final <T extends HasMetadata> void deleteResource(boolean async, T... resources) {
+        deleteResource(async, true, resources);
+    }
+
+    /**
+     * Deletes resources.
+     *
+     * @param async             Enables async deletion.
+     * @param waitForDeletion   Flag indicating whether to wait for resource deletion.
+     * @param resources         The resources to delete.
+     * @param <T>               The type of the resources.
+     */
+    @SafeVarargs
+    private <T extends HasMetadata> void deleteResource(boolean async, boolean waitForDeletion, T... resources) {
         List<CompletableFuture<Void>> waiters = new ArrayList<>();
         for (T resource : resources) {
             ResourceType<T> type = findResourceType(resource);
@@ -555,7 +607,9 @@ public final class KubeResourceManager {
                 } else {
                     type.delete(resource);
                 }
-                decideDeleteWaitAsync(waiters, async, resource);
+                if (waitForDeletion) {
+                    decideDeleteWaitAsync(waiters, async, resource);
+                }
             } catch (Exception e) {
                 LOGGER.error(e.getMessage(), e);
             }
@@ -807,7 +861,7 @@ public final class KubeResourceManager {
         }
     }
 
-    private <T extends HasMetadata> void decideDeleteWaitAsync(
+    /* test */ <T extends HasMetadata> void decideDeleteWaitAsync(
         List<CompletableFuture<Void>> waiters, boolean async, T res) {
         CompletableFuture<Void> cf = CompletableFuture.runAsync(() ->
             assertTrue(waitResourceCondition(res, ResourceCondition.deletion()),
