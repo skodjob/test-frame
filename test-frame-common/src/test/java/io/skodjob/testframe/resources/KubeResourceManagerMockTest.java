@@ -69,7 +69,7 @@ public class KubeResourceManagerMockTest {
             return null;
         }).when(kubeResourceManager).decideDeleteWaitAsync(anyList(), anyBoolean(), any());
 
-        kubeResourceManager.deleteResourceWithAsyncWait(myNamespace);
+        kubeResourceManager.deleteResourceAsyncWait(myNamespace);
 
         assertTrue(asyncWaitTriggered.get());
     }

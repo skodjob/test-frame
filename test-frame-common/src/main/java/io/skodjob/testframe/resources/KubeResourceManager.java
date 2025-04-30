@@ -532,7 +532,7 @@ public final class KubeResourceManager {
      * @param <T>           The type of the resources.
      */
     @SafeVarargs
-    public final <T extends HasMetadata> void deleteResourceWithAsyncWait(T... resources) {
+    public final <T extends HasMetadata> void deleteResourceAsyncWait(T... resources) {
         deleteResource(true, true, resources);
     }
 
@@ -559,7 +559,7 @@ public final class KubeResourceManager {
     }
 
     /**
-     * @deprecated as of release 0.13.0, use {@link #deleteResourceWithAsyncWait(HasMetadata[])} instead.
+     * @deprecated as of release 0.13.0, use {@link #deleteResourceAsyncWait(HasMetadata[])} instead.
      *
      * Deletes resources.
      *
