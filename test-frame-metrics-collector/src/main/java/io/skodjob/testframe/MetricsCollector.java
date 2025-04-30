@@ -415,7 +415,7 @@ public class MetricsCollector {
      * Delete own scraper pod
      */
     private void deleteScraperPod() {
-        KubeResourceManager.get().deleteResource(
+        KubeResourceManager.get().deleteResourceWithWait(
             new PodBuilder()
                 .withNewMetadata()
                     .withName(this.scraperPodName)

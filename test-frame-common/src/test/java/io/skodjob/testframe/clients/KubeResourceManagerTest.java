@@ -255,7 +255,7 @@ class KubeResourceManagerTest {
 
         try (var ignored = KubeResourceManager.get().useContext(TestFrameConstants.DEFAULT_CONTEXT_NAME)) {
             assertTrue(KubeResourceManager.get().kubeClient().namespaceExists("test-ns-2"));
-            KubeResourceManager.get().deleteResource(sa);
+            KubeResourceManager.get().deleteResourceWithWait(sa);
         }
 
         assertNull(KubeResourceManager.get().kubeClient().getClient()

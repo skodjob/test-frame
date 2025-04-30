@@ -306,7 +306,7 @@ public final class KubeResourceManager {
         STORED_RESOURCES
             .computeIfAbsent(CURRENT_CLUSTER_CONTEXT.get(), c -> new ConcurrentHashMap<>())
             .computeIfAbsent(getTestContext().getDisplayName(), t -> new Stack<>())
-            .push(new ResourceItem<>(() -> deleteResource(resource), resource));
+            .push(new ResourceItem<>(() -> deleteResourceWithWait(resource), resource));
     }
 
     /**
