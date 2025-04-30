@@ -103,14 +103,29 @@ public final class ImageUtils {
      * @return updated image based on the parameters
      */
     public static String changeRegistryOrgAndTag(String image, String newRegistry, String newOrg, String newTag) {
+        return changeRegistryOrgImageAndTag(image, newRegistry, newOrg, null, newTag);
+    }
+
+    /**
+     * Method that, for specified {@param image}, replaces the registry, organization, imageName and tag, based on the parameters.
+     *
+     * @param image the image
+     * @param newRegistry the new registry
+     * @param newOrg the new org
+     * @param newImageName the new image name
+     * @param newTag the new tag
+     * @return the string
+     */
+    public static String changeRegistryOrgImageAndTag(String image, String newRegistry, String newOrg, String newImageName, String newTag) {
         Matcher m = IMAGE_PATTERN_FULL_PATH.matcher(image);
 
         if (m.find()) {
             String registry = setImagePropertiesIfNeeded(m.group("registry"), newRegistry);
             String org = setImagePropertiesIfNeeded(m.group("org"), newOrg);
             String tag = setImagePropertiesIfNeeded(m.group("tag"), newTag);
+            String imageName = setImagePropertiesIfNeeded(m.group("image"), newImageName);
 
-            String newImage = registry + "/" + org + "/" + m.group("image") + ":" + tag;
+            String newImage = registry + "/" + org + "/" + imageName + ":" + tag;
 
             LOGGER.info("Updating container image to {}", newImage);
 
@@ -123,8 +138,9 @@ public final class ImageUtils {
             String registry = newRegistry != null ? newRegistry + "/" : "";
             String org = setImagePropertiesIfNeeded(m.group("org"), newOrg);
             String tag = setImagePropertiesIfNeeded(m.group("tag"), newTag);
+            String imageName = setImagePropertiesIfNeeded(m.group("image"), newImageName);
 
-            String newImage = registry + org + "/" + m.group("image") + ":" + tag;
+            String newImage = registry + org + "/" + imageName + ":" + tag;
 
             LOGGER.info("Updating container image to {}", newImage);
 
