@@ -38,7 +38,7 @@ final class KubeResourceManagerIT extends AbstractIT {
             new NamespaceBuilder().withNewMetadata().withName("test2").endMetadata().build());
         assertNotNull(KubeResourceManager.get().kubeClient().getClient().namespaces().withName(nsName1).get());
         assertNotNull(KubeResourceManager.get().kubeClient().getClient().namespaces().withName(nsName2).get());
-        KubeResourceManager.get().deleteResource(false, ns1);
+        KubeResourceManager.get().deleteResourceWithWait(ns1);
         assertTrue(isDeleteHandlerCalled.get());
     }
 }

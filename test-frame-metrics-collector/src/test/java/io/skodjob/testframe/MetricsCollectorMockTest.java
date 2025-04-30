@@ -276,7 +276,7 @@ final class MetricsCollectorMockTest {
 
             // Assert: verify both deploy and delete were triggered
             verify(resourceManagerMock).createResourceWithWait(any(Pod.class));
-            verify(resourceManagerMock).deleteResource(any(Pod.class));
+            verify(resourceManagerMock).deleteResourceWithWait(any(Pod.class));
         }
     }
 
