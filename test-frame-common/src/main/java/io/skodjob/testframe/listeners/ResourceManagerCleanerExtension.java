@@ -35,7 +35,7 @@ public class ResourceManagerCleanerExtension implements AfterAllCallback, AfterE
 
         if (annotation.isPresent() && annotation.get().cleanResources()) {
             KubeResourceManager.get().setTestContext(extensionContext);
-            KubeResourceManager.get().deleteResources();
+            KubeResourceManager.get().deleteResources(annotation.get().asyncDeletion());
         }
     }
 
