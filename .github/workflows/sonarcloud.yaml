@@ -6,16 +6,30 @@ on:
   push:
     branches:
       - main
+
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [ opened, synchronize, reopened ]
+    branches: [ main ]
+
+  pull_request_target:
+    types: [ opened, synchronize, reopened ]
+    branches: [ main ]
 jobs:
   build:
     name: Build and analyze
     runs-on: ubuntu-latest
+
+    if: |
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request'       && github.event.pull_request.head.repo.fork == false) ||
+      (github.event_name == 'pull_request_target'&& github.event.pull_request.head.repo.fork == true)
+
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          ref: ${{ github.event.pull_request && github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
