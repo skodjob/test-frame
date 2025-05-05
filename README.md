@@ -41,7 +41,7 @@ together with the usage and installation.
 <dependency>
     <groupId>io.skodjob</groupId>
     <artifactId>test-frame-common</artifactId>
-    <version>0.12.0</version>
+    <version>0.13.0</version>
 </dependency>
 ```
 ### Or use snapshot releases
@@ -65,7 +65,7 @@ together with the usage and installation.
 <dependency>
     <groupId>io.skodjob</groupId>
     <artifactId>test-frame-common</artifactId>
-    <version>0.13.0-SNAPSHOT</version>
+    <version>0.14.0-SNAPSHOT</version>
 </dependency>
 ```
 
