@@ -263,6 +263,22 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
     }
 
     /**
+     * Replaces YAML content.
+     *
+     * @param yamlContent The YAML content.
+     * @return The instance of the client.
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public K replaceContent(String yamlContent) {
+        try (Context context = defaultContext()) {
+            Exec.exec(yamlContent, command(Arrays.asList(REPLACE, "-f", "-")), 0,
+                true, true);
+            return (K) this;
+        }
+    }
+
+    /**
      * Deletes YAML content.
      *
      * @param yamlContent The YAML content.
