@@ -121,6 +121,13 @@ public interface KubeCmdClient<K extends KubeCmdClient<K>> {
     K applyContent(String yamlContent);
 
     /**
+     * Replaces resource content
+     * @param yamlContent The YAML content representing the resources.
+     * @return This kube client.
+     */
+    K replaceContent(String yamlContent);
+
+    /**
      * Deletes resource content.
      *
      * @param yamlContent The YAML content representing the resources to delete.
