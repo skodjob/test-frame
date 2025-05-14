@@ -18,9 +18,6 @@ permissions:
 env:
   SONAR_PROJECT_KEY: skodjob_test-frame
 
-# ──────────────────────────────────────────────────────────────────────────────
-#  Job A – runs on pushes to main (safe: trusted code + secrets)
-# ──────────────────────────────────────────────────────────────────────────────
 jobs:
   sonar-push:
     if: github.event_name == 'push'
@@ -46,7 +43,7 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          mvn -B verify \
+          ./mvnw verify \
               org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
               -Dsonar.projectKey=$SONAR_PROJECT_KEY \
               -Dsonar.coverage.exclusions="**/*"
@@ -76,7 +73,7 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          mvn -B verify \
+          ./mvnw verify \
               org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
               -Dsonar.projectKey=$SONAR_PROJECT_KEY
 
@@ -101,6 +98,6 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          mvn -B -DskipTests verify \
+          ./mvnw verify \
               org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
               -Dsonar.projectKey=$SONAR_PROJECT_KEY
