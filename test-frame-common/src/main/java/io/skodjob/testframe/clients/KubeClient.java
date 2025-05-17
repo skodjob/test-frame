@@ -105,9 +105,8 @@ public class KubeClient {
 
     /**
      * Test method only
-     * Sets client for tests
+     * Reconnect a client with new config
      *
-     * @param kubernetesClient kubernetes client
      */
     void testReconnect(KubernetesClient kubernetesClient) {
         this.client = kubernetesClient;
