@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -825,5 +826,37 @@ class BaseCmdKubeClientTest {
         assertTrue(command.containsAll(expectedCmdParts));
         assertTrue(command.contains("-p IMAGE=nginx:latest") || command.contains("-p PORT=8080"));
         assertTrue(command.contains("-p PORT=8080") || command.contains("-p IMAGE=nginx:latest"));
+    }
+
+    @Test
+    void testExecInPodWithThrowErrors() {
+        String command = "ls";
+        String podName = "my-pod";
+
+        ExecResult mockResult = mockFailedExecResult("Error: permission denied", 1);
+        mockedExec.when(() -> Exec.exec(isNull(), anyList(), eq(0), eq(false), eq(false)))
+            .thenReturn(mockResult);
+        mockedExec.when(() -> Exec.exec(isNull(), anyList(), eq(0), eq(false), eq(true)))
+            .thenThrow(new KubeClusterException(new Exception("Failed to execute command")));
+
+        assertDoesNotThrow(() -> client.execInPod(false, podName, command));
+        assertThrows(KubeClusterException.class, () -> client.execInPod(true, podName, command));
+    }
+
+    @Test
+    void testExecInPodContainerWithThrowErrors() {
+        String command = "ls";
+        String podName = "my-pod";
+        String containerName = "container";
+
+        ExecResult mockResult = mockFailedExecResult("Error: permission denied", 1);
+        mockedExec.when(() -> Exec.exec(isNull(), anyList(), eq(0), eq(false), eq(false)))
+            .thenReturn(mockResult);
+        mockedExec.when(() -> Exec.exec(isNull(), anyList(), eq(0), eq(false), eq(true)))
+            .thenThrow(new KubeClusterException(new Exception("Failed to execute command")));
+
+        assertDoesNotThrow(() -> client.execInPodContainer(false, false, podName, containerName, command));
+        assertThrows(KubeClusterException.class,
+            () -> client.execInPodContainer(true, false, podName, containerName, command));
     }
 }
