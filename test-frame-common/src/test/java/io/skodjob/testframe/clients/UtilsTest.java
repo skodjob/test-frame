@@ -31,17 +31,18 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 class UtilsTest {
     private KubernetesClient kubernetesClient;
     private KubernetesMockServer server;
+    private KubeResourceManager resourceManager = KubeResourceManager.get();
 
     @BeforeEach
     void setupClient() {
-        KubeResourceManager.get().kubeClient().testReconnect(kubernetesClient);
+        resourceManager.kubeClient().testReconnect(kubernetesClient);
     }
 
     @Test
     void testPodUtils() {
-        KubeResourceManager.get().createResourceWithWait(
+        resourceManager.createResourceWithWait(
             new NamespaceBuilder().withNewMetadata().withName("test").endMetadata().build());
-        KubeResourceManager.get().createResourceWithoutWait(
+        resourceManager.createResourceWithoutWait(
             new PodBuilder()
                 .withNewMetadata()
                     .withName("test-pod")
@@ -61,7 +62,7 @@ class UtilsTest {
         LabelSelector lb = new LabelSelectorBuilder()
             .withMatchLabels(Collections.singletonMap("test-label", "true")).build();
 
-        assertNotNull(KubeResourceManager.get().kubeClient().getClient().namespaces().withName("test").get());
+        assertNotNull(resourceManager.kubeClient().getClient().namespaces().withName("test").get());
 
         PodUtils.waitForPodsReady("test", false, () -> {
         });
@@ -71,11 +72,11 @@ class UtilsTest {
 
     @Test
     void testKubeUtils() {
-        KubeResourceManager.get().createResourceWithWait(
+        resourceManager.createResourceWithWait(
             new NamespaceBuilder().withNewMetadata().withName("test").endMetadata().build());
 
         KubeUtils.labelNamespace("test", "test-label", "true");
-        assertEquals("true", KubeResourceManager.get().kubeClient().getClient()
+        assertEquals("true", resourceManager.kubeClient().getClient()
             .namespaces().withName("test").get().getMetadata().getLabels().get("test-label"));
     }
 }
