@@ -34,12 +34,11 @@ class UtilsTest {
 
     @BeforeEach
     void setupClient() {
+        KubeResourceManager.get().kubeClient().testReconnect(kubernetesClient.getConfiguration());
     }
 
     @Test
     void testPodUtils() {
-        KubeResourceManager.get().kubeClient().testReconnect(kubernetesClient);
-
         KubeResourceManager.get().createResourceWithWait(
             new NamespaceBuilder().withNewMetadata().withName("test").endMetadata().build());
         KubeResourceManager.get().createResourceWithoutWait(
@@ -72,8 +71,6 @@ class UtilsTest {
 
     @Test
     void testKubeUtils() {
-        KubeResourceManager.get().kubeClient().testReconnect(kubernetesClient);
-
         KubeResourceManager.get().createResourceWithWait(
             new NamespaceBuilder().withNewMetadata().withName("test").endMetadata().build());
 
