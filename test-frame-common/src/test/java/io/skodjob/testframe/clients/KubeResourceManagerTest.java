@@ -51,7 +51,7 @@ class KubeResourceManagerTest {
 
     @BeforeEach
     void setupClient() {
-        KubeResourceManager.get().kubeClient().testReconnect(kubernetesClient.getConfiguration());
+        KubeResourceManager.get().kubeClient().testReconnect(kubernetesClient);
         KubeResourceManager.get().setResourceTypes(new NamespaceType());
         KubeResourceManager.get().addCreateCallback(r ->
             LoggerUtils.logResource("Create", r)

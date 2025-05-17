@@ -105,12 +105,12 @@ public class KubeClient {
 
     /**
      * Test method only
-     * Reconnect a client with new config
+     * Sets client for tests
      *
-     * @param config kubernetes config
+     * @param kubernetesClient kubernetes client
      */
-    void testReconnect(Config config) {
-        this.client = new KubernetesClientBuilder().withConfig(config).build();
+    void testReconnect(KubernetesClient kubernetesClient) {
+        this.client = kubernetesClient;
     }
 
     /**

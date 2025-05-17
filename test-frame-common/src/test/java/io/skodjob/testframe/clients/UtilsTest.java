@@ -34,7 +34,7 @@ class UtilsTest {
 
     @BeforeEach
     void setupClient() {
-        KubeResourceManager.get().kubeClient().testReconnect(kubernetesClient.getConfiguration());
+        KubeResourceManager.get().kubeClient().testReconnect(kubernetesClient);
     }
 
     @Test
