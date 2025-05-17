@@ -412,13 +412,13 @@ class BaseCmdKubeClientTest {
         String podName = "my-pod-123";
         String[] cmdToRun = {"ls", "-l"};
         ExecResult mockResult = mockSuccessfulExecResult("total 0");
-        mockedExec.when(() -> Exec.exec(anyList())).thenReturn(mockResult);
+        mockedExec.when(() -> Exec.exec(isNull(), anyList(), eq(0), eq(false), eq(true))).thenReturn(mockResult);
 
         ExecResult actualResult = client.execInPod(podName, cmdToRun);
 
         assertSame(mockResult, actualResult);
         ArgumentCaptor<List<String>> listCaptor = ArgumentCaptor.forClass(List.class);
-        mockedExec.verify(() -> Exec.exec(listCaptor.capture()));
+        mockedExec.verify(() -> Exec.exec(isNull(), listCaptor.capture(), eq(0), eq(false), eq(true)));
         List<String> capturedCommand = listCaptor.getValue();
         List<String> expectedParts = Arrays.asList("exec", podName, "--", "ls", "-l");
         assertTrue(capturedCommand.containsAll(expectedParts));
@@ -431,14 +431,14 @@ class BaseCmdKubeClientTest {
         String containerName = "my-container";
         String[] cmdToRun = {"ps", "aux"};
         ExecResult mockResult = mockSuccessfulExecResult("USER PID ...");
-        mockedExec.when(() -> Exec.exec(isNull(), anyList(), eq(0), eq(true))).thenReturn(mockResult);
+        mockedExec.when(() -> Exec.exec(isNull(), anyList(), eq(0), eq(true), eq(true))).thenReturn(mockResult);
 
 
         ExecResult actualResult = client.execInPodContainer(podName, containerName, cmdToRun);
         assertSame(mockResult, actualResult);
 
         ArgumentCaptor<List<String>> listCaptor = ArgumentCaptor.forClass(List.class);
-        mockedExec.verify(() -> Exec.exec(isNull(), listCaptor.capture(), eq(0), eq(true)));
+        mockedExec.verify(() -> Exec.exec(isNull(), listCaptor.capture(), eq(0), eq(true), eq(true)));
         List<String> capturedCommand = listCaptor.getValue();
         List<String> expectedParts = Arrays.asList("exec", podName, "-c", containerName, "--", "ps", "aux");
         assertTrue(capturedCommand.containsAll(expectedParts));
@@ -452,13 +452,13 @@ class BaseCmdKubeClientTest {
         String[] cmdToRun = {"env"};
         boolean logToOutput = false;
         ExecResult mockResult = mockSuccessfulExecResult("PATH=/usr/bin");
-        mockedExec.when(() -> Exec.exec(isNull(), anyList(), eq(0), eq(logToOutput))).thenReturn(mockResult);
+        mockedExec.when(() -> Exec.exec(isNull(), anyList(), eq(0), eq(logToOutput), eq(true))).thenReturn(mockResult);
 
         ExecResult actualResult = client.execInPodContainer(logToOutput, podName, containerName, cmdToRun);
 
         assertSame(mockResult, actualResult);
         ArgumentCaptor<List<String>> listCaptor = ArgumentCaptor.forClass(List.class);
-        mockedExec.verify(() -> Exec.exec(isNull(), listCaptor.capture(), eq(0), eq(logToOutput)));
+        mockedExec.verify(() -> Exec.exec(isNull(), listCaptor.capture(), eq(0), eq(logToOutput), eq(true)));
         List<String> capturedCommand = listCaptor.getValue();
         List<String> expectedParts = Arrays.asList("exec", podName, "-c", containerName, "--", "env");
         assertTrue(capturedCommand.containsAll(expectedParts));
