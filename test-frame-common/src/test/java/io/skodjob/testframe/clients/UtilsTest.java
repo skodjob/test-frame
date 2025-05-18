@@ -10,7 +10,6 @@ import io.fabric8.kubernetes.api.model.NamespaceBuilder;
 import io.fabric8.kubernetes.api.model.PodBuilder;
 import io.fabric8.kubernetes.api.model.PodConditionBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.server.mock.EnableKubernetesMockClient;
 import io.fabric8.kubernetes.client.server.mock.KubernetesMockServer;
 import io.skodjob.testframe.annotations.ResourceManager;
 import io.skodjob.testframe.annotations.TestVisualSeparator;
@@ -25,7 +24,6 @@ import java.util.Collections;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@EnableKubernetesMockClient(crud = true)
 @ResourceManager
 @TestVisualSeparator
 class UtilsTest {
@@ -33,8 +31,11 @@ class UtilsTest {
     private KubernetesMockServer server;
 
     @BeforeEach
-    void setupClient() throws InterruptedException {
-        Thread.sleep(10000);
+    void setupClient() {
+        server = new KubernetesMockServer();
+        server.init();
+        kubernetesClient = server.createClient();
+
         KubeResourceManager.get().kubeClient().testReconnect(kubernetesClient.getConfiguration());
     }
 
