@@ -33,7 +33,8 @@ class UtilsTest {
     private KubernetesMockServer server;
 
     @BeforeEach
-    void setupClient() {
+    void setupClient() throws InterruptedException {
+        Thread.sleep(10000);
         KubeResourceManager.get().kubeClient().testReconnect(kubernetesClient.getConfiguration());
     }
 
