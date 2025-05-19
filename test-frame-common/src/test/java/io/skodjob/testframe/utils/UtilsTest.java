@@ -2,7 +2,7 @@
  * Copyright Skodjob authors.
  * License: Apache License 2.0 (see the file LICENSE or http://apache.org/licenses/LICENSE-2.0.html).
  */
-package io.skodjob.testframe.clients;
+package io.skodjob.testframe.utils;
 
 import io.fabric8.kubernetes.api.builder.Visitor;
 import io.fabric8.kubernetes.api.model.LabelSelector;
@@ -23,9 +23,8 @@ import io.fabric8.kubernetes.client.dsl.PodResource;
 import io.fabric8.kubernetes.client.dsl.Resource;
 import io.skodjob.testframe.annotations.ResourceManager;
 import io.skodjob.testframe.annotations.TestVisualSeparator;
+import io.skodjob.testframe.clients.KubeClient;
 import io.skodjob.testframe.resources.KubeResourceManager;
-import io.skodjob.testframe.utils.KubeUtils;
-import io.skodjob.testframe.utils.PodUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
