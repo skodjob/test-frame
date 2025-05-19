@@ -350,9 +350,22 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
      */
     @Override
     public ExecResult execInPod(String pod, String... command) {
+        return execInPod(true, pod, command);
+    }
+
+    /**
+     * Executes a command in a pod.
+     *
+     * @param throwError     Whether to throw errors.
+     * @param pod            The name of the pod.
+     * @param command        The command to execute.
+     * @return The execution result.
+     */
+    @Override
+    public ExecResult execInPod(boolean throwError, String pod, String... command) {
         List<String> cmd = command("exec", pod, "--");
         cmd.addAll(asList(command));
-        return Exec.exec(cmd);
+        return Exec.exec(null, cmd, 0, false, throwError);
     }
 
     /**
@@ -379,9 +392,25 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
      */
     @Override
     public ExecResult execInPodContainer(boolean logToOutput, String pod, String container, String... command) {
+        return execInPodContainer(true, logToOutput, pod, container, command);
+    }
+
+    /**
+     * Executes a command within a pod container with logging to output control.
+     *
+     * @param throwError     Whether to throw errors.
+     * @param logToOutput    Determines if the output should be logged.
+     * @param pod            The name of the pod.
+     * @param container      The name of the container.
+     * @param command        The command to execute.
+     * @return The execution result.
+     */
+    @Override
+    public ExecResult execInPodContainer(boolean throwError, boolean logToOutput,
+                                         String pod, String container, String... command) {
         List<String> cmd = command("exec", pod, "-c", container, "--");
         cmd.addAll(asList(command));
-        return Exec.exec(null, cmd, 0, logToOutput);
+        return Exec.exec(null, cmd, 0, logToOutput, throwError);
     }
 
     /**
