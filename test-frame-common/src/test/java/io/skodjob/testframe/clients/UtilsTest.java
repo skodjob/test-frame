@@ -5,9 +5,22 @@
 package io.skodjob.testframe.clients;
 
 import io.fabric8.kubernetes.api.builder.Visitor;
-import io.fabric8.kubernetes.api.model.*;
+import io.fabric8.kubernetes.api.model.LabelSelector;
+import io.fabric8.kubernetes.api.model.LabelSelectorBuilder;
+import io.fabric8.kubernetes.api.model.Namespace;
+import io.fabric8.kubernetes.api.model.NamespaceBuilder;
+import io.fabric8.kubernetes.api.model.NamespaceList;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.PodBuilder;
+import io.fabric8.kubernetes.api.model.PodConditionBuilder;
+import io.fabric8.kubernetes.api.model.PodList;
+import io.fabric8.kubernetes.api.model.PodListBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.dsl.*;
+import io.fabric8.kubernetes.client.dsl.FilterWatchListDeletable;
+import io.fabric8.kubernetes.client.dsl.MixedOperation;
+import io.fabric8.kubernetes.client.dsl.NonNamespaceOperation;
+import io.fabric8.kubernetes.client.dsl.PodResource;
+import io.fabric8.kubernetes.client.dsl.Resource;
 import io.skodjob.testframe.annotations.ResourceManager;
 import io.skodjob.testframe.annotations.TestVisualSeparator;
 import io.skodjob.testframe.resources.KubeResourceManager;
@@ -23,7 +36,9 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.when;
 
 @ResourceManager
 @TestVisualSeparator
@@ -86,7 +101,8 @@ class UtilsTest {
         try (MockedStatic<KubeResourceManager> mockedStatic = mockStatic(KubeResourceManager.class)) {
             when(KubeResourceManager.get()).thenReturn(kubeResourceManager);
 
-            NonNamespaceOperation<Namespace, NamespaceList, Resource<Namespace>> namespaceOperation = mock(NonNamespaceOperation.class);
+            NonNamespaceOperation<Namespace, NamespaceList,
+                Resource<Namespace>> namespaceOperation = mock(NonNamespaceOperation.class);
             Resource<Namespace> namespaceResource = mock(Resource.class);
 
             Namespace labeledNamespace = new NamespaceBuilder()
