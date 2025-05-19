@@ -4,78 +4,107 @@
  */
 package io.skodjob.testframe.clients;
 
-import io.fabric8.kubernetes.api.model.LabelSelector;
-import io.fabric8.kubernetes.api.model.LabelSelectorBuilder;
-import io.fabric8.kubernetes.api.model.NamespaceBuilder;
-import io.fabric8.kubernetes.api.model.PodBuilder;
-import io.fabric8.kubernetes.api.model.PodConditionBuilder;
+import io.fabric8.kubernetes.api.builder.Visitor;
+import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.server.mock.EnableKubernetesMockClient;
-import io.fabric8.kubernetes.client.server.mock.KubernetesMockServer;
+import io.fabric8.kubernetes.client.dsl.*;
 import io.skodjob.testframe.annotations.ResourceManager;
 import io.skodjob.testframe.annotations.TestVisualSeparator;
 import io.skodjob.testframe.resources.KubeResourceManager;
 import io.skodjob.testframe.utils.KubeUtils;
 import io.skodjob.testframe.utils.PodUtils;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 
 import java.util.Collections;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
-@EnableKubernetesMockClient(crud = true)
 @ResourceManager
 @TestVisualSeparator
 class UtilsTest {
-    private KubernetesClient kubernetesClient;
-    private KubernetesMockServer server;
+    static KubeResourceManager kubeResourceManager = mock(KubeResourceManager.class);
+    static KubernetesClient kubernetesClient = mock(KubernetesClient.class);
+    static KubeClient kubeClient = mock(KubeClient.class);
 
-    @BeforeEach
-    void setupClient() {
-        KubeResourceManager.get().kubeClient().testReconnect(kubernetesClient.getConfiguration());
+    @BeforeAll
+    static void setup() {
+        when(kubeResourceManager.kubeClient()).thenReturn(kubeClient);
+        when(kubeClient.getClient()).thenReturn(kubernetesClient);
     }
 
     @Test
     void testPodUtils() {
-        KubeResourceManager.get().createResourceWithWait(
-            new NamespaceBuilder().withNewMetadata().withName("test").endMetadata().build());
-        KubeResourceManager.get().createResourceWithoutWait(
-            new PodBuilder()
-                .withNewMetadata()
-                    .withName("test-pod")
-                    .withNamespace("test")
-                    .addToLabels("test-label", "true")
-                .endMetadata()
-                .withNewStatus()
+        try (MockedStatic<KubeResourceManager> mockedStatic = mockStatic(KubeResourceManager.class)) {
+            when(KubeResourceManager.get()).thenReturn(kubeResourceManager);
+
+            MixedOperation<Pod, PodList, PodResource> podsOperation = mock(MixedOperation.class);
+            NonNamespaceOperation<Pod, PodList, PodResource> podsInNamespace = mock(NonNamespaceOperation.class);
+            FilterWatchListDeletable<Pod, PodList, PodResource> filteredPods = mock(FilterWatchListDeletable.class);
+
+            List<Pod> pods = List.of(
+                new PodBuilder()
+                    .withNewMetadata()
+                        .withName("test-pod")
+                            .withNamespace("test")
+                            .addToLabels("test-label", "true")
+                        .withUid("uid")
+                    .endMetadata()
+                    .withNewStatus()
                     .withPhase("Running")
                     .withConditions(new PodConditionBuilder()
                         .withType("Ready")
                         .withStatus("True")
                         .withMessage("Ready")
                         .build())
-                .endStatus()
-                .build());
+                    .endStatus()
+                    .build()
+            );
 
-        LabelSelector lb = new LabelSelectorBuilder()
-            .withMatchLabels(Collections.singletonMap("test-label", "true")).build();
+            when(kubernetesClient.pods()).thenReturn(podsOperation);
+            when(podsOperation.inNamespace(any())).thenReturn(podsInNamespace);
+            when(podsInNamespace.withLabelSelector(any(LabelSelector.class))).thenReturn(filteredPods);
+            when(podsInNamespace.list()).thenReturn(new PodListBuilder().withItems(pods.toArray(new Pod[0])).build());
+            when(filteredPods.list()).thenReturn(new PodListBuilder().withItems(pods.toArray(new Pod[0])).build());
 
-        assertNotNull(KubeResourceManager.get().kubeClient().getClient().namespaces().withName("test").get());
+            LabelSelector lb = new LabelSelectorBuilder()
+                .withMatchLabels(Collections.singletonMap("test-label", "true")).build();
 
-        PodUtils.waitForPodsReady("test", false, () -> {
-        });
-        PodUtils.verifyThatPodsAreStable("test", lb);
-        assertNotNull(PodUtils.podSnapshot("test", lb).get("test-pod"));
+            PodUtils.waitForPodsReady("test", false, () -> {});
+            PodUtils.verifyThatPodsAreStable("test", lb);
+            assertNotNull(PodUtils.podSnapshot("test", lb).get("test-pod"));
+        }
     }
 
     @Test
     void testKubeUtils() {
-        KubeResourceManager.get().createResourceWithWait(
-            new NamespaceBuilder().withNewMetadata().withName("test").endMetadata().build());
+        try (MockedStatic<KubeResourceManager> mockedStatic = mockStatic(KubeResourceManager.class)) {
+            when(KubeResourceManager.get()).thenReturn(kubeResourceManager);
 
-        KubeUtils.labelNamespace("test", "test-label", "true");
-        assertEquals("true", KubeResourceManager.get().kubeClient().getClient()
-            .namespaces().withName("test").get().getMetadata().getLabels().get("test-label"));
+            NonNamespaceOperation<Namespace, NamespaceList, Resource<Namespace>> namespaceOperation = mock(NonNamespaceOperation.class);
+            Resource<Namespace> namespaceResource = mock(Resource.class);
+
+            Namespace labeledNamespace = new NamespaceBuilder()
+                .withNewMetadata()
+                    .withName("test")
+                    .addToLabels("test-label", "true")
+                .endMetadata()
+                .build();
+
+            when(kubeClient.namespaceExists(any())).thenReturn(true);
+            when(kubernetesClient.namespaces()).thenReturn(namespaceOperation);
+            when(namespaceOperation.withName(any())).thenReturn(namespaceResource);
+            when(namespaceResource.edit(any(Visitor.class))).thenReturn(labeledNamespace);
+            when(namespaceResource.get()).thenReturn(labeledNamespace);
+
+            KubeUtils.labelNamespace("test", "test-label", "true");
+            assertEquals("true", KubeResourceManager.get().kubeClient().getClient()
+                .namespaces().withName("test").get().getMetadata().getLabels().get("test-label"));
+        }
     }
 }
