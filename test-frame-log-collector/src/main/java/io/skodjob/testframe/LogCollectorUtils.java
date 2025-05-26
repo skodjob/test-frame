@@ -55,6 +55,21 @@ public class LogCollectorUtils {
     }
 
     /**
+     * Method returning name of the log file for previous Pod and its container
+     *
+     * @param podName       name of the Pod
+     * @param containerName name of the Container
+     * @return name of the log file for previous Pod and its container
+     */
+    public static String getLogFileNameForPreviousPodContainer(String podName, String containerName) {
+        return getFileNameForResourceAndType(
+                String.join("-", CollectorConstants.LOGS, CollectorConstants.POD,
+                        podName, CollectorConstants.CONTAINER, containerName, CollectorConstants.PREVIOUS),
+                LOG_TYPE
+        );
+    }
+
+    /**
      * Method returning name of the log file for Pod (and its description)
      *
      * @param podName name of the Pod

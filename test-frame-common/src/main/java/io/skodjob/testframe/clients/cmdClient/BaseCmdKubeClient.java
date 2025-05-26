@@ -573,6 +573,25 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
     }
 
     /**
+     * Retrieves logs for previous instance of the Pod and container.
+     *
+     * @param pod           The name of the pod.
+     * @param container     The name of the container.
+     *
+     * @return  logs for previous instance of the Pod and container.
+     */
+    @Override
+    public String previousLogs(String pod, String container) {
+        String[] args;
+        if (container != null) {
+            args = new String[]{"logs", "-p", pod, "-c", container};
+        } else {
+            args = new String[]{"logs", "-p", pod};
+        }
+        return Exec.exec(command(args)).out();
+    }
+
+    /**
      * Searches for patterns in logs.
      *
      * @param resourceType The type of the resource.

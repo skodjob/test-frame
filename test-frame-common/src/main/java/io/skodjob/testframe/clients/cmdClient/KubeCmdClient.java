@@ -330,6 +330,27 @@ public interface KubeCmdClient<K extends KubeCmdClient<K>> {
     String logs(String pod, String container);
 
     /**
+     * Retrieves logs for previous instance of the Pod.
+     *
+     * @param pod   The name of the pod.
+     *
+     * @return  The logs for previous instance of the Pod.
+     */
+    default String previousLogs(String pod) {
+        return previousLogs(pod, null);
+    }
+
+    /**
+     * Retrieves logs for previous instance of the Pod and container.
+     *
+     * @param pod           The name of the pod.
+     * @param container     The name of the container.
+     *
+     * @return  logs for previous instance of the Pod and container.
+     */
+    String previousLogs(String pod, String container);
+
+    /**
      * Searches for patterns in the logs of a resource.
      *
      * @param resourceType The type of the resource.
