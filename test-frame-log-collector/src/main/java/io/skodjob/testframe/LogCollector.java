@@ -287,7 +287,10 @@ public class LogCollector {
             // check if container failed previously
             Pod pod = kubeClient.getClient().pods().inNamespace(namespaceName).withName(podName).get();
 
-            if (pod.getStatus() != null && pod.getStatus().getContainerStatuses() != null) {
+            if (pod != null
+                && pod.getStatus() != null
+                && pod.getStatus().getContainerStatuses() != null
+            ) {
                 Optional<ContainerStatus> containerStatus = pod.getStatus()
                     .getContainerStatuses()
                     .stream()
