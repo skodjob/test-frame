@@ -65,12 +65,12 @@
         <maven.compiler.target>17</maven.compiler.target>
         <maven.compiler.release>17</maven.compiler.release>
 
-        <fabric8.version>7.3.0</fabric8.version>
+        <fabric8.version>7.3.1</fabric8.version>
         <log4j.version>2.24.3</log4j.version>
         <slf4j.version>2.0.17</slf4j.version>
 
         <!--  TEST dependencies  -->
-        <mockito.version>5.17.0</mockito.version>
+        <mockito.version>5.18.0</mockito.version>
         <apache.commons.version>2.19.0</apache.commons.version>
 
         <!--   Build tools' properties     -->
@@ -90,7 +90,7 @@
         <junit.platform.version>1.12.2</junit.platform.version>
         <maven.surefire.version>3.5.3</maven.surefire.version>
         <jackson-dataformat-yaml.version>2.19.0</jackson-dataformat-yaml.version>
-        <org.eclipse.sisu.version>0.9.0.M3</org.eclipse.sisu.version>
+        <org.eclipse.sisu.version>0.9.0.M4</org.eclipse.sisu.version>
         <bouncycastle.version>1.80</bouncycastle.version>
 
         <it.skip>true</it.skip>
