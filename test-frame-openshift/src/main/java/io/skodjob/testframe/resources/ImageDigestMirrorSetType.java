@@ -17,7 +17,8 @@ import java.util.function.Consumer;
  */
 public class ImageDigestMirrorSetType implements ResourceType<ImageDigestMirrorSet> {
 
-    private final NonNamespaceOperation<ImageDigestMirrorSet, ImageDigestMirrorSetList, Resource<ImageDigestMirrorSet>> client;
+    private final NonNamespaceOperation<ImageDigestMirrorSet, ImageDigestMirrorSetList,
+        Resource<ImageDigestMirrorSet>> client;
 
     /**
      * Constructor
@@ -81,7 +82,7 @@ public class ImageDigestMirrorSetType implements ResourceType<ImageDigestMirrorS
      * from which is the current {@link ImageDigestMirrorSet} resource updated
      *
      * @param resource {@link ImageDigestMirrorSet} resource that will be replaced
-     * @param editor       {@link Consumer} containing updates to the resource
+     * @param editor   {@link Consumer} containing updates to the resource
      */
     @Override
     public void replace(ImageDigestMirrorSet resource, Consumer<ImageDigestMirrorSet> editor) {
