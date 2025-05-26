@@ -4,7 +4,6 @@
  */
 package io.skodjob.testframe.resources;
 
-
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
 import io.fabric8.openshift.api.model.operatorhub.v1alpha1.CatalogSource;
