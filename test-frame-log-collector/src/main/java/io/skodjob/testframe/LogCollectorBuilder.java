@@ -20,6 +20,7 @@ public class LogCollectorBuilder {
     private String rootFolderPath;
     private List<String> namespacedResources;
     private List<String> clusterWideResources;
+    private boolean collectPreviousLogs = false;
     private KubeClient kubeClient;
     private KubeCmdClient<?> kubeCmdClient;
 
@@ -33,6 +34,7 @@ public class LogCollectorBuilder {
         this.rootFolderPath = logCollector.rootFolderPath;
         this.namespacedResources = logCollector.namespacedResources;
         this.clusterWideResources = logCollector.clusterWideResources;
+        this.collectPreviousLogs = logCollector.collectPreviousLogs;
     }
 
     /**
@@ -78,6 +80,32 @@ public class LogCollectorBuilder {
      */
     public LogCollectorBuilder withClusterWideResources(String... resources) {
         this.clusterWideResources = new ArrayList<>(Arrays.stream(resources).toList());
+
+        return this;
+    }
+
+    /**
+     * Encapsulation for {@link #withCollectPreviousLogs(boolean)} method, setting the {@link #collectPreviousLogs}
+     * to `true`.
+     *
+     * @return  {@link LogCollectorBuilder} object
+     */
+    public LogCollectorBuilder withCollectPreviousLogs() {
+        return withCollectPreviousLogs(true);
+    }
+
+    /**
+     * Setter for specifying if LogCollector should collect logs also from the previous Pod (and container).
+     * Useful in cases that there is failed container and we want to know the exact error before it's rolled.
+     * Default is `false`.
+     *
+     * @param collectPreviousLogs   Boolean value representing if the logs should be collected from previous
+     *                              instance of Pod and container
+     *
+     * @return  {@link LogCollectorBuilder} object
+     */
+    public LogCollectorBuilder withCollectPreviousLogs(boolean collectPreviousLogs) {
+        this.collectPreviousLogs = collectPreviousLogs;
 
         return this;
     }
@@ -129,6 +157,15 @@ public class LogCollectorBuilder {
      */
     public List<String> getClusterWideResources() {
         return this.clusterWideResources;
+    }
+
+    /**
+     * Getter returning currently configured {@link #collectPreviousLogs}.
+     *
+     * @return  value of {@link #collectPreviousLogs}.
+     */
+    public boolean shouldCollectPreviousLogs() {
+        return this.collectPreviousLogs;
     }
 
     /**

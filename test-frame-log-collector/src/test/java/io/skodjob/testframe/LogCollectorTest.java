@@ -6,6 +6,7 @@ package io.skodjob.testframe;
 
 import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.ContainerBuilder;
+import io.fabric8.kubernetes.api.model.ContainerStatusBuilder;
 import io.fabric8.kubernetes.api.model.LabelSelector;
 import io.fabric8.kubernetes.api.model.LabelSelectorBuilder;
 import io.fabric8.kubernetes.api.model.Namespace;
@@ -14,10 +15,13 @@ import io.fabric8.kubernetes.api.model.NamespaceList;
 import io.fabric8.kubernetes.api.model.NamespaceListBuilder;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodBuilder;
+import io.fabric8.kubernetes.api.model.PodList;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientException;
 import io.fabric8.kubernetes.client.dsl.FilterWatchListDeletable;
+import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.NonNamespaceOperation;
+import io.fabric8.kubernetes.client.dsl.PodResource;
 import io.fabric8.kubernetes.client.dsl.Resource;
 import io.skodjob.testframe.annotations.TestVisualSeparator;
 import io.skodjob.testframe.clients.KubeClient;
@@ -31,6 +35,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.mockito.MockedStatic;
 import org.mockito.stubbing.Answer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -60,11 +66,13 @@ import static org.mockito.Mockito.when;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestVisualSeparator
 @SuppressWarnings("unchecked")
-final class LogCollectorIT {
+final class LogCollectorTest {
+    private static final Logger LOGGER = LoggerFactory.getLogger(LogCollectorTest.class);
 
     private KubeClient mockClient;
     private KubeCmdClient mockCmdClient;
     private NonNamespaceOperation<Namespace, NamespaceList, Resource<Namespace>> mockNamespaceOperation;
+    private MixedOperation<Pod, PodList, PodResource> mockPodOperation;
     private final KubernetesClient mockKubernetesClient = mock(KubernetesClient.class);
 
     private static final String SECRET = "secret";
@@ -91,9 +99,12 @@ final class LogCollectorIT {
 
     @BeforeEach
     void setRootPathForCollector() {
+        mockPodOperation = mock(MixedOperation.class);
+
         when(mockKubernetesClient.namespaces()).thenReturn(mockNamespaceOperation);
         when(mockCmdClient.inNamespace(anyString())).thenReturn(mockCmdClient);
         when(mockClient.getClient()).thenReturn(mockKubernetesClient);
+        when(mockKubernetesClient.pods()).thenReturn(mockPodOperation);
 
         logCollector = new LogCollectorBuilder(logCollector)
             .withRootFolderPath(getFolderPathForTest())
@@ -396,6 +407,87 @@ final class LogCollectorIT {
         assertDoesNotThrow(() -> logCollector.collectFromNamespace(namespaceName));
     }
 
+    @Test
+    void testCollectFromFailedPodsWithCollectPreviousPodsEnabled() {
+        LogCollector localLogCollector = new LogCollectorBuilder(logCollector)
+            .withKubeClient(mockClient)
+            .withKubeCmdClient(mockCmdClient)
+            .withCollectPreviousLogs()
+            .build();
+
+        String namespaceName = "failed-pods-namespace";
+        String failedPod = "bad";
+
+        mockNamespaces(namespaceName);
+        mockPods(namespaceName, true, true, true, failedPod);
+
+        localLogCollector.collectFromNamespace(namespaceName);
+
+        File rootFolder = Paths.get(getFolderPathForTest()).toFile();
+
+        assertFolderExistsAndContainsCorrectNumberOfFiles(rootFolder, 1);
+        assertFolderContainsFolders(rootFolder, namespaceName);
+
+        File namespaceFolder = rootFolder.listFiles()[0];
+
+        assertPodFolderContainsEverything(namespaceFolder, true, true, failedPod);
+        assertPodFolderContainsPreviousLogs(namespaceFolder, failedPod, "failed", true);
+    }
+
+    @Test
+    void testCollectFromSuccessfulPodsWithCollectPreviousPodsEnabled() {
+        LogCollector localLogCollector = new LogCollectorBuilder(logCollector)
+            .withKubeClient(mockClient)
+            .withKubeCmdClient(mockCmdClient)
+            .withCollectPreviousLogs()
+            .build();
+
+        String namespaceName = "successful-pods-namespace";
+        String failedPod = "my-pod";
+
+        mockNamespaces(namespaceName);
+        mockPods(namespaceName, true, true, false, failedPod);
+
+        localLogCollector.collectFromNamespace(namespaceName);
+
+        File rootFolder = Paths.get(getFolderPathForTest()).toFile();
+
+        assertFolderExistsAndContainsCorrectNumberOfFiles(rootFolder, 1);
+        assertFolderContainsFolders(rootFolder, namespaceName);
+
+        File namespaceFolder = rootFolder.listFiles()[0];
+
+        assertPodFolderContainsEverything(namespaceFolder, true, true, failedPod);
+        assertPodFolderContainsPreviousLogs(namespaceFolder, namespaceName, null, true);
+    }
+
+    @Test
+    void testCollectFromFailedPodsWithCollectPreviousPodsDisabled() {
+        LogCollector localLogCollector = new LogCollectorBuilder(logCollector)
+            .withKubeClient(mockClient)
+            .withKubeCmdClient(mockCmdClient)
+            .withCollectPreviousLogs(false)
+            .build();
+
+        String namespaceName = "failed-pods-namespace";
+        String failedPod = "bad";
+
+        mockNamespaces(namespaceName);
+        mockPods(namespaceName, true, true, true, failedPod);
+
+        localLogCollector.collectFromNamespace(namespaceName);
+
+        File rootFolder = Paths.get(getFolderPathForTest()).toFile();
+
+        assertFolderExistsAndContainsCorrectNumberOfFiles(rootFolder, 1);
+        assertFolderContainsFolders(rootFolder, namespaceName);
+
+        File namespaceFolder = rootFolder.listFiles()[0];
+
+        assertPodFolderContainsEverything(namespaceFolder, true, true, failedPod);
+        assertPodFolderContainsPreviousLogs(namespaceFolder, failedPod, "failed", false);
+    }
+
     @AfterEach
     void cleanAndUpdate() {
         reset(mockCmdClient, mockClient);
@@ -472,8 +564,22 @@ final class LogCollectorIT {
         });
     }
 
-    private void mockPods(String namespaceName, boolean withInitContainers,
-                          boolean withMultipleContainers, String... podNames) {
+    private void mockPods(
+        String namespaceName,
+        boolean withInitContainers,
+        boolean withMultipleContainers,
+        String... podNames
+    ) {
+        mockPods(namespaceName, withInitContainers, withMultipleContainers, false, podNames);
+    }
+
+    private void mockPods(
+        String namespaceName,
+        boolean withInitContainers,
+        boolean withMultipleContainers,
+        boolean withFailedContainer,
+        String... podNames
+    ) {
         List<Pod> pods = new ArrayList<>();
 
         for (String podName : podNames) {
@@ -513,9 +619,39 @@ final class LogCollectorIT {
                     .endSpec();
             }
 
+            if (withFailedContainer) {
+                Container failedContainer = new ContainerBuilder(exampleContainer)
+                    .withName("failed")
+                    .build();
+
+                mockPodBuilder
+                    .editOrNewSpec()
+                        .addToContainers(failedContainer)
+                    .endSpec()
+                    .editOrNewStatus()
+                        .addToContainerStatuses(
+                            new ContainerStatusBuilder()
+                                .withName(failedContainer.getName())
+                                .withNewLastState()
+                                    .withNewTerminated()
+                                        .withExitCode(1)
+                                        .withReason("Wrong image")
+                                    .endTerminated()
+                                .endLastState()
+                                .build()
+                        )
+                    .endStatus();
+            }
+
             Pod mockPod = mockPodBuilder.build();
             pods.add(mockPod);
 
+            NonNamespaceOperation<Pod, PodList, PodResource> nonNamespaceOp = mock(NonNamespaceOperation.class);
+            PodResource mockPodResource = mock(PodResource.class);
+
+            when(mockPodOperation.inNamespace(namespaceName)).thenReturn(nonNamespaceOp);
+            when(nonNamespaceOp.withName(podName)).thenReturn(mockPodResource);
+            when(mockPodResource.get()).thenReturn(mockPod);
             when(mockCmdClient.inNamespace(namespaceName).describe(CollectorConstants.POD, podName))
                 .thenReturn("this is description of " + podName);
             when(mockCmdClient.inNamespace(namespaceName).logs(any(), any()))
@@ -524,6 +660,13 @@ final class LogCollectorIT {
                     String container = invocation.getArgument(1);
 
                     return "this is log for pod: " + pod + " and container: " + container;
+                });
+            when(mockCmdClient.inNamespace(namespaceName).previousLogs(any(), any()))
+                .thenAnswer((Answer<String>) invocation -> {
+                    String pod = invocation.getArgument(0);
+                    String container = invocation.getArgument(1);
+
+                    return "this is previous log for pod: " + pod + " and container: " + container;
                 });
         }
 
@@ -632,6 +775,36 @@ final class LogCollectorIT {
                 assertTrue(podFiles.contains(
                     LogCollectorUtils.getLogFileNameForPodContainer(podName, "second-" + podName)));
             }
+        }
+    }
+
+    private void assertPodFolderContainsPreviousLogs(
+        File namespaceFolder,
+        String podName,
+        String failedContainerName,
+        boolean collectPreviousPodsEnabled
+    ) {
+        List<String> podFiles = Arrays.asList(Arrays.stream(namespaceFolder.listFiles())
+            .filter(file -> file.getName().equals(CollectorConstants.POD))
+            .findFirst()
+            .get()
+            .list());
+
+        LOGGER.info("Pod log files in directory: {}",
+            podFiles.toString().replaceAll(",", "\n").replaceAll("\\[|\\]", ""));
+
+        List<String> previousLogFiles = podFiles
+            .stream()
+            .filter(file -> file.contains(CollectorConstants.PREVIOUS))
+            .toList();
+
+        String prevFileName = LogCollectorUtils.getLogFileNameForPreviousPodContainer(podName, failedContainerName);
+        if (failedContainerName != null && collectPreviousPodsEnabled) {
+            assertEquals(previousLogFiles.size(), 1);
+            assertTrue(podFiles.contains(prevFileName));
+        } else {
+            assertEquals(previousLogFiles.size(), 0);
+            assertFalse(podFiles.contains(prevFileName));
         }
     }
 }

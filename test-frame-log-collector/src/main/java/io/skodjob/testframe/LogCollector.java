@@ -5,6 +5,7 @@
 package io.skodjob.testframe;
 
 import io.fabric8.kubernetes.api.model.Container;
+import io.fabric8.kubernetes.api.model.ContainerStatus;
 import io.fabric8.kubernetes.api.model.LabelSelector;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.skodjob.testframe.clients.KubeClient;
@@ -21,6 +22,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 /**
@@ -30,6 +32,7 @@ public class LogCollector {
     private static final Logger LOGGER = LoggerFactory.getLogger(LogCollector.class);
     protected final List<String> namespacedResources;
     protected final List<String> clusterWideResources;
+    protected final boolean collectPreviousLogs;
     protected String rootFolderPath;
     private KubeCmdClient<?> kubeCmdClient = new Kubectl();
     private KubeClient kubeClient = new KubeClient();
@@ -44,6 +47,7 @@ public class LogCollector {
             Collections.emptyList() : builder.getNamespacedResources();
         this.clusterWideResources = builder.getClusterWideResources() == null ?
             Collections.emptyList() : builder.getClusterWideResources();
+        this.collectPreviousLogs = builder.shouldCollectPreviousLogs();
 
         if (builder.getRootFolderPath() == null) {
             throw new RuntimeException("rootFolderPath should be filled, but it's empty");
@@ -271,13 +275,49 @@ public class LogCollector {
         String containerName
     ) {
         String containerLog = executeCollectionCall(
-            String.format("collect logs from Pod:%s", podName),
+            String.format("collecting logs from Pod: %s and container: %s", podName, containerName),
             () -> kubeCmdClient.inNamespace(namespaceName).logs(podName, containerName)
         );
         String podConLogFileName = LogCollectorUtils.getLogFileNameForPodContainer(podName, containerName);
         String filePath = LogCollectorUtils.getFullPathForFolderPathAndFileName(podsFolderPath, podConLogFileName);
 
         writeDataToFile(filePath, containerLog);
+
+        if (collectPreviousLogs) {
+            // check if container failed previously
+            Pod pod = kubeClient.getClient().pods().inNamespace(namespaceName).withName(podName).get();
+
+            if (pod != null
+                && pod.getStatus() != null
+                && pod.getStatus().getContainerStatuses() != null
+            ) {
+                Optional<ContainerStatus> containerStatus = pod.getStatus()
+                    .getContainerStatuses()
+                    .stream()
+                    .filter(cs -> cs.getName().equals(containerName))
+                    .findFirst();
+
+                // in case that there is container status
+                if (containerStatus.isPresent()) {
+                    // check that the container was terminated
+                    if (containerStatus.get().getLastState().getTerminated() != null) {
+                        // collect previous logs for Pod and container
+                        String previousContainerLog = executeCollectionCall(
+                            String.format(
+                                "collecting previous log from Pod: %s and container: %s",
+                                podName, containerName
+                            ),
+                            () -> kubeCmdClient.inNamespace(namespaceName).previousLogs(podName, containerName)
+                        );
+
+                        String file = LogCollectorUtils.getLogFileNameForPreviousPodContainer(podName, containerName);
+                        filePath = LogCollectorUtils.getFullPathForFolderPathAndFileName(podsFolderPath, file);
+
+                        writeDataToFile(filePath, previousContainerLog);
+                    }
+                }
+            }
+        }
     }
 
     /**

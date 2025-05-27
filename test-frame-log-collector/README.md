@@ -190,6 +190,23 @@ namespaceName: my-namespace
 final full path for log collection: /tmp/logs/run1/my-namespace/
 ```
 
+### Collecting logs from previously failed Pod containers
+
+When a Pod (and its containers) is caught in a crash loop, 
+it's useful to collect logs from the previous instance of the Pod.
+In some cases, logs are only captured during container startup, 
+so retrieving logs from the previous instance can help identify the exact error that caused the Pod to fail.
+
+This feature can be enabled using `withCollectPreviousLogs()` option of the `LogCollectorBuilder`:
+
+```java 
+    LogCollector localLogCollector = new LogCollectorBuilder()
+        .withCollectPreviousLogs()
+        .build();
+```
+
+By default, this feature is **disabled**.
+
 ### Using MustGather with LogCollector
 
 In case you want to use `MustGather` for automatically call your log collector in case of test failure or test lifecycle failure you can use annotation `@MustGather` like in following example.

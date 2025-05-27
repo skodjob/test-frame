@@ -701,6 +701,39 @@ class BaseCmdKubeClientTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
+    void testPreviousLogsPod() {
+        String podName = "log-pod-cont";
+        String logOutput = "Container log 1";
+        ExecResult mockResult = mockSuccessfulExecResult(logOutput);
+        mockedExec.when(() -> Exec.exec(anyList())).thenReturn(mockResult);
+
+        String logs = client.previousLogs(podName);
+        assertEquals(logOutput, logs);
+        ArgumentCaptor<List<String>> listCaptor = ArgumentCaptor.forClass(List.class);
+        mockedExec.verify(() -> Exec.exec(listCaptor.capture()));
+        List<String> expectedParts = Arrays.asList("logs", podName, "--previous=true");
+        assertTrue(listCaptor.getValue().containsAll(expectedParts));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void testPreviousLogsPodAndContainer() {
+        String podName = "log-pod-cont";
+        String containerName = "log-container";
+        String logOutput = "Container log 1";
+        ExecResult mockResult = mockSuccessfulExecResult(logOutput);
+        mockedExec.when(() -> Exec.exec(anyList())).thenReturn(mockResult);
+
+        String logs = client.previousLogs(podName, containerName);
+        assertEquals(logOutput, logs);
+        ArgumentCaptor<List<String>> listCaptor = ArgumentCaptor.forClass(List.class);
+        mockedExec.verify(() -> Exec.exec(listCaptor.capture()));
+        List<String> expectedParts = Arrays.asList("logs", podName, "-c", containerName, "--previous=true");
+        assertTrue(listCaptor.getValue().containsAll(expectedParts));
+    }
+
+    @Test
     void testSearchInLogSuccess() {
         String resourceType = "deployment";
         String resourceName = "my-app";

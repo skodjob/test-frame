@@ -37,4 +37,9 @@ public interface CollectorConstants {
      * Cluster wide resources folder name
      */
     String CLUSTER_WIDE_FOLDER = "cluster-wide-resources";
+
+    /**
+     * Suffix for "previous" logs of Pod and container
+     */
+    String PREVIOUS = "previous";
 }
