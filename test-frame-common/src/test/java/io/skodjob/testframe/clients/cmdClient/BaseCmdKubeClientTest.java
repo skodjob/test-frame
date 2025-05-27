@@ -712,7 +712,7 @@ class BaseCmdKubeClientTest {
         assertEquals(logOutput, logs);
         ArgumentCaptor<List<String>> listCaptor = ArgumentCaptor.forClass(List.class);
         mockedExec.verify(() -> Exec.exec(listCaptor.capture()));
-        List<String> expectedParts = Arrays.asList("logs", "-p", podName);
+        List<String> expectedParts = Arrays.asList("logs", podName, "--previous=true");
         assertTrue(listCaptor.getValue().containsAll(expectedParts));
     }
 
@@ -729,7 +729,7 @@ class BaseCmdKubeClientTest {
         assertEquals(logOutput, logs);
         ArgumentCaptor<List<String>> listCaptor = ArgumentCaptor.forClass(List.class);
         mockedExec.verify(() -> Exec.exec(listCaptor.capture()));
-        List<String> expectedParts = Arrays.asList("logs", "-p", podName, "-c", containerName);
+        List<String> expectedParts = Arrays.asList("logs", podName, "-c", containerName, "--previous=true");
         assertTrue(listCaptor.getValue().containsAll(expectedParts));
     }
 
