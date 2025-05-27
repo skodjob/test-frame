@@ -584,9 +584,9 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
     public String previousLogs(String pod, String container) {
         String[] args;
         if (container != null) {
-            args = new String[]{"logs", "-p", pod, "-c", container};
+            args = new String[]{"logs", pod, "-c", container, "--previous=true"};
         } else {
-            args = new String[]{"logs", "-p", pod};
+            args = new String[]{"logs", pod, "--previous=true"};
         }
         return Exec.exec(command(args)).out();
     }
