@@ -33,15 +33,12 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import org.mockito.MockedStatic;
 import org.mockito.stubbing.Answer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -57,10 +54,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -385,13 +382,11 @@ final class LogCollectorTest {
         mockNamespaces(namespaceName);
         mockEvents();
 
-        try (MockedStatic<Files> mockedFiles = mockStatic(Files.class)) {
-            // Configure the mock to throw an IOException
-            mockedFiles.when(() -> Files.writeString(any(), anyString(), eq(StandardCharsets.UTF_8)))
-                .thenThrow(new IOException("Simulated IO Exception"));
+        LogCollector spyCollector = spy(new LogCollectorBuilder(logCollector).build());
 
-            assertThrows(RuntimeException.class, () -> logCollector.collectFromNamespace(namespaceName));
-        }
+        doThrow(new RuntimeException()).when(spyCollector).writeDataToFile(any(), anyString());
+
+        assertThrows(Exception.class, () -> spyCollector.collectFromNamespace(namespaceName));
     }
 
     @Test

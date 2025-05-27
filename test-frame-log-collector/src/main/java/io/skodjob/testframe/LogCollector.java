@@ -19,10 +19,12 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 /**
@@ -156,10 +158,17 @@ public class LogCollector {
             String namespaceFolderPath = createNamespaceDirectory(namespaceName,
                 LogCollectorUtils.getFolderPath(rootFolderPath, folderPath));
 
-            collectLogsFromPodsInNamespace(namespaceName, namespaceFolderPath);
-            collectEventsFromNamespace(namespaceName, namespaceFolderPath);
+            List<CompletableFuture<Void>> collectList = new ArrayList<>(
+                collectLogsFromPodsInNamespace(namespaceName, namespaceFolderPath)
+            );
+            collectList.add(
+                CompletableFuture.runAsync(() -> collectEventsFromNamespace(namespaceName, namespaceFolderPath))
+            );
+            collectList.addAll(
+                collectResourcesDescInNamespace(namespaceName, namespaceFolderPath)
+            );
 
-            collectResourcesDescInNamespace(namespaceName, namespaceFolderPath);
+            CompletableFuture.allOf(collectList.toArray(new CompletableFuture[0])).join();
         } else {
             LOGGER.warn("Specified Namespace: {} doesn't exist", namespaceName);
         }
@@ -212,17 +221,26 @@ public class LogCollector {
      * After that it lists all Pods in the Namespace and collects names of all Containers and InitContainers.
      * Then, for each Pod-(Init)Container it collects logs and then creates a log file, where are the logs stored.
      * Additionally, it stores description of each Pod in the Namespace.
+     * For running the collection asynchronously, it returns list of {@link CompletableFuture} containing
+     * runnable for collection of each Pod found in the specified Namespace.
      *
      * @param namespaceName       name of Namespace from which the logs (and Pod descriptions) should be collected
      * @param namespaceFolderPath path to Namespace folder where the pods directory will be created and logs will be
      *                            collected into
+     *
+     * @return  list of {@link CompletableFuture} containing runnable for collection of each Pod
+     * found in the specified Namespace.
      */
-    public void collectLogsFromPodsInNamespace(String namespaceName, String namespaceFolderPath) {
+    public List<CompletableFuture<Void>> collectLogsFromPodsInNamespace(
+        String namespaceName,
+        String namespaceFolderPath
+    ) {
         LOGGER.info("Collecting logs from all Pods in Namespace: {}", namespaceName);
         List<Pod> pods = executeCollectionCall(
             String.format("list Pods in Namespace: %s", namespaceName),
             () -> kubeClient.listPods(namespaceName)
         );
+        List<CompletableFuture<Void>> collectList = new ArrayList<>();
 
         if (pods != null && !pods.isEmpty()) {
             String podsFolderPath = createResourceDirectoryInNamespaceDir(namespaceFolderPath, CollectorConstants.POD);
@@ -234,11 +252,23 @@ public class LogCollector {
                 List<String> initContainers = pod.getSpec().getInitContainers().stream()
                     .map(Container::getName).toList();
 
-                collectPodDescription(namespaceName, podsFolderPath, podName);
-                collectLogsFromPodContainers(namespaceName, podsFolderPath, podName, containers);
-                collectLogsFromPodContainers(namespaceName, podsFolderPath, podName, initContainers);
+                collectList.addAll(
+                    List.of(
+                        CompletableFuture.runAsync(
+                            () -> collectPodDescription(namespaceName, podsFolderPath, podName)
+                        ),
+                        CompletableFuture.runAsync(
+                            () -> collectLogsFromPodContainers(namespaceName, podsFolderPath, podName, containers)
+                        ),
+                        CompletableFuture.runAsync(
+                            () -> collectLogsFromPodContainers(namespaceName, podsFolderPath, podName, initContainers)
+                        )
+                    )
+                );
             });
         }
+
+        return collectList;
     }
 
     /**
@@ -383,13 +413,28 @@ public class LogCollector {
     /**
      * Method that collects YAML descriptions of specified resources (resource types)
      * and stores them in particular folders and their YAML files.
+     * For running the collection asynchronously, it returns list of {@link CompletableFuture} containing
+     * runnable for collection of each resource specified in {@link #namespacedResources}.
      *
      * @param namespaceName       name of Namespace from where the YAMLs should be collected
      * @param namespaceFolderPath path to Namespace folder where the resource directories will be created
+     *
+     * @return list of {@link CompletableFuture} containing runnable for collection of each
+     * resource specified in {@link #namespacedResources}.
      */
-    private void collectResourcesDescInNamespace(String namespaceName, String namespaceFolderPath) {
+    private List<CompletableFuture<Void>> collectResourcesDescInNamespace(
+        String namespaceName,
+        String namespaceFolderPath
+    ) {
+        List<CompletableFuture<Void>> collectList = new ArrayList<>();
+
         namespacedResources.forEach(resource ->
-            collectDescriptionOfResourceInNamespace(namespaceName, namespaceFolderPath, resource));
+            collectList.add(CompletableFuture.runAsync(
+                () -> collectDescriptionOfResourceInNamespace(namespaceName, namespaceFolderPath, resource))
+            )
+        );
+
+        return collectList;
     }
 
 
@@ -485,7 +530,7 @@ public class LogCollector {
      * @param fullFilePath full path to file (for example: /tmp/logs/my-namespace/secret.yaml)
      * @param data         data which should be written to file
      */
-    private void writeDataToFile(String fullFilePath, String data) {
+    /** test **/ protected void writeDataToFile(String fullFilePath, String data) {
         if (data != null && !data.isEmpty()) {
             try {
                 Files.writeString(Paths.get(fullFilePath), data, StandardCharsets.UTF_8);
