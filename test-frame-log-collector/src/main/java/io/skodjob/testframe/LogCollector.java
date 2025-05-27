@@ -275,7 +275,7 @@ public class LogCollector {
         String containerName
     ) {
         String containerLog = executeCollectionCall(
-            String.format("collect logs from Pod:%s and container:%s", podName, containerName),
+            String.format("collecting logs from Pod: %s and container: %s", podName, containerName),
             () -> kubeCmdClient.inNamespace(namespaceName).logs(podName, containerName)
         );
         String podConLogFileName = LogCollectorUtils.getLogFileNameForPodContainer(podName, containerName);
@@ -303,7 +303,10 @@ public class LogCollector {
                     if (containerStatus.get().getLastState().getTerminated() != null) {
                         // collect previous logs for Pod and container
                         String previousContainerLog = executeCollectionCall(
-                            String.format("collect previous log from Pod:%s and container:%s", podName, containerName),
+                            String.format(
+                                "collecting previous log from Pod: %s and container: %s",
+                                podName, containerName
+                            ),
                             () -> kubeCmdClient.inNamespace(namespaceName).previousLogs(podName, containerName)
                         );
 
