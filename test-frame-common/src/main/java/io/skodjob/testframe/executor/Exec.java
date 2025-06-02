@@ -130,7 +130,7 @@ public class Exec {
      * @return execution results
      */
     public static ExecResult exec(boolean logToOutput, String... command) {
-        return exec(LogLevel.DEBUG, logToOutput, command);
+        return exec(LogLevel.INFO, logToOutput, command);
     }
 
     /**
@@ -239,7 +239,7 @@ public class Exec {
      */
     public static ExecResult exec(String input, List<String> command, Set<EnvVar> envVars, int timeout,
                                   boolean logToOutput, boolean throwErrors) {
-        return exec(input, command, envVars, timeout, LogLevel.DEBUG, logToOutput, throwErrors);
+        return exec(input, command, envVars, timeout, LogLevel.INFO, logToOutput, throwErrors);
     }
 
     /**

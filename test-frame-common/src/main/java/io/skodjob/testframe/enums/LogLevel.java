@@ -40,11 +40,11 @@ public enum LogLevel {
      */
     public static Level logLevelToLevel(LogLevel level) {
         switch (level) {
-            case INFO: return Level.INFO;
+            case DEBUG: return Level.DEBUG;
             case WARN: return Level.WARN;
             case ERROR: return Level.ERROR;
             case TRACE: return Level.TRACE;
-            default: return Level.DEBUG;
+            default: return Level.INFO;
         }
     }
 }
