@@ -30,8 +30,10 @@ import java.util.regex.Pattern;
 
 import io.fabric8.kubernetes.api.model.EnvVar;
 import io.skodjob.testframe.clients.KubeClusterException;
+import io.skodjob.testframe.enums.LogLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 
 import static java.lang.String.join;
 
@@ -123,13 +125,25 @@ public class Exec {
     /**
      * Method executes external command
      *
+     * @param command     arguments for command
+     * @param logToOutput log output or not
+     * @return execution results
+     */
+    public static ExecResult exec(boolean logToOutput, String... command) {
+        return exec(LogLevel.DEBUG, logToOutput, command);
+    }
+
+    /**
+     * Method executes external command
+     *
+     * @param logLevel    log level on which the messages should be logged
      * @param logToOutput enable output logging
      * @param command     arguments for command
      * @return execution results
      */
-    public static ExecResult exec(boolean logToOutput, String... command) {
+    public static ExecResult exec(LogLevel logLevel, boolean logToOutput, String... command) {
         List<String> commands = new ArrayList<>(Arrays.asList(command));
-        return exec(null, commands, 0, logToOutput);
+        return exec(null, commands, 0, logLevel, logToOutput);
     }
 
     /**
@@ -159,6 +173,21 @@ public class Exec {
      * @param input       log input
      * @param command     arguments for command
      * @param timeout     timeout for execution
+     * @param logLevel    log level on which the messages should be logged
+     * @param logToOutput log output or not
+     * @return execution results
+     */
+    public static ExecResult exec(String input, List<String> command, int timeout, LogLevel logLevel,
+                                  boolean logToOutput) {
+        return exec(input, command, Collections.emptySet(), timeout, logLevel, logToOutput, true);
+    }
+
+    /**
+     * Method executes external command
+     *
+     * @param input       log input
+     * @param command     arguments for command
+     * @param timeout     timeout for execution
      * @param logToOutput log output or not
      * @return execution results
      */
@@ -169,16 +198,32 @@ public class Exec {
     /**
      * Method executes external command
      *
-     * @param input       input
-     * @param command     command
-     * @param timeout     timeout for command
-     * @param logToOutput log to output
-     * @param throwErrors throw error if exec fail
-     * @return results
+     * @param input       log input
+     * @param command     arguments for command
+     * @param timeout     timeout for execution
+     * @param logToOutput log output or not
+     * @param throwErrors look for errors in output and throws exception if true
+     * @return execution results
      */
     public static ExecResult exec(String input, List<String> command, int timeout, boolean logToOutput,
                                   boolean throwErrors) {
         return exec(input, command, Collections.emptySet(), timeout, logToOutput, throwErrors);
+    }
+
+    /**
+     * Method executes external command
+     *
+     * @param input       input
+     * @param command     command
+     * @param timeout     timeout for command
+     * @param logLevel    log level on which the messages should be logged
+     * @param logToOutput log to output
+     * @param throwErrors throw error if exec fail
+     * @return results
+     */
+    public static ExecResult exec(String input, List<String> command, int timeout, LogLevel logLevel,
+                                  boolean logToOutput, boolean throwErrors) {
+        return exec(input, command, Collections.emptySet(), timeout, logLevel, logToOutput, throwErrors);
     }
 
     /**
@@ -194,6 +239,23 @@ public class Exec {
      */
     public static ExecResult exec(String input, List<String> command, Set<EnvVar> envVars, int timeout,
                                   boolean logToOutput, boolean throwErrors) {
+        return exec(input, command, envVars, timeout, LogLevel.DEBUG, logToOutput, throwErrors);
+    }
+
+    /**
+     * Method executes external command
+     *
+     * @param input       log input
+     * @param command     arguments for command
+     * @param envVars     session environment
+     * @param timeout     timeout for execution
+     * @param logLevel    log level on which the messages should be logged
+     * @param logToOutput log output or not
+     * @param throwErrors look for errors in output and throws exception if true
+     * @return execution results
+     */
+    public static ExecResult exec(String input, List<String> command, Set<EnvVar> envVars, int timeout,
+                                  LogLevel logLevel, boolean logToOutput, boolean throwErrors) {
         int ret;
         ExecResult execResult;
         try {
@@ -202,16 +264,18 @@ public class Exec {
             ret = executor.execute(input, command, envVars, timeout);
             synchronized (LOCK) {
                 if (logToOutput) {
-                    LOGGER.info("RETURN code: {}", ret);
+                    Level level = LogLevel.logLevelToLevel(logLevel);
+
+                    LOGGER.atLevel(level).log("RETURN code: {}", ret);
                     if (!executor.out().isEmpty()) {
-                        LOGGER.info("======STDOUT START=======");
-                        LOGGER.info("{}", cutExecutorLog(executor.out()));
-                        LOGGER.info("======STDOUT END======");
+                        LOGGER.atLevel(level).log("======STDOUT START=======");
+                        LOGGER.atLevel(level).log(cutExecutorLog(executor.out()));
+                        LOGGER.atLevel(level).log("======STDOUT END======");
                     }
                     if (!executor.err().isEmpty()) {
-                        LOGGER.info("======STDERR START=======");
-                        LOGGER.info("{}", cutExecutorLog(executor.err()));
-                        LOGGER.info("======STDERR END======");
+                        LOGGER.atLevel(level).log("======STDERR START=======");
+                        LOGGER.atLevel(level).log(cutExecutorLog(executor.err()));
+                        LOGGER.atLevel(level).log("======STDERR END======");
                     }
                 }
             }
