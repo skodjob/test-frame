@@ -5,6 +5,7 @@
 package io.skodjob.testframe.clients.cmdClient;
 
 import io.skodjob.testframe.clients.KubeClusterException;
+import io.skodjob.testframe.enums.LogLevel;
 import io.skodjob.testframe.executor.Exec;
 import io.skodjob.testframe.executor.ExecResult;
 import org.junit.jupiter.api.AfterEach;
@@ -34,11 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -412,13 +409,13 @@ class BaseCmdKubeClientTest {
         String podName = "my-pod-123";
         String[] cmdToRun = {"ls", "-l"};
         ExecResult mockResult = mockSuccessfulExecResult("total 0");
-        mockedExec.when(() -> Exec.exec(isNull(), anyList(), eq(0), eq(false), eq(true))).thenReturn(mockResult);
+        mockedExec.when(() -> Exec.exec(isNull(), anyList(), eq(0), eq(LogLevel.INFO), eq(false), eq(true))).thenReturn(mockResult);
 
         ExecResult actualResult = client.execInPod(podName, cmdToRun);
 
         assertSame(mockResult, actualResult);
         ArgumentCaptor<List<String>> listCaptor = ArgumentCaptor.forClass(List.class);
-        mockedExec.verify(() -> Exec.exec(isNull(), listCaptor.capture(), eq(0), eq(false), eq(true)));
+        mockedExec.verify(() -> Exec.exec(isNull(), listCaptor.capture(), eq(0), eq(LogLevel.INFO), eq(false), eq(true)));
         List<String> capturedCommand = listCaptor.getValue();
         List<String> expectedParts = Arrays.asList("exec", podName, "--", "ls", "-l");
         assertTrue(capturedCommand.containsAll(expectedParts));
@@ -431,14 +428,14 @@ class BaseCmdKubeClientTest {
         String containerName = "my-container";
         String[] cmdToRun = {"ps", "aux"};
         ExecResult mockResult = mockSuccessfulExecResult("USER PID ...");
-        mockedExec.when(() -> Exec.exec(isNull(), anyList(), eq(0), eq(true), eq(true))).thenReturn(mockResult);
+        mockedExec.when(() -> Exec.exec(isNull(), anyList(), eq(0), eq(LogLevel.INFO), eq(true), eq(true))).thenReturn(mockResult);
 
 
         ExecResult actualResult = client.execInPodContainer(podName, containerName, cmdToRun);
         assertSame(mockResult, actualResult);
 
         ArgumentCaptor<List<String>> listCaptor = ArgumentCaptor.forClass(List.class);
-        mockedExec.verify(() -> Exec.exec(isNull(), listCaptor.capture(), eq(0), eq(true), eq(true)));
+        mockedExec.verify(() -> Exec.exec(isNull(), listCaptor.capture(), eq(0), eq(LogLevel.INFO), eq(true), eq(true)));
         List<String> capturedCommand = listCaptor.getValue();
         List<String> expectedParts = Arrays.asList("exec", podName, "-c", containerName, "--", "ps", "aux");
         assertTrue(capturedCommand.containsAll(expectedParts));
@@ -452,13 +449,13 @@ class BaseCmdKubeClientTest {
         String[] cmdToRun = {"env"};
         boolean logToOutput = false;
         ExecResult mockResult = mockSuccessfulExecResult("PATH=/usr/bin");
-        mockedExec.when(() -> Exec.exec(isNull(), anyList(), eq(0), eq(logToOutput), eq(true))).thenReturn(mockResult);
+        mockedExec.when(() -> Exec.exec(isNull(), anyList(), eq(0), eq(LogLevel.INFO), eq(logToOutput), eq(true))).thenReturn(mockResult);
 
         ExecResult actualResult = client.execInPodContainer(logToOutput, podName, containerName, cmdToRun);
 
         assertSame(mockResult, actualResult);
         ArgumentCaptor<List<String>> listCaptor = ArgumentCaptor.forClass(List.class);
-        mockedExec.verify(() -> Exec.exec(isNull(), listCaptor.capture(), eq(0), eq(logToOutput), eq(true)));
+        mockedExec.verify(() -> Exec.exec(isNull(), listCaptor.capture(), eq(0), eq(LogLevel.INFO), eq(logToOutput), eq(true)));
         List<String> capturedCommand = listCaptor.getValue();
         List<String> expectedParts = Arrays.asList("exec", podName, "-c", containerName, "--", "env");
         assertTrue(capturedCommand.containsAll(expectedParts));
@@ -526,7 +523,7 @@ class BaseCmdKubeClientTest {
         int timeout = 5000;
         String[] cmdToRun = {"api-resources"};
         ExecResult mockResult = mockSuccessfulExecResult("NAME SHORTNAMES ...");
-        mockedExec.when(() -> Exec.exec(isNull(), anyList(), eq(timeout), eq(logToOutput), eq(throwError)))
+        mockedExec.when(() -> Exec.exec(isNull(), anyList(), eq(timeout), eq(LogLevel.INFO), eq(logToOutput), eq(throwError)))
             .thenReturn(mockResult);
 
         ExecResult actualResult = client.exec(throwError, logToOutput, timeout, cmdToRun);
@@ -534,7 +531,7 @@ class BaseCmdKubeClientTest {
         assertSame(mockResult, actualResult);
         ArgumentCaptor<List<String>> listCaptor = ArgumentCaptor.forClass(List.class);
         mockedExec.verify(() -> Exec.exec(isNull(), listCaptor.capture(), eq(timeout),
-            eq(logToOutput), eq(throwError)));
+            eq(LogLevel.INFO), eq(logToOutput), eq(throwError)));
         List<String> capturedCommand = listCaptor.getValue();
         assertTrue(capturedCommand.contains("api-resources"));
     }
@@ -867,9 +864,9 @@ class BaseCmdKubeClientTest {
         String podName = "my-pod";
 
         ExecResult mockResult = mockFailedExecResult("Error: permission denied", 1);
-        mockedExec.when(() -> Exec.exec(isNull(), anyList(), eq(0), eq(false), eq(false)))
+        mockedExec.when(() -> Exec.exec(isNull(), anyList(), eq(0), eq(LogLevel.INFO), eq(false), eq(false)))
             .thenReturn(mockResult);
-        mockedExec.when(() -> Exec.exec(isNull(), anyList(), eq(0), eq(false), eq(true)))
+        mockedExec.when(() -> Exec.exec(isNull(), anyList(), eq(0), eq(LogLevel.INFO), eq(false), eq(true)))
             .thenThrow(new KubeClusterException(new Exception("Failed to execute command")));
 
         assertDoesNotThrow(() -> client.execInPod(false, podName, command));
@@ -883,9 +880,9 @@ class BaseCmdKubeClientTest {
         String containerName = "container";
 
         ExecResult mockResult = mockFailedExecResult("Error: permission denied", 1);
-        mockedExec.when(() -> Exec.exec(isNull(), anyList(), eq(0), eq(false), eq(false)))
+        mockedExec.when(() -> Exec.exec(isNull(), anyList(), eq(0), eq(LogLevel.INFO), eq(false), eq(false)))
             .thenReturn(mockResult);
-        mockedExec.when(() -> Exec.exec(isNull(), anyList(), eq(0), eq(false), eq(true)))
+        mockedExec.when(() -> Exec.exec(isNull(), anyList(), eq(0), eq(LogLevel.INFO), eq(false), eq(true)))
             .thenThrow(new KubeClusterException(new Exception("Failed to execute command")));
 
         assertDoesNotThrow(() -> client.execInPodContainer(false, false, podName, containerName, command));
