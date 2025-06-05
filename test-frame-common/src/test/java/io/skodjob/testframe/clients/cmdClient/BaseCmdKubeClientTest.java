@@ -900,4 +900,100 @@ class BaseCmdKubeClientTest {
         assertThrows(KubeClusterException.class,
             () -> client.execInPodContainer(true, false, podName, containerName, command));
     }
+
+    @Test
+    void testExecWithLogLevel() {
+        String command = "ls";
+        LogLevel logLevel = LogLevel.ERROR;
+
+        ExecResult mockResult = mockSuccessfulExecResult("This is my files");
+
+        mockedExec.when(() -> Exec.exec(isNull(), anyList(), eq(0),
+            eq(logLevel), eq(true), eq(true))).thenReturn(mockResult);
+
+        ExecResult actualResult = client.exec(logLevel, command);
+
+        assertSame(mockResult, actualResult);
+        ArgumentCaptor<LogLevel> logLevelCaptor = ArgumentCaptor.forClass(LogLevel.class);
+        mockedExec.verify(() -> Exec.exec(isNull(), anyList(), eq(0),
+            logLevelCaptor.capture(), eq(true), eq(true)));
+        LogLevel capturedLogLevel = logLevelCaptor.getValue();
+        assertTrue(capturedLogLevel.equals(LogLevel.ERROR));
+    }
+
+    @Test
+    void testExecWithLogLevelAndThrowErrors() {
+        String command = "ls";
+        LogLevel logLevel = LogLevel.ERROR;
+        boolean throwErrors = true;
+
+        ExecResult mockResult = mockSuccessfulExecResult("This is my files");
+
+        mockedExec.when(() -> Exec.exec(isNull(), anyList(), eq(0),
+            eq(logLevel), eq(true), eq(throwErrors))).thenReturn(mockResult);
+
+        ExecResult actualResult = client.exec(throwErrors, logLevel, command);
+        assertSame(mockResult, actualResult);
+
+        ArgumentCaptor<LogLevel> logLevelCaptor = ArgumentCaptor.forClass(LogLevel.class);
+        ArgumentCaptor<Boolean> throwErrorCaptor = ArgumentCaptor.forClass(Boolean.class);
+
+        mockedExec.verify(() -> Exec.exec(isNull(), anyList(), eq(0),
+            logLevelCaptor.capture(), eq(true), throwErrorCaptor.capture()));
+        LogLevel capturedLogLevel = logLevelCaptor.getValue();
+        Boolean capturedThrowErrors = throwErrorCaptor.getValue();
+
+        assertTrue(capturedLogLevel.equals(LogLevel.ERROR));
+        assertTrue(capturedThrowErrors.equals(throwErrors));
+    }
+
+    @Test
+    void testExecWithLogLevels() {
+        String command = "ls";
+        LogLevel logLevel = LogLevel.ERROR;
+        boolean throwErrors = true;
+
+        ExecResult mockResult = mockSuccessfulExecResult("This is my files");
+
+        mockedExec.when(() -> Exec.exec(isNull(), anyList(), eq(0),
+            eq(logLevel), eq(true), eq(throwErrors))).thenReturn(mockResult);
+
+        ExecResult actualResult = client.exec(throwErrors, logLevel, command);
+        assertSame(mockResult, actualResult);
+
+        ArgumentCaptor<LogLevel> logLevelCaptor = ArgumentCaptor.forClass(LogLevel.class);
+        ArgumentCaptor<Boolean> throwErrorCaptor = ArgumentCaptor.forClass(Boolean.class);
+
+        mockedExec.verify(() -> Exec.exec(isNull(), anyList(), eq(0),
+            logLevelCaptor.capture(), eq(true), throwErrorCaptor.capture()));
+        LogLevel capturedLogLevel = logLevelCaptor.getValue();
+        Boolean capturedThrowErrors = throwErrorCaptor.getValue();
+
+        assertTrue(capturedLogLevel.equals(LogLevel.ERROR));
+        assertTrue(capturedThrowErrors.equals(throwErrors));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void testExecInPodContainerWithLogLevel() {
+        String podName = "my-pod-789";
+        String containerName = "another-container";
+        String[] cmdToRun = {"env"};
+        LogLevel logLevel = LogLevel.ERROR;
+
+        ExecResult mockResult = mockSuccessfulExecResult("PATH=/usr/bin");
+        mockedExec.when(() -> Exec.exec(isNull(), anyList(), eq(0), eq(logLevel),
+            eq(true), eq(true))).thenReturn(mockResult);
+
+        ExecResult actualResult = client.execInPodContainer(logLevel, true, podName, containerName, cmdToRun);
+        assertSame(mockResult, actualResult);
+
+        ArgumentCaptor<LogLevel> logLevelCaptor = ArgumentCaptor.forClass(LogLevel.class);
+
+        mockedExec.verify(() -> Exec.exec(isNull(), anyList(), eq(0),
+            logLevelCaptor.capture(), eq(true), eq(true)));
+        LogLevel capturedLogLevel = logLevelCaptor.getValue();
+
+        assertTrue(capturedLogLevel.equals(LogLevel.ERROR));
+    }
 }
