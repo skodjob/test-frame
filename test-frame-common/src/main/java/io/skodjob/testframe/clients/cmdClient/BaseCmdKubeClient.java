@@ -17,6 +17,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import io.skodjob.testframe.clients.KubeClusterException;
+import io.skodjob.testframe.enums.LogLevel;
 import io.skodjob.testframe.executor.Exec;
 import io.skodjob.testframe.executor.ExecResult;
 import org.slf4j.Logger;
@@ -354,6 +355,23 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
     }
 
     /**
+     * Executes a command within a pod.
+     * Specifying {@param logLevel} you can configure a log level where
+     * all the logs from the command execution will be printed into.
+     *
+     * @param logLevel  Desired log level where the log
+     *                  from the command execution should be printed.
+     * @param pod       The name of the pod.
+     * @param command   The command to execute.
+     *
+     * @return The execution result.
+     */
+    @Override
+    public ExecResult execInPod(LogLevel logLevel, String pod, String... command) {
+        return execInPod(true, logLevel, pod, command);
+    }
+
+    /**
      * Executes a command in a pod.
      *
      * @param throwError     Whether to throw errors.
@@ -363,9 +381,26 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
      */
     @Override
     public ExecResult execInPod(boolean throwError, String pod, String... command) {
+        return execInPod(throwError, LogLevel.INFO, pod, command);
+    }
+
+    /**
+     * Executes a command within a pod.
+     * Specifying {@param logLevel} you can configure a log level where
+     * all the logs from the command execution will be printed into.
+     *
+     * @param throwError     Whether to throw errors.
+     * @param logLevel       Desired log level where the log
+     *                       from the command execution should be printed.
+     * @param pod            The name of the pod.
+     * @param command        The command to execute.
+     * @return The execution result.
+     */
+    @Override
+    public ExecResult execInPod(boolean throwError, LogLevel logLevel, String pod, String... command) {
         List<String> cmd = command("exec", pod, "--");
         cmd.addAll(asList(command));
-        return Exec.exec(null, cmd, 0, false, throwError);
+        return Exec.exec(null, cmd, 0, logLevel, false, throwError);
     }
 
     /**
@@ -379,6 +414,23 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
     @Override
     public ExecResult execInPodContainer(String pod, String container, String... command) {
         return execInPodContainer(true, pod, container, command);
+    }
+
+    /**
+     * Executes a command within a pod container.
+     * Specifying {@param logLevel} you can configure a log level where
+     * all the logs from the command execution will be printed into.
+     *
+     * @param logLevel       Desired log level where the log
+     *                       from the command execution should be printed.
+     * @param pod            The name of the pod.
+     * @param container      The name of the container.
+     * @param command        The command to execute.
+     * @return The execution result.
+     */
+    @Override
+    public ExecResult execInPodContainer(LogLevel logLevel, String pod, String container, String... command) {
+        return execInPodContainer(logLevel, true, pod, container, command);
     }
 
     /**
@@ -397,6 +449,26 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
 
     /**
      * Executes a command within a pod container with logging to output control.
+     * Specifying {@param logLevel} you can configure a log level where
+     * all the logs from the command execution will be printed into.
+     *
+     * @param logLevel       Desired log level where the log
+     *                       from the command execution should be printed.
+     * @param logToOutput    Determines if the output should be logged.
+     * @param pod            The name of the pod.
+     * @param container      The name of the container.
+     * @param command        The command to execute.
+     *
+     * @return The execution result.
+     */
+    @Override
+    public ExecResult execInPodContainer(LogLevel logLevel, boolean logToOutput,
+                                         String pod, String container, String... command) {
+        return execInPodContainer(true, logLevel, logToOutput, pod, container, command);
+    }
+
+    /**
+     * Executes a command within a pod container with logging to output control.
      *
      * @param throwError     Whether to throw errors.
      * @param logToOutput    Determines if the output should be logged.
@@ -408,9 +480,29 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
     @Override
     public ExecResult execInPodContainer(boolean throwError, boolean logToOutput,
                                          String pod, String container, String... command) {
+        return execInPodContainer(throwError, LogLevel.INFO, logToOutput, pod, container, command);
+    }
+
+    /**
+     * Executes a command within a pod container with logging to output control.
+     * Specifying {@param logLevel} you can configure a log level where
+     * all the logs from the command execution will be printed into.
+     *
+     * @param throwError     Whether to throw errors.
+     * @param logLevel       Desired log level where the log
+     *                       from the command execution should be printed.
+     * @param logToOutput    Determines if the output should be logged.
+     * @param pod            The name of the pod.
+     * @param container      The name of the container.
+     * @param command        The command to execute.
+     * @return The execution result.
+     */
+    @Override
+    public ExecResult execInPodContainer(boolean throwError, LogLevel logLevel, boolean logToOutput,
+                                         String pod, String container, String... command) {
         List<String> cmd = command("exec", pod, "-c", container, "--");
         cmd.addAll(asList(command));
-        return Exec.exec(null, cmd, 0, logToOutput, throwError);
+        return Exec.exec(null, cmd, 0, logLevel, logToOutput, throwError);
     }
 
     /**
@@ -425,6 +517,22 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
     }
 
     /**
+     * Executes a command - printing output to desired log level.
+     * Specifying {@param logLevel} you can configure a log level where
+     * all the logs from the command execution will be printed into.
+     *
+     * @param command  The command to execute.
+     * @param logLevel Desired log level where the log
+     *                 from the command execution should be printed.
+     *
+     * @return The execution result.
+     */
+    @Override
+    public ExecResult exec(LogLevel logLevel, String... command) {
+        return exec(true, logLevel, command);
+    }
+
+    /**
      * Executes a command with the option to throw errors.
      *
      * @param throwError Whether to throw errors.
@@ -434,6 +542,22 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
     @Override
     public ExecResult exec(boolean throwError, String... command) {
         return exec(throwError, true, command);
+    }
+
+    /**
+     * Executes a command with control over throwing exceptions on failure.
+     * Specifying {@param logLevel} you can configure a log level where
+     * all the logs from the command execution will be printed into.
+     *
+     * @param throwError    Determines if an exception should be thrown on failure.
+     * @param logLevel      Desired log level where the log
+     *                      from the command execution should be printed.
+     * @param command       The command to execute.
+     * @return The execution result.
+     */
+    @Override
+    public ExecResult exec(boolean throwError, LogLevel logLevel, String... command) {
+        return exec(throwError, logLevel, true, command);
     }
 
     /**
@@ -451,6 +575,23 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
     }
 
     /**
+     * Executes a command with control over throwing exceptions on failure and logging to output control.
+     * Specifying {@param logLevel} you can configure a log level where
+     * all the logs from the command execution will be printed into.
+     *
+     * @param throwError    Determines if an exception should be thrown on failure.
+     * @param logLevel      Desired log level where the log
+     *                      from the command execution should be printed.
+     * @param logToOutput   Determines if the output should be logged.
+     * @param command       The command to execute.
+     * @return The execution result.
+     */
+    @Override
+    public ExecResult exec(boolean throwError, LogLevel logLevel, boolean logToOutput, String... command) {
+        return exec(throwError, logLevel, logToOutput, 0, command);
+    }
+
+    /**
      * Executes a command with the option to throw errors and log to output.
      *
      * @param throwError  Whether to throw errors.
@@ -461,8 +602,22 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
      */
     @Override
     public ExecResult exec(boolean throwError, boolean logToOutput, int timeout, String... command) {
+        return exec(throwError, LogLevel.INFO, logToOutput, timeout, command);
+    }
+
+    /**
+     * Execute the given {@code command}. You can specify if potential failure will throw the exception or not.
+     *
+     * @param throwError  parameter which control thrown exception in case of failure
+     * @param command     The command
+     * @param timeout     tiemout in ms
+     * @param logToOutput determines if we want to print whole output of command
+     * @return The process result.
+     */
+    @Override
+    public ExecResult exec(boolean throwError, LogLevel logLevel, boolean logToOutput, int timeout, String... command) {
         List<String> cmd = command(asList(command));
-        return Exec.exec(null, cmd, timeout, logToOutput, throwError);
+        return Exec.exec(null, cmd, timeout, logLevel, logToOutput, throwError);
     }
 
     /**
