@@ -41,7 +41,7 @@ together with the usage and installation.
 <dependency>
     <groupId>io.skodjob</groupId>
     <artifactId>test-frame-common</artifactId>
-    <version>0.14.0</version>
+    <version>0.14.1</version>
 </dependency>
 ```
 ### Or use snapshot releases
@@ -135,17 +135,17 @@ Include `test-frame-kubernetes` or for openshift specific resources include also
 <dependency>
     <groupId>io.skodjob</groupId>
     <artifactId>test-frame-common</artifactId>
-    <version>0.14.0</version>
+    <version>0.14.1</version>
 </dependency>
 <dependency>
     <groupId>io.skodjob</groupId>
     <artifactId>test-frame-kubernetes</artifactId>
-    <version>0.14.0</version>
+    <version>0.14.1</version>
 </dependency>
 <dependency>
     <groupId>io.skodjob</groupId>
     <artifactId>test-frame-openshift</artifactId>
-    <version>0.14.0</version>
+    <version>0.14.1</version>
 </dependency>
 ...
 ```
