@@ -82,7 +82,7 @@
         <maven.compile.plugin.version>3.14.0</maven.compile.plugin.version>
         <maven.source.plugin.version>3.3.1</maven.source.plugin.version>
         <maven.gpg.version>3.2.7</maven.gpg.version>
-        <sonatype.nexus.central>0.7.0</sonatype.nexus.central>
+        <sonatype.nexus.central>0.8.0</sonatype.nexus.central>
         <maven.javadoc.version>3.11.2</maven.javadoc.version>
         <maven.assembly.version>3.7.1</maven.assembly.version>
         <maven.plugin.plugin.version>3.9.0</maven.plugin.plugin.version>
