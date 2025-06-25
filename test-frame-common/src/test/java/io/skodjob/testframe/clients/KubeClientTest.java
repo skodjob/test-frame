@@ -7,7 +7,6 @@ package io.skodjob.testframe.clients;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.server.mock.EnableKubernetesMockClient;
-import io.fabric8.kubernetes.client.server.mock.KubernetesMockServer;
 import io.skodjob.testframe.annotations.TestVisualSeparator;
 import org.junit.jupiter.api.Test;
 
@@ -24,8 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @TestVisualSeparator
 class KubeClientTest {
     private KubernetesClient kubernetesClient;
-    private KubernetesMockServer server;
-
     @Test
     void testClientFromUrlAndToken() {
         KubeClient cl = KubeClient.fromUrlAndToken(kubernetesClient.getConfiguration().getMasterUrl(),

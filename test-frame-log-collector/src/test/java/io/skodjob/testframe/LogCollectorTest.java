@@ -26,6 +26,8 @@ import io.fabric8.kubernetes.client.dsl.Resource;
 import io.skodjob.testframe.annotations.TestVisualSeparator;
 import io.skodjob.testframe.clients.KubeClient;
 import io.skodjob.testframe.clients.cmdClient.KubeCmdClient;
+import io.skodjob.testframe.clients.cmdClient.Kubectl;
+
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -67,7 +69,7 @@ final class LogCollectorTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(LogCollectorTest.class);
 
     private KubeClient mockClient;
-    private KubeCmdClient mockCmdClient;
+    private KubeCmdClient<Kubectl> mockCmdClient;
     private NonNamespaceOperation<Namespace, NamespaceList, Resource<Namespace>> mockNamespaceOperation;
     private MixedOperation<Pod, PodList, PodResource> mockPodOperation;
     private final KubernetesClient mockKubernetesClient = mock(KubernetesClient.class);
@@ -537,7 +539,8 @@ final class LogCollectorTest {
         when(mockNamespaceOperation.withLabelSelector(any(LabelSelector.class))).thenAnswer(
             (Answer<FilterWatchListDeletable<Namespace, NamespaceList, Resource<Namespace>>>) invocation -> {
                 LabelSelector labelSelector = invocation.getArgument(0);
-                FilterWatchListDeletable mockFilterWatchList = mock(FilterWatchListDeletable.class);
+                FilterWatchListDeletable<Namespace, NamespaceList, Resource<Namespace>> mockFilterWatchList =
+                    mock(FilterWatchListDeletable.class);
 
                 if (labelSelector.getMatchLabels().equals(labels)) {
                     when(mockFilterWatchList.list()).thenReturn(namespaceList);

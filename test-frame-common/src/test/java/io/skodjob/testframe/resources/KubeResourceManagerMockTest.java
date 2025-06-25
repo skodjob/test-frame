@@ -30,6 +30,7 @@ public class KubeResourceManagerMockTest {
     static KubeResourceManager kubeResourceManager = spy(KubeResourceManager.class);
     static KubernetesClient kubernetesClient = mock(KubernetesClient.class);
     static KubeClient kubeClient = mock(KubeClient.class);
+    @SuppressWarnings("unchecked")
     static NamespaceableResource<Namespace> namespaceResource = mock(NamespaceableResource.class);
 
     @BeforeAll

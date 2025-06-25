@@ -1,6 +1,9 @@
 # Maven build targets
 target/
 
+# VSCode
+.vscode
+
 # IntelliJ IDEA specific
 .idea/
 *.iml

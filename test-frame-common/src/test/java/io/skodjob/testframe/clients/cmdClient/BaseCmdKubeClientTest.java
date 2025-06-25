@@ -974,7 +974,6 @@ class BaseCmdKubeClientTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     void testExecInPodContainerWithLogLevel() {
         String podName = "my-pod-789";
         String containerName = "another-container";

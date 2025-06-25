@@ -6,8 +6,6 @@ package io.skodjob.testframe.olm;
 
 import io.skodjob.testframe.executor.Exec;
 import io.skodjob.testframe.executor.ExecResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
@@ -18,7 +16,6 @@ import java.util.List;
  * Runner for operator-sdk run command
  */
 public class OperatorSdkRun {
-    private static final Logger LOGGER = LoggerFactory.getLogger(OperatorSdkRun.class);
 
     protected String namespace;
     protected String timeout;
