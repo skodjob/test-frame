@@ -57,8 +57,11 @@ class UtilsTest {
         try (MockedStatic<KubeResourceManager> mockedStatic = mockStatic(KubeResourceManager.class)) {
             when(KubeResourceManager.get()).thenReturn(kubeResourceManager);
 
+            @SuppressWarnings("unchecked")
             MixedOperation<Pod, PodList, PodResource> podsOperation = mock(MixedOperation.class);
+            @SuppressWarnings("unchecked")
             NonNamespaceOperation<Pod, PodList, PodResource> podsInNamespace = mock(NonNamespaceOperation.class);
+            @SuppressWarnings("unchecked")
             FilterWatchListDeletable<Pod, PodList, PodResource> filteredPods = mock(FilterWatchListDeletable.class);
 
             List<Pod> pods = List.of(
@@ -100,8 +103,11 @@ class UtilsTest {
         try (MockedStatic<KubeResourceManager> mockedStatic = mockStatic(KubeResourceManager.class)) {
             when(KubeResourceManager.get()).thenReturn(kubeResourceManager);
 
+            @SuppressWarnings("unchecked")
             NonNamespaceOperation<Namespace, NamespaceList,
                 Resource<Namespace>> namespaceOperation = mock(NonNamespaceOperation.class);
+
+            @SuppressWarnings("unchecked")
             Resource<Namespace> namespaceResource = mock(Resource.class);
 
             Namespace labeledNamespace = new NamespaceBuilder()

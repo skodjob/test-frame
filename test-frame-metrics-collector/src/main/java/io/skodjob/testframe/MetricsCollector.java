@@ -215,6 +215,7 @@ public class MetricsCollector {
         return kubeClient;
     }
 
+    @SuppressWarnings("unchecked")
     synchronized <K extends KubeCmdClient<K>> K getKubeCmdClient() {
         if (kubeCmdClient == null) {
             kubeCmdClient = KubeResourceManager.get().kubeCmdClient();

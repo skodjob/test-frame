@@ -52,7 +52,7 @@ import static org.mockito.Mockito.when;
 final class MetricsCollectorMockTest {
 
     private KubernetesClient mockClient;
-    private KubeCmdClient mockCmdClient;
+    private KubeCmdClient<Kubectl> mockCmdClient;
 
     private MetricsCollector metricsCollector;
 
@@ -262,7 +262,7 @@ final class MetricsCollectorMockTest {
         collector.setExec(execMock);
 
         // Stub kubeCmdClient to avoid NPE during getKubeCmdClient().inNamespace(...)
-        KubeCmdClient mockCmdClient = mock(KubeCmdClient.class);
+        KubeCmdClient<Kubectl> mockCmdClient = mock(KubeCmdClient.class);
         when(mockCmdClient.inNamespace(anyString())).thenReturn(new Kubectl());
         collector.setKubeCmdClient(mockCmdClient);
 

@@ -215,6 +215,7 @@ public final class KubeResourceManager {
      * @param <K> Type extending {@link KubeCmdClient}
      * @return kube cmd client
      */
+    @SuppressWarnings("unchecked")
     public <K extends KubeCmdClient<K>> K kubeCmdClient() {
         return (K) clusterContext().cmdClient;
     }
