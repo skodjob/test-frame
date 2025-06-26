@@ -786,9 +786,9 @@ public final class KubeResourceManager {
         LOGGER.info("Deleting all resources for [{}]/{}", ctxId, testName);
         Stack<ResourceItem<?>> stack = byTest.get(testName);
         AtomicInteger count = new AtomicInteger(stack.size());
+        List<CompletableFuture<Void>> waiters = new ArrayList<>();
         while (!stack.isEmpty()) {
             ResourceItem<?> item = stack.pop();
-            List<CompletableFuture<Void>> waiters = new ArrayList<>();
             CompletableFuture<Void> cf = CompletableFuture.runAsync(() -> {
                 try {
                     item.throwableRunner().run();
@@ -803,9 +803,9 @@ public final class KubeResourceManager {
             }
             count.decrementAndGet();
             deleteCallbacks.forEach(cb -> Optional.ofNullable(item.resource()).ifPresent(cb));
-            if (!waiters.isEmpty()) {
-                CompletableFuture.allOf(waiters.toArray(new CompletableFuture[0])).join();
-            }
+        }
+        if (!waiters.isEmpty()) {
+            CompletableFuture.allOf(waiters.toArray(new CompletableFuture[0])).join();
         }
         byTest.remove(testName);
         if (byTest.isEmpty()) {
