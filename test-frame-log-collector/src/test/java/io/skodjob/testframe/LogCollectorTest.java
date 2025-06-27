@@ -157,7 +157,7 @@ final class LogCollectorTest {
     }
 
     void doTestCollectFromNamespaceWhichIsEmpty(String folderName) {
-        String namespaceName = "my-namespace";
+        String namespaceName = "my-namespace-jeje";
 
         mockNamespaces(namespaceName);
         mockEvents();
@@ -192,7 +192,7 @@ final class LogCollectorTest {
     }
 
     void doTestCollectFromNamespacesWhichAreEmpty(String folderName) {
-        String namespaceName1 = "my-namespace";
+        String namespaceName1 = "my-namespace-tudu";
         String namespaceName2 = "second-namespace";
 
         mockNamespaces(namespaceName1, namespaceName2);
@@ -226,7 +226,7 @@ final class LogCollectorTest {
     }
 
     void doTestCollectFromNamespaceWithLabels(String folderName) {
-        String namespaceName1 = "my-namespace";
+        String namespaceName1 = "my-namespace-blah";
         String namespaceName2 = "second-namespace";
         Map<String, String> labels = Map.of("first", "label");
 
@@ -350,7 +350,7 @@ final class LogCollectorTest {
 
     @Test
     void testCollectingWithEmptyListOfCustomResources() {
-        String namespaceName = "my-namespace";
+        String namespaceName = "my-namespace-1";
         String[] secretNames = new String[]{"secret1", "secret2"};
         String[] deploymentNames = new String[]{"deployment1", "deployment2"};
 
@@ -380,7 +380,7 @@ final class LogCollectorTest {
 
     @Test
     void testCannotWriteToFiles() {
-        String namespaceName = "my-namespace";
+        String namespaceName = "my-namespace-2";
         mockNamespaces(namespaceName);
         mockEvents();
 
@@ -393,7 +393,7 @@ final class LogCollectorTest {
 
     @Test
     void testExceptionDuringResourceCollection() {
-        String namespaceName = "my-namespace";
+        String namespaceName = "my-namespace-3";
         mockNamespaces(namespaceName);
         mockSecrets(namespaceName, "my-secret");
 
