@@ -21,7 +21,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.LockSupport;
 import java.util.function.Consumer;
 
 import io.fabric8.kubernetes.api.model.Endpoints;
@@ -798,6 +800,7 @@ public final class KubeResourceManager {
             });
             if (async) {
                 waiters.add(cf);
+                LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(10));
             } else {
                 cf.join();
             }
@@ -869,6 +872,7 @@ public final class KubeResourceManager {
                 "Timed out deleting " + res.getKind() + "/" + res.getMetadata().getName()));
         if (async) {
             waiters.add(cf);
+            LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(10));
         } else {
             cf.join();
         }
