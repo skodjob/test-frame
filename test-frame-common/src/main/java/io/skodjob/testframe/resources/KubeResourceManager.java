@@ -800,7 +800,7 @@ public final class KubeResourceManager {
             });
             if (async) {
                 waiters.add(cf);
-                LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(10));
+                LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(100));
             } else {
                 cf.join();
             }
@@ -872,7 +872,7 @@ public final class KubeResourceManager {
                 "Timed out deleting " + res.getKind() + "/" + res.getMetadata().getName()));
         if (async) {
             waiters.add(cf);
-            LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(10));
+            LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(100));
         } else {
             cf.join();
         }
