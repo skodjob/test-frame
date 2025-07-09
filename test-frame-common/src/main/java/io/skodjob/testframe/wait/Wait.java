@@ -89,10 +89,12 @@ public class Wait {
                     && exceptionMessage.equals(previousExceptionMessage)) {
 
                     if (e.getCause() instanceof TimeoutException) {
-                        LOGGER.warn("While waiting for: {} exception occurred: {}", description, e.getCause().getClass().getCanonicalName());
+                        LOGGER.warn("While waiting for: {} exception occurred: {}",
+                            description, e.getCause().getClass().getCanonicalName());
                         exceptionMessage = e.getCause().getClass().getCanonicalName();
                     } else {
-                        LOGGER.warn("While waiting for: {} exception occurred: {}/{}", description, e.getCause().getClass().getCanonicalName(), exceptionMessage);
+                        LOGGER.warn("While waiting for: {} exception occurred: {}/{}",
+                            description, e.getCause().getClass().getCanonicalName(), exceptionMessage);
                     }
 
                     // log the stacktrace
@@ -111,9 +113,11 @@ public class Wait {
             if (timeLeft <= 0) {
                 if (exceptionCount > 1) {
                     if (exceptionMessage.equals("null")) {
-                        LOGGER.error("Latest exception while waiting for: {} was: {}", description, exceptionMessage);
+                        LOGGER.error("Latest exception while waiting for: {} was: {}",
+                            description, exceptionMessage);
                     } else {
-                        LOGGER.error("Latest exception while waiting for: {} had message: {}", description, exceptionMessage);
+                        LOGGER.error("Latest exception while waiting for: {} had message: {}",
+                            description, exceptionMessage);
                     }
 
                     if (!stackTraceError.toString().isEmpty()) {

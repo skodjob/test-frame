@@ -612,7 +612,8 @@ public final class KubeResourceManager {
                     decideDeleteWaitAsync(waiters, async, resource);
                 }
             } catch (Exception e) {
-                LOGGER.error("Deletion of {}/{} failed with the following error: {}", resource.getKind(), resource.getMetadata().getName(), e.getMessage(), e);
+                LOGGER.error("Deletion of {}/{} failed with the following error: {}",
+                    resource.getKind(), resource.getMetadata().getName(), e.getMessage(), e);
             }
             deleteCallbacks.forEach(cb -> cb.accept(resource));
         }
