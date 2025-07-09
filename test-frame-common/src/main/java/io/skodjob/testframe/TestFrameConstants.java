@@ -57,6 +57,11 @@ public final class TestFrameConstants {
     public static final long GLOBAL_STABILITY_TIME = Duration.ofMinutes(1).toMillis();
 
     /**
+     * Async deletion delay
+     */
+    public static final long RESOURCE_DELETION_ASYNC_DELAY = Duration.ofMillis(200).toMillis();
+
+    /**
      * CA validity delay
      */
     public static final long CA_CERT_VALIDITY_DELAY = 10;

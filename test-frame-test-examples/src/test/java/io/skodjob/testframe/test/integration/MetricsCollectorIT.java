@@ -9,6 +9,7 @@ import io.fabric8.kubernetes.api.model.LabelSelector;
 import io.fabric8.kubernetes.api.model.LabelSelectorBuilder;
 import io.skodjob.testframe.MetricsCollector;
 import io.skodjob.testframe.MetricsComponent;
+import io.skodjob.testframe.annotations.ResourceManager;
 import io.skodjob.testframe.metrics.Metric;
 import io.skodjob.testframe.resources.KubeResourceManager;
 import org.junit.jupiter.api.Test;
@@ -23,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ResourceManager(asyncDeletion = false)
 final class MetricsCollectorIT extends AbstractIT {
 
     @Test
