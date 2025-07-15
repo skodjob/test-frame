@@ -614,6 +614,8 @@ public final class KubeResourceManager {
             } catch (Exception e) {
                 LOGGER.error("Deletion of {}/{} failed with the following error: {}",
                     resource.getKind(), resource.getMetadata().getName(), e.getMessage(), e);
+                throw new RuntimeException("Failed to delete resource " + resource.getKind() +
+                    "/" + resource.getMetadata().getName(), e);
             }
             deleteCallbacks.forEach(cb -> cb.accept(resource));
         }
