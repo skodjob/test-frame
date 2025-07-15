@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 
@@ -107,15 +108,15 @@ class KubectlTest {
     void testGetUsernameConstructsCommandAndReturnsOutput() {
         String expectedUsername = "system:serviceaccount:kube-system:default";
         ExecResult mockResult = mockSuccessfulExecResult(expectedUsername);
-        mockedExec.when(() -> Exec.exec(anyList())).thenReturn(mockResult);
+        mockedExec.when(() -> Exec.exec(anyList(), eq(10))).thenReturn(mockResult);
 
-        Kubectl client = new Kubectl(CUSTOM_CONFIG).inNamespace(DEFAULT_NAMESPACE);
+        Kubectl client = new Kubectl(CUSTOM_CONFIG).inNamespace(DEFAULT_NAMESPACE).withTimeout(10);
         String actualUsername = client.getUsername();
 
         assertEquals(expectedUsername, actualUsername);
 
         ArgumentCaptor<List<String>> listCaptor = ArgumentCaptor.forClass(List.class);
-        mockedExec.verify(() -> Exec.exec(listCaptor.capture()));
+        mockedExec.verify(() -> Exec.exec(listCaptor.capture(), eq(10)));
 
         List<String> capturedCommand = listCaptor.getValue();
         List<String> expectedCommandParts = Arrays.asList(
@@ -132,13 +133,13 @@ class KubectlTest {
     void testCordonConstructsCorrectCommand() {
         String nodeName = "node-01";
         ExecResult mockResult = mockSuccessfulExecResult("");
-        mockedExec.when(() -> Exec.exec(anyList())).thenReturn(mockResult);
+        mockedExec.when(() -> Exec.exec(anyList(), eq(0))).thenReturn(mockResult);
 
         Kubectl client = new Kubectl(CUSTOM_CONFIG).inNamespace(DEFAULT_NAMESPACE);
         client.cordon(nodeName);
 
         ArgumentCaptor<List<String>> listCaptor = ArgumentCaptor.forClass(List.class);
-        mockedExec.verify(() -> Exec.exec(listCaptor.capture()));
+        mockedExec.verify(() -> Exec.exec(listCaptor.capture(), eq(0)));
         List<String> capturedCommand = listCaptor.getValue();
         List<String> expectedCommandParts = Arrays.asList(
             Kubectl.KUBECTL,
@@ -154,13 +155,13 @@ class KubectlTest {
     void testUncordonConstructsCorrectCommand() {
         String nodeName = "node-02";
         ExecResult mockResult = mockSuccessfulExecResult("");
-        mockedExec.when(() -> Exec.exec(anyList())).thenReturn(mockResult);
+        mockedExec.when(() -> Exec.exec(anyList(), eq(0))).thenReturn(mockResult);
 
         Kubectl client = new Kubectl(CUSTOM_CONFIG).inNamespace(DEFAULT_NAMESPACE);
         client.uncordon(nodeName);
 
         ArgumentCaptor<List<String>> listCaptor = ArgumentCaptor.forClass(List.class);
-        mockedExec.verify(() -> Exec.exec(listCaptor.capture()));
+        mockedExec.verify(() -> Exec.exec(listCaptor.capture(), eq(0)));
         List<String> capturedCommand = listCaptor.getValue();
         List<String> expectedCommandParts = Arrays.asList(
             Kubectl.KUBECTL,
@@ -180,13 +181,13 @@ class KubectlTest {
         long timeoutInSeconds = 300;
 
         ExecResult mockResult = mockSuccessfulExecResult("");
-        mockedExec.when(() -> Exec.exec(anyList())).thenReturn(mockResult);
+        mockedExec.when(() -> Exec.exec(anyList(), eq(0))).thenReturn(mockResult);
 
         Kubectl client = new Kubectl(CUSTOM_CONFIG).inNamespace(DEFAULT_NAMESPACE);
         client.drain(nodeName, ignoreDaemonSets, disableEviction, timeoutInSeconds);
 
         ArgumentCaptor<List<String>> listCaptor = ArgumentCaptor.forClass(List.class);
-        mockedExec.verify(() -> Exec.exec(listCaptor.capture()));
+        mockedExec.verify(() -> Exec.exec(listCaptor.capture(), eq(0)));
         List<String> capturedCommand = listCaptor.getValue();
 
         List<String> expectedCommandParts = Arrays.asList(
@@ -209,7 +210,7 @@ class KubectlTest {
         String expectedYaml = "apiVersion: v1\nkind: Pod...";
         ExecResult mockResult = mockSuccessfulExecResult(expectedYaml);
 
-        mockedExec.when(() -> Exec.exec(anyList())).thenReturn(mockResult);
+        mockedExec.when(() -> Exec.exec(anyList(), eq(0))).thenReturn(mockResult);
 
         Kubectl client = new Kubectl(CUSTOM_CONFIG).inNamespace(DEFAULT_NAMESPACE);
         String actualYaml = client.get(resourceType, resourceName);
@@ -217,7 +218,7 @@ class KubectlTest {
         assertEquals(expectedYaml, actualYaml);
 
         ArgumentCaptor<List<String>> listCaptor = ArgumentCaptor.forClass(List.class);
-        mockedExec.verify(() -> Exec.exec(listCaptor.capture()));
+        mockedExec.verify(() -> Exec.exec(listCaptor.capture(), eq(0)));
         List<String> capturedCommand = listCaptor.getValue();
 
         assertTrue(capturedCommand.contains(Kubectl.KUBECTL), "Command should use 'kubectl'");

@@ -32,11 +32,11 @@ public class Oc extends BaseCmdKubeClient<Oc> {
      * @param config The configuration to use.
      */
     public Oc(String config) {
-        super(config);
+        super(config, 0);
     }
 
-    private Oc(String futureNamespace, String config) {
-        super(config);
+    private Oc(String futureNamespace, String config, int timeout) {
+        super(config, timeout);
         namespace = futureNamespace;
     }
 
@@ -58,7 +58,18 @@ public class Oc extends BaseCmdKubeClient<Oc> {
      */
     @Override
     public Oc inNamespace(String namespace) {
-        return new Oc(namespace, config);
+        return new Oc(namespace, config, timeout);
+    }
+
+    /**
+     * Sets the timeout for subsequent operations.
+     *
+     * @param timeout timeout for execution of command.
+     * @return This kube client.
+     */
+    @Override
+    public Oc withTimeout(int timeout) {
+        return new Oc(namespace, config, timeout);
     }
 
     /**
@@ -80,7 +91,7 @@ public class Oc extends BaseCmdKubeClient<Oc> {
     @Override
     public Oc createNamespace(String name) {
         try (Context context = defaultContext()) {
-            Exec.exec(cmd(), "new-project", name);
+            Exec.exec(timeout, cmd(), "new-project", name);
         }
         return this;
     }
@@ -99,7 +110,7 @@ public class Oc extends BaseCmdKubeClient<Oc> {
             cmd.add(entry.getKey() + "=" + entry.getValue());
         }
 
-        Exec.exec(cmd);
+        Exec.exec(cmd, timeout);
         return this;
     }
 
@@ -120,7 +131,7 @@ public class Oc extends BaseCmdKubeClient<Oc> {
      */
     @Override
     public String getUsername() {
-        return Exec.exec(command("whoami")).out();
+        return Exec.exec(command("whoami"), timeout).out();
     }
 
     /**
@@ -130,7 +141,7 @@ public class Oc extends BaseCmdKubeClient<Oc> {
      */
     @Override
     public void cordon(String nodeName) {
-        Exec.exec(command("adm", "cordon", nodeName));
+        Exec.exec(command("adm", "cordon", nodeName), timeout);
     }
 
     /**
@@ -140,7 +151,7 @@ public class Oc extends BaseCmdKubeClient<Oc> {
      */
     @Override
     public void uncordon(String nodeName) {
-        Exec.exec(command("adm", "uncordon", nodeName));
+        Exec.exec(command("adm", "uncordon", nodeName), timeout);
     }
 
     /**
@@ -157,6 +168,6 @@ public class Oc extends BaseCmdKubeClient<Oc> {
         Exec.exec(command("adm", "drain", nodeName,
             "--ignore-daemonsets", String.valueOf(ignoreDaemonSets),
             "--disable-eviction", String.valueOf(disableEviction),
-            "--timeout", timeoutInSeconds + "s"));
+            "--timeout", timeoutInSeconds + "s"), timeout);
     }
 }

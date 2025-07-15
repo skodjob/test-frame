@@ -125,6 +125,17 @@ public class Exec {
     /**
      * Method executes external command
      *
+     * @param timeout timeout for command
+     * @param command arguments for command
+     * @return execution results
+     */
+    public static ExecResult exec(int timeout, String... command) {
+        return exec(Arrays.asList(command), timeout);
+    }
+
+    /**
+     * Method executes external command
+     *
      * @param command     arguments for command
      * @param logToOutput log output or not
      * @return execution results
@@ -154,6 +165,17 @@ public class Exec {
      */
     public static ExecResult exec(List<String> command) {
         return exec(null, command, 0, false);
+    }
+
+    /**
+     * Method executes external command
+     *
+     * @param command arguments for command
+     * @param timeout timeout for command executed
+     * @return execution results
+     */
+    public static ExecResult exec(List<String> command, int timeout) {
+        return exec(null, command, timeout, false);
     }
 
     /**

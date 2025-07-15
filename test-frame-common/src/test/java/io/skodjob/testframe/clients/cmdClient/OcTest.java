@@ -113,14 +113,15 @@ class OcTest {
         String namespaceName = "my-new-project";
         ExecResult mockResult = mockSuccessfulExecResult(""); // new-project might not output much on success
         // Exec.exec(cmd(), "new-project", name);
-        mockedExec.when(() -> Exec.exec(eq(OC_CMD), eq("new-project"), eq(namespaceName)))
+        mockedExec.when(() -> Exec.exec(eq(0), eq(OC_CMD), eq("new-project"), eq(namespaceName)))
             .thenReturn(mockResult);
 
-        Oc client = new Oc(CUSTOM_CONFIG).inNamespace(DEFAULT_NAMESPACE); // Namespace is not used by this call
+        Oc client = new Oc(CUSTOM_CONFIG)
+            .inNamespace(DEFAULT_NAMESPACE).withTimeout(0); // Namespace is not used by this call
         client.createNamespace(namespaceName);
 
         // Verify the specific call for oc createNamespace
-        mockedExec.verify(() -> Exec.exec(OC_CMD, "new-project", namespaceName));
+        mockedExec.verify(() -> Exec.exec(0, OC_CMD, "new-project", namespaceName));
     }
 
     @Test
@@ -129,13 +130,13 @@ class OcTest {
         String templateName = "my-template";
         Map<String, String> params = Map.of("PARAM1", "VALUE1", "PARAM2", "VALUE2");
         ExecResult mockResult = mockSuccessfulExecResult("Application created");
-        mockedExec.when(() -> Exec.exec(anyList())).thenReturn(mockResult);
+        mockedExec.when(() -> Exec.exec(anyList(), eq(5))).thenReturn(mockResult);
 
-        Oc client = new Oc(CUSTOM_CONFIG).inNamespace(DEFAULT_NAMESPACE);
+        Oc client = new Oc(CUSTOM_CONFIG).inNamespace(DEFAULT_NAMESPACE).withTimeout(5);
         client.newApp(templateName, params);
 
         ArgumentCaptor<List<String>> listCaptor = ArgumentCaptor.forClass(List.class);
-        mockedExec.verify(() -> Exec.exec(listCaptor.capture()));
+        mockedExec.verify(() -> Exec.exec(listCaptor.capture(), eq(5)));
         List<String> capturedCommand = listCaptor.getValue();
 
         List<String> expectedBase = new ArrayList<>(Arrays.asList(
@@ -170,13 +171,13 @@ class OcTest {
         String templateName = "simple-template";
         Map<String, String> params = Collections.emptyMap();
         ExecResult mockResult = mockSuccessfulExecResult("Application created");
-        mockedExec.when(() -> Exec.exec(anyList())).thenReturn(mockResult);
+        mockedExec.when(() -> Exec.exec(anyList(), eq(0))).thenReturn(mockResult);
 
         Oc client = new Oc(CUSTOM_CONFIG).inNamespace(DEFAULT_NAMESPACE);
         client.newApp(templateName, params);
 
         ArgumentCaptor<List<String>> listCaptor = ArgumentCaptor.forClass(List.class);
-        mockedExec.verify(() -> Exec.exec(listCaptor.capture()));
+        mockedExec.verify(() -> Exec.exec(listCaptor.capture(), eq(0)));
         List<String> capturedCommand = listCaptor.getValue();
 
         List<String> expectedCommandParts = Arrays.asList(
@@ -193,15 +194,15 @@ class OcTest {
     void testGetUsernameConstructsOcCommandAndReturnsOutput() {
         String expectedUsername = "testuser";
         ExecResult mockResult = mockSuccessfulExecResult(expectedUsername);
-        mockedExec.when(() -> Exec.exec(anyList())).thenReturn(mockResult);
+        mockedExec.when(() -> Exec.exec(anyList(), eq(10))).thenReturn(mockResult);
 
-        Oc client = new Oc(CUSTOM_CONFIG).inNamespace(DEFAULT_NAMESPACE);
+        Oc client = new Oc(CUSTOM_CONFIG).inNamespace(DEFAULT_NAMESPACE).withTimeout(10);
         String actualUsername = client.getUsername();
 
         assertEquals(expectedUsername, actualUsername);
 
         ArgumentCaptor<List<String>> listCaptor = ArgumentCaptor.forClass(List.class);
-        mockedExec.verify(() -> Exec.exec(listCaptor.capture()));
+        mockedExec.verify(() -> Exec.exec(listCaptor.capture(), eq(10)));
 
         List<String> capturedCommand = listCaptor.getValue();
         List<String> expectedCommandParts = Arrays.asList(
@@ -218,13 +219,13 @@ class OcTest {
     void testCordonConstructsOcAdmCommand() {
         String nodeName = "oc-node-01";
         ExecResult mockResult = mockSuccessfulExecResult("");
-        mockedExec.when(() -> Exec.exec(anyList())).thenReturn(mockResult);
+        mockedExec.when(() -> Exec.exec(anyList(), eq(0))).thenReturn(mockResult);
 
         Oc client = new Oc(CUSTOM_CONFIG).inNamespace(DEFAULT_NAMESPACE);
         client.cordon(nodeName);
 
         ArgumentCaptor<List<String>> listCaptor = ArgumentCaptor.forClass(List.class);
-        mockedExec.verify(() -> Exec.exec(listCaptor.capture()));
+        mockedExec.verify(() -> Exec.exec(listCaptor.capture(), eq(0)));
         List<String> capturedCommand = listCaptor.getValue();
         List<String> expectedCommandParts = Arrays.asList(
             OC_CMD,
@@ -240,13 +241,13 @@ class OcTest {
     void testUncordonConstructsOcAdmCommand() {
         String nodeName = "oc-node-02";
         ExecResult mockResult = mockSuccessfulExecResult("");
-        mockedExec.when(() -> Exec.exec(anyList())).thenReturn(mockResult);
+        mockedExec.when(() -> Exec.exec(anyList(), eq(0))).thenReturn(mockResult);
 
         Oc client = new Oc(CUSTOM_CONFIG).inNamespace(DEFAULT_NAMESPACE);
         client.uncordon(nodeName);
 
         ArgumentCaptor<List<String>> listCaptor = ArgumentCaptor.forClass(List.class);
-        mockedExec.verify(() -> Exec.exec(listCaptor.capture()));
+        mockedExec.verify(() -> Exec.exec(listCaptor.capture(), eq(0)));
         List<String> capturedCommand = listCaptor.getValue();
         List<String> expectedCommandParts = Arrays.asList(
             OC_CMD,
@@ -266,13 +267,13 @@ class OcTest {
         long timeoutInSeconds = 60;
 
         ExecResult mockResult = mockSuccessfulExecResult("");
-        mockedExec.when(() -> Exec.exec(anyList())).thenReturn(mockResult);
+        mockedExec.when(() -> Exec.exec(anyList(), eq(10))).thenReturn(mockResult);
 
-        Oc client = new Oc(CUSTOM_CONFIG).inNamespace(DEFAULT_NAMESPACE);
+        Oc client = new Oc(CUSTOM_CONFIG).inNamespace(DEFAULT_NAMESPACE).withTimeout(10);
         client.drain(nodeName, ignoreDaemonSets, disableEviction, timeoutInSeconds);
 
         ArgumentCaptor<List<String>> listCaptor = ArgumentCaptor.forClass(List.class);
-        mockedExec.verify(() -> Exec.exec(listCaptor.capture()));
+        mockedExec.verify(() -> Exec.exec(listCaptor.capture(), eq(10)));
         List<String> capturedCommand = listCaptor.getValue();
 
         List<String> expectedCommandParts = Arrays.asList(
@@ -295,15 +296,15 @@ class OcTest {
         String expectedYaml = "apiVersion: route.openshift.io/v1\nkind: Route...";
         ExecResult mockResult = mockSuccessfulExecResult(expectedYaml);
 
-        mockedExec.when(() -> Exec.exec(anyList())).thenReturn(mockResult);
+        mockedExec.when(() -> Exec.exec(anyList(), eq(6))).thenReturn(mockResult);
 
-        Oc client = new Oc(CUSTOM_CONFIG).inNamespace(DEFAULT_NAMESPACE);
+        Oc client = new Oc(CUSTOM_CONFIG).inNamespace(DEFAULT_NAMESPACE).withTimeout(6);
         String actualYaml = client.get(resourceType, resourceName);
 
         assertEquals(expectedYaml, actualYaml);
 
         ArgumentCaptor<List<String>> listCaptor = ArgumentCaptor.forClass(List.class);
-        mockedExec.verify(() -> Exec.exec(listCaptor.capture()));
+        mockedExec.verify(() -> Exec.exec(listCaptor.capture(), eq(6)));
         List<String> capturedCommand = listCaptor.getValue();
 
         assertTrue(capturedCommand.contains(OC_CMD), "Command should use 'oc'");

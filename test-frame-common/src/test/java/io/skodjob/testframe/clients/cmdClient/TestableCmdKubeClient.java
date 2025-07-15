@@ -9,7 +9,7 @@ public class TestableCmdKubeClient extends BaseCmdKubeClient<TestableCmdKubeClie
     private final String commandName;
 
     public TestableCmdKubeClient(String commandName, String config) {
-        super(config);
+        super(config, 0);
         this.commandName = commandName;
     }
 
@@ -24,6 +24,11 @@ public class TestableCmdKubeClient extends BaseCmdKubeClient<TestableCmdKubeClie
 
     @Override
     public KubeCmdClient<TestableCmdKubeClient> inNamespace(String namespace) {
+        return null;
+    }
+
+    @Override
+    public KubeCmdClient<TestableCmdKubeClient> withTimeout(int timeout) {
         return null;
     }
 

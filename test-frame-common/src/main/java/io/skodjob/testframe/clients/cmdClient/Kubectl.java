@@ -29,11 +29,11 @@ public class Kubectl extends BaseCmdKubeClient<Kubectl> {
      * @param config The configuration to use.
      */
     public Kubectl(String config) {
-        super(config);
+        super(config, 0);
     }
 
-    private Kubectl(String futureNamespace, String config) {
-        super(config);
+    private Kubectl(String futureNamespace, String config, int timeout) {
+        super(config, timeout);
         namespace = futureNamespace;
     }
 
@@ -45,7 +45,18 @@ public class Kubectl extends BaseCmdKubeClient<Kubectl> {
      */
     @Override
     public Kubectl inNamespace(String namespace) {
-        return new Kubectl(namespace, config);
+        return new Kubectl(namespace, config, timeout);
+    }
+
+    /**
+     * Sets the timeout for subsequent operations.
+     *
+     * @param timeout timeout for execution of command.
+     * @return This kube client.
+     */
+    @Override
+    public Kubectl withTimeout(int timeout) {
+        return new Kubectl(namespace, config, timeout);
     }
 
     /**
@@ -85,7 +96,8 @@ public class Kubectl extends BaseCmdKubeClient<Kubectl> {
      */
     @Override
     public String getUsername() {
-        return Exec.exec(command("auth", "whoami", "-o", "jsonpath='{.status.userInfo.username}'")).out();
+        return Exec.exec(command("auth", "whoami", "-o", "jsonpath='{.status.userInfo.username}'"), timeout)
+            .out();
     }
 
     /**
@@ -95,7 +107,7 @@ public class Kubectl extends BaseCmdKubeClient<Kubectl> {
      */
     @Override
     public void cordon(String nodeName) {
-        Exec.exec(command("cordon", nodeName));
+        Exec.exec(command("cordon", nodeName), timeout);
     }
 
     /**
@@ -105,7 +117,7 @@ public class Kubectl extends BaseCmdKubeClient<Kubectl> {
      */
     @Override
     public void uncordon(String nodeName) {
-        Exec.exec(command("uncordon", nodeName));
+        Exec.exec(command("uncordon", nodeName), timeout);
     }
 
     /**
@@ -122,6 +134,6 @@ public class Kubectl extends BaseCmdKubeClient<Kubectl> {
         Exec.exec(command("drain", nodeName,
             "--ignore-daemonsets", String.valueOf(ignoreDaemonSets),
             "--disable-eviction", String.valueOf(disableEviction),
-            "--timeout", timeoutInSeconds + "s"));
+            "--timeout", timeoutInSeconds + "s"), timeout);
     }
 }
