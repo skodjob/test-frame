@@ -43,16 +43,18 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
     private static final String GET = "get";
 
     protected String config;
-
-    String namespace;
+    protected int timeout;
+    protected String namespace;
 
     /**
      * Constructor for BaseCmdKubeClient.
      *
      * @param config The Kubernetes configuration file path.
+     * @param timeoutInMs Timeout for exec commands.
      */
-    protected BaseCmdKubeClient(String config) {
+    protected BaseCmdKubeClient(String config, int timeoutInMs) {
         this.config = config;
+        this.timeout = timeoutInMs;
     }
 
     protected List<String> command(String... args) {
@@ -95,7 +97,7 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
     @Override
     @SuppressWarnings("unchecked")
     public K deleteByName(String resourceType, String resourceName) {
-        Exec.exec(command(DELETE, resourceType, resourceName));
+        Exec.exec(command(DELETE, resourceType, resourceName), timeout);
         return (K) this;
     }
 
@@ -126,7 +128,7 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
      */
     @Override
     public String get(String resource, String resourceName) {
-        return Exec.exec(command(GET, resource, resourceName, "-o", "yaml")).out();
+        return Exec.exec(command(GET, resource, resourceName, "-o", "yaml"), timeout).out();
     }
 
     /**
@@ -136,7 +138,7 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
      */
     @Override
     public String getEvents() {
-        return Exec.exec(command(GET, "events")).out();
+        return Exec.exec(command(GET, "events"), timeout).out();
     }
 
     /**
@@ -211,7 +213,7 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
             if (f.isFile()) {
                 if (f.getName().endsWith(".yaml")) {
                     execResults.put(f, Exec.exec(null, command(subcommand, "-f",
-                        f.getAbsolutePath()), 0, false, false));
+                        f.getAbsolutePath()), timeout, false, false));
                 }
             } else if (f.isDirectory()) {
                 File[] children = f.listFiles();
@@ -257,7 +259,7 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
     @SuppressWarnings("unchecked")
     public K applyContent(String yamlContent) {
         try (Context context = defaultContext()) {
-            Exec.exec(yamlContent, command(Arrays.asList(APPLY, "-f", "-")), 0,
+            Exec.exec(yamlContent, command(Arrays.asList(APPLY, "-f", "-")), timeout,
                 true, true);
             return (K) this;
         }
@@ -273,7 +275,7 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
     @SuppressWarnings("unchecked")
     public K replaceContent(String yamlContent) {
         try (Context context = defaultContext()) {
-            Exec.exec(yamlContent, command(Arrays.asList(REPLACE, "-f", "-")), 0,
+            Exec.exec(yamlContent, command(Arrays.asList(REPLACE, "-f", "-")), timeout,
                 true, true);
             return (K) this;
         }
@@ -289,7 +291,7 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
     @SuppressWarnings("unchecked")
     public K deleteContent(String yamlContent) {
         try (Context context = defaultContext()) {
-            Exec.exec(yamlContent, command(Arrays.asList(DELETE, "-f", "-")), 0,
+            Exec.exec(yamlContent, command(Arrays.asList(DELETE, "-f", "-")), timeout,
                 true, false);
             return (K) this;
         }
@@ -305,7 +307,7 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
     @SuppressWarnings("unchecked")
     public K createNamespace(String name) {
         try (Context context = adminContext()) {
-            Exec.exec(command(CREATE, "namespace", name));
+            Exec.exec(command(CREATE, "namespace", name), timeout);
         }
         return (K) this;
     }
@@ -320,7 +322,7 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
     @SuppressWarnings("unchecked")
     public K deleteNamespace(String name) {
         try (Context context = adminContext()) {
-            Exec.exec(null, command(DELETE, "namespace", name), 0, true, false);
+            Exec.exec(null, command(DELETE, "namespace", name), timeout, true, false);
         }
         return (K) this;
     }
@@ -337,7 +339,7 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
     @SuppressWarnings("unchecked")
     public K scaleByName(String kind, String name, int replicas) {
         try (Context context = defaultContext()) {
-            Exec.exec(null, command("scale", kind, name, "--replicas", Integer.toString(replicas)));
+            Exec.exec(command("scale", kind, name, "--replicas", Integer.toString(replicas)), timeout);
             return (K) this;
         }
     }
@@ -400,7 +402,7 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
     public ExecResult execInPod(boolean throwError, LogLevel logLevel, String pod, String... command) {
         List<String> cmd = command("exec", pod, "--");
         cmd.addAll(asList(command));
-        return Exec.exec(null, cmd, 0, logLevel, false, throwError);
+        return Exec.exec(null, cmd, timeout, logLevel, false, throwError);
     }
 
     /**
@@ -502,7 +504,7 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
                                          String pod, String container, String... command) {
         List<String> cmd = command("exec", pod, "-c", container, "--");
         cmd.addAll(asList(command));
-        return Exec.exec(null, cmd, 0, logLevel, logToOutput, throwError);
+        return Exec.exec(null, cmd, timeout, logLevel, logToOutput, throwError);
     }
 
     /**
@@ -639,7 +641,7 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
     @Override
     public List<String> list(String resourceType) {
         return Arrays.stream(Exec.exec(command(GET, resourceType,
-                    "-o", "jsonpath={range .items[*]}{.metadata.name} "))
+                    "-o", "jsonpath={range .items[*]}{.metadata.name} "), timeout)
                 .out().trim().split(" +"))
             .filter(s -> !s.trim().isEmpty()).collect(Collectors.toList());
     }
@@ -653,7 +655,7 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
      */
     @Override
     public String getResourceAsJson(String resourceType, String resourceName) {
-        return Exec.exec(command(GET, resourceType, resourceName, "-o", "json")).out();
+        return Exec.exec(command(GET, resourceType, resourceName, "-o", "json"), timeout).out();
     }
 
     /**
@@ -665,7 +667,7 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
      */
     @Override
     public String getResourceAsYaml(String resourceType, String resourceName) {
-        return Exec.exec(command(GET, resourceType, resourceName, "-o", "yaml")).out();
+        return Exec.exec(command(GET, resourceType, resourceName, "-o", "yaml"), timeout).out();
     }
 
     /**
@@ -676,7 +678,7 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
      */
     @Override
     public String getResourcesAsYaml(String resourceType) {
-        return Exec.exec(command(GET, resourceType, "-o", "yaml")).out();
+        return Exec.exec(command(GET, resourceType, "-o", "yaml"), timeout).out();
     }
 
     /**
@@ -693,7 +695,7 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
             cmd.add(entry.getKey() + "=" + entry.getValue());
         }
 
-        String yaml = Exec.exec(cmd).out();
+        String yaml = Exec.exec(cmd, timeout).out();
         this.applyContent(yaml);
     }
 
@@ -706,7 +708,7 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
      */
     @Override
     public String describe(String resourceType, String resourceName) {
-        return Exec.exec(command("describe", resourceType, resourceName)).out();
+        return Exec.exec(command("describe", resourceType, resourceName), timeout).out();
     }
 
     /**
@@ -724,7 +726,7 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
         } else {
             args = new String[]{"logs", pod};
         }
-        return Exec.exec(command(args)).out();
+        return Exec.exec(command(args), timeout).out();
     }
 
     /**
@@ -743,7 +745,7 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
         } else {
             args = new String[]{"logs", pod, "--previous=true"};
         }
-        return Exec.exec(command(args)).out();
+        return Exec.exec(command(args), timeout).out();
     }
 
     /**
@@ -758,7 +760,7 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
     @Override
     public String searchInLog(String resourceType, String resourceName, long sinceSeconds, String... grepPattern) {
         try {
-            return Exec.exec("bash", "-c", join(" ",
+            return Exec.exec(timeout, "bash", "-c", join(" ",
                     command("logs", resourceType + "/" + resourceName,
                         "--since=" + sinceSeconds + "s",
                         "|", "grep", " -e " + join(" -e ", grepPattern), "-B", "1")))
@@ -787,7 +789,7 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
     public String searchInLog(String resourceType, String resourceName, String resourceContainer,
                               long sinceSeconds, String... grepPattern) {
         try {
-            return Exec.exec("bash", "-c", join(" ", command("logs",
+            return Exec.exec(timeout, "bash", "-c", join(" ", command("logs",
                 resourceType + "/" + resourceName, "-c " + resourceContainer, "--since=" + sinceSeconds + "s",
                 "|", "grep", " -e " + join(" -e ", grepPattern), "-B", "1"))).out();
         } catch (KubeClusterException e) {
@@ -810,7 +812,7 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
     @Override
     public List<String> listResourcesByLabel(String resourceType, String label) {
         return asList(Exec.exec(command(GET, resourceType,
-                "-l", label, "-o", "jsonpath={range .items[*]}{.metadata.name} "))
+                "-l", label, "-o", "jsonpath={range .items[*]}{.metadata.name} "), timeout)
             .out().split("\\s+"));
     }
 
@@ -830,7 +832,7 @@ public abstract class BaseCmdKubeClient<K extends BaseCmdKubeClient<K>> implemen
             .map(e -> "-p " + e.getKey() + "=" + e.getValue())
             .toList());
 
-        c.accept(Exec.exec(null, command, 0, false).out());
+        c.accept(Exec.exec(null, command, timeout, false).out());
         return (K) this;
     }
 }

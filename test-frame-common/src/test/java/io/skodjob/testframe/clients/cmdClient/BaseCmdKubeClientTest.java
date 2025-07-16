@@ -122,12 +122,12 @@ class BaseCmdKubeClientTest {
         String resourceName = "my-pod";
         ExecResult mockResult = mockSuccessfulExecResult(null);
 
-        mockedExec.when(() -> Exec.exec(anyList())).thenReturn(mockResult);
+        mockedExec.when(() -> Exec.exec(anyList(), eq(0))).thenReturn(mockResult);
 
         client.deleteByName(resourceType, resourceName);
 
         ArgumentCaptor<List<String>> listCaptor = ArgumentCaptor.forClass(List.class);
-        mockedExec.verify(() -> Exec.exec(listCaptor.capture()));
+        mockedExec.verify(() -> Exec.exec(listCaptor.capture(), eq(0)));
         List<String> expectedCommand = Arrays.asList(TEST_CMD, "--kubeconfig", TEST_CONFIG,
             "--namespace", TEST_NAMESPACE, "delete", resourceType, resourceName);
         assertEquals(expectedCommand, listCaptor.getValue());
@@ -142,7 +142,7 @@ class BaseCmdKubeClientTest {
         ExecResult mockResult = mockSuccessfulExecResult(expectedYaml);
 
         ArgumentCaptor<List<String>> commandCaptor = ArgumentCaptor.forClass(List.class);
-        mockedExec.when(() -> Exec.exec(commandCaptor.capture())).thenReturn(mockResult);
+        mockedExec.when(() -> Exec.exec(commandCaptor.capture(), eq(0))).thenReturn(mockResult);
 
         String actualYaml = client.get(resourceType, resourceName);
 
@@ -157,13 +157,13 @@ class BaseCmdKubeClientTest {
     void testGetEvents() {
         String expectedEvents = "LAST SEEN   TYPE      REASON      OBJECT      MESSAGE";
         ExecResult mockResult = mockSuccessfulExecResult(expectedEvents);
-        mockedExec.when(() -> Exec.exec(anyList())).thenReturn(mockResult);
+        mockedExec.when(() -> Exec.exec(anyList(), eq(0))).thenReturn(mockResult);
 
         String actualEvents = client.getEvents();
         assertEquals(expectedEvents, actualEvents);
 
         ArgumentCaptor<List<String>> listCaptor = ArgumentCaptor.forClass(List.class);
-        mockedExec.verify(() -> Exec.exec(listCaptor.capture()));
+        mockedExec.verify(() -> Exec.exec(listCaptor.capture(), eq(0)));
         List<String> expectedCommand = Arrays.asList(TEST_CMD, "--kubeconfig", TEST_CONFIG,
             "--namespace", TEST_NAMESPACE, "get", "events");
         assertEquals(expectedCommand, listCaptor.getValue());
@@ -359,12 +359,12 @@ class BaseCmdKubeClientTest {
     void testCreateNamespace() {
         String namespaceName = "new-ns";
         ExecResult mockResult = mockSuccessfulExecResult("namespace/new-ns created");
-        mockedExec.when(() -> Exec.exec(anyList())).thenReturn(mockResult);
+        mockedExec.when(() -> Exec.exec(anyList(), eq(0))).thenReturn(mockResult);
 
         client.createNamespace(namespaceName);
 
         ArgumentCaptor<List<String>> listCaptor = ArgumentCaptor.forClass(List.class);
-        mockedExec.verify(() -> Exec.exec(listCaptor.capture()));
+        mockedExec.verify(() -> Exec.exec(listCaptor.capture(), eq(0)));
         List<String> capturedCommand = listCaptor.getValue();
         List<String> expectedParts = Arrays.asList(TEST_CMD, "--kubeconfig", TEST_CONFIG,
             "--namespace", TEST_NAMESPACE, "create", "namespace", namespaceName);
@@ -401,7 +401,7 @@ class BaseCmdKubeClientTest {
         client.scaleByName(kind, name, replicas);
 
         ArgumentCaptor<List<String>> listCaptor = ArgumentCaptor.forClass(List.class);
-        mockedExec.verify(() -> Exec.exec(isNull(), listCaptor.capture()));
+        mockedExec.verify(() -> Exec.exec(listCaptor.capture(), eq(0)));
         List<String> capturedCommand = listCaptor.getValue();
         List<String> expectedParts = Arrays.asList("scale", kind, name, "--replicas", String.valueOf(replicas));
         assertTrue(capturedCommand.containsAll(expectedParts));
@@ -553,13 +553,13 @@ class BaseCmdKubeClientTest {
         String resourceType = "pods";
         String output = "pod-a pod-b  pod-c";
         ExecResult mockResult = mockSuccessfulExecResult(output);
-        mockedExec.when(() -> Exec.exec(anyList())).thenReturn(mockResult);
+        mockedExec.when(() -> Exec.exec(anyList(), eq(0))).thenReturn(mockResult);
 
         List<String> resources = client.list(resourceType);
 
         assertEquals(Arrays.asList("pod-a", "pod-b", "pod-c"), resources);
         ArgumentCaptor<List<String>> listCaptor = ArgumentCaptor.forClass(List.class);
-        mockedExec.verify(() -> Exec.exec(listCaptor.capture()));
+        mockedExec.verify(() -> Exec.exec(listCaptor.capture(), eq(0)));
         List<String> expectedParts = Arrays.asList("get", resourceType,
             "-o", "jsonpath={range .items[*]}{.metadata.name} ");
         assertTrue(listCaptor.getValue().containsAll(expectedParts));
@@ -570,7 +570,7 @@ class BaseCmdKubeClientTest {
         String resourceType = "deployments";
         String output = " ";
         ExecResult mockResult = mockSuccessfulExecResult(output);
-        mockedExec.when(() -> Exec.exec(anyList())).thenReturn(mockResult);
+        mockedExec.when(() -> Exec.exec(anyList(), eq(0))).thenReturn(mockResult);
 
         List<String> resources = client.list(resourceType);
 
@@ -584,12 +584,12 @@ class BaseCmdKubeClientTest {
         String name = "my-cm";
         String jsonOutput = "{\"kind\": \"ConfigMap\"}";
         ExecResult mockResult = mockSuccessfulExecResult(jsonOutput);
-        mockedExec.when(() -> Exec.exec(anyList())).thenReturn(mockResult);
+        mockedExec.when(() -> Exec.exec(anyList(), eq(0))).thenReturn(mockResult);
 
         String result = client.getResourceAsJson(type, name);
         assertEquals(jsonOutput, result);
         ArgumentCaptor<List<String>> listCaptor = ArgumentCaptor.forClass(List.class);
-        mockedExec.verify(() -> Exec.exec(listCaptor.capture()));
+        mockedExec.verify(() -> Exec.exec(listCaptor.capture(), eq(0)));
         List<String> expectedParts = Arrays.asList("get", type, name, "-o", "json");
         assertTrue(listCaptor.getValue().containsAll(expectedParts));
     }
@@ -601,12 +601,12 @@ class BaseCmdKubeClientTest {
         String name = "my-secret";
         String yamlOutput = "kind: Secret";
         ExecResult mockResult = mockSuccessfulExecResult(yamlOutput);
-        mockedExec.when(() -> Exec.exec(anyList())).thenReturn(mockResult);
+        mockedExec.when(() -> Exec.exec(anyList(), eq(0))).thenReturn(mockResult);
 
         String result = client.getResourceAsYaml(type, name);
         assertEquals(yamlOutput, result);
         ArgumentCaptor<List<String>> listCaptor = ArgumentCaptor.forClass(List.class);
-        mockedExec.verify(() -> Exec.exec(listCaptor.capture()));
+        mockedExec.verify(() -> Exec.exec(listCaptor.capture(), eq(0)));
         List<String> expectedParts = Arrays.asList("get", type, name, "-o", "yaml");
         assertTrue(listCaptor.getValue().containsAll(expectedParts));
     }
@@ -617,12 +617,12 @@ class BaseCmdKubeClientTest {
         String type = "ingresses";
         String yamlOutput = "kind: List\nitems:\n- kind: Ingress";
         ExecResult mockResult = mockSuccessfulExecResult(yamlOutput);
-        mockedExec.when(() -> Exec.exec(anyList())).thenReturn(mockResult);
+        mockedExec.when(() -> Exec.exec(anyList(), eq(0))).thenReturn(mockResult);
 
         String result = client.getResourcesAsYaml(type);
         assertEquals(yamlOutput, result);
         ArgumentCaptor<List<String>> listCaptor = ArgumentCaptor.forClass(List.class);
-        mockedExec.verify(() -> Exec.exec(listCaptor.capture()));
+        mockedExec.verify(() -> Exec.exec(listCaptor.capture(), eq(0)));
         List<String> expectedParts = Arrays.asList("get", type, "-o", "yaml");
         assertTrue(listCaptor.getValue().containsAll(expectedParts));
     }
@@ -638,7 +638,7 @@ class BaseCmdKubeClientTest {
         ExecResult applyResult = mockSuccessfulExecResult("applied");
 
         ArgumentCaptor<List<String>> processCmdCaptor = ArgumentCaptor.forClass(List.class);
-        mockedExec.when(() -> Exec.exec(processCmdCaptor.capture())).thenReturn(processResult);
+        mockedExec.when(() -> Exec.exec(processCmdCaptor.capture(), eq(0))).thenReturn(processResult);
 
         ArgumentCaptor<List<String>> applyCmdCaptor = ArgumentCaptor.forClass(List.class);
         mockedExec.when(() -> Exec.exec(eq(processedYaml), applyCmdCaptor.capture(), eq(0), eq(true), eq(true)))
@@ -665,12 +665,12 @@ class BaseCmdKubeClientTest {
         String name = "node01";
         String description = "Name: node01\nRoles: worker";
         ExecResult mockResult = mockSuccessfulExecResult(description);
-        mockedExec.when(() -> Exec.exec(anyList())).thenReturn(mockResult);
+        mockedExec.when(() -> Exec.exec(anyList(), eq(0))).thenReturn(mockResult);
 
         String result = client.describe(type, name);
         assertEquals(description, result);
         ArgumentCaptor<List<String>> listCaptor = ArgumentCaptor.forClass(List.class);
-        mockedExec.verify(() -> Exec.exec(listCaptor.capture()));
+        mockedExec.verify(() -> Exec.exec(listCaptor.capture(), eq(0)));
         List<String> expectedParts = Arrays.asList("describe", type, name);
         assertTrue(listCaptor.getValue().containsAll(expectedParts));
     }
@@ -681,12 +681,12 @@ class BaseCmdKubeClientTest {
         String podName = "log-pod";
         String logOutput = "Log line 1\nLog line 2";
         ExecResult mockResult = mockSuccessfulExecResult(logOutput);
-        mockedExec.when(() -> Exec.exec(anyList())).thenReturn(mockResult);
+        mockedExec.when(() -> Exec.exec(anyList(), eq(0))).thenReturn(mockResult);
 
         String logs = client.logs(podName, null);
         assertEquals(logOutput, logs);
         ArgumentCaptor<List<String>> listCaptor = ArgumentCaptor.forClass(List.class);
-        mockedExec.verify(() -> Exec.exec(listCaptor.capture()));
+        mockedExec.verify(() -> Exec.exec(listCaptor.capture(), eq(0)));
         assertTrue(listCaptor.getValue().containsAll(Arrays.asList("logs", podName)));
         assertFalse(listCaptor.getValue().contains("-c"));
     }
@@ -698,12 +698,12 @@ class BaseCmdKubeClientTest {
         String containerName = "log-container";
         String logOutput = "Container log 1";
         ExecResult mockResult = mockSuccessfulExecResult(logOutput);
-        mockedExec.when(() -> Exec.exec(anyList())).thenReturn(mockResult);
+        mockedExec.when(() -> Exec.exec(anyList(), eq(0))).thenReturn(mockResult);
 
         String logs = client.logs(podName, containerName);
         assertEquals(logOutput, logs);
         ArgumentCaptor<List<String>> listCaptor = ArgumentCaptor.forClass(List.class);
-        mockedExec.verify(() -> Exec.exec(listCaptor.capture()));
+        mockedExec.verify(() -> Exec.exec(listCaptor.capture(), eq(0)));
         List<String> expectedParts = Arrays.asList("logs", podName, "-c", containerName);
         assertTrue(listCaptor.getValue().containsAll(expectedParts));
     }
@@ -714,12 +714,12 @@ class BaseCmdKubeClientTest {
         String podName = "log-pod-cont";
         String logOutput = "Container log 1";
         ExecResult mockResult = mockSuccessfulExecResult(logOutput);
-        mockedExec.when(() -> Exec.exec(anyList())).thenReturn(mockResult);
+        mockedExec.when(() -> Exec.exec(anyList(), eq(0))).thenReturn(mockResult);
 
         String logs = client.previousLogs(podName);
         assertEquals(logOutput, logs);
         ArgumentCaptor<List<String>> listCaptor = ArgumentCaptor.forClass(List.class);
-        mockedExec.verify(() -> Exec.exec(listCaptor.capture()));
+        mockedExec.verify(() -> Exec.exec(listCaptor.capture(), eq(0)));
         List<String> expectedParts = Arrays.asList("logs", podName, "--previous=true");
         assertTrue(listCaptor.getValue().containsAll(expectedParts));
     }
@@ -731,12 +731,12 @@ class BaseCmdKubeClientTest {
         String containerName = "log-container";
         String logOutput = "Container log 1";
         ExecResult mockResult = mockSuccessfulExecResult(logOutput);
-        mockedExec.when(() -> Exec.exec(anyList())).thenReturn(mockResult);
+        mockedExec.when(() -> Exec.exec(anyList(), eq(0))).thenReturn(mockResult);
 
         String logs = client.previousLogs(podName, containerName);
         assertEquals(logOutput, logs);
         ArgumentCaptor<List<String>> listCaptor = ArgumentCaptor.forClass(List.class);
-        mockedExec.verify(() -> Exec.exec(listCaptor.capture()));
+        mockedExec.verify(() -> Exec.exec(listCaptor.capture(), eq(0)));
         List<String> expectedParts = Arrays.asList("logs", podName, "-c", containerName, "--previous=true");
         assertTrue(listCaptor.getValue().containsAll(expectedParts));
     }
@@ -750,13 +750,13 @@ class BaseCmdKubeClientTest {
         String logMatch = "Previous line\nERROR: Something went wrong";
 
         ExecResult mockResult = mockSuccessfulExecResult(logMatch);
-        mockedExec.when(() -> Exec.exec(eq("bash"), eq("-c"), anyString())).thenReturn(mockResult);
+        mockedExec.when(() -> Exec.exec(eq(0), eq("bash"), eq("-c"), anyString())).thenReturn(mockResult);
 
         String result = client.searchInLog(resourceType, resourceName, sinceSeconds, grepPattern);
         assertEquals(logMatch, result);
 
         ArgumentCaptor<String> bashCmdCaptor = ArgumentCaptor.forClass(String.class);
-        mockedExec.verify(() -> Exec.exec(eq("bash"), eq("-c"), bashCmdCaptor.capture()));
+        mockedExec.verify(() -> Exec.exec(eq(0), eq("bash"), eq("-c"), bashCmdCaptor.capture()));
         String capturedBashCmd = bashCmdCaptor.getValue();
 
         assertTrue(capturedBashCmd.contains(TEST_CMD));
@@ -777,7 +777,8 @@ class BaseCmdKubeClientTest {
         lenient().when(failedGrepResult.out()).thenReturn("");
 
         KubeClusterException kubeException = new KubeClusterException(failedGrepResult, "Grep failed");
-        mockedExec.when(() -> Exec.exec(eq("bash"), eq("-c"), anyString())).thenThrow(kubeException);
+        mockedExec.when(() -> Exec.exec(eq(0), eq("bash"), eq("-c"), anyString()))
+            .thenThrow(kubeException);
 
         String result = client.searchInLog(resourceType, resourceName, sinceSeconds, grepPattern);
         assertEquals("", result);
@@ -795,7 +796,8 @@ class BaseCmdKubeClientTest {
         lenient().when(errorResult.err()).thenReturn("Command not found or other error");
 
         KubeClusterException kubeException = new KubeClusterException(errorResult, "Exec error");
-        mockedExec.when(() -> Exec.exec(eq("bash"), eq("-c"), anyString())).thenThrow(kubeException);
+        mockedExec.when(() -> Exec.exec(eq(0), eq("bash"), eq("-c"), anyString()))
+            .thenThrow(kubeException);
 
         String result = client.searchInLog(resourceType, resourceName, sinceSeconds, grepPattern);
         assertEquals("", result);
@@ -811,14 +813,15 @@ class BaseCmdKubeClientTest {
         String logMatch = "Context line\nWarning: Low disk space";
 
         ExecResult mockResult = mockSuccessfulExecResult(logMatch);
-        mockedExec.when(() -> Exec.exec(eq("bash"), eq("-c"), anyString())).thenReturn(mockResult);
+        mockedExec.when(() -> Exec.exec(eq(0), eq("bash"), eq("-c"), anyString()))
+            .thenReturn(mockResult);
 
         String result = client.searchInLog(resourceType, resourceName, resourceContainer,
             sinceSeconds, grepPattern);
         assertEquals(logMatch, result);
 
         ArgumentCaptor<String> bashCmdCaptor = ArgumentCaptor.forClass(String.class);
-        mockedExec.verify(() -> Exec.exec(eq("bash"), eq("-c"), bashCmdCaptor.capture()));
+        mockedExec.verify(() -> Exec.exec(eq(0), eq("bash"), eq("-c"), bashCmdCaptor.capture()));
         String capturedBashCmd = bashCmdCaptor.getValue();
 
         String expectedLogCmd = "logs " + resourceType + "/" + resourceName + " -c " + resourceContainer;
@@ -834,12 +837,12 @@ class BaseCmdKubeClientTest {
         String label = "app=my-app";
         String output = "service-a service-b";
         ExecResult mockResult = mockSuccessfulExecResult(output);
-        mockedExec.when(() -> Exec.exec(anyList())).thenReturn(mockResult);
+        mockedExec.when(() -> Exec.exec(anyList(), eq(0))).thenReturn(mockResult);
 
         List<String> resources = client.listResourcesByLabel(resourceType, label);
         assertEquals(Arrays.asList("service-a", "service-b"), resources);
         ArgumentCaptor<List<String>> listCaptor = ArgumentCaptor.forClass(List.class);
-        mockedExec.verify(() -> Exec.exec(listCaptor.capture()));
+        mockedExec.verify(() -> Exec.exec(listCaptor.capture(), eq(0)));
         List<String> expectedParts = Arrays.asList("get", resourceType, "-l", label,
             "-o", "jsonpath={range .items[*]}{.metadata.name} ");
         assertTrue(listCaptor.getValue().containsAll(expectedParts));

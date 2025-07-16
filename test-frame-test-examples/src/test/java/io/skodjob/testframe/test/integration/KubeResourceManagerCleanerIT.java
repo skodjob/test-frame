@@ -91,4 +91,10 @@ final class KubeResourceManagerCleanerIT extends AbstractIT {
         }
         assertTrue(KubeResourceManager.get().kubeClient().namespaceExists("kornys"));
     }
+
+    @Test
+    void testKubeCmdWithTimeout() {
+        assertTrue(KubeResourceManager.get().kubeCmdClient().inNamespace("default").withTimeout(10_000)
+            .exec("get", "secrets").exitStatus());
+    }
 }
