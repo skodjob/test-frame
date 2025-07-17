@@ -384,7 +384,7 @@ final class LogCollectorTest {
         mockNamespaces(namespaceName);
         mockEvents();
 
-        LogCollector spyCollector = spy(new LogCollectorBuilder(logCollector).build());
+        LogCollector spyCollector = spy(logCollector);
 
         doThrow(new RuntimeException()).when(spyCollector).writeDataToFile(any(), anyString());
 
