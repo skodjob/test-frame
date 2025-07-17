@@ -62,14 +62,25 @@ public class Oc extends BaseCmdKubeClient<Oc> {
     }
 
     /**
-     * Sets the timeout for subsequent operations.
+     * Sets the timeout for later operations.
      *
-     * @param timeout timeout for execution of command.
+     * @param timeout timeout in ms for execution of command.
      * @return This kube client.
      */
     @Override
     public Oc withTimeout(int timeout) {
         return new Oc(namespace, config, timeout);
+    }
+
+    /**
+     * Sets the timeout for later operations.
+     *
+     * @param timeout timeout in ms for execution of command.
+     * @return This kube client.
+     */
+    @Override
+    public Oc withTimeout(long timeout) {
+        return new Oc(namespace, config, (int) timeout);
     }
 
     /**

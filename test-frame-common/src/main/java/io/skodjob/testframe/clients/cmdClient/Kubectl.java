@@ -60,6 +60,17 @@ public class Kubectl extends BaseCmdKubeClient<Kubectl> {
     }
 
     /**
+     * Sets the timeout for subsequent operations.
+     *
+     * @param timeout timeout for execution of command.
+     * @return This kube client.
+     */
+    @Override
+    public Kubectl withTimeout(long timeout) {
+        return new Kubectl(namespace, config, (int) timeout);
+    }
+
+    /**
      * Gets the current namespace of the Kubectl instance.
      *
      * @return The current namespace.

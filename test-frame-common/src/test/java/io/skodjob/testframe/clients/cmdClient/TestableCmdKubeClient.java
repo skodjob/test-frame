@@ -33,6 +33,11 @@ public class TestableCmdKubeClient extends BaseCmdKubeClient<TestableCmdKubeClie
     }
 
     @Override
+    public KubeCmdClient<TestableCmdKubeClient> withTimeout(long timeout) {
+        return null;
+    }
+
+    @Override
     public String getCurrentNamespace() {
         return "";
     }

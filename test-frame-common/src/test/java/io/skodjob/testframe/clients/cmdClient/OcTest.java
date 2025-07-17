@@ -132,7 +132,7 @@ class OcTest {
         ExecResult mockResult = mockSuccessfulExecResult("Application created");
         mockedExec.when(() -> Exec.exec(anyList(), eq(5))).thenReturn(mockResult);
 
-        Oc client = new Oc(CUSTOM_CONFIG).inNamespace(DEFAULT_NAMESPACE).withTimeout(5);
+        Oc client = new Oc(CUSTOM_CONFIG).inNamespace(DEFAULT_NAMESPACE).withTimeout(5L);
         client.newApp(templateName, params);
 
         ArgumentCaptor<List<String>> listCaptor = ArgumentCaptor.forClass(List.class);

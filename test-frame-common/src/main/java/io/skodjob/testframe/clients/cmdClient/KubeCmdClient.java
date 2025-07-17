@@ -46,12 +46,20 @@ public interface KubeCmdClient<K extends KubeCmdClient<K>> {
 
 
     /**
-     * Sets the timeout for subsequent operations.
+     * Sets the timeout for later operations.
      *
-     * @param timeout timeout for execution of command.
+     * @param timeout timeout in ms for execution of command.
      * @return This kube client.
      */
     KubeCmdClient<K> withTimeout(int timeout);
+
+    /**
+     * Sets the timeout for later operations.
+     *
+     * @param timeout timeout in ms for execution of command.
+     * @return This kube client.
+     */
+    KubeCmdClient<K> withTimeout(long timeout);
 
     /**
      * Retrieves the currently set namespace for the Kubernetes client.
