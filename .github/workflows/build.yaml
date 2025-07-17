@@ -35,7 +35,7 @@ jobs:
             ${{ runner.os }}-${{ matrix.version }}-maven-
 
       - name: Build
-        run: ./mvnw --batch-mode install
+        run: ./mvnw install -Dstyle.color=always
 
       - name: Run spotbugs check
         run: ./mvnw spotbugs:spotbugs
