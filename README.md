@@ -1,6 +1,7 @@
 # TEST-FRAME
 Library for easy testing of Kubernetes deployments and operators using Fabric8 API.
 
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/skodjob/test-frame/badge)](https://scorecard.dev/viewer/?uri=github.com/skodjob/test-frame)
 [![Build](https://github.com/skodjob/test-frame/actions/workflows/build.yaml/badge.svg?branch=main)](https://github.com/skodjob/test-frame/actions/workflows/build.yaml)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=skodjob_test-frame&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=skodjob_test-frame)
@@ -117,7 +118,7 @@ class Test {
     void testMethod() {
         Namespace ns = new NamespaceBuilder().withNewMetadata().withName("test").endMetadata().build();
         KubeResourceManager.get().createResourceWithWait(ns);
-        assertNotNull(KubeResourceManager.get().kubeCmdClient().get("namespace", "test"));
+        assertNotNull(KubeResourceManager.get().kubeCmdClient().withTimeout(2000).get("namespace", "test"));
 
         try (var ctx = KubeResourceManager.get().useContext("prod")) {
             Namespace ns = new NamespaceBuilder().withNewMetadata().withName("test-prod").endMetadata().build();
