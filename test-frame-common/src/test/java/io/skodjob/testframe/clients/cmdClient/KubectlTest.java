@@ -110,7 +110,7 @@ class KubectlTest {
         ExecResult mockResult = mockSuccessfulExecResult(expectedUsername);
         mockedExec.when(() -> Exec.exec(anyList(), eq(10))).thenReturn(mockResult);
 
-        Kubectl client = new Kubectl(CUSTOM_CONFIG).inNamespace(DEFAULT_NAMESPACE).withTimeout(10);
+        Kubectl client = new Kubectl(CUSTOM_CONFIG).inNamespace(DEFAULT_NAMESPACE).withTimeout(10L);
         String actualUsername = client.getUsername();
 
         assertEquals(expectedUsername, actualUsername);
