@@ -52,7 +52,7 @@ jobs:
                run_id: ${{ github.event.workflow_run.id }},
             });
             var matchArtifact = artifacts.data.artifacts.filter((artifact) => {
-              return artifact.name == "target-jdk17"
+              return artifact.name == "target-17"
             })[0];
             var download = await github.rest.actions.downloadArtifact({
                owner: context.repo.owner,
@@ -66,7 +66,7 @@ jobs:
       ## Extract the `target` directory from the build job
       - name: Extract Build Result
         run: |
-          unzip target.zip
+          unzip target-17.zip
 
       ## Load the context from the build job - runs for any trigger to allow templates with `steps.build_context.outputs.content`
       ## to be accepted by GitHub Actions.
