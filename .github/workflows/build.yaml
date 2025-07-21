@@ -52,7 +52,7 @@ jobs:
       - name: Attach Build Output
         uses: actions/upload-artifact@v4
         with:
-          name: target
+          name: target-${{ matrix.version }}
           path: |
             **/target/
             !**/target/**.jar
