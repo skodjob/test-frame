@@ -127,16 +127,6 @@ public final class KubeResourceManager {
     }
 
     /**
-     * Gets KubeResourceManager instance
-     *
-     * @return singleton instance
-     */
-    @Deprecated(since = "0.9.0")
-    public static KubeResourceManager getInstance() {
-        return get();
-    }
-
-    /**
      * Set the active context for this thread and auto‑restore on close.
      *
      * @param id name of cluster context
@@ -557,35 +547,6 @@ public final class KubeResourceManager {
     @SafeVarargs
     public final <T extends HasMetadata> void deleteResourceWithoutWait(T... resources) {
         deleteResource(false, false, resources);
-    }
-
-    /**
-     * @deprecated as of release 0.13.0, use {@link #deleteResourceAsyncWait(HasMetadata[])} instead.
-     *
-     * Deletes resources.
-     *
-     * @param resources The resources to delete.
-     * @param <T>       The type of the resources.
-     */
-    @SafeVarargs
-    @Deprecated(since = "0.13.0")
-    public final <T extends HasMetadata> void deleteResource(T... resources) {
-        deleteResource(true, resources);
-    }
-
-    /**
-     * @deprecated as of release 0.13.0, use {@link #deleteResourceWithWait(HasMetadata[])} instead.
-     *
-     * Deletes resources.
-     *
-     * @param async     Enables async deletion
-     * @param resources The resources to delete.
-     * @param <T>       The type of the resources.
-     */
-    @SafeVarargs
-    @Deprecated(since = "0.13.0")
-    public final <T extends HasMetadata> void deleteResource(boolean async, T... resources) {
-        deleteResource(async, true, resources);
     }
 
     /**
