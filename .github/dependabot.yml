@@ -9,8 +9,17 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "weekly"
+      day: "monday"
+      time: "06:00"
     groups:
       # This is the name of your group, it will be used in PR titles and branch names
       dependencies:
         patterns:
           - "*"
+
+  - package-ecosystem: "github-actions"
+    directory: "/" # Location of workflow files
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
