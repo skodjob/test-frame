@@ -1,103 +1,92 @@
-name: SonarQube
+name: SonarCloud
 
 on:
+  workflow_run:
+    workflows: [ "Build" ]
+    types: [completed]
   push:
     branches: [ main ]
 
-  pull_request:
-    branches: [ main ]
-
-  pull_request_target:
-    types: [ labeled, opened, synchronize, reopened ]
-    branches: [ main ]
-
-permissions:
-  contents: read
-  pull-requests: write
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.event.workflow_run.head_branch }}
+  cancel-in-progress: true
 
 env:
   SONAR_PROJECT_KEY: skodjob_test-frame
-
 jobs:
-  sonar-push:
-    if: github.event_name == 'push'
+  sonarcloud:
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v4
+      - name: Download PR number artifact
+        if: github.event_name == 'workflow_run' && github.event.workflow_run.event == 'pull_request'
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          workflow: Build
+          run_id: ${{ github.event.workflow_run.id }}
+          name: PR_NUMBER
+
+      - name: Read PR_NUMBER.txt
+        if: github.event_name == 'workflow_run' && github.event.workflow_run.event == 'pull_request'
+        id: pr_number
+        uses: juliangruber/read-file-action@v1
+        with:
+          path: ./PR_NUMBER.txt
+
+      - name: Get PR data
+        if: github.event_name == 'workflow_run' && github.event.workflow_run.event == 'pull_request'
+        uses: octokit/request-action@v2.x
+        id: get_pr_data
+        with:
+          route: GET /repos/{full_name}/pulls/{number}
+          number: ${{ steps.pr_number.outputs.content }}
+          full_name: ${{ github.event.repository.full_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+
+      - name: Checkout PR code
+        if: github.event_name == 'workflow_run' && github.event.workflow_run.event == 'pull_request'
+        run: |
+          git remote add upstream ${{ github.event.repository.clone_url }}
+          git fetch upstream
+          git checkout -B ${{ fromJson(steps.get_pr_data.outputs.data).base.ref }} upstream/${{ fromJson(steps.get_pr_data.outputs.data).base.ref }}
+          git checkout ${{ github.event.workflow_run.head_branch }}
+          git clean -ffdx && git reset --hard HEAD
+
+      - name: Checkout main branch code
+        if: github.event_name == 'push'
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-java@v4
+      - name: Set up JDK
+        uses: actions/setup-java@v4
         with:
-          distribution: temurin
           java-version: 17
+          distribution: 'temurin'
 
-      - uses: actions/cache@v4
+      - name: Cache Maven packages
+        uses: actions/cache@v4
         with:
-          path: ~/.m2
+          path: ~/.m2/repository
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      - name: Build & Sonar scan (push)
+      - name: SonarCloud Scan on PR
+        if: github.event_name == 'workflow_run' && github.event.workflow_run.event == 'pull_request'
+        run: | 
+          ./mvnw verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+            -Dsonar.projectKey=$SONAR_PROJECT_KEY \
+            -Dsonar.pullrequest.key=${{ fromJson(steps.get_pr_data.outputs.data).number }} \
+            -Dsonar.pullrequest.branch=${{ fromJson(steps.get_pr_data.outputs.data).head.ref }} \
+            -Dsonar.pullrequest.base=${{ fromJson(steps.get_pr_data.outputs.data).base.ref }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      - name: SonarCloud Scan on push
+        if: github.event_name == 'push'
         run: |
-          ./mvnw verify \
-              org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
-              -Dsonar.projectKey=$SONAR_PROJECT_KEY \
-              -Dsonar.coverage.exclusions="**/*"
-
-  sonar-pr-internal:
-    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          fetch-depth: 0
-
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 17
-
-      - uses: actions/cache@v4
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
-
-      - name: Build & Sonar scan (internal PR)
+          ./mvnw verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+            -Dsonar.projectKey=$SONAR_PROJECT_KEY \
+            -Dsonar.coverage.exclusions="**/*"
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          ./mvnw verify \
-              org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
-              -Dsonar.projectKey=$SONAR_PROJECT_KEY
-
-  sonar-pr-fork:
-    if: |
-      github.event_name == 'pull_request_target' && 
-      github.event.pull_request.head.repo.fork == true &&
-      contains(github.event.pull_request.labels.*.name, 'safe-to-scan')
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          fetch-depth: 0
-          persist-credentials: false
-
-      - uses: actions/setup-java@v4
-        with: { distribution: temurin, java-version: 17 }
-
-      - name: Sonar scan (fork PR)
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          ./mvnw verify \
-              org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
-              -Dsonar.projectKey=$SONAR_PROJECT_KEY

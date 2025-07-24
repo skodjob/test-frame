@@ -39,3 +39,12 @@ jobs:
 
       - name: Run spotbugs check
         run: ./mvnw spotbugs:spotbugs
+
+      - name: Upload PR number
+        if: github.event_name == 'pull_request' && matrix.version == 17
+        run: echo ${{ github.event.pull_request.number }} > PR_NUMBER.txt
+      - uses: actions/upload-artifact@v4
+        if: github.event_name == 'pull_request' && matrix.version == 17
+        with:
+          name: PR_NUMBER
+          path: PR_NUMBER.txt
