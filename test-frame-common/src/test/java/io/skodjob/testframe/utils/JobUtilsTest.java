@@ -19,6 +19,7 @@ import io.fabric8.kubernetes.client.dsl.V1BatchAPIGroupDSL;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.NonNamespaceOperation;
 import io.fabric8.kubernetes.client.dsl.ScalableResource;
+import io.skodjob.testframe.annotations.TestVisualSeparator;
 import io.skodjob.testframe.clients.KubeClient;
 import io.skodjob.testframe.resources.KubeResourceManager;
 import io.skodjob.testframe.wait.Wait;
@@ -46,6 +47,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@TestVisualSeparator
 @ExtendWith(MockitoExtension.class)
 class JobUtilsTest {
 

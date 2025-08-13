@@ -38,24 +38,14 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      - name: SonarCloud scan on PR
-        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false
+      - name: SonarCloud scan
+        if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           ./mvnw verify \
             org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
             -Dsonar.projectKey=$SONAR_PROJECT_KEY
-
-      - name: SonarCloud scan on Push
-        if: github.event_name == 'push'
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          ./mvnw verify \
-            org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
-            -Dsonar.projectKey=$SONAR_PROJECT_KEY \
-            -Dsonar.coverage.exclusions="**/*"
 
       - name: Comment on fork PRs
         if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == true
