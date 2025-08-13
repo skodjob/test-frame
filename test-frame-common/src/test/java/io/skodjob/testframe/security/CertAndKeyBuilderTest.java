@@ -4,11 +4,13 @@
  */
 package io.skodjob.testframe.security;
 
+import io.skodjob.testframe.annotations.TestVisualSeparator;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@TestVisualSeparator
 class CertAndKeyBuilderTest {
     static final String ROOT_CA = "C=COM, L=Boston, O=Example, CN=ExampleRootCA";
     static final String INTERMEDIATE_CA = "C=COM, L=Boston, O=Example, CN=ExampleIntermediateCA";

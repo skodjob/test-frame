@@ -4,12 +4,14 @@
  */
 package io.skodjob.testframe.executor;
 
+import io.skodjob.testframe.annotations.TestVisualSeparator;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@TestVisualSeparator
 class ExecResultTest {
 
     @Test

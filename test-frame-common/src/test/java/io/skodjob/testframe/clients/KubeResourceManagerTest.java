@@ -4,6 +4,8 @@
  */
 package io.skodjob.testframe.clients;
 
+import io.fabric8.kubernetes.api.model.ConfigMap;
+import io.fabric8.kubernetes.api.model.ConfigMapBuilder;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.kubernetes.api.model.NamespaceBuilder;
@@ -19,6 +21,7 @@ import io.skodjob.testframe.annotations.TestVisualSeparator;
 import io.skodjob.testframe.helper.NamespaceType;
 import io.skodjob.testframe.helper.TestLoggerAppender;
 import io.skodjob.testframe.resources.KubeResourceManager;
+import io.skodjob.testframe.resources.ResourceItem;
 import io.skodjob.testframe.utils.LoggerUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -30,11 +33,18 @@ import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Field;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -290,4 +300,155 @@ class KubeResourceManagerTest {
             .readResourcesFromFile(Path.of(getClass().getClassLoader().getResource("resources.yaml").getPath()));
         assertEquals(2, res.size());
     }
+
+    @Test
+    void testStoreYamlPathGetterSetter() {
+        String originalPath = KubeResourceManager.get().getStoreYamlPath();
+        String testPath = "/tmp/test-path";
+
+        KubeResourceManager.get().setStoreYamlPath(testPath);
+        assertEquals(testPath, KubeResourceManager.get().getStoreYamlPath());
+
+        // Restore original path
+        KubeResourceManager.get().setStoreYamlPath(originalPath);
+    }
+
+    @Test
+    void testKubeCmdClient() {
+        assertNotNull(KubeResourceManager.get().kubeCmdClient());
+    }
+
+    @Test
+    void testGetTestContext() {
+        // This tests the getter - the context may be null initially
+        KubeResourceManager.get().getTestContext();
+    }
+
+    @Test
+    void testCleanContextMethods() {
+        // Test methods that clean various contexts
+        KubeResourceManager.get().cleanTestContext();
+        KubeResourceManager.get().cleanClusterContext();
+    }
+
+    @Test
+    void testReadResourcesFromInputStream() throws IOException {
+        String yamlContent = """
+            apiVersion: v1
+            kind: ConfigMap
+            metadata:
+              name: test-configmap
+            data:
+              key: value
+            """;
+
+        InputStream inputStream = new ByteArrayInputStream(yamlContent.getBytes());
+        List<HasMetadata> resources = KubeResourceManager.get().readResourcesFromFile(inputStream);
+
+        assertEquals(1, resources.size());
+        assertEquals("ConfigMap", resources.get(0).getKind());
+        assertEquals("test-configmap", resources.get(0).getMetadata().getName());
+    }
+
+    @Test
+    void testAsyncMethods() {
+        // Test the async methods with simple calls to ensure they're covered
+        Namespace ns = new NamespaceBuilder().withNewMetadata().withName("async-test").endMetadata().build();
+
+        KubeResourceManager.get().createResourceAsyncWait(ns);
+        assertNotNull(KubeResourceManager.get().kubeClient().getClient().namespaces().withName("async-test").get());
+
+        KubeResourceManager.get().createOrUpdateResourceAsyncWait(ns);
+        assertNotNull(KubeResourceManager.get().kubeClient().getClient().namespaces().withName("async-test").get());
+
+        KubeResourceManager.get().deleteResourceAsyncWait(ns);
+    }
+
+    @Test
+    void testWriteResourceAsYaml() throws Exception {
+        // Create a temporary directory for the test
+        String tempDir = System.getProperty("java.io.tmpdir");
+        String testPath = tempDir + "/test-yaml-output";
+
+        KubeResourceManager.get().setStoreYamlPath(testPath);
+
+        // Get the current cluster context using reflection
+        Field contextField = KubeResourceManager.class.getDeclaredField("CURRENT_CLUSTER_CONTEXT");
+        contextField.setAccessible(true);
+        @SuppressWarnings("unchecked")
+        ThreadLocal<String> clusterContext = (ThreadLocal<String>) contextField.get(null);
+        String currentContext = clusterContext.get();
+
+        // Create a test resource
+        ConfigMap configMap = new ConfigMapBuilder()
+            .withNewMetadata()
+            .withName("test-configmap")
+            .withNamespace("test-namespace")
+            .endMetadata()
+            .withData(Map.of("key", "value"))
+            .build();
+
+        // Create the resource which should trigger writeResourceAsYaml
+        KubeResourceManager.get().createResourceWithWait(configMap);
+
+        // Verify the YAML file was created  
+        Path expectedFile = Paths.get(testPath)
+            .resolve(currentContext)
+            .resolve("test-files")
+            .resolve(getClass().getName())
+            .resolve("testWriteResourceAsYaml")
+            .resolve("ConfigMap-test-namespace-test-configmap.yaml");
+
+        assertTrue(Files.exists(expectedFile), "YAML file should be created at: " + expectedFile);
+
+        // Verify the content
+        String yamlContent = Files.readString(expectedFile);
+        assertTrue(yamlContent.contains("test-configmap"), "YAML should contain resource name");
+        assertTrue(yamlContent.contains("test-namespace"), "YAML should contain namespace");
+        assertTrue(yamlContent.contains("value"), "YAML should contain data");
+
+        // Clean up
+        Files.deleteIfExists(expectedFile);
+    }
+
+    @Test
+    void testPushToStack() throws Exception {
+        // Create a test resource item
+        Namespace ns = new NamespaceBuilder().withNewMetadata().withName("stack-test").endMetadata().build();
+        ResourceItem<Namespace> resourceItem = new ResourceItem<>(() -> {
+            // Mock delete action
+        }, ns);
+
+        // Get initial stack size
+        Field storedResourcesField = KubeResourceManager.class.getDeclaredField("STORED_RESOURCES");
+        storedResourcesField.setAccessible(true);
+        @SuppressWarnings("unchecked")
+        Map<String, Map<String, Stack<ResourceItem<?>>>> storedResources =
+            (Map<String, Map<String, Stack<ResourceItem<?>>>>) storedResourcesField.get(null);
+
+        // Get the current cluster context using reflection
+        Field contextField = KubeResourceManager.class.getDeclaredField("CURRENT_CLUSTER_CONTEXT");
+        contextField.setAccessible(true);
+        @SuppressWarnings("unchecked")
+        ThreadLocal<String> clusterContextTL = (ThreadLocal<String>) contextField.get(null);
+        String clusterContext = clusterContextTL.get();
+        String testName = KubeResourceManager.get().getTestContext().getDisplayName();
+
+        int initialSize = storedResources
+            .computeIfAbsent(clusterContext, c -> new ConcurrentHashMap<>())
+            .computeIfAbsent(testName, t -> new Stack<>())
+            .size();
+
+        // Test pushToStack method
+        KubeResourceManager.get().pushToStack(resourceItem);
+
+        // Verify the item was added to the stack
+        int newSize = storedResources.get(clusterContext).get(testName).size();
+        assertEquals(initialSize + 1, newSize, "Stack size should increase by 1");
+
+        // Verify the correct item was added
+        ResourceItem<?> addedItem = storedResources.get(clusterContext).get(testName).peek();
+        assertEquals(resourceItem, addedItem, "The added item should match the original");
+    }
+
 }

@@ -4,10 +4,12 @@
  */
 package io.skodjob.testframe.utils;
 
+import io.skodjob.testframe.annotations.TestVisualSeparator;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@TestVisualSeparator
 class ImageUtilsTest {
 
     @Test
