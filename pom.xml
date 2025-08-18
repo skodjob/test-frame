@@ -70,7 +70,7 @@
         <slf4j.version>2.0.17</slf4j.version>
 
         <!--  TEST dependencies  -->
-        <mockito.version>5.18.0</mockito.version>
+        <mockito.version>5.19.0</mockito.version>
         <apache.commons.version>2.20.0</apache.commons.version>
 
         <!--   Build tools' properties     -->
@@ -83,7 +83,7 @@
         <maven.source.plugin.version>3.3.1</maven.source.plugin.version>
         <maven.gpg.version>3.2.8</maven.gpg.version>
         <sonatype.nexus.central>0.8.0</sonatype.nexus.central>
-        <maven.javadoc.version>3.11.2</maven.javadoc.version>
+        <maven.javadoc.version>3.11.3</maven.javadoc.version>
         <maven.assembly.version>3.7.1</maven.assembly.version>
         <maven.plugin.plugin.version>3.9.0</maven.plugin.plugin.version>
         <junit.jupiter.version>5.13.4</junit.jupiter.version>
