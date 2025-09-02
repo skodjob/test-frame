@@ -93,8 +93,11 @@ public class Wait {
                             description, e.getCause().getClass().getCanonicalName());
                         exceptionMessage = e.getCause().getClass().getCanonicalName();
                     } else {
+                        String canonicalNameForException = e.getCause() != null ?
+                            e.getCause().getClass().getCanonicalName() : null;
+
                         LOGGER.warn("While waiting for: {} exception occurred: {}/{}",
-                            description, e.getCause().getClass().getCanonicalName(), exceptionMessage);
+                            description, canonicalNameForException, exceptionMessage);
                     }
 
                     // log the stacktrace
