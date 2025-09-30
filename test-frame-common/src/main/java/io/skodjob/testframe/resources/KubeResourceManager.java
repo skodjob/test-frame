@@ -642,11 +642,11 @@ public final class KubeResourceManager {
                 return;
             } catch (CompletionException ce) {
                 Throwable cause = ce.getCause();
-                if (isNotConflict(cause) || ++attempt >= retries) {
+                if (canRetry(cause) || ++attempt >= retries) {
                     throw (cause instanceof RuntimeException re) ? re : new RuntimeException(cause);
                 }
             } catch (KubernetesClientException kce) {
-                if (isNotConflict(kce) || ++attempt >= retries) {
+                if (canRetry(kce) || ++attempt >= retries) {
                     throw kce;
                 }
             }
