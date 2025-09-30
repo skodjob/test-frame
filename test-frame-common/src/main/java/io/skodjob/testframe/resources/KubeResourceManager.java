@@ -660,7 +660,7 @@ public final class KubeResourceManager {
      * @param t throwable thrown during operation
      * @return boolean value if we got conflict during K8s operation or not
      */
-    private static boolean isNotConflict(Throwable t) {
+    private static boolean canRetry(Throwable t) {
         return !(t instanceof KubernetesClientException kce) || kce.getCode() != 409;
     }
 
