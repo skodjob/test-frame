@@ -642,11 +642,11 @@ public final class KubeResourceManager {
                 return;
             } catch (CompletionException ce) {
                 Throwable cause = ce.getCause();
-                if (!isConflict(cause) || ++attempt >= retries) {
+                if (canRetry(cause) || ++attempt >= retries) {
                     throw (cause instanceof RuntimeException re) ? re : new RuntimeException(cause);
                 }
             } catch (KubernetesClientException kce) {
-                if (!isConflict(kce) || ++attempt >= retries) {
+                if (canRetry(kce) || ++attempt >= retries) {
                     throw kce;
                 }
             }
@@ -660,8 +660,8 @@ public final class KubeResourceManager {
      * @param t throwable thrown during operation
      * @return boolean value if we got conflict during K8s operation or not
      */
-    private static boolean isConflict(Throwable t) {
-        return t instanceof KubernetesClientException kce && kce.getCode() == 409;
+    private static boolean canRetry(Throwable t) {
+        return !(t instanceof KubernetesClientException kce) || kce.getCode() != 409;
     }
 
     /**
