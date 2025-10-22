@@ -14,6 +14,8 @@ import io.skodjob.testframe.resources.KubeResourceManager;
  * Class containing utilities for handling resources
  */
 public class ResourceUtils {
+    private static final JsonMapper JSON_MAPPER = new JsonMapper();
+
     private ResourceUtils() {
         // Private constructor to prevent instantiation
     }
@@ -40,7 +42,6 @@ public class ResourceUtils {
         String kind,
         Class<T> resourceType
     ) {
-        JsonMapper jsonMapper = new JsonMapper();
         GenericKubernetesResource foundGenericResource = KubeResourceManager.get().kubeClient()
             .getClient()
             .genericKubernetesResources(apiVersion, kind)
@@ -48,7 +49,7 @@ public class ResourceUtils {
             .withName(resourceName)
             .get();
 
-        JsonNode genericResourceJson = jsonMapper.valueToTree(foundGenericResource);
-        return jsonMapper.convertValue(genericResourceJson, resourceType);
+        JsonNode genericResourceJson = JSON_MAPPER.valueToTree(foundGenericResource);
+        return JSON_MAPPER.convertValue(genericResourceJson, resourceType);
     }
 }
