@@ -23,6 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import io.fabric8.kubernetes.api.model.Endpoints;
 import io.fabric8.kubernetes.api.model.HasMetadata;
@@ -708,6 +709,22 @@ public final class KubeResourceManager {
      */
     public <T extends HasMetadata> boolean waitResourceCondition(
         T resource, ResourceCondition<T> condition, long resourceTimeout) {
+        return  waitResourceCondition(resource, condition, resourceTimeout,
+            () -> kubeClient().getClient().resource(resource).get());
+    }
+
+    /**
+     * Waits for a resource condition to be fulfilled.
+     *
+     * @param resource          The resource to wait for.
+     * @param condition         The condition to fulfill.
+     * @param <T>               The type of the resource.
+     * @param resourceTimeout   Timeout for resource condition
+     * @param resourceSupplier  Supplier with method for obtaining the resource - using client, or a different way.
+     * @return True if the condition is fulfilled, false otherwise.
+     */
+    public <T extends HasMetadata> boolean waitResourceCondition(
+        T resource, ResourceCondition<T> condition, long resourceTimeout, Supplier<T> resourceSupplier) {
         assertNotNull(resource);
         assertNotNull(resource.getMetadata());
         assertNotNull(resource.getMetadata().getName());
@@ -715,7 +732,7 @@ public final class KubeResourceManager {
         Wait.until(String.format("Resource condition: %s to be fulfilled for resource %s/%s",
                 condition.conditionName(), resource.getKind(), resource.getMetadata().getName()),
             TestFrameConstants.GLOBAL_POLL_INTERVAL_MEDIUM, resourceTimeout, () -> {
-                T r = kubeClient().getClient().resource(resource).get();
+                T r = resourceSupplier.get();
                 ready[0] = condition.predicate().test(r);
                 return ready[0];
             });
