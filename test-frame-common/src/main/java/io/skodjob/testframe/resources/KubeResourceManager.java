@@ -21,6 +21,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -506,14 +509,25 @@ public final class KubeResourceManager {
                     if (async) {
                         waiters.add(cf);
                     } else {
-                        cf.join();
+                        try {
+                            cf.get();
+                        } catch (InterruptedException | ExecutionException e) {
+                            LOGGER.error("Exception during wait for resources to be deleted", e);
+                        }
                     }
                 }
             }
             createCallbacks.forEach(cb -> cb.accept(resource));
         }
         if (!waiters.isEmpty()) {
-            CompletableFuture.allOf(waiters.toArray(new CompletableFuture[0])).join();
+            try {
+                CompletableFuture.allOf(waiters.toArray(new CompletableFuture[0]))
+                    .get(TestFrameConstants.GLOBAL_TIMEOUT, TimeUnit.MILLISECONDS);
+            } catch (TimeoutException e) {
+                LOGGER.error("Timeout exception during wait for resources to be deleted");
+            } catch (InterruptedException | ExecutionException e) {
+                LOGGER.error("Exception during wait for resources to be deleted", e);
+            }
         }
     }
 
