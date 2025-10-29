@@ -594,16 +594,8 @@ public final class KubeResourceManager {
             }
             deleteCallbacks.forEach(cb -> cb.accept(resource));
         }
-        if (!waiters.isEmpty()) {
-            try {
-                CompletableFuture.allOf(waiters.toArray(new CompletableFuture[0]))
-                    .get(TestFrameConstants.GLOBAL_TIMEOUT, TimeUnit.MILLISECONDS);
-            } catch (TimeoutException e) {
-                LOGGER.error("Timeout exception during wait for resources to be deleted");
-            } catch (InterruptedException | ExecutionException e) {
-                LOGGER.error("Exception during wait for resources to be deleted", e);
-            }
-        }
+
+        handleAsyncDeletion(waiters);
     }
 
     /**
@@ -809,6 +801,21 @@ public final class KubeResourceManager {
             count.decrementAndGet();
             deleteCallbacks.forEach(cb -> Optional.ofNullable(item.resource()).ifPresent(cb));
         }
+        handleAsyncDeletion(waiters);
+
+        byTest.remove(testName);
+        if (byTest.isEmpty()) {
+            STORED_RESOURCES.remove(ctxId);
+        }
+        LoggerUtils.logSeparator();
+    }
+
+    /**
+     * Method handling the async deletion, if the `waiters` parameter is not empty.
+     *
+     * @param waiters   List of {@link CompletableFuture} that should be run async.
+     */
+    private void handleAsyncDeletion(List<CompletableFuture<Void>> waiters) {
         if (!waiters.isEmpty()) {
             try {
                 CompletableFuture.allOf(waiters.toArray(new CompletableFuture[0]))
@@ -819,13 +826,7 @@ public final class KubeResourceManager {
                 LOGGER.error("Exception during wait for resources to be deleted", e);
             }
         }
-        byTest.remove(testName);
-        if (byTest.isEmpty()) {
-            STORED_RESOURCES.remove(ctxId);
-        }
-        LoggerUtils.logSeparator();
     }
-
     /**
      * Return ResourceType implementation if it is specified in resourceTypes based on kind
      *
