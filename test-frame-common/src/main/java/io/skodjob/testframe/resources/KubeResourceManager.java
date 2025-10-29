@@ -488,7 +488,11 @@ public final class KubeResourceManager {
                     if (async) {
                         waiters.add(cf);
                     } else {
-                        cf.join();
+                        try {
+                            cf.get();
+                        } catch (InterruptedException | ExecutionException e) {
+                            LOGGER.error("Exception during wait for resources to be ready", e);
+                        }
                     }
                 }
             } else {
@@ -512,7 +516,7 @@ public final class KubeResourceManager {
                         try {
                             cf.get();
                         } catch (InterruptedException | ExecutionException e) {
-                            LOGGER.error("Exception during wait for resources to be deleted", e);
+                            LOGGER.error("Exception during wait for resources to be ready", e);
                         }
                     }
                 }
@@ -521,12 +525,9 @@ public final class KubeResourceManager {
         }
         if (!waiters.isEmpty()) {
             try {
-                CompletableFuture.allOf(waiters.toArray(new CompletableFuture[0]))
-                    .get(TestFrameConstants.GLOBAL_TIMEOUT, TimeUnit.MILLISECONDS);
-            } catch (TimeoutException e) {
-                LOGGER.error("Timeout exception during wait for resources to be deleted");
+                CompletableFuture.allOf(waiters.toArray(new CompletableFuture[0])).get();
             } catch (InterruptedException | ExecutionException e) {
-                LOGGER.error("Exception during wait for resources to be deleted", e);
+                LOGGER.error("Exception during wait for resources to be ready", e);
             }
         }
     }
@@ -594,7 +595,14 @@ public final class KubeResourceManager {
             deleteCallbacks.forEach(cb -> cb.accept(resource));
         }
         if (!waiters.isEmpty()) {
-            CompletableFuture.allOf(waiters.toArray(new CompletableFuture[0])).join();
+            try {
+                CompletableFuture.allOf(waiters.toArray(new CompletableFuture[0]))
+                    .get(TestFrameConstants.GLOBAL_TIMEOUT, TimeUnit.MILLISECONDS);
+            } catch (TimeoutException e) {
+                LOGGER.error("Timeout exception during wait for resources to be deleted");
+            } catch (InterruptedException | ExecutionException e) {
+                LOGGER.error("Exception during wait for resources to be deleted", e);
+            }
         }
     }
 
@@ -792,13 +800,24 @@ public final class KubeResourceManager {
             if (async) {
                 waiters.add(cf);
             } else {
-                cf.join();
+                try {
+                    cf.get();
+                } catch (InterruptedException | ExecutionException e) {
+                    LOGGER.error("Exception during wait for resources to be deleted", e);
+                }
             }
             count.decrementAndGet();
             deleteCallbacks.forEach(cb -> Optional.ofNullable(item.resource()).ifPresent(cb));
         }
         if (!waiters.isEmpty()) {
-            CompletableFuture.allOf(waiters.toArray(new CompletableFuture[0])).join();
+            try {
+                CompletableFuture.allOf(waiters.toArray(new CompletableFuture[0]))
+                    .get(TestFrameConstants.GLOBAL_TIMEOUT, TimeUnit.MILLISECONDS);
+            } catch (TimeoutException e) {
+                LOGGER.error("Timeout exception during wait for resources to be deleted");
+            } catch (InterruptedException | ExecutionException e) {
+                LOGGER.error("Exception during wait for resources to be deleted", e);
+            }
         }
         byTest.remove(testName);
         if (byTest.isEmpty()) {
@@ -863,7 +882,11 @@ public final class KubeResourceManager {
         if (async) {
             waiters.add(cf);
         } else {
-            cf.join();
+            try {
+                cf.get();
+            } catch (InterruptedException | ExecutionException e) {
+                LOGGER.error("Exception during wait for resources to be deleted", e);
+            }
         }
     }
 }
