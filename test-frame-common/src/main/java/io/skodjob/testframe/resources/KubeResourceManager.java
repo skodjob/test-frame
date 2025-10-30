@@ -22,6 +22,9 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -120,6 +123,20 @@ public final class KubeResourceManager {
     private KubeResourceManager() {
         // Private constructor
     }
+
+    /**
+     * Executor service used for creating thread pool for the futures.
+     */
+    private static final ExecutorService EXECUTOR = Executors.newCachedThreadPool(new ThreadFactory() {
+        final ThreadFactory defaultThreadFactory = Executors.defaultThreadFactory();
+
+        @Override
+        public Thread newThread(Runnable r) {
+            Thread result = defaultThreadFactory.newThread(r);
+            result.setDaemon(true);
+            return result;
+        }
+    });
 
     /**
      * Gets KubeResourceManager instance
@@ -585,6 +602,9 @@ public final class KubeResourceManager {
                 } else {
                     type.delete(resource);
                 }
+
+                LOGGER.debug("DELETE call for: {} finished", resource.getKind());
+
                 if (waitForDeletion) {
                     decideDeleteWaitAsync(waiters, async, resource);
                 }
@@ -746,7 +766,11 @@ public final class KubeResourceManager {
         Wait.until(String.format("Resource condition: %s to be fulfilled for resource %s/%s",
                 condition.conditionName(), resource.getKind(), resource.getMetadata().getName()),
             TestFrameConstants.GLOBAL_POLL_INTERVAL_MEDIUM, resourceTimeout, () -> {
+                LOGGER.trace("Obtainining current state of resource: {}/{}",
+                    resource.getKind(), resource.getMetadata().getName());
                 T r = resourceSupplier.get();
+                LOGGER.trace("Finished obtaining resource: {}/{}",
+                    resource.getKind(), resource.getMetadata().getName());
                 ready[0] = condition.predicate().test(r);
                 return ready[0];
             });
@@ -788,14 +812,15 @@ public final class KubeResourceManager {
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
-            });
+            }, EXECUTOR);
             if (async) {
                 waiters.add(cf);
             } else {
                 try {
                     cf.get();
                 } catch (InterruptedException | ExecutionException e) {
-                    LOGGER.error("Exception during wait for resources to be deleted", e);
+                    LOGGER.error("Exception during wait for resource to be deleted", e);
+                    throw new RuntimeException(e);
                 }
             }
             count.decrementAndGet();
@@ -822,8 +847,10 @@ public final class KubeResourceManager {
                     .get(TestFrameConstants.GLOBAL_TIMEOUT, TimeUnit.MILLISECONDS);
             } catch (TimeoutException e) {
                 LOGGER.error("Timeout exception during wait for resources to be deleted");
+                throw new RuntimeException(e);
             } catch (InterruptedException | ExecutionException e) {
                 LOGGER.error("Exception during wait for resources to be deleted", e);
+                throw new RuntimeException(e);
             }
         }
     }
@@ -879,14 +906,15 @@ public final class KubeResourceManager {
         List<CompletableFuture<Void>> waiters, boolean async, T res) {
         CompletableFuture<Void> cf = CompletableFuture.runAsync(() ->
             assertTrue(waitResourceCondition(res, ResourceCondition.deletion()),
-                "Timed out deleting " + res.getKind() + "/" + res.getMetadata().getName()));
+                "Timed out deleting " + res.getKind() + "/" + res.getMetadata().getName()), EXECUTOR);
         if (async) {
             waiters.add(cf);
         } else {
             try {
                 cf.get();
             } catch (InterruptedException | ExecutionException e) {
-                LOGGER.error("Exception during wait for resources to be deleted", e);
+                LOGGER.error("Exception during wait for resource to be deleted", e);
+                throw new RuntimeException(e);
             }
         }
     }
