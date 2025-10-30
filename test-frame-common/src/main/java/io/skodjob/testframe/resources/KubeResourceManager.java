@@ -509,6 +509,7 @@ public final class KubeResourceManager {
                             cf.get();
                         } catch (InterruptedException | ExecutionException e) {
                             LOGGER.error("Exception during wait for resources to be ready", e);
+                            throw new RuntimeException(e);
                         }
                     }
                 }
@@ -534,6 +535,7 @@ public final class KubeResourceManager {
                             cf.get();
                         } catch (InterruptedException | ExecutionException e) {
                             LOGGER.error("Exception during wait for resources to be ready", e);
+                            throw new RuntimeException(e);
                         }
                     }
                 }
@@ -545,6 +547,7 @@ public final class KubeResourceManager {
                 CompletableFuture.allOf(waiters.toArray(new CompletableFuture[0])).get();
             } catch (InterruptedException | ExecutionException e) {
                 LOGGER.error("Exception during wait for resources to be ready", e);
+                throw new RuntimeException(e);
             }
         }
     }
