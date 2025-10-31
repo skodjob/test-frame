@@ -539,8 +539,7 @@ public final class KubeResourceManager {
                         } catch (TimeoutException e) {
                             LOGGER.error("Timeout waiting for resource to be ready", e);
                             throw new RuntimeException(e);
-                        }
-                        catch (InterruptedException | ExecutionException e) {
+                        } catch (InterruptedException | ExecutionException e) {
                             LOGGER.error("Exception during wait for resource to be ready", e);
                             throw new RuntimeException(e);
                         }
