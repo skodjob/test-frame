@@ -820,7 +820,7 @@ public final class KubeResourceManager {
                 try {
                     cf.get();
                 } catch (InterruptedException | ExecutionException e) {
-                    LOGGER.error("Exception during wait for resource to be deleted", e);
+                    LOGGER.error("Exception during deletion or wait for resource to be deleted", e);
                     throw new RuntimeException(e);
                 }
             }
@@ -855,6 +855,7 @@ public final class KubeResourceManager {
             }
         }
     }
+
     /**
      * Return ResourceType implementation if it is specified in resourceTypes based on kind
      *

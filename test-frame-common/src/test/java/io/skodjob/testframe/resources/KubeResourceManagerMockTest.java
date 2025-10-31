@@ -10,7 +10,7 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.dsl.NamespaceableResource;
 import io.skodjob.testframe.annotations.TestVisualSeparator;
 import io.skodjob.testframe.clients.KubeClient;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -37,8 +37,8 @@ public class KubeResourceManagerMockTest {
     @SuppressWarnings("unchecked")
     static NamespaceableResource<Namespace> namespaceResource = mock(NamespaceableResource.class);
 
-    @BeforeAll
-    static void setup() {
+    @BeforeEach
+    void setup() {
         when(kubeResourceManager.kubeClient()).thenReturn(kubeClient);
         when(kubeClient.getClient()).thenReturn(kubernetesClient);
         when(kubernetesClient.resource(any(Namespace.class))).thenReturn(namespaceResource);
