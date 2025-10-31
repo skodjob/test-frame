@@ -606,8 +606,6 @@ public final class KubeResourceManager {
                     type.delete(resource);
                 }
 
-                LOGGER.debug("DELETE call for: {} finished", resource.getKind());
-
                 if (waitForDeletion) {
                     decideDeleteWaitAsync(waiters, async, resource);
                 }
@@ -843,7 +841,7 @@ public final class KubeResourceManager {
      *
      * @param waiters   List of {@link CompletableFuture} that should be run async.
      */
-    private void handleAsyncDeletion(List<CompletableFuture<Void>> waiters) {
+    /* test */ void handleAsyncDeletion(List<CompletableFuture<Void>> waiters) {
         if (!waiters.isEmpty()) {
             try {
                 CompletableFuture.allOf(waiters.toArray(new CompletableFuture[0]))
