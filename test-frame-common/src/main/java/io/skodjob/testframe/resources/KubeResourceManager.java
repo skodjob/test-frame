@@ -506,7 +506,10 @@ public final class KubeResourceManager {
                         waiters.add(cf);
                     } else {
                         try {
-                            cf.get();
+                            cf.get(TestFrameConstants.GLOBAL_TIMEOUT_MEDIUM, TimeUnit.MILLISECONDS);
+                        } catch (TimeoutException e) {
+                            LOGGER.error("Timeout waiting for resource to be ready", e);
+                            throw new RuntimeException(e);
                         } catch (InterruptedException | ExecutionException e) {
                             LOGGER.error("Exception during wait for resources to be ready", e);
                             throw new RuntimeException(e);
@@ -532,9 +535,13 @@ public final class KubeResourceManager {
                         waiters.add(cf);
                     } else {
                         try {
-                            cf.get();
-                        } catch (InterruptedException | ExecutionException e) {
-                            LOGGER.error("Exception during wait for resources to be ready", e);
+                            cf.get(type.getTimeoutForResourceReadiness(), TimeUnit.MILLISECONDS);
+                        } catch (TimeoutException e) {
+                            LOGGER.error("Timeout waiting for resource to be ready", e);
+                            throw new RuntimeException(e);
+                        }
+                        catch (InterruptedException | ExecutionException e) {
+                            LOGGER.error("Exception during wait for resource to be ready", e);
                             throw new RuntimeException(e);
                         }
                     }
@@ -818,7 +825,10 @@ public final class KubeResourceManager {
                 waiters.add(cf);
             } else {
                 try {
-                    cf.get();
+                    cf.get(TestFrameConstants.GLOBAL_TIMEOUT, TimeUnit.MILLISECONDS);
+                } catch (TimeoutException e) {
+                    LOGGER.error("Timeout waiting for deletion of resource", e);
+                    throw new RuntimeException(e);
                 } catch (InterruptedException | ExecutionException e) {
                     LOGGER.error("Exception during deletion or wait for resource to be deleted", e);
                     throw new RuntimeException(e);
@@ -913,7 +923,10 @@ public final class KubeResourceManager {
             waiters.add(cf);
         } else {
             try {
-                cf.get();
+                cf.get(TestFrameConstants.GLOBAL_TIMEOUT, TimeUnit.MILLISECONDS);
+            } catch (TimeoutException e) {
+                LOGGER.error("Timeout waiting for deletion of resource", e);
+                throw new RuntimeException(e);
             } catch (InterruptedException | ExecutionException e) {
                 LOGGER.error("Exception during wait for resource to be deleted", e);
                 throw new RuntimeException(e);
