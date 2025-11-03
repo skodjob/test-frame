@@ -10,13 +10,15 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.dsl.NamespaceableResource;
 import io.skodjob.testframe.annotations.TestVisualSeparator;
 import io.skodjob.testframe.clients.KubeClient;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -35,8 +37,8 @@ public class KubeResourceManagerMockTest {
     @SuppressWarnings("unchecked")
     static NamespaceableResource<Namespace> namespaceResource = mock(NamespaceableResource.class);
 
-    @BeforeAll
-    static void setup() {
+    @BeforeEach
+    void setup() {
         when(kubeResourceManager.kubeClient()).thenReturn(kubeClient);
         when(kubeClient.getClient()).thenReturn(kubernetesClient);
         when(kubernetesClient.resource(any(Namespace.class))).thenReturn(namespaceResource);
@@ -93,5 +95,32 @@ public class KubeResourceManagerMockTest {
         kubeResourceManager.deleteResourceWithoutWait(myNamespace);
 
         assertFalse(deletionWaitWasCalled.get());
+    }
+
+    @Test
+    void testHandleAsyncDeletionBeingCalled() {
+        AtomicBoolean handleAsyncDeletionCalled = new AtomicBoolean(false);
+        Namespace myNamespace = new NamespaceBuilder().withNewMetadata()
+            .withName("my-namespace").endMetadata().build();
+        Namespace mySecondNamespace = new NamespaceBuilder().withNewMetadata()
+            .withName("second-namespace").endMetadata().build();
+
+        doAnswer(invocation -> {
+            handleAsyncDeletionCalled.set(true);
+            return true;
+        }).when(kubeResourceManager).handleAsyncDeletion(any());
+
+        kubeResourceManager.deleteResourceAsyncWait(myNamespace, mySecondNamespace);
+
+        assertTrue(handleAsyncDeletionCalled.get());
+    }
+
+    @Test
+    void testHandleAsyncDeletionThrowsException() {
+        CompletableFuture<Void> cf = CompletableFuture.runAsync(() -> {
+            throw new RuntimeException();
+        });
+
+        assertThrows(RuntimeException.class, () -> kubeResourceManager.handleAsyncDeletion(List.of(cf)));
     }
 }
