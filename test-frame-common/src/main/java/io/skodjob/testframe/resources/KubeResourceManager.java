@@ -112,6 +112,9 @@ public final class KubeResourceManager {
 
     private static final Map<String, Map<String, Stack<ResourceItem<?>>>> STORED_RESOURCES = new ConcurrentHashMap<>();
 
+    // Lock used during store of resources that are being created by KubeResourceManager
+    private static final Object CREATION_LOCK = new Object();
+
     /**
      * Stores connected kube clients for context
      *
@@ -894,22 +897,24 @@ public final class KubeResourceManager {
     }
 
     private void writeResourceAsYaml(HasMetadata res) {
-        File dir = Paths.get(storeYamlPath).resolve(CURRENT_CLUSTER_CONTEXT.get()).resolve("test-files")
-            .resolve(getTestContext().getRequiredTestClass().getName())
-            .toFile();
-        if (getTestContext().getTestMethod().isPresent()) {
-            dir = dir.toPath().resolve(getTestContext().getRequiredTestMethod().getName()).toFile();
-        }
-        if (!dir.exists() && !dir.mkdirs()) {
-            throw new RuntimeException("Cannot create dir " + dir);
-        }
-        String yaml = Serialization.asYaml(res);
-        try {
-            Files.writeString(dir.toPath().resolve(res.getKind() + "-" +
-                (res.getMetadata().getNamespace() == null ? "" : res.getMetadata().getNamespace() + "-") +
-                res.getMetadata().getName() + ".yaml"), yaml, StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        synchronized (CREATION_LOCK) {
+            File dir = Paths.get(storeYamlPath).resolve(CURRENT_CLUSTER_CONTEXT.get()).resolve("test-files")
+                .resolve(getTestContext().getRequiredTestClass().getName())
+                .toFile();
+            if (getTestContext().getTestMethod().isPresent()) {
+                dir = dir.toPath().resolve(getTestContext().getRequiredTestMethod().getName()).toFile();
+            }
+            if (!dir.exists() && !dir.mkdirs()) {
+                throw new RuntimeException("Cannot create dir " + dir);
+            }
+            String yaml = Serialization.asYaml(res);
+            try {
+                Files.writeString(dir.toPath().resolve(res.getKind() + "-" +
+                    (res.getMetadata().getNamespace() == null ? "" : res.getMetadata().getNamespace() + "-") +
+                    res.getMetadata().getName() + ".yaml"), yaml, StandardCharsets.UTF_8);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
