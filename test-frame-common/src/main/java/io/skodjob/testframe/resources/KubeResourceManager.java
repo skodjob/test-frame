@@ -511,10 +511,18 @@ public final class KubeResourceManager {
                         try {
                             cf.get(TestFrameConstants.GLOBAL_TIMEOUT_MEDIUM, TimeUnit.MILLISECONDS);
                         } catch (TimeoutException e) {
-                            LOGGER.error("Timeout waiting for resource to be ready", e);
+                            LOGGER.error("Timeout waiting for resource {}/{} to be ready",
+                                resource.getMetadata().getNamespace(),
+                                resource.getMetadata().getName(),
+                                e
+                            );
                             throw new RuntimeException(e);
                         } catch (InterruptedException | ExecutionException e) {
-                            LOGGER.error("Exception during wait for resources to be ready", e);
+                            LOGGER.error("Exception during wait for resource {}/{} to be ready",
+                                resource.getMetadata().getNamespace(),
+                                resource.getMetadata().getName(),
+                                e
+                            );
                             throw new RuntimeException(e);
                         }
                     }
@@ -540,10 +548,18 @@ public final class KubeResourceManager {
                         try {
                             cf.get(type.getTimeoutForResourceReadiness(), TimeUnit.MILLISECONDS);
                         } catch (TimeoutException e) {
-                            LOGGER.error("Timeout waiting for resource to be ready", e);
+                            LOGGER.error("Timeout waiting for resource {}/{} to be ready",
+                                resource.getMetadata().getNamespace(),
+                                resource.getMetadata().getName(),
+                                e
+                            );
                             throw new RuntimeException(e);
                         } catch (InterruptedException | ExecutionException e) {
-                            LOGGER.error("Exception during wait for resource to be ready", e);
+                            LOGGER.error("Exception during wait for resource {}/{} to be ready",
+                                resource.getMetadata().getNamespace(),
+                                resource.getMetadata().getName(),
+                                e
+                            );
                             throw new RuntimeException(e);
                         }
                     }
@@ -829,10 +845,18 @@ public final class KubeResourceManager {
                 try {
                     cf.get(TestFrameConstants.GLOBAL_TIMEOUT, TimeUnit.MILLISECONDS);
                 } catch (TimeoutException e) {
-                    LOGGER.error("Timeout waiting for deletion of resource", e);
+                    LOGGER.error("Timeout waiting for deletion of resource {}/{}",
+                        item.resource().getMetadata().getNamespace(),
+                        item.resource().getMetadata().getName(),
+                        e
+                    );
                     throw new RuntimeException(e);
                 } catch (InterruptedException | ExecutionException e) {
-                    LOGGER.error("Exception during deletion or wait for resource to be deleted", e);
+                    LOGGER.error("Exception during deletion or wait for resource {}/{} to be deleted",
+                        item.resource().getMetadata().getNamespace(),
+                        item.resource().getMetadata().getName(),
+                        e
+                    );
                     throw new RuntimeException(e);
                 }
             }
@@ -929,10 +953,18 @@ public final class KubeResourceManager {
             try {
                 cf.get(TestFrameConstants.GLOBAL_TIMEOUT, TimeUnit.MILLISECONDS);
             } catch (TimeoutException e) {
-                LOGGER.error("Timeout waiting for deletion of resource", e);
+                LOGGER.error("Timeout waiting for deletion of resource {}/{}",
+                    res.getMetadata().getNamespace(),
+                    res.getMetadata().getName(),
+                    e
+                );
                 throw new RuntimeException(e);
             } catch (InterruptedException | ExecutionException e) {
-                LOGGER.error("Exception during wait for resource to be deleted", e);
+                LOGGER.error("Exception during wait for resource {}/{} to be deleted",
+                    res.getMetadata().getNamespace(),
+                    res.getMetadata().getName(),
+                    e
+                );
                 throw new RuntimeException(e);
             }
         }
