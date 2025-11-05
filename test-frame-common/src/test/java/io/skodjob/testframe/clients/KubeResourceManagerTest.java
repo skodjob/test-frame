@@ -393,8 +393,8 @@ class KubeResourceManagerTest {
 
         // Verify the YAML file was created  
         Path expectedFile = Paths.get(testPath)
-            .resolve(currentContext)
             .resolve("test-files")
+            .resolve(currentContext)
             .resolve(getClass().getName())
             .resolve("testWriteResourceAsYaml")
             .resolve("ConfigMap-test-namespace-test-configmap.yaml");

@@ -71,7 +71,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *   KUBECONFIG   = /path/to/default.kubeconfig   # overrides URL/TOKEN
  *
  *   # extra contexts
- *   KUBECONFIG_PROD = /path/to/prod.kubeconfig  # highest precedence per context
+ *   KUBECONFIG_PROD = /path/to/prod.kubeconfig  # the highest precedence per context
  *   KUBE_URL_STAGE  = https://api.stage:6443
  *   KUBE_TOKEN_STAGE= token
  *   KUBE_URL_QA     = https://api.qa:6443
@@ -776,7 +776,7 @@ public final class KubeResourceManager {
         Wait.until(String.format("Resource condition: %s to be fulfilled for resource %s/%s",
                 condition.conditionName(), resource.getKind(), resource.getMetadata().getName()),
             TestFrameConstants.GLOBAL_POLL_INTERVAL_MEDIUM, resourceTimeout, () -> {
-                LOGGER.trace("Obtainining current state of resource: {}/{}",
+                LOGGER.trace("Obtaining current state of resource: {}/{}",
                     resource.getKind(), resource.getMetadata().getName());
                 T r = resourceSupplier.get();
                 LOGGER.trace("Finished obtaining resource: {}/{}",
@@ -898,11 +898,13 @@ public final class KubeResourceManager {
 
     private void writeResourceAsYaml(HasMetadata res) {
         synchronized (CREATION_LOCK) {
-            File dir = Paths.get(storeYamlPath).resolve(CURRENT_CLUSTER_CONTEXT.get()).resolve("test-files")
+            File dir = Paths.get(storeYamlPath).resolve("test-files").resolve(CURRENT_CLUSTER_CONTEXT.get())
                 .resolve(getTestContext().getRequiredTestClass().getName())
                 .toFile();
             if (getTestContext().getTestMethod().isPresent()) {
                 dir = dir.toPath().resolve(getTestContext().getRequiredTestMethod().getName()).toFile();
+            } else {
+                dir = dir.toPath().resolve("before-all").toFile();
             }
             if (!dir.exists() && !dir.mkdirs()) {
                 throw new RuntimeException("Cannot create dir " + dir);
