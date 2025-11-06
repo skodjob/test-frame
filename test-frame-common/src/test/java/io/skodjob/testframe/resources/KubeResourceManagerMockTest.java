@@ -118,9 +118,11 @@ public class KubeResourceManagerMockTest {
     @Test
     void testHandleAsyncDeletionThrowsException() {
         CompletableFuture<Void> cf = CompletableFuture.runAsync(() -> {
-            throw new RuntimeException();
+            throw new RuntimeException("This is test exception");
         });
 
-        assertThrows(RuntimeException.class, () -> kubeResourceManager.handleAsyncDeletion(List.of(cf)));
+        RuntimeException runtimeException = assertThrows(RuntimeException.class,
+            () -> kubeResourceManager.handleAsyncDeletion(List.of(cf)));
+        assertTrue(runtimeException.getMessage().contains("This is test exception"));
     }
 }
