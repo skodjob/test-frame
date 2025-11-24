@@ -75,7 +75,7 @@
 
         <!--   Build tools' properties     -->
         <spotbugs.version>4.9.8</spotbugs.version>
-        <maven.spotbugs.version>4.9.8.1</maven.spotbugs.version>
+        <maven.spotbugs.version>4.9.8.2</maven.spotbugs.version>
         <maven.checkstyle.version>3.6.0</maven.checkstyle.version>
         <maven.dependency.version>3.9.0</maven.dependency.version>
 
