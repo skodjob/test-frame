@@ -27,7 +27,7 @@ jobs:
           java-version: ${{ matrix.version }}
 
       - name: Cache m2 repo
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-${{ matrix.version }}-maven-${{ hashFiles('**/pom.xml') }}
