@@ -65,7 +65,7 @@
         <maven.compiler.target>17</maven.compiler.target>
         <maven.compiler.release>17</maven.compiler.release>
 
-        <fabric8.version>7.4.0</fabric8.version>
+        <fabric8.version>7.5.0</fabric8.version>
         <log4j.version>2.25.3</log4j.version>
         <slf4j.version>2.0.17</slf4j.version>
 
@@ -82,11 +82,11 @@
         <maven.compile.plugin.version>3.14.1</maven.compile.plugin.version>
         <maven.source.plugin.version>3.4.0</maven.source.plugin.version>
         <maven.gpg.version>3.2.8</maven.gpg.version>
-        <sonatype.nexus.central>0.9.0</sonatype.nexus.central>
+        <sonatype.nexus.central>0.10.0</sonatype.nexus.central>
         <maven.javadoc.version>3.12.0</maven.javadoc.version>
         <maven.assembly.version>3.8.0</maven.assembly.version>
         <maven.plugin.plugin.version>3.9.0</maven.plugin.plugin.version>
-        <junit.jupiter.version>6.0.1</junit.jupiter.version>
+        <junit.jupiter.version>6.0.2</junit.jupiter.version>
         <maven.surefire.version>3.5.4</maven.surefire.version>
         <jackson-dataformat-yaml.version>2.20.1</jackson-dataformat-yaml.version>
         <org.eclipse.sisu.version>0.9.0.M4</org.eclipse.sisu.version>
