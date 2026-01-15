@@ -477,7 +477,7 @@ public class Exec {
      * @param msg error message
      * @return appropriate KubeClusterException
      */
-    private static KubeClusterException createAppropriateException(
+    /* test */ static KubeClusterException createAppropriateException(
             Matcher errorMatcher, Matcher invalidMatcher, ExecResult execResult, String msg) {
 
         // Check for invalid resource pattern first (more specific)
