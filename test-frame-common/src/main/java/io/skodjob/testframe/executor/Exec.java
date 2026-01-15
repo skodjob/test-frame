@@ -316,9 +316,8 @@ public class Exec {
                 Matcher errorMatcher = ERROR_PATTERN.matcher(executor.err());
                 Matcher invalidMatcher = INVALID_PATTERN.matcher(executor.err());
 
-                KubeClusterException exception = createAppropriateException(
+                throw createAppropriateException(
                     errorMatcher, invalidMatcher, execResult, msg);
-                throw exception;
             }
             return new ExecResult(ret, executor.out(), executor.err());
 
