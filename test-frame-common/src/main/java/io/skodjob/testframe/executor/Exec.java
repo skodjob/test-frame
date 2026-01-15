@@ -22,6 +22,8 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -43,6 +45,8 @@ import static java.lang.String.join;
 public class Exec {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Exec.class);
+
+    private static final Executor EXECUTOR = Executors.newVirtualThreadPerTaskExecutor();
 
     private static final Pattern ERROR_PATTERN = Pattern.compile("Error from server \\(([a-zA-Z0-9]+)\\):");
     private static final Pattern INVALID_PATTERN = Pattern
@@ -309,29 +313,12 @@ public class Exec {
                     + " and stderr:\n------\n" + executor.stdErr
                     + "\n------\nand stdout:\n------\n" + executor.stdOut + "\n------";
 
-                Matcher matcher = ERROR_PATTERN.matcher(executor.err());
-                KubeClusterException t = null;
+                Matcher errorMatcher = ERROR_PATTERN.matcher(executor.err());
+                Matcher invalidMatcher = INVALID_PATTERN.matcher(executor.err());
 
-                if (matcher.find()) {
-                    switch (matcher.group(1)) {
-                        case "NotFound":
-                            t = new KubeClusterException.NotFound(execResult, msg);
-                            break;
-                        case "AlreadyExists":
-                            t = new KubeClusterException.AlreadyExists(execResult, msg);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-                matcher = INVALID_PATTERN.matcher(executor.err());
-                if (matcher.find()) {
-                    t = new KubeClusterException.InvalidResource(execResult, msg);
-                }
-                if (t == null) {
-                    t = new KubeClusterException(execResult, msg);
-                }
-                throw t;
+                KubeClusterException exception = createAppropriateException(
+                    errorMatcher, invalidMatcher, execResult, msg);
+                throw exception;
             }
             return new ExecResult(ret, executor.out(), executor.err());
 
@@ -481,6 +468,36 @@ public class Exec {
     }
 
     /**
+     * Creates appropriate KubeClusterException
+     * Prioritizes InvalidResource over error pattern matches for more specific error handling.
+     *
+     * @param errorMatcher matcher for error patterns
+     * @param invalidMatcher matcher for invalid resource patterns
+     * @param execResult execution result
+     * @param msg error message
+     * @return appropriate KubeClusterException
+     */
+    private static KubeClusterException createAppropriateException(
+            Matcher errorMatcher, Matcher invalidMatcher, ExecResult execResult, String msg) {
+
+        // Check for invalid resource pattern first (more specific)
+        if (invalidMatcher.find()) {
+            return new KubeClusterException.InvalidResource(execResult, msg);
+        }
+
+        if (errorMatcher.find()) {
+            return switch (errorMatcher.group(1)) {
+                case "NotFound" -> new KubeClusterException.NotFound(execResult, msg);
+                case "AlreadyExists" -> new KubeClusterException.AlreadyExists(execResult, msg);
+                default -> new KubeClusterException(execResult, msg);
+            };
+        }
+
+        // Default fallback
+        return new KubeClusterException(execResult, msg);
+    }
+
+    /**
      * Class represent async reader
      */
     class StreamGobbler {
@@ -524,7 +541,7 @@ public class Exec {
                 } catch (Exception e) {
                     throw new CompletionException(e);
                 }
-            }, runnable -> new Thread(runnable).start());
+            }, EXECUTOR);
         }
     }
 }

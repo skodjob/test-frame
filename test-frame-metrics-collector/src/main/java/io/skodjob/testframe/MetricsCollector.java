@@ -498,13 +498,8 @@ public class MetricsCollector {
     }
 
     /* test */ MetricsCollectionException determineExceptionFromStatus(MetricsCollectionStatus status) {
-        MetricsCollectionStatus.Type type = status.getType();
-
-        if (type == null) {
-            return new MetricsCollectionException("Unknown error occurred during metrics collection");
-        }
-
         return switch (status.getType()) {
+            case null -> new MetricsCollectionException("Unknown error occurred during metrics collection");
             case NO_DATA -> new NoPodsFoundException(status.getMessage());
             case INCOMPLETE_DATA -> new IncompleteMetricsException(status.getMessage());
             case ERROR -> new MetricsCollectionException(status.getMessage(), status.getException());
