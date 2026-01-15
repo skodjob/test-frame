@@ -25,6 +25,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.function.Supplier;
 
 /**
@@ -32,6 +34,9 @@ import java.util.function.Supplier;
  */
 public class LogCollector {
     private static final Logger LOGGER = LoggerFactory.getLogger(LogCollector.class);
+
+    private static final Executor EXECUTOR = Executors.newVirtualThreadPerTaskExecutor();
+
     protected final List<String> namespacedResources;
     protected final List<String> clusterWideResources;
     protected final boolean collectPreviousLogs;
@@ -162,7 +167,10 @@ public class LogCollector {
                 collectLogsFromPodsInNamespace(namespaceName, namespaceFolderPath)
             );
             collectList.add(
-                CompletableFuture.runAsync(() -> collectEventsFromNamespace(namespaceName, namespaceFolderPath))
+                CompletableFuture.runAsync(
+                    () -> collectEventsFromNamespace(namespaceName, namespaceFolderPath),
+                    EXECUTOR
+                )
             );
             collectList.addAll(
                 collectResourcesDescInNamespace(namespaceName, namespaceFolderPath)
@@ -255,13 +263,16 @@ public class LogCollector {
                 collectList.addAll(
                     List.of(
                         CompletableFuture.runAsync(
-                            () -> collectPodDescription(namespaceName, podsFolderPath, podName)
+                            () -> collectPodDescription(namespaceName, podsFolderPath, podName),
+                            EXECUTOR
                         ),
                         CompletableFuture.runAsync(
-                            () -> collectLogsFromPodContainers(namespaceName, podsFolderPath, podName, containers)
+                            () -> collectLogsFromPodContainers(namespaceName, podsFolderPath, podName, containers),
+                            EXECUTOR
                         ),
                         CompletableFuture.runAsync(
-                            () -> collectLogsFromPodContainers(namespaceName, podsFolderPath, podName, initContainers)
+                            () -> collectLogsFromPodContainers(namespaceName, podsFolderPath, podName, initContainers),
+                            EXECUTOR
                         )
                     )
                 );
@@ -430,8 +441,9 @@ public class LogCollector {
 
         namespacedResources.forEach(resource ->
             collectList.add(CompletableFuture.runAsync(
-                () -> collectDescriptionOfResourceInNamespace(namespaceName, namespaceFolderPath, resource))
-            )
+                () -> collectDescriptionOfResourceInNamespace(namespaceName, namespaceFolderPath, resource),
+                EXECUTOR
+            ))
         );
 
         return collectList;

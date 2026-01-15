@@ -12,9 +12,7 @@ import java.io.StringWriter;
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.BooleanSupplier;
@@ -143,16 +141,7 @@ public class Wait {
         }
     }
 
-    private static final ExecutorService EXECUTOR = Executors.newCachedThreadPool(new ThreadFactory() {
-        final ThreadFactory defaultThreadFactory = Executors.defaultThreadFactory();
-
-        @Override
-        public Thread newThread(Runnable r) {
-            Thread result = defaultThreadFactory.newThread(r);
-            result.setDaemon(true);
-            return result;
-        }
-    });
+    private static final Executor EXECUTOR = Executors.newVirtualThreadPerTaskExecutor();
 
     /**
      * For every poll (happening once each {@code pollIntervalMs}) checks if supplier {@code ready} is true.

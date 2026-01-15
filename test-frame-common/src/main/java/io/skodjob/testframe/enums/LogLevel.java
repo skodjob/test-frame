@@ -39,12 +39,12 @@ public enum LogLevel {
      * @return  based on {@param level} returns corresponding slf4j's log level (as {@link Level}.
      */
     public static Level logLevelToLevel(LogLevel level) {
-        switch (level) {
-            case DEBUG: return Level.DEBUG;
-            case WARN: return Level.WARN;
-            case ERROR: return Level.ERROR;
-            case TRACE: return Level.TRACE;
-            default: return Level.INFO;
-        }
+        return switch (level) {
+            case DEBUG -> Level.DEBUG;
+            case WARN -> Level.WARN;
+            case ERROR -> Level.ERROR;
+            case TRACE -> Level.TRACE;
+            case INFO -> Level.INFO;  // Explicit case instead of default for better maintainability
+        };
     }
 }

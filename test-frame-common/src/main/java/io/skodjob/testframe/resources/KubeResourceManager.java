@@ -22,9 +22,8 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -128,18 +127,9 @@ public final class KubeResourceManager {
     }
 
     /**
-     * Executor service used for creating thread pool for the futures.
+     * Virtual Thread executor concurrency in Kubernetes resource operations.
      */
-    private static final ExecutorService EXECUTOR = Executors.newCachedThreadPool(new ThreadFactory() {
-        final ThreadFactory defaultThreadFactory = Executors.defaultThreadFactory();
-
-        @Override
-        public Thread newThread(Runnable r) {
-            Thread result = defaultThreadFactory.newThread(r);
-            result.setDaemon(true);
-            return result;
-        }
-    });
+    private static final Executor EXECUTOR = Executors.newVirtualThreadPerTaskExecutor();
 
     /**
      * Gets KubeResourceManager instance
@@ -504,7 +494,7 @@ public final class KubeResourceManager {
                                     return kubeClient().getClient().resource(resource) != null;
                                 }, "ready")),
                             "Timed out waiting for " + resource.getKind() + "/" +
-                                resource.getMetadata().getName()));
+                                resource.getMetadata().getName()), EXECUTOR);
                     if (async) {
                         waiters.add(cf);
                     } else {
@@ -541,7 +531,7 @@ public final class KubeResourceManager {
                     CompletableFuture<Void> cf = CompletableFuture.runAsync(() ->
                         assertTrue(waitResourceCondition(resource, ResourceCondition.readiness(type), timeout),
                             "Timed out waiting for " + resource.getKind() + "/" +
-                                resource.getMetadata().getName()));
+                                resource.getMetadata().getName()), EXECUTOR);
                     if (async) {
                         waiters.add(cf);
                     } else {

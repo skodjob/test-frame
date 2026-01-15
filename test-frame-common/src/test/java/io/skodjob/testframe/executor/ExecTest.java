@@ -21,11 +21,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -230,5 +234,102 @@ class ExecTest {
         assertNotNull(result);
         assertFalse(result.exitStatus());
         assertFalse(result.err().isEmpty());
+    }
+
+    @Test
+    void testCreateAppropriateExceptionNotFound() {
+        // Test Java 21 Enhanced Pattern Matching for NotFound errors
+        String errorText = "Error from server (NotFound): pods \"missing-pod\" not found";
+        Pattern errorPattern = Pattern.compile("Error from server \\(([a-zA-Z0-9]+)\\):");
+        Pattern invalidPattern = Pattern.compile("The ([a-zA-Z0-9]+) \"([a-z0-9.-]+)\" is invalid:");
+
+        Matcher errorMatcher = errorPattern.matcher(errorText);
+        Matcher invalidMatcher = invalidPattern.matcher(errorText);
+        ExecResult execResult = new ExecResult(1, "", errorText);
+
+        KubeClusterException result = Exec.createAppropriateException(
+            errorMatcher, invalidMatcher, execResult, "Test message");
+
+        assertInstanceOf(KubeClusterException.NotFound.class, result);
+        assertEquals("Test message", result.getMessage());
+        assertSame(execResult, result.result);
+    }
+
+    @Test
+    void testCreateAppropriateExceptionAlreadyExists() {
+        // Test Java 21 Enhanced Pattern Matching for AlreadyExists errors
+        String errorText = "Error from server (AlreadyExists): pods \"existing-pod\" already exists";
+        Pattern errorPattern = Pattern.compile("Error from server \\(([a-zA-Z0-9]+)\\):");
+        Pattern invalidPattern = Pattern.compile("The ([a-zA-Z0-9]+) \"([a-z0-9.-]+)\" is invalid:");
+
+        Matcher errorMatcher = errorPattern.matcher(errorText);
+        Matcher invalidMatcher = invalidPattern.matcher(errorText);
+        ExecResult execResult = new ExecResult(1, "", errorText);
+
+        KubeClusterException result = Exec.createAppropriateException(
+            errorMatcher, invalidMatcher, execResult, "Test message");
+
+        assertInstanceOf(KubeClusterException.AlreadyExists.class, result);
+        assertEquals("Test message", result.getMessage());
+        assertSame(execResult, result.result);
+    }
+
+    @Test
+    void testCreateAppropriateExceptionInvalidResource() {
+        // Test Java 21 Enhanced Pattern Matching for InvalidResource (priority case)
+        String errorText = "The Pod \"invalid-pod-name\" is invalid: metadata.name: Invalid value";
+        Pattern errorPattern = Pattern.compile("Error from server \\(([a-zA-Z0-9]+)\\):");
+        Pattern invalidPattern = Pattern.compile("The ([a-zA-Z0-9]+) \"([a-z0-9.-]+)\" is invalid:");
+
+        Matcher errorMatcher = errorPattern.matcher(errorText);
+        Matcher invalidMatcher = invalidPattern.matcher(errorText);
+        ExecResult execResult = new ExecResult(1, "", errorText);
+
+        KubeClusterException result = Exec.createAppropriateException(
+            errorMatcher, invalidMatcher, execResult, "Test message");
+
+        assertInstanceOf(KubeClusterException.InvalidResource.class, result);
+        assertEquals("Test message", result.getMessage());
+        assertSame(execResult, result.result);
+    }
+
+    @Test
+    void testCreateAppropriateExceptionUnknownError() {
+        // Test Java 21 Enhanced Pattern Matching default case
+        String errorText = "Error from server (UnknownError): something went wrong";
+        Pattern errorPattern = Pattern.compile("Error from server \\(([a-zA-Z0-9]+)\\):");
+        Pattern invalidPattern = Pattern.compile("The ([a-zA-Z0-9]+) \"([a-z0-9.-]+)\" is invalid:");
+
+        Matcher errorMatcher = errorPattern.matcher(errorText);
+        Matcher invalidMatcher = invalidPattern.matcher(errorText);
+        ExecResult execResult = new ExecResult(1, "", errorText);
+
+        KubeClusterException result = Exec.createAppropriateException(
+            errorMatcher, invalidMatcher, execResult, "Test message");
+
+        // Should fall back to base KubeClusterException for unknown error types
+        assertEquals(KubeClusterException.class, result.getClass());
+        assertEquals("Test message", result.getMessage());
+        assertSame(execResult, result.result);
+    }
+
+    @Test
+    void testCreateAppropriateExceptionNoPatternMatch() {
+        // Test Java 21 Enhanced Pattern Matching fallback case
+        String errorText = "Some generic error message";
+        Pattern errorPattern = Pattern.compile("Error from server \\(([a-zA-Z0-9]+)\\):");
+        Pattern invalidPattern = Pattern.compile("The ([a-zA-Z0-9]+) \"([a-z0-9.-]+)\" is invalid:");
+
+        Matcher errorMatcher = errorPattern.matcher(errorText);
+        Matcher invalidMatcher = invalidPattern.matcher(errorText);
+        ExecResult execResult = new ExecResult(1, "", errorText);
+
+        KubeClusterException result = Exec.createAppropriateException(
+            errorMatcher, invalidMatcher, execResult, "Test message");
+
+        // Should fall back to base KubeClusterException when no patterns match
+        assertEquals(KubeClusterException.class, result.getClass());
+        assertEquals("Test message", result.getMessage());
+        assertSame(execResult, result.result);
     }
 }
