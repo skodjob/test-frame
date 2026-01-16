@@ -130,6 +130,11 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
+                <groupId>io.skodjob</groupId>
+                <artifactId>kubetest-junit</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>io.fabric8</groupId>
                 <artifactId>kubernetes-client-bom-with-deps</artifactId>
                 <version>${fabric8.version}</version>
@@ -433,6 +438,7 @@
                 <module>test-frame-test-examples</module>
                 <module>test-frame-metrics-collector</module>
                 <module>test-frame-log-collector</module>
+                <module>kubetest-junit</module>
             </modules>
         </profile>
         <profile>
@@ -447,6 +453,7 @@
                 <module>test-frame-test-examples</module>
                 <module>test-frame-metrics-collector</module>
                 <module>test-frame-log-collector</module>
+                <module>kubetest-junit</module>
             </modules>
         </profile>
         <profile>
@@ -460,6 +467,7 @@
                 <module>test-frame-openshift</module>
                 <module>test-frame-metrics-collector</module>
                 <module>test-frame-log-collector</module>
+                <module>kubetest-junit</module>
             </modules>
             <properties>
                 <!--suppress UnresolvedMavenProperty -->
@@ -523,6 +531,7 @@
                                         <descriptor>test-frame-openshift/src/main/assembly/dist.xml</descriptor>
                                         <descriptor>test-frame-metrics-collector/src/main/assembly/dist.xml</descriptor>
                                         <descriptor>test-frame-log-collector/src/main/assembly/dist.xml</descriptor>
+                                        <descriptor>kubetest-junit/src/main/assembly/dist.xml</descriptor>
                                     </descriptors>
                                 </configuration>
                             </execution>
