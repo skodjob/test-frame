@@ -10,4 +10,4 @@ jobs:
   review:
     runs-on: ubuntu-latest
     steps:
-      - uses: kentaro-m/auto-assign-action@v2.0.1
+      - uses: kentaro-m/auto-assign-action@a6d59add3a817df08cafa9b166367768d2c337f8 # v2.0.1

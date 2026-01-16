@@ -4,6 +4,7 @@
  */
 package io.skodjob.testframe.test.integration;
 
+import io.skodjob.testframe.annotations.RequiresKubernetes;
 import io.skodjob.testframe.utils.LoggerUtils;
 import io.skodjob.testframe.annotations.ResourceManager;
 import io.skodjob.testframe.annotations.TestVisualSeparator;
@@ -19,6 +20,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+@RequiresKubernetes
 @ResourceManager
 @TestVisualSeparator(separator = "=")
 public abstract class AbstractIT {

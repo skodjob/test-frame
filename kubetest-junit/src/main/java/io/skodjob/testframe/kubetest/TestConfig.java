@@ -1,0 +1,91 @@
+/*
+ * Copyright Skodjob authors.
+ * License: Apache License 2.0 (see the file LICENSE or http://apache.org/licenses/LICENSE-2.0.html).
+ */
+package io.skodjob.testframe.kubetest;
+
+import io.skodjob.testframe.kubetest.annotations.CleanupStrategy;
+import io.skodjob.testframe.kubetest.annotations.KubernetesTest;
+import io.skodjob.testframe.kubetest.annotations.LogCollectionStrategy;
+
+import java.util.Arrays;
+import java.util.List;
+
+/**
+ * Configuration holder for test setup.
+ *
+ * @param namespaces                  The Kubernetes namespaces to create for testing
+ * @param createNamespaces            Whether to create the namespaces if they don't exist
+ * @param cleanup                     The cleanup strategy for resources
+ * @param context                     The Kubernetes cluster context to use
+ * @param storeYaml                   Whether to store YAML representations of resources
+ * @param yamlStorePath               Directory path to store YAML files
+ * @param namespaceLabels             Labels to apply to the test namespaces
+ * @param namespaceAnnotations        Annotations to apply to the test namespaces
+ * @param visualSeparatorChar         Character to use for visual separators
+ * @param visualSeparatorLength       Length of visual separator lines
+ * @param collectLogs                 Whether log collection is enabled
+ * @param logCollectionStrategy       When to collect logs
+ * @param logCollectionPath           Directory path for log collection
+ * @param collectPreviousLogs         Whether to collect previous container logs
+ * @param collectNamespacedResources  Namespaced resource types to collect
+ * @param collectClusterWideResources Cluster-wide resource types to collect
+ * @param contextMappings             Context mappings for multi-cluster support
+ */
+public record TestConfig(
+    List<String> namespaces,
+    boolean createNamespaces,
+    CleanupStrategy cleanup,
+    String context,
+    boolean storeYaml,
+    String yamlStorePath,
+    List<String> namespaceLabels,
+    List<String> namespaceAnnotations,
+    String visualSeparatorChar,
+    int visualSeparatorLength,
+    boolean collectLogs,
+    LogCollectionStrategy logCollectionStrategy,
+    String logCollectionPath,
+    boolean collectPreviousLogs,
+    List<String> collectNamespacedResources,
+    List<String> collectClusterWideResources,
+    List<ContextMappingConfig> contextMappings
+) {
+
+    /**
+     * Configuration for a specific context mapping.
+     *
+     * @param context              the Kubernetes context name to use
+     * @param namespaces           list of namespace names for this context
+     * @param createNamespaces     whether to create namespaces if they don't exist
+     * @param cleanup              cleanup strategy for this context
+     * @param namespaceLabels      labels to apply to created namespaces
+     * @param namespaceAnnotations annotations to apply to created namespaces
+     */
+    public record ContextMappingConfig(
+        String context,
+        List<String> namespaces,
+        boolean createNamespaces,
+        CleanupStrategy cleanup,
+        List<String> namespaceLabels,
+        List<String> namespaceAnnotations
+    ) {
+
+        /**
+         * Creates a ContextMappingConfig from a KubernetesTest.ContextMapping annotation.
+         *
+         * @param mapping the ContextMapping annotation to convert
+         * @return a new ContextMappingConfig instance with values from the annotation
+         */
+        public static ContextMappingConfig fromAnnotation(KubernetesTest.ContextMapping mapping) {
+            return new ContextMappingConfig(
+                mapping.context(),
+                Arrays.asList(mapping.namespaces()),
+                mapping.createNamespaces(),
+                mapping.cleanup(),
+                Arrays.asList(mapping.namespaceLabels()),
+                Arrays.asList(mapping.namespaceAnnotations())
+            );
+        }
+    }
+}

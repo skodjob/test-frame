@@ -4,6 +4,7 @@
  */
 package io.skodjob.testframe.environment;
 
+import io.skodjob.testframe.TestFrameConstants;
 import io.skodjob.testframe.annotations.TestVisualSeparator;
 import org.junit.jupiter.api.Test;
 
@@ -31,7 +32,7 @@ class TestEnvironmentVariablesTest {
     @Test
     void testKubernetesContextLoad() {
         assertEquals(3, MyEnvs.CLUSTER_CONFIGS.size());
-        assertNotNull(MyEnvs.CLUSTER_CONFIGS.get("primary"));
+        assertNotNull(MyEnvs.CLUSTER_CONFIGS.get(TestFrameConstants.DEFAULT_CONTEXT_NAME));
         assertNotNull(MyEnvs.CLUSTER_CONFIGS.get("prod"));
         assertNotNull(MyEnvs.CLUSTER_CONFIGS.get("stage"));
     }

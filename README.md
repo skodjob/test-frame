@@ -36,6 +36,16 @@ together with the usage and installation.
 ### Utils
 `TestFrame` contains also tweaks and [utils](test-frame-common/src/main/java/io/skodjob/testframe/utils) for better working with kubernetes cluster.
 
+### Kubetest-junit extension
+The `kubetest-junit` module combines all the provided functionality of test-frame into a single, easy-to-use JUnit extension. This extension provides a **declarative approach** to Kubernetes testing with best-practice configurations out of the box.
+
+**Choose your approach:**
+- **Raw test-frame modules** - For maximum configurability and fine-grained control over testing behavior. Use individual modules (`test-frame-common`, `test-frame-log-collector`, etc.) with manual setup and custom annotations.
+- **KubernetesTest extension** - For simple, opinionated testing with best practices pre-configured. Use the `@KubernetesTest` annotation for comprehensive test setup with minimal configuration.
+
+See the [kubetest-junit](kubetest-junit/README.md) for comprehensive documentation and examples.
+
+
 ## Usage
 ### Include dependency to your maven test project
 ```xml
