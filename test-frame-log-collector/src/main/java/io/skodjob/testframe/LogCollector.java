@@ -36,6 +36,7 @@ public class LogCollector {
     private static final Logger LOGGER = LoggerFactory.getLogger(LogCollector.class);
 
     private static final Executor EXECUTOR = Executors.newVirtualThreadPerTaskExecutor();
+    private static final Object LOCK = new Object();
 
     protected final List<String> namespacedResources;
     protected final List<String> clusterWideResources;
@@ -523,17 +524,19 @@ public class LogCollector {
      * @return path to newly created directory
      */
     private String createLogDirOnPath(String fullPathToDirectory) {
-        File logDir = Paths.get(fullPathToDirectory).toFile();
+        synchronized (LOCK) {
+            File logDir = Paths.get(fullPathToDirectory).toFile();
 
-        if (!logDir.exists()) {
-            if (!logDir.mkdirs()) {
-                throw new RuntimeException(
-                    String.format("Failed to create root log directories on path: %s", logDir.getAbsolutePath())
-                );
+            if (!logDir.exists()) {
+                if (!logDir.mkdirs()) {
+                    throw new RuntimeException(
+                        String.format("Failed to create root log directories on path: %s", logDir.getAbsolutePath())
+                    );
+                }
             }
-        }
 
-        return logDir.getAbsolutePath();
+            return logDir.getAbsolutePath();
+        }
     }
 
     /**

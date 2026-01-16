@@ -130,6 +130,11 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
+                <groupId>io.skodjob</groupId>
+                <artifactId>kubetest-junit</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>io.fabric8</groupId>
                 <artifactId>kubernetes-client-bom-with-deps</artifactId>
                 <version>${fabric8.version}</version>
@@ -200,6 +205,12 @@
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
+                <version>${mockito.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-inline</artifactId>
                 <version>${mockito.version}</version>
                 <scope>test</scope>
             </dependency>
@@ -310,6 +321,12 @@
                 <version>${maven.dependency.version}</version>
                 <executions>
                     <execution>
+                        <id>properties</id>
+                        <goals>
+                            <goal>properties</goal>
+                        </goals>
+                    </execution>
+                    <execution>
                         <id>copy-dependencies</id>
                         <phase>none</phase>
                         <goals>
@@ -369,6 +386,7 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <argLine>@{argLine} -javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar</argLine>
                     <skipITs>${it.skip}</skipITs>
                     <forkCount>1</forkCount>
                     <includes>
@@ -388,6 +406,7 @@
                 <version>${maven.surefire.version}</version>
                 <inherited>true</inherited>
                 <configuration>
+                    <argLine>@{argLine} -javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar</argLine>
                     <properties>
                         <configurationParameters>
                             junit.jupiter.extensions.autodetection.enabled = true
@@ -433,6 +452,7 @@
                 <module>test-frame-test-examples</module>
                 <module>test-frame-metrics-collector</module>
                 <module>test-frame-log-collector</module>
+                <module>kubetest-junit</module>
             </modules>
         </profile>
         <profile>
@@ -447,6 +467,7 @@
                 <module>test-frame-test-examples</module>
                 <module>test-frame-metrics-collector</module>
                 <module>test-frame-log-collector</module>
+                <module>kubetest-junit</module>
             </modules>
         </profile>
         <profile>
@@ -460,6 +481,7 @@
                 <module>test-frame-openshift</module>
                 <module>test-frame-metrics-collector</module>
                 <module>test-frame-log-collector</module>
+                <module>kubetest-junit</module>
             </modules>
             <properties>
                 <!--suppress UnresolvedMavenProperty -->
@@ -523,6 +545,7 @@
                                         <descriptor>test-frame-openshift/src/main/assembly/dist.xml</descriptor>
                                         <descriptor>test-frame-metrics-collector/src/main/assembly/dist.xml</descriptor>
                                         <descriptor>test-frame-log-collector/src/main/assembly/dist.xml</descriptor>
+                                        <descriptor>kubetest-junit/src/main/assembly/dist.xml</descriptor>
                                     </descriptors>
                                 </configuration>
                             </execution>
