@@ -79,7 +79,7 @@
         <maven.checkstyle.version>3.6.0</maven.checkstyle.version>
         <maven.dependency.version>3.9.0</maven.dependency.version>
 
-        <maven.compile.plugin.version>3.14.1</maven.compile.plugin.version>
+        <maven.compile.plugin.version>3.15.0</maven.compile.plugin.version>
         <maven.source.plugin.version>3.4.0</maven.source.plugin.version>
         <maven.gpg.version>3.2.8</maven.gpg.version>
         <sonatype.nexus.central>0.10.0</sonatype.nexus.central>
