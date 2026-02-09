@@ -85,7 +85,7 @@ class KubernetesTestExtensionTest {
                 false,
                 List.of("pods"),
                 List.of(),
-                List.of() // Empty context mappings
+                List.of() // Empty kubeContext mappings
             );
 
             // Then
@@ -123,7 +123,7 @@ class KubernetesTestExtensionTest {
                 true,
                 List.of("pods", "services"),
                 List.of("nodes"),
-                List.of() // Empty context mappings
+                List.of() // Empty kubeContext mappings
             );
 
             // Then
@@ -153,7 +153,7 @@ class KubernetesTestExtensionTest {
                 List.of("ns1", "ns2", "ns3"),
                 true,
                 CleanupStrategy.AUTOMATIC,
-                "test-context",
+                "test-kubeContext",
                 true,
                 "/tmp/yamls",
                 List.of("label1=value1", "label2=value2"),
@@ -166,14 +166,14 @@ class KubernetesTestExtensionTest {
                 true,
                 List.of("pods", "services", "configmaps"),
                 List.of("nodes", "persistentvolumes"),
-                List.of() // Empty context mappings
+                List.of() // Empty kubeContext mappings
             );
 
             // Then - Verify all properties
             assertEquals(List.of("ns1", "ns2", "ns3"), config.namespaces());
             assertTrue(config.createNamespaces());
             assertEquals(CleanupStrategy.AUTOMATIC, config.cleanup());
-            assertEquals("test-context", config.context());
+            assertEquals("test-kubeContext", config.context());
             assertTrue(config.storeYaml());
             assertEquals("/tmp/yamls", config.yamlStorePath());
             assertEquals(List.of("label1=value1", "label2=value2"), config.namespaceLabels());
@@ -257,11 +257,11 @@ class KubernetesTestExtensionTest {
     class MultiContextTestConfigTests {
 
         @Test
-        @DisplayName("Should create TestConfig with context mappings")
+        @DisplayName("Should create TestConfig with kubeContext mappings")
         void shouldCreateTestConfigWithContextMappings() {
-            // Given - Create context mappings
-            List<TestConfig.ContextMappingConfig> contextMappings = List.of(
-                new TestConfig.ContextMappingConfig(
+            // Given - Create kubeContext mappings
+            List<TestConfig.KubeContextMappingConfig> contextMappings = List.of(
+                new TestConfig.KubeContextMappingConfig(
                     "staging-cluster",
                     List.of("stg-app", "stg-db"),
                     true,
@@ -269,7 +269,7 @@ class KubernetesTestExtensionTest {
                     List.of("env=staging"),
                     List.of("stage=staging")
                 ),
-                new TestConfig.ContextMappingConfig(
+                new TestConfig.KubeContextMappingConfig(
                     "production-cluster",
                     List.of("prod-api"),
                     false,
@@ -299,13 +299,13 @@ class KubernetesTestExtensionTest {
                 contextMappings
             );
 
-            // Then - Verify context mappings
-            assertNotNull(config.contextMappings());
-            assertEquals(2, config.contextMappings().size());
+            // Then - Verify kubeContext mappings
+            assertNotNull(config.kubeContextMappings());
+            assertEquals(2, config.kubeContextMappings().size());
 
             // Verify staging mapping
-            TestConfig.ContextMappingConfig stagingMapping = config.contextMappings().get(0);
-            assertEquals("staging-cluster", stagingMapping.context());
+            TestConfig.KubeContextMappingConfig stagingMapping = config.kubeContextMappings().get(0);
+            assertEquals("staging-cluster", stagingMapping.kubeContext());
             assertEquals(List.of("stg-app", "stg-db"), stagingMapping.namespaces());
             assertTrue(stagingMapping.createNamespaces());
             assertEquals(CleanupStrategy.AUTOMATIC, stagingMapping.cleanup());
@@ -313,19 +313,19 @@ class KubernetesTestExtensionTest {
             assertEquals(List.of("stage=staging"), stagingMapping.namespaceAnnotations());
 
             // Verify production mapping
-            TestConfig.ContextMappingConfig prodMapping = config.contextMappings().get(1);
-            assertEquals("production-cluster", prodMapping.context());
+            TestConfig.KubeContextMappingConfig prodMapping = config.kubeContextMappings().get(1);
+            assertEquals("production-cluster", prodMapping.kubeContext());
             assertEquals(List.of("prod-api"), prodMapping.namespaces());
             assertFalse(prodMapping.createNamespaces());
             assertEquals(CleanupStrategy.MANUAL, prodMapping.cleanup());
         }
 
         @Test
-        @DisplayName("Should verify ContextMappingConfig properties")
-        void shouldVerifyContextMappingConfigProperties() {
+        @DisplayName("Should verify KubeContextMappingConfig properties")
+        void shouldVerifyKubeContextMappingConfigProperties() {
             // Given
-            TestConfig.ContextMappingConfig config = new TestConfig.ContextMappingConfig(
-                "test-context",
+            TestConfig.KubeContextMappingConfig config = new TestConfig.KubeContextMappingConfig(
+                "test-kubeContext",
                 List.of("ns1", "ns2"),
                 true,
                 CleanupStrategy.MANUAL,
@@ -334,7 +334,7 @@ class KubernetesTestExtensionTest {
             );
 
             // Then
-            assertEquals("test-context", config.context());
+            assertEquals("test-kubeContext", config.kubeContext());
             assertEquals(List.of("ns1", "ns2"), config.namespaces());
             assertTrue(config.createNamespaces());
             assertEquals(CleanupStrategy.MANUAL, config.cleanup());
@@ -368,7 +368,7 @@ class KubernetesTestExtensionTest {
                 false,
                 List.of(),
                 List.of(),
-                List.of() // Empty context mappings
+                List.of() // Empty kubeContext mappings
             );
 
             TestConfig manualConfig = new TestConfig(
@@ -388,7 +388,7 @@ class KubernetesTestExtensionTest {
                 false,
                 List.of(),
                 List.of(),
-                List.of() // Empty context mappings
+                List.of() // Empty kubeContext mappings
             );
 
             assertEquals(CleanupStrategy.AUTOMATIC, automaticConfig.cleanup());
@@ -417,7 +417,7 @@ class KubernetesTestExtensionTest {
                     false,
                     List.of(),
                     List.of(),
-                    List.of() // Empty context mappings
+                    List.of() // Empty kubeContext mappings
                 );
 
                 assertEquals(strategy, config.logCollectionStrategy());

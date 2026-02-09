@@ -70,7 +70,7 @@ class MyKubernetesTest {
 }
 ```
 
-##️ Multi-Namespace Testing
+## Multi-Namespace Testing
 
 Create and manage multiple namespaces for complex test scenarios. **Existing namespaces are automatically protected** - only namespaces created by the test will be deleted during cleanup:
 
@@ -183,7 +183,7 @@ Main annotation to enable Kubernetes test features:
 
     // Resource management
     cleanup = CleanupStrategy.AUTOMATIC,  // Cleanup strategy
-    context = "staging",                    // Kubernetes context
+    kubeContext = "staging",                    // Kubernetes kubeContext
     storeYaml = true,                      // Store resource YAMLs
     yamlStorePath = "target/yamls",        // YAML storage path
 
@@ -195,15 +195,15 @@ Main annotation to enable Kubernetes test features:
     visualSeparatorChar = "#",             // Separator character
     visualSeparatorLength = 76,            // Separator length
 
-    // ===== Multi-Context Configuration =====
-    contextMappings = {
-        @KubernetesTest.ContextMapping(
-            context = "staging",                    // Context name
-            namespaces = {"stg-app", "stg-db"},    // Context-specific namespaces
-            createNamespaces = true,               // Create namespaces for this context
-            namespaceLabels = {"env=staging"},     // Context-specific namespace labels
-            namespaceAnnotations = {"stage=stg"}, // Context-specific namespace annotations
-            cleanup = CleanupStrategy.AUTOMATIC    // Context-specific cleanup strategy
+    // ===== Multi-KubeContext Configuration =====
+    kubeContextMappings = {
+        @KubernetesTest.KubeContextMapping(
+            kubeContext = "staging",                    // KubeContext name
+            namespaces = {"stg-app", "stg-db"},    // KubeContext-specific namespaces
+            createNamespaces = true,               // Create namespaces for this kubeContext
+            namespaceLabels = {"env=staging"},     // KubeContext-specific namespace labels
+            namespaceAnnotations = {"stage=stg"}, // KubeContext-specific namespace annotations
+            cleanup = CleanupStrategy.AUTOMATIC    // KubeContext-specific cleanup strategy
         )
     },
 
@@ -226,19 +226,19 @@ Inject a configured Kubernetes client:
 KubeClient client;
 
 // Context-specific injection
-@InjectKubeClient(context = "staging")
+@InjectKubeClient(kubeContext = "staging")
 KubeClient stagingClient;
 
-@InjectKubeClient(context = "production")
+@InjectKubeClient(kubeContext = "production")
 KubeClient productionClient;
 
 @Test
 void testWithClient(
     @InjectKubeClient KubeClient client,
-    @InjectKubeClient(context = "staging") KubeClient stagingClient
+    @InjectKubeClient(kubeContext = "staging") KubeClient stagingClient
 ) {
     // Both field and parameter injection work
-    // Both primary and context-specific injection work
+    // Both primary and kubeContext-specific injection work
 }
 ```
 
@@ -251,7 +251,7 @@ Inject a command-line kubectl client:
 KubeCmdClient<?> cmdClient;
 
 // Context-specific injection
-@InjectCmdKubeClient(context = "staging")
+@InjectCmdKubeClient(kubeContext = "staging")
 KubeCmdClient<?> stagingCmdClient;
 
 @Test
@@ -270,15 +270,15 @@ Inject the resource manager for lifecycle management:
 KubeResourceManager resourceManager;
 
 // Context-specific injection
-@InjectResourceManager(context = "staging")
+@InjectResourceManager(kubeContext = "staging")
 KubeResourceManager stagingResourceManager;
 
-@InjectResourceManager(context = "production")
+@InjectResourceManager(kubeContext = "production")
 KubeResourceManager productionResourceManager;
 
 @Test
 void testResourceLifecycle() {
-    // Primary context
+    // Primary kubeContext
     resourceManager.createResourceWithWait(myResource);
 
     // Context-specific resource management
@@ -297,23 +297,23 @@ Inject a Map of Namespace objects corresponding to the namespaces defined in @Ku
 Map<String, Namespace> namespaces;
 
 // Context-specific injection
-@InjectNamespaces(context = "staging")
+@InjectNamespaces(kubeContext = "staging")
 Map<String, Namespace> stagingNamespaces;
 
-@InjectNamespaces(context = "production")
+@InjectNamespaces(kubeContext = "production")
 Map<String, Namespace> productionNamespaces;
 
 @Test
 void testNamespaces(
     @InjectNamespaces Map<String, Namespace> paramNamespaces,
-    @InjectNamespaces(context = "staging") Map<String, Namespace> paramStagingNamespaces
+    @InjectNamespaces(kubeContext = "staging") Map<String, Namespace> paramStagingNamespaces
 ) {
-    // Primary context namespaces
+    // Primary kubeContext namespaces
     assertEquals(2, namespaces.size());
     assertTrue(namespaces.containsKey("app"));
     assertTrue(namespaces.containsKey("monitoring"));
 
-    // Staging context namespaces
+    // Staging kubeContext namespaces
     assertEquals(2, stagingNamespaces.size());
     assertTrue(stagingNamespaces.containsKey("stg-frontend"));
     assertTrue(stagingNamespaces.containsKey("stg-backend"));
@@ -332,18 +332,18 @@ Namespace appNamespace;
 Namespace monitoringNamespace;
 
 // Context-specific injection
-@InjectNamespace(context = "staging", name = "stg-frontend")
+@InjectNamespace(kubeContext = "staging", name = "stg-frontend")
 Namespace stagingFrontendNamespace;
 
-@InjectNamespace(context = "production", name = "prod-api")
+@InjectNamespace(kubeContext = "production", name = "prod-api")
 Namespace productionApiNamespace;
 
 @Test
 void testSpecificNamespace(
     @InjectNamespace(name = "app") Namespace paramAppNamespace,
-    @InjectNamespace(context = "staging", name = "stg-backend") Namespace paramStagingBackendNamespace
+    @InjectNamespace(kubeContext = "staging", name = "stg-backend") Namespace paramStagingBackendNamespace
 ) {
-    // Primary context namespaces
+    // Primary kubeContext namespaces
     assertEquals("app", appNamespace.getMetadata().getName());
     assertEquals("monitoring", monitoringNamespace.getMetadata().getName());
 
@@ -365,15 +365,15 @@ Deployment deployment;
 Service service;
 
 // Context-specific resource injection
-@InjectResource(context = "staging", value = "staging-deployment.yaml")
+@InjectResource(kubeContext = "staging", value = "staging-deployment.yaml")
 Deployment stagingDeployment;
 
-@InjectResource(context = "production", value = "prod-service.yaml", waitForReady = true)
+@InjectResource(kubeContext = "production", value = "prod-service.yaml", waitForReady = true)
 Service productionService;
 
 @Test
 void testResourceInjection(
-    @InjectResource(context = "staging", value = "staging-config.yaml") ConfigMap stagingConfig
+    @InjectResource(kubeContext = "staging", value = "staging-config.yaml") ConfigMap stagingConfig
 ) {
     // Resources are automatically deployed to their respective contexts
     assertNotNull(stagingConfig);
@@ -448,7 +448,7 @@ Test against different Kubernetes clusters:
 ```java
 @KubernetesTest(
     namespaces = {"staging-test"},
-    context = "staging"
+    kubeContext = "staging"
 )
 class StagingTest {
     // Tests run against staging cluster
@@ -456,7 +456,7 @@ class StagingTest {
 
 @KubernetesTest(
     namespaces = {"prod-test"},
-    context = "prod"
+    kubeContext = "prod"
 )
 class ProductionTest {
     // Tests run against production cluster
@@ -469,29 +469,29 @@ Test across multiple Kubernetes clusters simultaneously with context-specific na
 
 ```java
 @KubernetesTest(
-    // Default/primary context namespaces
+    // Default/primary kubeContext namespaces
     namespaces = {"local-test", "local-monitoring"},
     createNamespaces = true,
     storeYaml = true,
     yamlStorePath = "target/test-yamls",
 
-    // Multi-context configuration
-    contextMappings = {
-        @KubernetesTest.ContextMapping(
-            context = "staging",
+    // Multi-kubeContext configuration
+    kubeContextMappings = {
+        @KubernetesTest.KubeContextMapping(
+            kubeContext = "staging",
             namespaces = {"stg-frontend", "stg-backend"},
             createNamespaces = true,
             namespaceLabels = {"environment=staging", "tier=application"},
             cleanup = CleanupStrategy.AUTOMATIC
         ),
-        @KubernetesTest.ContextMapping(
-            context = "production",
+        @KubernetesTest.KubeContextMapping(
+            kubeContext = "production",
             namespaces = {"prod-api", "prod-cache"},
             createNamespaces = true,
             namespaceLabels = {"environment=production"}
         ),
-        @KubernetesTest.ContextMapping(
-            context = "development",
+        @KubernetesTest.KubeContextMapping(
+            kubeContext = "development",
             namespaces = {"dev-experimental"},
             createNamespaces = true,
             namespaceLabels = {"team=platform", "purpose=testing"}
@@ -500,7 +500,7 @@ Test across multiple Kubernetes clusters simultaneously with context-specific na
 )
 class MultiContextTest {
 
-    // Primary context injections
+    // Primary kubeContext injections
     @InjectKubeClient
     KubeClient defaultClient;
 
@@ -508,37 +508,37 @@ class MultiContextTest {
     KubeResourceManager defaultResourceManager;
 
     // Context-specific injections
-    @InjectKubeClient(context = "staging")
+    @InjectKubeClient(kubeContext = "staging")
     KubeClient stagingClient;
 
-    @InjectResourceManager(context = "staging")
+    @InjectResourceManager(kubeContext = "staging")
     KubeResourceManager stagingResourceManager;
 
-    @InjectKubeClient(context = "production")
+    @InjectKubeClient(kubeContext = "production")
     KubeClient productionClient;
 
     // Context-specific namespace injections
-    @InjectNamespaces(context = "staging")
+    @InjectNamespaces(kubeContext = "staging")
     Map<String, Namespace> stagingNamespaces;
 
-    @InjectNamespace(context = "staging", name = "stg-frontend")
+    @InjectNamespace(kubeContext = "staging", name = "stg-frontend")
     Namespace stagingFrontendNamespace;
 
     @Test
     void testCrossContextOperations() {
         // Create resources in different contexts
 
-        // Default context
+        // Default kubeContext
         ConfigMap defaultConfig = new ConfigMapBuilder()
             .withNewMetadata()
-                .withName("multi-context-config")
+                .withName("multi-kubeContext-config")
                 .withNamespace("local-test")
             .endMetadata()
             .addToData("environment", "local")
             .build();
         defaultResourceManager.createResourceWithoutWait(defaultConfig);
 
-        // Staging context
+        // Staging kubeContext
         Pod stagingPod = new PodBuilder()
             .withNewMetadata()
                 .withName("staging-test-pod")
@@ -557,7 +557,7 @@ class MultiContextTest {
         assertNotNull(defaultClient.getClient()
             .configMaps()
             .inNamespace("local-test")
-            .withName("multi-context-config")
+            .withName("multi-kubeContext-config")
             .get());
 
         assertNotNull(stagingClient.getClient()
@@ -569,10 +569,10 @@ class MultiContextTest {
 
     @Test
     void testResourceInjectionWithContext(
-        @InjectResource(context = "staging", value = "deployment.yaml")
+        @InjectResource(kubeContext = "staging", value = "deployment.yaml")
         Deployment stagingDeployment
     ) {
-        // Resource is automatically deployed to staging context
+        // Resource is automatically deployed to staging kubeContext
         assertNotNull(stagingDeployment);
         assertEquals("stg-frontend", stagingDeployment.getMetadata().getNamespace());
     }
@@ -583,23 +583,23 @@ class MultiContextTest {
 
 Configure contexts using environment variables:
 ```bash
-# Default context
+# Default kubeContext
 KUBE_URL=https://api.default:6443
 KUBE_TOKEN=default-token
 # or
 KUBECONFIG=/path/to/default.kubeconfig
 
-# Staging context
+# Staging kubeContext
 KUBE_URL_STAGING=https://api.staging:6443
 KUBE_TOKEN_STAGING=staging-token
 # or
 KUBECONFIG_STAGING=/path/to/staging.kubeconfig
 
-# Production context
+# Production kubeContext
 KUBE_URL_PRODUCTION=https://api.prod:6443
 KUBE_TOKEN_PRODUCTION=prod-token
 
-# Development context
+# Development kubeContext
 KUBECONFIG_DEVELOPMENT=/path/to/development.kubeconfig
 ```
 
@@ -639,10 +639,10 @@ Automatically store deployed resources as YAML files for debugging and audit pur
     storeYaml = true,                      // Enable YAML storage
     yamlStorePath = "target/test-yamls",   // Storage directory (default: target/test-yamls)
 
-    // Multi-context YAML storage
-    contextMappings = {
-        @KubernetesTest.ContextMapping(
-            context = "staging",
+    // Multi-kubeContext YAML storage
+    kubeContextMappings = {
+        @KubernetesTest.KubeContextMapping(
+            kubeContext = "staging",
             namespaces = {"stg-app"}
         )
     }
@@ -668,10 +668,10 @@ class YamlStorageTest {
 
     @Test
     void testMultiContextYamlStorage(
-        @InjectResource(context = "staging", value = "staging-app.yaml")
+        @InjectResource(kubeContext = "staging", value = "staging-app.yaml")
         Deployment stagingApp
     ) {
-        // Multi-context resources are stored in separate directories:
+        // Multi-kubeContext resources are stored in separate directories:
         // target/test-yamls/test-files/staging/YamlStorageTest/testMultiContextYamlStorage/Deployment-stg-app-staging-app.yaml
     }
 }
@@ -689,7 +689,7 @@ target/test-yamls/
 │   │       ├── before-all/         # Resources created in @BeforeAll
 │   │       ├── testMethod/         # Resources created in test method
 │   │       └── after-each/         # Resources created in @AfterEach
-│   ├── staging/                    # Staging context resources
+│   ├── staging/                    # Staging kubeContext resources
 │   │   └── TestClass/
 │   │       └── testMethod/
 │   └── production/                 # Production context resources
@@ -781,16 +781,16 @@ All injection annotations work with test method parameters, including context-sp
 @Test
 void testWithInjection(
     @InjectKubeClient KubeClient client,
-    @InjectKubeClient(context = "staging") KubeClient stagingClient,
+    @InjectKubeClient(kubeContext = "staging") KubeClient stagingClient,
     @InjectResourceManager KubeResourceManager resourceManager,
-    @InjectResourceManager(context = "production") KubeResourceManager prodResourceManager,
+    @InjectResourceManager(kubeContext = "production") KubeResourceManager prodResourceManager,
     @InjectCmdKubeClient KubeCmdClient<?> cmdClient,
     @InjectNamespaces Map<String, Namespace> namespaces,
-    @InjectNamespaces(context = "staging") Map<String, Namespace> stagingNamespaces,
+    @InjectNamespaces(kubeContext = "staging") Map<String, Namespace> stagingNamespaces,
     @InjectNamespace(name = "app") Namespace appNamespace,
-    @InjectNamespace(context = "staging", name = "stg-frontend") Namespace stagingNamespace,
+    @InjectNamespace(kubeContext = "staging", name = "stg-frontend") Namespace stagingNamespace,
     @InjectResource("deployment.yaml") Deployment deployment,
-    @InjectResource(context = "staging", value = "staging-deployment.yaml") Deployment stagingDeployment
+    @InjectResource(kubeContext = "staging", value = "staging-deployment.yaml") Deployment stagingDeployment
 ) {
 
     // All parameters are automatically injected
@@ -806,7 +806,7 @@ void testWithInjection(
     assertNotNull(deployment);
     assertNotNull(stagingDeployment);
 
-    // Verify context isolation
+    // Verify kubeContext isolation
     assertNotEquals(client, stagingClient);
     assertNotEquals(resourceManager, prodResourceManager);
 }

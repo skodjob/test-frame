@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
 
 /**
  * Annotation to inject a KubeResourceManager instance into test methods or fields.
- * The injected resource manager will be pre-configured with the test context
+ * The injected resource manager will be pre-configured with the test kubeContext
  * and cleanup strategy.
  * Usage:
  * <pre>
@@ -35,10 +35,10 @@ import java.lang.annotation.Target;
 public @interface InjectResourceManager {
 
     /**
-     * The context to use for this resource manager.
-     * If not specified, uses the context from the test class annotation.
+     * The kubeContext to use for this resource manager.
+     * If not specified, uses the kubeContext from the test class annotation.
      *
-     * @return cluster context name
+     * @return cluster kubeContext name
      */
     String context() default "";
 }

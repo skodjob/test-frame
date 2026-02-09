@@ -36,7 +36,7 @@ import static org.mockito.Mockito.when;
 
 /**
  * Unit tests for ContextStoreHelper.
- * Tests all store operations to ensure proper context management.
+ * Tests all store operations to ensure proper kubeContext management.
  */
 @ExtendWith(MockitoExtension.class)
 class ContextStoreHelperTest {
@@ -221,7 +221,7 @@ class ContextStoreHelperTest {
     class MultiContextOperationsTests {
 
         @Test
-        @DisplayName("Should put and get context managers")
+        @DisplayName("Should put and get kubeContext managers")
         void shouldPutAndGetContextManagers() {
             // Given
             when(store.get("kubernetes.test.contextManagers")).thenReturn(new HashMap<>());
@@ -236,7 +236,7 @@ class ContextStoreHelperTest {
         }
 
         @Test
-        @DisplayName("Should put and get context closers")
+        @DisplayName("Should put and get kubeContext closers")
         void shouldPutAndGetContextClosers() {
             // Given
             AutoCloseable mockCloser = mock(AutoCloseable.class);
@@ -252,7 +252,7 @@ class ContextStoreHelperTest {
         }
 
         @Test
-        @DisplayName("Should put and get context namespace objects for specific context")
+        @DisplayName("Should put and get kubeContext namespace objects for specific kubeContext")
         void shouldPutAndGetContextNamespaceObjectsForSpecificContext() {
             // Given
             String contextName = "staging";
@@ -275,7 +275,7 @@ class ContextStoreHelperTest {
         }
 
         @Test
-        @DisplayName("Should get or create context created namespaces for specific context")
+        @DisplayName("Should get or create kubeContext created namespaces for specific kubeContext")
         void shouldGetOrCreateContextCreatedNamespacesForSpecificContext() {
             // Given
             String contextName = "staging";
@@ -293,10 +293,10 @@ class ContextStoreHelperTest {
         }
 
         @Test
-        @DisplayName("Should initialize empty map when context namespace objects not found")
+        @DisplayName("Should initialize empty map when kubeContext namespace objects not found")
         void shouldInitializeEmptyMapWhenContextNamespaceObjectsNotFound() {
             // Given
-            String contextName = "new-context";
+            String contextName = "new-kubeContext";
             when(store.get("kubernetes.test.contextNamespaceObjects"))
                 .thenReturn(null);
 
@@ -311,10 +311,10 @@ class ContextStoreHelperTest {
         }
 
         @Test
-        @DisplayName("Should initialize empty map when context created namespaces not found")
+        @DisplayName("Should initialize empty map when kubeContext created namespaces not found")
         void shouldInitializeEmptyMapWhenContextCreatedNamespacesNotFound() {
             // Given
-            String contextName = "new-context";
+            String contextName = "new-kubeContext";
             when(store.get("kubernetes.test.contextCreatedNamespaces")).thenReturn(null);
 
             // When

@@ -23,10 +23,10 @@ import java.lang.annotation.Target;
 @Documented
 public @interface InjectNamespaces {
     /**
-     * The context from which to inject namespaces.
-     * If not specified, uses the default context.
+     * The kubeContext from which to inject namespaces.
+     * If not specified, uses the default kubeContext.
      *
-     * @return cluster context name
+     * @return cluster kubeContext name
      */
     String context() default "";
 }

@@ -49,10 +49,10 @@ public @interface InjectNamespace {
     String name();
 
     /**
-     * The context from which to inject this namespace.
-     * If not specified, uses the default context.
+     * The kubeContext from which to inject this namespace.
+     * If not specified, uses the default kubeContext.
      *
-     * @return cluster context name
+     * @return cluster kubeContext name
      */
     String context() default "";
 }

@@ -62,10 +62,10 @@ public @interface InjectResource {
     boolean waitForReady() default true;
 
     /**
-     * The context in which to create this resource.
-     * If not specified, uses the default context.
+     * The kubeContext in which to create this resource.
+     * If not specified, uses the default kubeContext.
      *
-     * @return cluster context name
+     * @return cluster kubeContext name
      */
     String context() default "";
 }

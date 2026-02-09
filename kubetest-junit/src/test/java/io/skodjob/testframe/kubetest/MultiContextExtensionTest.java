@@ -24,21 +24,21 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Unit tests for multi-context functionality in KubernetesTestExtension.
- * These tests verify the new context-aware features without requiring a real Kubernetes cluster.
+ * Unit tests for multi-kubeContext functionality in KubernetesTestExtension.
+ * These tests verify the new kubeContext-aware features without requiring a real Kubernetes cluster.
  */
 class MultiContextExtensionTest {
 
     @Nested
-    @DisplayName("Context Mapping Configuration Tests")
-    class ContextMappingTests {
+    @DisplayName("KubeContext Mapping Configuration Tests")
+    class KubeContextMappingTests {
 
         @Test
-        @DisplayName("Should create ContextMappingConfig with default values")
-        void shouldCreateContextMappingConfigWithDefaults() {
+        @DisplayName("Should create KubeContextMappingConfig with default values")
+        void shouldCreateKubeContextMappingConfigWithDefaults() {
             // Given
-            TestConfig.ContextMappingConfig config = new TestConfig.ContextMappingConfig(
-                "test-context",
+            TestConfig.KubeContextMappingConfig config = new TestConfig.KubeContextMappingConfig(
+                "test-kubeContext",
                 List.of("test-ns"),
                 true,
                 CleanupStrategy.AUTOMATIC,
@@ -48,7 +48,7 @@ class MultiContextExtensionTest {
 
             // Then
             assertNotNull(config);
-            assertEquals("test-context", config.context());
+            assertEquals("test-kubeContext", config.kubeContext());
             assertEquals(List.of("test-ns"), config.namespaces());
             assertTrue(config.createNamespaces());
             assertEquals(CleanupStrategy.AUTOMATIC, config.cleanup());
@@ -57,10 +57,10 @@ class MultiContextExtensionTest {
         }
 
         @Test
-        @DisplayName("Should create ContextMappingConfig with custom values")
-        void shouldCreateContextMappingConfigWithCustomValues() {
+        @DisplayName("Should create KubeContextMappingConfig with custom values")
+        void shouldCreateKubeContextMappingConfigWithCustomValues() {
             // Given
-            TestConfig.ContextMappingConfig config = new TestConfig.ContextMappingConfig(
+            TestConfig.KubeContextMappingConfig config = new TestConfig.KubeContextMappingConfig(
                 "staging-cluster",
                 List.of("stg-ns1", "stg-ns2"),
                 false,
@@ -70,7 +70,7 @@ class MultiContextExtensionTest {
             );
 
             // Then
-            assertEquals("staging-cluster", config.context());
+            assertEquals("staging-cluster", config.kubeContext());
             assertEquals(List.of("stg-ns1", "stg-ns2"), config.namespaces());
             assertFalse(config.createNamespaces());
             assertEquals(CleanupStrategy.MANUAL, config.cleanup());
@@ -81,17 +81,17 @@ class MultiContextExtensionTest {
         }
 
         @Test
-        @DisplayName("Should convert annotation to ContextMappingConfig")
-        void shouldConvertAnnotationToContextMappingConfig() {
-            // Create a mock ContextMapping annotation
-            KubernetesTest.ContextMapping annotation = new KubernetesTest.ContextMapping() {
+        @DisplayName("Should convert annotation to KubeContextMappingConfig")
+        void shouldConvertAnnotationToKubeContextMappingConfig() {
+            // Create a mock KubeContextMapping annotation
+            KubernetesTest.KubeContextMapping annotation = new KubernetesTest.KubeContextMapping() {
                 @Override
                 public Class<? extends java.lang.annotation.Annotation> annotationType() {
-                    return KubernetesTest.ContextMapping.class;
+                    return KubernetesTest.KubeContextMapping.class;
                 }
 
                 @Override
-                public String context() {
+                public String kubeContext() {
                     return "production";
                 }
 
@@ -122,10 +122,10 @@ class MultiContextExtensionTest {
             };
 
             // When
-            TestConfig.ContextMappingConfig config = TestConfig.ContextMappingConfig.fromAnnotation(annotation);
+            TestConfig.KubeContextMappingConfig config = TestConfig.KubeContextMappingConfig.fromAnnotation(annotation);
 
             // Then
-            assertEquals("production", config.context());
+            assertEquals("production", config.kubeContext());
             assertEquals(List.of("prod-api", "prod-cache"), config.namespaces());
             assertFalse(config.createNamespaces());
             assertEquals(CleanupStrategy.MANUAL, config.cleanup());
@@ -136,12 +136,12 @@ class MultiContextExtensionTest {
     }
 
     @Nested
-    @DisplayName("TestConfig with Context Mappings Tests")
-    class TestConfigWithContextMappingsTests {
+    @DisplayName("TestConfig with KubeContext Mappings Tests")
+    class TestConfigWithKubeContextMappingsTests {
 
         @Test
-        @DisplayName("Should create TestConfig with empty context mappings")
-        void shouldCreateTestConfigWithEmptyContextMappings() {
+        @DisplayName("Should create TestConfig with empty kubeContext mappings")
+        void shouldCreateTestConfigWithEmptyKubeContextMappings() {
             // Given
             TestConfig config = new TestConfig(
                 List.of("default-ns"),
@@ -160,20 +160,20 @@ class MultiContextExtensionTest {
                 false,
                 List.of("pods"),
                 List.of(),
-                List.of() // Empty context mappings
+                List.of() // Empty kubeContext mappings
             );
 
             // Then
-            assertNotNull(config.contextMappings());
-            assertEquals(0, config.contextMappings().size());
+            assertNotNull(config.kubeContextMappings());
+            assertEquals(0, config.kubeContextMappings().size());
         }
 
         @Test
-        @DisplayName("Should create TestConfig with multiple context mappings")
-        void shouldCreateTestConfigWithMultipleContextMappings() {
+        @DisplayName("Should create TestConfig with multiple kubeContext mappings")
+        void shouldCreateTestConfigWithMultipleKubeContextMappings() {
             // Given
-            List<TestConfig.ContextMappingConfig> contextMappings = List.of(
-                new TestConfig.ContextMappingConfig(
+            List<TestConfig.KubeContextMappingConfig> contextMappings = List.of(
+                new TestConfig.KubeContextMappingConfig(
                     "staging-cluster",
                     List.of("stg-app", "stg-db"),
                     true,
@@ -181,7 +181,7 @@ class MultiContextExtensionTest {
                     List.of("env=staging"),
                     List.of("stage=staging")
                 ),
-                new TestConfig.ContextMappingConfig(
+                new TestConfig.KubeContextMappingConfig(
                     "production-cluster",
                     List.of("prod-api"),
                     false,
@@ -212,19 +212,19 @@ class MultiContextExtensionTest {
             );
 
             // Then
-            assertNotNull(config.contextMappings());
-            assertEquals(2, config.contextMappings().size());
+            assertNotNull(config.kubeContextMappings());
+            assertEquals(2, config.kubeContextMappings().size());
 
-            // Verify staging context mapping
-            TestConfig.ContextMappingConfig stagingMapping = config.contextMappings().get(0);
-            assertEquals("staging-cluster", stagingMapping.context());
+            // Verify staging kubeContext mapping
+            TestConfig.KubeContextMappingConfig stagingMapping = config.kubeContextMappings().get(0);
+            assertEquals("staging-cluster", stagingMapping.kubeContext());
             assertEquals(List.of("stg-app", "stg-db"), stagingMapping.namespaces());
             assertTrue(stagingMapping.createNamespaces());
             assertEquals(CleanupStrategy.AUTOMATIC, stagingMapping.cleanup());
 
-            // Verify production context mapping
-            TestConfig.ContextMappingConfig prodMapping = config.contextMappings().get(1);
-            assertEquals("production-cluster", prodMapping.context());
+            // Verify production kubeContext mapping
+            TestConfig.KubeContextMappingConfig prodMapping = config.kubeContextMappings().get(1);
+            assertEquals("production-cluster", prodMapping.kubeContext());
             assertEquals(List.of("prod-api"), prodMapping.namespaces());
             assertFalse(prodMapping.createNamespaces());
             assertEquals(CleanupStrategy.MANUAL, prodMapping.cleanup());
@@ -232,13 +232,13 @@ class MultiContextExtensionTest {
     }
 
     @Nested
-    @DisplayName("Context-Aware Injection Annotation Tests")
-    class ContextAwareAnnotationTests {
+    @DisplayName("KubeContext-Aware Injection Annotation Tests")
+    class KubeContextAwareAnnotationTests {
 
         @Test
-        @DisplayName("Should verify InjectKubeClient annotation with context")
-        void shouldVerifyInjectKubeClientWithContext() {
-            // Create a mock annotation with context
+        @DisplayName("Should verify InjectKubeClient annotation with kubeContext")
+        void shouldVerifyInjectKubeClientWithKubeContext() {
+            // Create a mock annotation with kubeContext
             InjectKubeClient annotation = new InjectKubeClient() {
                 @Override
                 public Class<? extends java.lang.annotation.Annotation> annotationType() {
@@ -256,8 +256,8 @@ class MultiContextExtensionTest {
         }
 
         @Test
-        @DisplayName("Should verify InjectCmdKubeClient annotation with context")
-        void shouldVerifyInjectCmdKubeClientWithContext() {
+        @DisplayName("Should verify InjectCmdKubeClient annotation with kubeContext")
+        void shouldVerifyInjectCmdKubeClientWithKubeContext() {
             InjectCmdKubeClient annotation = new InjectCmdKubeClient() {
                 @Override
                 public Class<? extends java.lang.annotation.Annotation> annotationType() {
@@ -274,8 +274,8 @@ class MultiContextExtensionTest {
         }
 
         @Test
-        @DisplayName("Should verify InjectResourceManager annotation with context")
-        void shouldVerifyInjectResourceManagerWithContext() {
+        @DisplayName("Should verify InjectResourceManager annotation with kubeContext")
+        void shouldVerifyInjectResourceManagerWithKubeContext() {
             InjectResourceManager annotation = new InjectResourceManager() {
                 @Override
                 public Class<? extends java.lang.annotation.Annotation> annotationType() {
@@ -292,8 +292,8 @@ class MultiContextExtensionTest {
         }
 
         @Test
-        @DisplayName("Should verify InjectNamespace annotation with context")
-        void shouldVerifyInjectNamespaceWithContext() {
+        @DisplayName("Should verify InjectNamespace annotation with kubeContext")
+        void shouldVerifyInjectNamespaceWithKubeContext() {
             InjectNamespace annotation = new InjectNamespace() {
                 @Override
                 public Class<? extends java.lang.annotation.Annotation> annotationType() {
@@ -307,17 +307,17 @@ class MultiContextExtensionTest {
 
                 @Override
                 public String context() {
-                    return "my-context";
+                    return "my-kubeContext";
                 }
             };
 
             assertEquals("my-namespace", annotation.name());
-            assertEquals("my-context", annotation.context());
+            assertEquals("my-kubeContext", annotation.context());
         }
 
         @Test
-        @DisplayName("Should verify InjectNamespaces annotation with context")
-        void shouldVerifyInjectNamespacesWithContext() {
+        @DisplayName("Should verify InjectNamespaces annotation with kubeContext")
+        void shouldVerifyInjectNamespacesWithKubeContext() {
             InjectNamespaces annotation = new InjectNamespaces() {
                 @Override
                 public Class<? extends java.lang.annotation.Annotation> annotationType() {
@@ -326,18 +326,18 @@ class MultiContextExtensionTest {
 
                 @Override
                 public String context() {
-                    return "all-namespaces-context";
+                    return "all-namespaces-kubeContext";
                 }
             };
 
-            assertEquals("all-namespaces-context", annotation.context());
+            assertEquals("all-namespaces-kubeContext", annotation.context());
         }
 
         @Test
-        @DisplayName("Should use empty string as default context value")
-        void shouldUseEmptyStringAsDefaultContext() {
-            // Test that annotations default to empty string for context when not specified
-            // This simulates the behavior when @InjectKubeClient is used without context parameter
+        @DisplayName("Should use empty string as default kubeContext value")
+        void shouldUseEmptyStringAsDefaultKubeContext() {
+            // Test that annotations default to empty string for kubeContext when not specified
+            // This simulates the behavior when @InjectKubeClient is used without kubeContext parameter
 
             InjectKubeClient defaultAnnotation = new InjectKubeClient() {
                 @Override
@@ -356,15 +356,15 @@ class MultiContextExtensionTest {
     }
 
     @Nested
-    @DisplayName("Multi-Context Validation Tests")
-    class MultiContextValidationTests {
+    @DisplayName("Multi-KubeContext Validation Tests")
+    class MultiKubeContextValidationTests {
 
         @Test
-        @DisplayName("Should validate context names are non-null")
-        void shouldValidateContextNamesAreNonNull() {
-            // Test that context names in mappings are properly handled
-            TestConfig.ContextMappingConfig config = new TestConfig.ContextMappingConfig(
-                "valid-context",
+        @DisplayName("Should validate kubeContext names are non-null")
+        void shouldValidateKubeContextNamesAreNonNull() {
+            // Test that kubeContext names in mappings are properly handled
+            TestConfig.KubeContextMappingConfig config = new TestConfig.KubeContextMappingConfig(
+                "valid-kubeContext",
                 List.of("namespace1"),
                 true,
                 CleanupStrategy.AUTOMATIC,
@@ -372,15 +372,15 @@ class MultiContextExtensionTest {
                 List.of()
             );
 
-            assertNotNull(config.context());
-            assertFalse(config.context().trim().isEmpty());
+            assertNotNull(config.kubeContext());
+            assertFalse(config.kubeContext().trim().isEmpty());
         }
 
         @Test
         @DisplayName("Should validate namespace arrays are non-null")
         void shouldValidateNamespaceArraysAreNonNull() {
-            TestConfig.ContextMappingConfig config = new TestConfig.ContextMappingConfig(
-                "test-context",
+            TestConfig.KubeContextMappingConfig config = new TestConfig.KubeContextMappingConfig(
+                "test-kubeContext",
                 List.of("ns1", "ns2"),
                 true,
                 CleanupStrategy.AUTOMATIC,
@@ -393,11 +393,11 @@ class MultiContextExtensionTest {
         }
 
         @Test
-        @DisplayName("Should handle mixed context and default deployments")
-        void shouldHandleMixedContextAndDefaultDeployments() {
-            // Test configuration with both default namespaces and context-specific namespaces
-            List<TestConfig.ContextMappingConfig> contextMappings = List.of(
-                new TestConfig.ContextMappingConfig(
+        @DisplayName("Should handle mixed kubeContext and default deployments")
+        void shouldHandleMixedKubeContextAndDefaultDeployments() {
+            // Test configuration with both default namespaces and kubeContext-specific namespaces
+            List<TestConfig.KubeContextMappingConfig> contextMappings = List.of(
+                new TestConfig.KubeContextMappingConfig(
                     "external-cluster",
                     List.of("external-ns"),
                     true,
@@ -408,10 +408,10 @@ class MultiContextExtensionTest {
             );
 
             TestConfig config = new TestConfig(
-                List.of("default-ns1", "default-ns2"), // Default context namespaces
+                List.of("default-ns1", "default-ns2"), // Default kubeContext namespaces
                 true,
                 CleanupStrategy.AUTOMATIC,
-                "", // Default context
+                "", // Default kubeContext
                 false,
                 "",
                 List.of("default=true"),
@@ -431,22 +431,22 @@ class MultiContextExtensionTest {
             assertEquals(List.of("default-ns1", "default-ns2"), config.namespaces());
             assertEquals("", config.context());
 
-            // Verify context-specific mappings
-            assertEquals(1, config.contextMappings().size());
-            assertEquals("external-cluster", config.contextMappings().get(0).context());
-            assertEquals(List.of("external-ns"), config.contextMappings().get(0).namespaces());
+            // Verify kubeContext-specific mappings
+            assertEquals(1, config.kubeContextMappings().size());
+            assertEquals("external-cluster", config.kubeContextMappings().get(0).kubeContext());
+            assertEquals(List.of("external-ns"), config.kubeContextMappings().get(0).namespaces());
         }
     }
 
     @Nested
-    @DisplayName("Context Isolation Tests")
-    class ContextIsolationTests {
+    @DisplayName("KubeContext Isolation Tests")
+    class KubeContextIsolationTests {
 
         @Test
-        @DisplayName("Should ensure context configurations are independent")
-        void shouldEnsureContextConfigurationsAreIndependent() {
-            // Create multiple context mappings with different configurations
-            TestConfig.ContextMappingConfig staging = new TestConfig.ContextMappingConfig(
+        @DisplayName("Should ensure kubeContext configurations are independent")
+        void shouldEnsureKubeContextConfigurationsAreIndependent() {
+            // Create multiple kubeContext mappings with different configurations
+            TestConfig.KubeContextMappingConfig staging = new TestConfig.KubeContextMappingConfig(
                 "staging-cluster",
                 List.of("stg-app"),
                 true,
@@ -455,7 +455,7 @@ class MultiContextExtensionTest {
                 List.of("auto-deploy=true")
             );
 
-            TestConfig.ContextMappingConfig production = new TestConfig.ContextMappingConfig(
+            TestConfig.KubeContextMappingConfig production = new TestConfig.KubeContextMappingConfig(
                 "production-cluster",
                 List.of("prod-app"),
                 false, // Different createNamespaces setting
@@ -476,10 +476,10 @@ class MultiContextExtensionTest {
         }
 
         @Test
-        @DisplayName("Should allow same namespace names in different contexts")
-        void shouldAllowSameNamespaceNamesInDifferentContexts() {
-            // This tests that namespace names can be reused across different contexts
-            TestConfig.ContextMappingConfig context1 = new TestConfig.ContextMappingConfig(
+        @DisplayName("Should allow same namespace names in different kubeContexts")
+        void shouldAllowSameNamespaceNamesInDifferentKubeContexts() {
+            // This tests that namespace names can be reused across different kubeContexts
+            TestConfig.KubeContextMappingConfig kubeContext1 = new TestConfig.KubeContextMappingConfig(
                 "cluster-1",
                 List.of("app-namespace", "db-namespace"),
                 true,
@@ -488,9 +488,9 @@ class MultiContextExtensionTest {
                 List.of()
             );
 
-            TestConfig.ContextMappingConfig context2 = new TestConfig.ContextMappingConfig(
+            TestConfig.KubeContextMappingConfig kubeContext2 = new TestConfig.KubeContextMappingConfig(
                 "cluster-2",
-                List.of("app-namespace", "db-namespace"), // Same names, different context
+                List.of("app-namespace", "db-namespace"), // Same names, different kubeContext
                 true,
                 CleanupStrategy.AUTOMATIC,
                 List.of(),
@@ -498,8 +498,8 @@ class MultiContextExtensionTest {
             );
 
             // Both should be valid even with same namespace names
-            assertEquals(context1.namespaces(), context2.namespaces());
-            assertNotEquals(context1.context(), context2.context());
+            assertEquals(kubeContext1.namespaces(), kubeContext2.namespaces());
+            assertNotEquals(kubeContext1.kubeContext(), kubeContext2.kubeContext());
         }
     }
 }

@@ -23,9 +23,9 @@ class ConfigurationManager {
     private final ContextStoreHelper contextStoreHelper;
 
     /**
-     * Creates a new ConfigurationManager with the given context store helper.
+     * Creates a new ConfigurationManager with the given kubeContext store helper.
      *
-     * @param contextStoreHelper provides access to extension context storage
+     * @param contextStoreHelper provides access to extension kubeContext storage
      */
     ConfigurationManager(ContextStoreHelper contextStoreHelper) {
         this.contextStoreHelper = contextStoreHelper;
@@ -60,16 +60,16 @@ class ConfigurationManager {
         String[] namespaces = annotation.namespaces().length == 0 ?
             new String[]{generateNamespace(context)} : annotation.namespaces();
 
-        // Convert context mappings
-        List<TestConfig.ContextMappingConfig> contextMappings = Arrays.stream(annotation.contextMappings())
-            .map(TestConfig.ContextMappingConfig::fromAnnotation)
+        // Convert kubeContext mappings
+        List<TestConfig.KubeContextMappingConfig> contextMappings = Arrays.stream(annotation.kubeContextMappings())
+            .map(TestConfig.KubeContextMappingConfig::fromAnnotation)
             .collect(Collectors.toList());
 
         return new TestConfig(
             Arrays.asList(namespaces),
             annotation.createNamespaces(),
             annotation.cleanup(),
-            annotation.context(),
+            annotation.kubeContext(),
             annotation.storeYaml(),
             annotation.yamlStorePath(),
             Arrays.asList(annotation.namespaceLabels()),
@@ -96,7 +96,7 @@ class ConfigurationManager {
     }
 
     /**
-     * Gets the stored TestConfig from the extension context.
+     * Gets the stored TestConfig from the extension kubeContext.
      */
     public TestConfig getTestConfig(ExtensionContext context) {
         return contextStoreHelper.getTestConfig(context);

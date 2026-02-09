@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
 
 /**
  * Annotation to inject a KubeClient instance into test methods or fields.
- * The injected client will be configured to use the appropriate cluster context
+ * The injected client will be configured to use the appropriate cluster kubeContext
  * as specified by the {@link KubernetesTest} annotation.
  * Usage:
  * <pre>
@@ -34,10 +34,10 @@ import java.lang.annotation.Target;
 public @interface InjectCmdKubeClient {
 
     /**
-     * The context to use for this client.
-     * If not specified, uses the context from the test class annotation.
+     * The kubeContext to use for this client.
+     * If not specified, uses the kubeContext from the test class annotation.
      *
-     * @return cluster context name
+     * @return cluster kubeContext name
      */
     String context() default "";
 }

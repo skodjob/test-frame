@@ -138,9 +138,9 @@ class ExceptionHandlerDelegate {
     @FunctionalInterface
     public interface LogCollectionCallback {
         /**
-         * Collects logs for the given test context and suffix.
+         * Collects logs for the given test kubeContext and suffix.
          *
-         * @param context the extension context
+         * @param context the extension kubeContext
          * @param suffix  the suffix to append to log collection
          */
         void collectLogs(ExtensionContext context, String suffix);
@@ -154,9 +154,9 @@ class ExceptionHandlerDelegate {
     @FunctionalInterface
     public interface CleanupCallback {
         /**
-         * Handles automatic cleanup for the given test context and configuration.
+         * Handles automatic cleanup for the given test kubeContext and configuration.
          *
-         * @param context    the extension context
+         * @param context    the extension kubeContext
          * @param testConfig the test configuration
          */
         void handleAutomaticCleanup(ExtensionContext context, TestConfig testConfig);

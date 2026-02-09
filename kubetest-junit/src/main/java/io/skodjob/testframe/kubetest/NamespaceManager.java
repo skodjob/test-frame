@@ -21,7 +21,7 @@ import java.util.Map;
 /**
  * Manages namespace lifecycle operations for Kubernetes tests.
  * This class handles namespace creation, setup, cleanup, and auto-labeling
- * for both single-context and multi-context test scenarios.
+ * for both single-kubeContext and multi-kubeContext test scenarios.
  */
 class NamespaceManager {
 
@@ -32,15 +32,15 @@ class NamespaceManager {
     private static final String LOG_COLLECTION_LABEL_VALUE = "enabled";
 
     private final ContextStoreHelper contextStoreHelper;
-    private final MultiContextProvider multiContextProvider;
+    private final MultiKubeContextProvider multiContextProvider;
 
     /**
      * Creates a new NamespaceManager with the given dependencies.
      *
-     * @param contextStoreHelper   provides access to extension context storage
-     * @param multiContextProvider provides multi-context operations
+     * @param contextStoreHelper   provides access to extension kubeContext storage
+     * @param multiContextProvider provides multi-kubeContext operations
      */
-    NamespaceManager(ContextStoreHelper contextStoreHelper, MultiContextProvider multiContextProvider) {
+    NamespaceManager(ContextStoreHelper contextStoreHelper, MultiKubeContextProvider multiContextProvider) {
         this.contextStoreHelper = contextStoreHelper;
         this.multiContextProvider = multiContextProvider;
     }
@@ -50,7 +50,7 @@ class NamespaceManager {
     // ===============================
 
     /**
-     * Sets up all namespaces for the test, including multi-context namespaces.
+     * Sets up all namespaces for the test, including multi-kubeContext namespaces.
      */
     public void setupNamespaces(ExtensionContext context, TestConfig testConfig,
                                 KubeResourceManager resourceManager) {
@@ -60,7 +60,7 @@ class NamespaceManager {
 
         LOGGER.info("Setting up test namespaces: {}", String.join(", ", namespaceNames));
 
-        // Set up primary context namespaces
+        // Set up primary kubeContext namespaces
         for (String namespaceName : namespaceNames) {
             NamespaceSetupContext setupContext = new NamespaceSetupContext(
                 namespaceName, "", testConfig, resourceManager,
@@ -69,19 +69,19 @@ class NamespaceManager {
             performNamespaceSetup(setupContext);
         }
 
-        // Set up context-specific namespaces
-        for (TestConfig.ContextMappingConfig contextMapping : testConfig.contextMappings()) {
-            String clusterContext = contextMapping.context();
-            LOGGER.info("Setting up namespaces for context '{}': {}", clusterContext,
+        // Set up kubeContext-specific namespaces
+        for (TestConfig.KubeContextMappingConfig contextMapping : testConfig.kubeContextMappings()) {
+            String clusterContext = contextMapping.kubeContext();
+            LOGGER.info("Setting up namespaces for kubeContext '{}': {}", clusterContext,
                 String.join(", ", contextMapping.namespaces()));
 
-            // Get or create ResourceManager for this context
+            // Get or create ResourceManager for this kubeContext
             KubeResourceManager contextResourceManager =
-                multiContextProvider.getResourceManagerForContext(context, clusterContext);
+                multiContextProvider.getResourceManagerForKubeContext(context, clusterContext);
             Map<String, Namespace> contextNamespaceObjects =
-                multiContextProvider.getOrCreateNamespaceObjectsForContext(context, clusterContext);
+                multiContextProvider.getOrCreateNamespaceObjectsForKubeContext(context, clusterContext);
             List<String> contextCreatedNamespaces =
-                multiContextProvider.getOrCreateCreatedNamespacesForContext(context, clusterContext);
+                multiContextProvider.getOrCreateCreatedNamespacesForKubeContext(context, clusterContext);
 
             for (String namespaceName : contextMapping.namespaces()) {
                 NamespaceSetupContext setupContext = new NamespaceSetupContext(
@@ -91,8 +91,8 @@ class NamespaceManager {
                 performNamespaceSetup(setupContext);
             }
 
-            // Store context-specific namespace objects
-            multiContextProvider.storeNamespaceObjectsForContext(context, clusterContext, contextNamespaceObjects);
+            // Store kubeContext-specific namespace objects
+            multiContextProvider.storeNamespaceObjectsForKubeContext(context, clusterContext, contextNamespaceObjects);
         }
 
         // Store which namespaces we actually created (for cleanup)
@@ -175,14 +175,15 @@ class NamespaceManager {
     private void performNamespaceSetup(NamespaceSetupContext setupContext) {
         String contextLabel = setupContext.clusterContext().isEmpty() ?
             TestFrameConstants.DEFAULT_CONTEXT_NAME : setupContext.clusterContext();
-        LOGGER.debug("Setting up namespace '{}' in context '{}'", setupContext.namespaceName(), contextLabel);
+        LOGGER.debug("Setting up namespace '{}' in kubeContext '{}'", setupContext.namespaceName(), contextLabel);
 
         // Check if namespace already exists
         Namespace existingNamespace = setupContext.resourceManager().kubeClient().getClient().namespaces()
             .withName(setupContext.namespaceName()).get();
 
         if (existingNamespace != null) {
-            LOGGER.info("Using existing namespace '{}' in context '{}'", setupContext.namespaceName(), contextLabel);
+            LOGGER.info("Using existing namespace '{}' in kubeContext '{}'",
+                setupContext.namespaceName(), contextLabel);
 
             // Do not modify existing namespaces - respect namespace protection principle
             setupContext.namespaceObjects().put(setupContext.namespaceName(), existingNamespace);
@@ -190,7 +191,8 @@ class NamespaceManager {
             boolean shouldCreate = setupContext.contextMapping() != null ?
                 setupContext.contextMapping().createNamespaces() : setupContext.testConfig().createNamespaces();
             if (shouldCreate) {
-                LOGGER.info("Creating new namespace '{}' in context '{}'", setupContext.namespaceName(), contextLabel);
+                LOGGER.info("Creating new namespace '{}' in kubeContext '{}'",
+                    setupContext.namespaceName(), contextLabel);
 
                 // Prepare labels map
                 Map<String, String> labels = new HashMap<>();
@@ -203,7 +205,7 @@ class NamespaceManager {
                     }
                 }
 
-                // Add custom labels from context mapping if available
+                // Add custom labels from kubeContext mapping if available
                 if (setupContext.contextMapping() != null) {
                     for (String label : setupContext.contextMapping().namespaceLabels()) {
                         String[] parts = label.split("=", 2);
@@ -224,7 +226,7 @@ class NamespaceManager {
                     }
                 }
 
-                // Add annotations from context mapping if available
+                // Add annotations from kubeContext mapping if available
                 if (setupContext.contextMapping() != null) {
                     for (String annotation : setupContext.contextMapping().namespaceAnnotations()) {
                         String[] parts = annotation.split("=", 2);
@@ -277,7 +279,7 @@ class NamespaceManager {
                 setupContext.createdNamespaces().add(setupContext.namespaceName());
             } else {
                 throw new RuntimeException("Namespace '" + setupContext.namespaceName() +
-                    "' does not exist in context '" + contextLabel + "' and createNamespaces is false");
+                    "' does not exist in kubeContext '" + contextLabel + "' and createNamespaces is false");
             }
         }
     }
@@ -297,51 +299,51 @@ class NamespaceManager {
         Map<String, Namespace> namespaceObjects,
         List<String> createdNamespaces,
         ExtensionContext extensionContext,
-        TestConfig.ContextMappingConfig contextMapping
+        TestConfig.KubeContextMappingConfig contextMapping
     ) {
     }
 
     /**
-     * Interface to abstract multi-context operations for dependency injection.
-     * This allows NamespaceManager to work with multi-context functionality
+     * Interface to abstract multi-kubeContext operations for dependency injection.
+     * This allows NamespaceManager to work with multi-kubeContext functionality
      * without directly depending on specific implementation details.
      */
-    public interface MultiContextProvider {
+    public interface MultiKubeContextProvider {
         /**
-         * Gets or creates a KubeResourceManager for the specified context.
+         * Gets or creates a KubeResourceManager for the specified Kubernetes kubeContext.
          *
-         * @param context        the extension context
-         * @param clusterContext the cluster context name
-         * @return the resource manager for the specified context
+         * @param context     the extension kubeContext
+         * @param kubeContext the Kubernetes kubeContext name
+         * @return the resource manager for the specified Kubernetes kubeContext
          */
-        KubeResourceManager getResourceManagerForContext(ExtensionContext context, String clusterContext);
+        KubeResourceManager getResourceManagerForKubeContext(ExtensionContext context, String kubeContext);
 
         /**
-         * Gets or creates namespace objects for the specified context.
+         * Gets or creates namespace objects for the specified Kubernetes kubeContext.
          *
-         * @param context        the extension context
-         * @param clusterContext the cluster context name
+         * @param context     the extension kubeContext
+         * @param kubeContext the Kubernetes kubeContext name
          * @return map of namespace names to namespace objects
          */
-        Map<String, Namespace> getOrCreateNamespaceObjectsForContext(ExtensionContext context, String clusterContext);
+        Map<String, Namespace> getOrCreateNamespaceObjectsForKubeContext(ExtensionContext context, String kubeContext);
 
         /**
-         * Gets or creates the list of created namespaces for the specified context.
+         * Gets or creates the list of created namespaces for the specified Kubernetes kubeContext.
          *
-         * @param context        the extension context
-         * @param clusterContext the cluster context name
+         * @param context     the extension kubeContext
+         * @param kubeContext the Kubernetes kubeContext name
          * @return list of created namespace names
          */
-        List<String> getOrCreateCreatedNamespacesForContext(ExtensionContext context, String clusterContext);
+        List<String> getOrCreateCreatedNamespacesForKubeContext(ExtensionContext context, String kubeContext);
 
         /**
-         * Stores namespace objects for the specified context.
+         * Stores namespace objects for the specified Kubernetes kubeContext.
          *
-         * @param context          the extension context
-         * @param clusterContext   the cluster context name
+         * @param context          the extension kubeContext
+         * @param kubeContext      the Kubernetes kubeContext name
          * @param namespaceObjects the namespace objects to store
          */
-        void storeNamespaceObjectsForContext(ExtensionContext context, String clusterContext,
-                                             Map<String, Namespace> namespaceObjects);
+        void storeNamespaceObjectsForKubeContext(ExtensionContext context, String kubeContext,
+                                                 Map<String, Namespace> namespaceObjects);
     }
 }

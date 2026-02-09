@@ -138,12 +138,12 @@
 
     <build>
         <plugins>
-            <!-- Maven Failsafe Plugin for integration tests with mock multi-context environment -->
+            <!-- Maven Failsafe Plugin for integration tests with mock multi-kubeContext environment -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <configuration>
-                    <!-- Set up mock multi-context environment variables -->
+                    <!-- Set up mock multi-kubeContext environment variables -->
                     <!-- All contexts point to the same cluster (kubeconfig.path property) -->
                     <!-- Uses KUBECONFIG env var if set, otherwise defaults to ~/.kube/config -->
                     <environmentVariables>
@@ -154,12 +154,12 @@
                 </configuration>
             </plugin>
 
-            <!-- Maven Surefire Plugin for unit tests with mock multi-context environment -->
+            <!-- Maven Surefire Plugin for unit tests with mock multi-kubeContext environment -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <!-- Set up mock multi-context environment variables for unit tests too -->
+                    <!-- Set up mock multi-kubeContext environment variables for unit tests too -->
                     <!-- Uses KUBECONFIG env var if set, otherwise defaults to ~/.kube/config -->
                     <environmentVariables>
                         <KUBECONFIG_STAGING>${kubeconfig.path}</KUBECONFIG_STAGING>

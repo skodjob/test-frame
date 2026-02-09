@@ -38,57 +38,57 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Mock multi-context integration test demonstrating multi-context support using a single cluster.
+ * Mock multi-kube-context integration test demonstrating multi-kube-context support using a single cluster.
  *
  * This test showcases:
- * 1. Mock multiple cluster contexts using environment variables that point to the same cluster
- * 2. Context-aware resource injection and management across different namespaces
- * 3. Context-specific namespace configuration and isolation
- * 4. Multi-context log collection from all contexts
+ * 1. Mock multiple cluster kubeContexts using environment variables that point to the same cluster
+ * 2. KubeContext-aware resource injection and management across different namespaces
+ * 3. KubeContext-specific namespace configuration and isolation
+ * 4. Multi-kubeContext log collection from all kubeContexts
  * 5. Mixed field and parameter injection
  *
  * Prerequisites:
- * - Access to a single Kubernetes cluster (current kubeconfig context)
+ * - Access to a single Kubernetes cluster (current kubeconfig kubeContext)
  * - Environment variables are set via Maven Failsafe/Surefire plugin configuration in pom.xml:
  *   * KUBECONFIG_STAGING=${env.KUBECONFIG}
  *   * KUBECONFIG_PRODUCTION=${env.KUBECONFIG}
  *   * KUBECONFIG_DEVELOPMENT=${env.KUBECONFIG}
  *   * (plus KUBE_URL_* and KUBE_TOKEN_* variants)
  *
- * This allows testing multi-context functionality without requiring multiple real clusters.
- * All contexts (staging, production, development) use the same cluster but different namespaces.
+ * This allows testing multi-kube-context functionality without requiring multiple real clusters.
+ * All kubeContexts (staging, production, development) use the same cluster but different namespaces.
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @RequiresKubernetes
 @KubernetesTest(
-    // Default context namespaces
+    // Default kubeContext namespaces
     namespaces = {"local-test", "local-monitoring"},
     createNamespaces = true,
     cleanup = CleanupStrategy.AUTOMATIC,
     collectLogs = true,
     logCollectionStrategy = LogCollectionStrategy.ON_FAILURE,
-    namespaceLabels = {"test-suite=multi-context", "environment=local"},
-    namespaceAnnotations = {"test.io/suite=multi-context"},
+    namespaceLabels = {"test-suite=multi-kube-context", "environment=local"},
+    namespaceAnnotations = {"test.io/suite=multi-kube-context"},
 
-    // Mock multi-context configuration - all contexts use same cluster via env vars
-    contextMappings = {
-        @KubernetesTest.ContextMapping(
-            context = "staging",
+    // Mock multi-kube-context configuration - all kubeContexts use same cluster via env vars
+    kubeContextMappings = {
+        @KubernetesTest.KubeContextMapping(
+            kubeContext = "staging",
             namespaces = {"stg-frontend", "stg-backend"},
             createNamespaces = true,
             namespaceLabels = {"environment=staging", "tier=application"},
             namespaceAnnotations = {"deployment.io/stage=staging"},
             cleanup = CleanupStrategy.AUTOMATIC
             ),
-        @KubernetesTest.ContextMapping(
-            context = "production",
+        @KubernetesTest.KubeContextMapping(
+            kubeContext = "production",
             namespaces = {"prod-api", "prod-cache"},
             createNamespaces = true,  // Enable for mock testing
             namespaceLabels = {"environment=production"},
             cleanup = CleanupStrategy.AUTOMATIC  // Auto-cleanup for testing
             ),
-        @KubernetesTest.ContextMapping(
-            context = "development",
+        @KubernetesTest.KubeContextMapping(
+            kubeContext = "development",
             namespaces = {"dev-experimental"},
             createNamespaces = true,
             namespaceLabels = {"team=platform", "purpose=testing"},
@@ -100,7 +100,7 @@ class MultiContextIT {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MultiContextIT.class);
 
-    // Default context field injections
+    // Default kubeContext field injections
     @InjectKubeClient
     KubeClient defaultClient;
 
@@ -110,7 +110,7 @@ class MultiContextIT {
     @InjectCmdKubeClient
     KubeCmdClient<?> defaultCmdClient;
 
-    // Context-specific field injections (all point to same cluster via env vars)
+    // KubeContext-specific field injections (all point to same cluster via env vars)
     @InjectKubeClient(context = "staging")
     KubeClient stagingClient;
 
@@ -123,14 +123,14 @@ class MultiContextIT {
     @InjectKubeClient(context = "development")
     KubeClient devClient;
 
-    // Namespace injections - default context
+    // Namespace injections - default kubeContext
     @InjectNamespaces
     Map<String, Namespace> defaultNamespaces;
 
     @InjectNamespace(name = "local-test")
     Namespace localTestNamespace;
 
-    // Namespace injections - mock contexts (same cluster, different namespaces)
+    // Namespace injections - mock kubeContexts (same cluster, different namespaces)
     @InjectNamespaces(context = "staging")
     Map<String, Namespace> stagingNamespaces;
 
@@ -141,8 +141,8 @@ class MultiContextIT {
     Namespace productionApiNamespace;
 
     @Test
-    void testBasicMultiContextSetup() {
-        LOGGER.info("=== Testing Basic Multi-Context Setup ===");
+    void testBasicMultiKubeContextSetup() {
+        LOGGER.info("=== Testing Basic Multi-KubeContext Setup ===");
 
         // Verify all clients are injected and different
         assertNotNull(defaultClient, "Default KubeClient should be injected");
@@ -154,7 +154,7 @@ class MultiContextIT {
         assertNotNull(defaultResourceManager, "Default ResourceManager should be injected");
         assertNotNull(stagingResourceManager, "Staging ResourceManager should be injected");
 
-        // Log context information
+        // Log kubeContext information
         LOGGER.info("Staging client: {}", stagingClient.getClass().getSimpleName());
         LOGGER.info("Production client: {}", productionClient.getClass().getSimpleName());
 
@@ -177,7 +177,7 @@ class MultiContextIT {
         assertNotNull(productionApiNamespace, "Production API namespace should be injected");
         assertEquals("prod-api", productionApiNamespace.getMetadata().getName());
 
-        LOGGER.info("Basic multi-context setup verified successfully");
+        LOGGER.info("Basic multi-kube-context setup verified successfully");
     }
 
     @Test
@@ -204,31 +204,31 @@ class MultiContextIT {
     }
 
     @Test
-    void testCrossContextResourceOperations() {
-        LOGGER.info("=== Testing Cross-Context Resource Operations ===");
+    void testCrossKubeContextResourceOperations() {
+        LOGGER.info("=== Testing Cross-KubeContext Resource Operations ===");
 
-        // Create resources in different contexts
+        // Create resources in different kubeContexts
 
-        // 1. Create ConfigMap in default context
+        // 1. Create ConfigMap in default kubeContext
         ConfigMap defaultConfigMap = new ConfigMapBuilder()
             .withNewMetadata()
-                .withName("multi-context-config")
+                .withName("multi-kube-context-config")
                 .withNamespace(localTestNamespace.getMetadata().getName())
             .endMetadata()
             .addToData("environment", "local")
-            .addToData("test-type", "multi-context")
+            .addToData("test-type", "multi-kube-context")
             .build();
 
         defaultResourceManager.createResourceWithoutWait(defaultConfigMap);
-        LOGGER.info("Created ConfigMap in default context: {}", defaultConfigMap.getMetadata().getName());
+        LOGGER.info("Created ConfigMap in default kubeContext: {}", defaultConfigMap.getMetadata().getName());
 
-        // 2. Create Pod in staging context
+        // 2. Create Pod in staging kubeContext
         Pod stagingPod = new PodBuilder()
             .withNewMetadata()
                 .withName("staging-test-pod")
                 .withNamespace(stagingFrontendNamespace.getMetadata().getName())
-                .addToLabels("context", "staging")
-                .addToLabels("test", "multi-context")
+                .addToLabels("kube-context", "staging")
+                .addToLabels("test", "multi-kube-context")
             .endMetadata()
             .withNewSpec()
                 .addNewContainer()
@@ -242,15 +242,15 @@ class MultiContextIT {
             .build();
 
         stagingResourceManager.createResourceWithWait(stagingPod);
-        LOGGER.info("Created Pod in staging context: {}", stagingPod.getMetadata().getName());
+        LOGGER.info("Created Pod in staging kubeContext: {}", stagingPod.getMetadata().getName());
 
-        // 3. Verify resources exist in their respective contexts
+        // 3. Verify resources exist in their respective kubeContexts
         ConfigMap retrievedConfigMap = defaultClient.getClient()
             .configMaps()
             .inNamespace(localTestNamespace.getMetadata().getName())
-            .withName("multi-context-config")
+            .withName("multi-kube-context-config")
             .get();
-        assertNotNull(retrievedConfigMap, "ConfigMap should exist in default context");
+        assertNotNull(retrievedConfigMap, "ConfigMap should exist in default kubeContext");
         assertEquals("local", retrievedConfigMap.getData().get("environment"));
 
         Pod retrievedPod = stagingClient.getClient()
@@ -258,37 +258,37 @@ class MultiContextIT {
             .inNamespace(stagingFrontendNamespace.getMetadata().getName())
             .withName("staging-test-pod")
             .get();
-        assertNotNull(retrievedPod, "Pod should exist in staging context");
-        assertEquals("staging", retrievedPod.getMetadata().getLabels().get("context"));
+        assertNotNull(retrievedPod, "Pod should exist in staging kubeContext");
+        assertEquals("staging", retrievedPod.getMetadata().getLabels().get("kube-context"));
 
-        LOGGER.info("Mock cross-context resource operations verified successfully");
+        LOGGER.info("Mock cross-kubeContext resource operations verified successfully");
     }
 
     @Test
-    void testResourceInjectionWithContext(
+    void testResourceInjectionWithKubeContext(
         @InjectResource(context = "staging", value = "src/test/resources/test-deployment.yaml")
         Deployment injectedDeployment
     ) {
-        LOGGER.info("=== Testing Resource Injection with Context ===");
+        LOGGER.info("=== Testing Resource Injection with KubeContext ===");
 
         // This test assumes test-deployment.yaml exists in test resources
-        // The resource will be deployed to the staging context (same cluster, staging namespace)
-        assertNotNull(injectedDeployment, "Deployment should be injected from YAML in staging context");
+        // The resource will be deployed to the staging kubeContext (same cluster, staging namespace)
+        assertNotNull(injectedDeployment, "Deployment should be injected from YAML in staging kubeContext");
         LOGGER.info("Injected deployment: {} in namespace: {}",
                    injectedDeployment.getMetadata().getName(),
                    injectedDeployment.getMetadata().getNamespace());
 
-        // Verify the deployment was created in the staging context (same cluster)
+        // Verify the deployment was created in the staging kubeContext (same cluster)
         Deployment stagingDeployment = stagingClient.getClient()
             .apps().deployments()
             .inNamespace(injectedDeployment.getMetadata().getNamespace())
             .withName(injectedDeployment.getMetadata().getName())
             .get();
 
-        assertNotNull(stagingDeployment, "Injected deployment should exist in staging context");
+        assertNotNull(stagingDeployment, "Injected deployment should exist in staging kubeContext");
         assertEquals(injectedDeployment.getMetadata().getName(), stagingDeployment.getMetadata().getName());
 
-        LOGGER.info("Resource injection with context verified successfully");
+        LOGGER.info("Resource injection with kubeContext verified successfully");
     }
 
     @Test
@@ -298,9 +298,9 @@ class MultiContextIT {
         // Check default namespace labels
         Namespace defaultNs = defaultNamespaces.get("local-test");
 
-        assertEquals("multi-context", defaultNs.getMetadata().getLabels().get("test-suite"));
+        assertEquals("multi-kube-context", defaultNs.getMetadata().getLabels().get("test-suite"));
         assertEquals("local", defaultNs.getMetadata().getLabels().get("environment"));
-        assertEquals("multi-context", defaultNs.getMetadata().getAnnotations().get("test.io/suite"));
+        assertEquals("multi-kube-context", defaultNs.getMetadata().getAnnotations().get("test.io/suite"));
 
         // Check staging namespace labels
         Namespace stagingNs = stagingNamespaces.get("stg-frontend");
@@ -312,24 +312,24 @@ class MultiContextIT {
     }
 
     @Test
-    void testMockMultiContextLogCollection() {
-        LOGGER.info("=== Testing Mock Multi-Context Log Collection ===");
+    void testMockMultiKubeContextLogCollection() {
+        LOGGER.info("=== Testing Mock Multi-KubeContext Log Collection ===");
 
-        // Create labeled pods in different mock contexts for log collection testing
-        // These pods will have the log collection label to trigger multi-context log collection
+        // Create labeled pods in different mock kubeContexts for log collection testing
+        // These pods will have the log collection label to trigger multi-kube-context log collection
 
         Pod defaultLogPod = new PodBuilder()
             .withNewMetadata()
                 .withName("log-test-default")
                 .withNamespace(localTestNamespace.getMetadata().getName())
                 .addToLabels("collect-logs", "true")  // This label triggers log collection
-                .addToLabels("context", "default")
+                .addToLabels("kube-context", "default")
             .endMetadata()
             .withNewSpec()
                 .addNewContainer()
                     .withName("log-container")
                     .withImage("quay.io/prometheus/busybox")
-                    .withCommand("sh", "-c", "echo 'Default context log message' && sleep 60")
+                    .withCommand("sh", "-c", "echo 'Default kubeContext log message' && sleep 60")
                 .endContainer()
             .endSpec()
             .build();
@@ -339,13 +339,13 @@ class MultiContextIT {
                 .withName("log-test-staging")
                 .withNamespace(stagingFrontendNamespace.getMetadata().getName())
                 .addToLabels("collect-logs", "true")  // This label triggers log collection
-                .addToLabels("context", "staging")
+                .addToLabels("kube-context", "staging")
             .endMetadata()
             .withNewSpec()
                 .addNewContainer()
                     .withName("log-container")
                     .withImage("quay.io/prometheus/busybox")
-                    .withCommand("sh", "-c", "echo 'Staging context log message' && sleep 60")
+                    .withCommand("sh", "-c", "echo 'Staging kubeContext log message' && sleep 60")
                 .endContainer()
             .endSpec()
             .build();
@@ -355,13 +355,13 @@ class MultiContextIT {
                 .withName("log-test-production")
                 .withNamespace(productionApiNamespace.getMetadata().getName())
                 .addToLabels("collect-logs", "true")  // This label triggers log collection
-                .addToLabels("context", "production")
+                .addToLabels("kube-context", "production")
             .endMetadata()
             .withNewSpec()
                 .addNewContainer()
                     .withName("log-container")
                     .withImage("quay.io/prometheus/busybox")
-                    .withCommand("sh", "-c", "echo 'Production context log message' && sleep 60")
+                    .withCommand("sh", "-c", "echo 'Production kubeContext log message' && sleep 60")
                 .endContainer()
             .endSpec()
             .build();
@@ -403,14 +403,14 @@ class MultiContextIT {
             .withName("log-test-production")
             .get(), "Production log test pod should exist");
 
-        LOGGER.info("Mock multi-context log collection setup verified successfully");
+        LOGGER.info("Mock multi-kube-context log collection setup verified successfully");
         LOGGER.info("Note: Log collection from all contexts will be triggered automatically by the framework");
         LOGGER.info("      when tests complete or fail, collecting from all labeled namespaces across all contexts");
     }
 
     @Test
     void testContextSwitchingBehavior() {
-        LOGGER.info("=== Testing Mock Context Switching Behavior ===");
+        LOGGER.info("=== Testing Mock KubeContext Switching Behavior ===");
 
         // Create services with same name in different contexts to verify namespace isolation
         // (all in same cluster but different namespaces due to mock environment)
@@ -467,7 +467,7 @@ class MultiContextIT {
         assertEquals(8080, defaultSvc.getSpec().getPorts().getFirst().getPort().intValue());
         assertEquals(9090, stagingSvc.getSpec().getPorts().getFirst().getPort().intValue());
 
-        LOGGER.info("Mock context switching and namespace isolation verified successfully");
+        LOGGER.info("Mock kubeContext switching and namespace isolation verified successfully");
     }
 
     @Test
@@ -482,17 +482,19 @@ class MultiContextIT {
         LOGGER.info("Cluster info (all mock contexts point to same cluster): {}", defaultClusterInfo);
         assertTrue(defaultClusterInfo.contains("Kubernetes"), "Should contain Kubernetes info");
 
-        LOGGER.info("Mock command client multi-context verified successfully");
+        LOGGER.info("Mock command client multi-kube-context verified successfully");
         LOGGER.info("Note: All mock contexts use the same underlying cluster but different namespaces");
     }
 
     /**
-     * Helper method to get resource manager for a specific context.
+     * Helper method to get resource manager for a specific kubeContext.
      * In a real scenario, this would be injected, but for testing we simulate it.
      */
-    private KubeResourceManager getResourceManagerForContext(String context) {
-        // In the mock environment, all contexts point to the same cluster
+    private KubeResourceManager getResourceManagerForContext(String kubeContext) {
+        // In the mock environment, all kubeContexts point to the same cluster
         // So we can return the default resource manager
+        // Note: In a real implementation, this would return context-specific managers based on kubeContext
+        LOGGER.debug("Getting resource manager for kubeContext: {}", kubeContext);
         return defaultResourceManager;
     }
 }

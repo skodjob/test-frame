@@ -23,7 +23,7 @@ public class TestUtils {
      * Generates log root path
      *
      * @param folderName root
-     * @param context ext context
+     * @param context ext kubeContext
      * @return folder for current test logs
      */
     public static Path getLogPath(String folderName, ExtensionContext context) {
@@ -34,8 +34,8 @@ public class TestUtils {
      * Generates log root path
      *
      * @param folderName root
-     * @param context ext context
-     * @param clusterContext cluster context
+     * @param context ext kubeContext
+     * @param clusterContext cluster kubeContext
      * @return folder for current test logs
      */
     public static Path getLogPath(String folderName, ExtensionContext context, String clusterContext) {
@@ -63,7 +63,7 @@ public class TestUtils {
      * @param folderName root
      * @param testClassName class name
      * @param testMethod method name
-     * @param contextName cluster context
+     * @param contextName cluster kubeContext
      * @return folder for current test logs
      */
     public static Path getLogPath(String folderName, String testClassName, String testMethod, String contextName) {

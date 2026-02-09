@@ -61,12 +61,12 @@ public @interface KubernetesTest {
     CleanupStrategy cleanup() default CleanupStrategy.AUTOMATIC;
 
     /**
-     * Kubernetes cluster context to use for this test.
-     * Corresponds to context configuration in environment variables.
+     * Kubernetes cluster kubeContext to use for this test.
+     * Corresponds to kubeContext configuration in environment variables.
      *
-     * @return cluster context name
+     * @return cluster kubeContext name
      */
-    String context() default "";
+    String kubeContext() default "";
 
     /**
      * Whether to store YAML representations of created resources to disk.
@@ -161,30 +161,30 @@ public @interface KubernetesTest {
 
 
     // ===============================
-    // Multi-Context Support
+    // Multi-KubeContext Support
     // ===============================
 
     /**
-     * Context mappings for multi-cluster testing.
-     * Each mapping defines namespaces and configuration for a specific context.
+     * Kubernetes kubeContext mappings for multi-cluster testing.
+     * Each mapping defines namespaces and configuration for a specific Kubernetes kubeContext.
      *
-     * @return array of context mappings
+     * @return array of Kubernetes kubeContext mappings
      */
-    ContextMapping[] contextMappings() default {};
+    KubeContextMapping[] kubeContextMappings() default {};
 
     /**
-     * Defines namespace creation and configuration for a specific context.
+     * Defines namespace creation and configuration for a specific Kubernetes kubeContext.
      */
-    @interface ContextMapping {
+    @interface KubeContextMapping {
         /**
-         * The context name.
+         * The Kubernetes kubeContext name.
          *
-         * @return context name
+         * @return Kubernetes kubeContext name
          */
-        String context();
+        String kubeContext();
 
         /**
-         * Namespaces to create in this context.
+         * Namespaces to create in this kubeContext.
          *
          * @return array of namespace names
          */
@@ -198,21 +198,21 @@ public @interface KubernetesTest {
         boolean createNamespaces() default true;
 
         /**
-         * Cleanup strategy for this context.
+         * Cleanup strategy for this kubeContext.
          *
          * @return cleanup strategy
          */
         CleanupStrategy cleanup() default CleanupStrategy.AUTOMATIC;
 
         /**
-         * Labels to apply to namespaces in this context.
+         * Labels to apply to namespaces in this kubeContext.
          *
          * @return array of label key=value pairs
          */
         String[] namespaceLabels() default {};
 
         /**
-         * Annotations to apply to namespaces in this context.
+         * Annotations to apply to namespaces in this kubeContext.
          *
          * @return array of annotation key=value pairs
          */

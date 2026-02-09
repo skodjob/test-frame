@@ -66,8 +66,8 @@ class TestConfigTest {
         assertFalse(config.collectPreviousLogs());
         assertEquals(List.of("pods"), config.collectNamespacedResources());
         assertEquals(0, config.collectClusterWideResources().size());
-        assertNotNull(config.contextMappings());
-        assertEquals(0, config.contextMappings().size());
+        assertNotNull(config.kubeContextMappings());
+        assertEquals(0, config.kubeContextMappings().size());
     }
 
     @Test

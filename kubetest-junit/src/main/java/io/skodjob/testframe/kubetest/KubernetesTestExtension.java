@@ -52,11 +52,11 @@ import java.util.Map;
 public class KubernetesTestExtension implements BeforeAllCallback, AfterAllCallback,
     BeforeEachCallback, AfterEachCallback, ParameterResolver,
     TestExecutionExceptionHandler, LifecycleMethodExecutionExceptionHandler,
-    NamespaceManager.MultiContextProvider, LogCollectionManager.MultiContextProvider {
+    NamespaceManager.MultiKubeContextProvider, LogCollectionManager.MultiKubeContextProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KubernetesTestExtension.class);
 
-    // Helper for context store operations
+    // Helper for kubeContext store operations
     private final ContextStoreHelper contextStoreHelper;
 
     // Configuration management
@@ -92,10 +92,10 @@ public class KubernetesTestExtension implements BeforeAllCallback, AfterAllCallb
         this.configurationManager = new ConfigurationManager(contextStoreHelper);
         this.dependencyInjector = new DependencyInjector(contextStoreHelper);
 
-        // Create namespace manager with multi-context provider
+        // Create namespace manager with multi-kubeContext provider
         this.namespaceManager = new NamespaceManager(contextStoreHelper, this);
 
-        // Create log collection manager with context provider
+        // Create log collection manager with kubeContext provider
         this.logCollectionManager = new LogCollectionManager(contextStoreHelper, configurationManager, this);
 
         // Create exception handler with callbacks for log collection and cleanup
@@ -118,7 +118,7 @@ public class KubernetesTestExtension implements BeforeAllCallback, AfterAllCallb
         // Set up KubeResourceManager
         KubeResourceManager resourceManager = KubeResourceManager.get();
 
-        // Configure context if specified
+        // Configure kubeContext if specified
         if (!testConfig.context().isEmpty()) {
             AutoCloseable contextCloser = resourceManager.useContext(testConfig.context());
             contextStoreHelper.putContextCloser(context, contextCloser);
@@ -170,10 +170,10 @@ public class KubernetesTestExtension implements BeforeAllCallback, AfterAllCallb
             namespaceManager.cleanupNamespaces(context, testConfig);
         }
 
-        // Clean up created namespaces from multi-context scenarios
+        // Clean up created namespaces from multi-kubeContext scenarios
         cleanupMultiContextNamespaces(context, testConfig);
 
-        // Close all context closers (primary + multi-context)
+        // Close all kubeContext closers (primary + multi-kubeContext)
         cleanupAllContextClosers(context);
 
         // Clean up ThreadLocal variables to prevent thread reuse issues
@@ -313,32 +313,32 @@ public class KubernetesTestExtension implements BeforeAllCallback, AfterAllCallb
     }
 
     /**
-     * Cleans up all context closers to prevent resource leaks.
-     * This includes the primary context closer and all multi-context closers.
+     * Cleans up all kubeContext closers to prevent resource leaks.
+     * This includes the primary kubeContext closer and all multi-kubeContext closers.
      */
     private void cleanupAllContextClosers(ExtensionContext context) {
         try {
-            // Close primary context if we opened it
+            // Close primary kubeContext if we opened it
             AutoCloseable primaryContextCloser = contextStoreHelper.getContextCloser(context);
             if (primaryContextCloser != null) {
                 primaryContextCloser.close();
-                LOGGER.debug("Closed primary context");
+                LOGGER.debug("Closed primary kubeContext");
             }
 
-            // Close all multi-context closers
+            // Close all multi-kubeContext closers
             Map<String, AutoCloseable> allContextClosers = contextStoreHelper.getAllContextClosers(context);
             if (allContextClosers != null) {
                 for (Map.Entry<String, AutoCloseable> entry : allContextClosers.entrySet()) {
                     try {
                         entry.getValue().close();
-                        LOGGER.debug("Closed context closer for: {}", entry.getKey());
+                        LOGGER.debug("Closed kubeContext closer for: {}", entry.getKey());
                     } catch (Exception e) {
-                        LOGGER.warn("Failed to close context closer for '{}': {}", entry.getKey(), e.getMessage());
+                        LOGGER.warn("Failed to close kubeContext closer for '{}': {}", entry.getKey(), e.getMessage());
                     }
                 }
             }
         } catch (Exception e) {
-            LOGGER.warn("Error during context closer cleanup: {}", e.getMessage(), e);
+            LOGGER.warn("Error during kubeContext closer cleanup: {}", e.getMessage(), e);
         }
     }
 
@@ -356,16 +356,16 @@ public class KubernetesTestExtension implements BeforeAllCallback, AfterAllCallb
                 LOGGER.debug("Cleaned ThreadLocal variables for primary ResourceManager");
             }
 
-            // Clean ThreadLocal variables for all context-specific managers
+            // Clean ThreadLocal variables for all kubeContext-specific managers
             Map<String, KubeResourceManager> contextManagers = contextStoreHelper.getContextManagers(context);
             if (contextManagers != null) {
                 for (Map.Entry<String, KubeResourceManager> entry : contextManagers.entrySet()) {
                     try {
                         entry.getValue().cleanTestContext();
                         entry.getValue().cleanClusterContext();
-                        LOGGER.debug("Cleaned ThreadLocal variables for context: {}", entry.getKey());
+                        LOGGER.debug("Cleaned ThreadLocal variables for kubeContext: {}", entry.getKey());
                     } catch (Exception e) {
-                        LOGGER.warn("Failed to clean ThreadLocal variables for context '{}': {}",
+                        LOGGER.warn("Failed to clean ThreadLocal variables for kubeContext '{}': {}",
                             entry.getKey(), e.getMessage());
                     }
                 }
@@ -376,32 +376,33 @@ public class KubernetesTestExtension implements BeforeAllCallback, AfterAllCallb
     }
 
     /**
-     * Cleans up namespaces created in multi-context scenarios.
-     * This ensures that context-specific namespaces are properly deleted.
+     * Cleans up namespaces created in multi-kubeContext scenarios.
+     * This ensures that kubeContext-specific namespaces are properly deleted.
      */
     private void cleanupMultiContextNamespaces(ExtensionContext context, TestConfig testConfig) {
         try {
-            // Get all context managers to find contexts that had namespaces created
+            // Get all kubeContext managers to find contexts that had namespaces created
             Map<String, KubeResourceManager> contextManagers = contextStoreHelper.getContextManagers(context);
             if (contextManagers == null || contextManagers.isEmpty()) {
-                LOGGER.debug("No multi-context managers found, skipping multi-context namespace cleanup");
+                LOGGER.debug("No multi-kubeContext managers found, skipping multi-kubeContext namespace cleanup");
                 return;
             }
 
-            // Clean up namespaces for each context that created namespaces
+            // Clean up namespaces for each kubeContext that created namespaces
             for (String clusterContext : contextManagers.keySet()) {
                 List<String> contextCreatedNamespaces =
                     contextStoreHelper.getOrCreateCreatedNamespacesForContext(context, clusterContext);
 
                 if (contextCreatedNamespaces != null && !contextCreatedNamespaces.isEmpty()) {
-                    LOGGER.info("Cleaning up {} namespaces created in context '{}': {}",
+                    LOGGER.info("Cleaning up {} namespaces created in kubeContext '{}': {}",
                         contextCreatedNamespaces.size(), clusterContext,
                         String.join(", ", contextCreatedNamespaces));
 
                     KubeResourceManager contextManager = contextManagers.get(clusterContext);
                     try {
                         for (String namespaceName : contextCreatedNamespaces) {
-                            LOGGER.debug("Deleting namespace '{}' from context '{}'", namespaceName, clusterContext);
+                            LOGGER.debug("Deleting namespace '{}' from kubeContext '{}'",
+                                namespaceName, clusterContext);
                             io.fabric8.kubernetes.api.model.Namespace namespace =
                                 new io.fabric8.kubernetes.api.model.NamespaceBuilder()
                                     .withNewMetadata()
@@ -410,46 +411,46 @@ public class KubernetesTestExtension implements BeforeAllCallback, AfterAllCallb
                                     .build();
                             contextManager.deleteResourceWithWait(namespace);
                         }
-                        LOGGER.info("Successfully cleaned up {} namespaces from context '{}'",
+                        LOGGER.info("Successfully cleaned up {} namespaces from kubeContext '{}'",
                             contextCreatedNamespaces.size(), clusterContext);
                     } catch (Exception e) {
-                        LOGGER.warn("Failed to clean up namespaces in context '{}': {}",
+                        LOGGER.warn("Failed to clean up namespaces in kubeContext '{}': {}",
                             clusterContext, e.getMessage());
                     }
                 }
             }
         } catch (Exception e) {
-            LOGGER.warn("Error during multi-context namespace cleanup: {}", e.getMessage(), e);
+            LOGGER.warn("Error during multi-kubeContext namespace cleanup: {}", e.getMessage(), e);
         }
     }
 
     // ===============================
-    // Multi-Context Support Methods (MultiContextProvider Implementation)
+    // Multi-Context Support Methods (MultiKubeContextProvider Implementation)
     // ===============================
 
     /**
-     * Gets or creates a KubeResourceManager for the specified context.
+     * Gets or creates a KubeResourceManager for the specified kubeContext.
      */
     @Override
-    public KubeResourceManager getResourceManagerForContext(ExtensionContext context, String clusterContext) {
-        // Get the cache of context managers
+    public KubeResourceManager getResourceManagerForKubeContext(ExtensionContext context, String kubeContext) {
+        // Get the cache of kubeContext managers
         Map<String, KubeResourceManager> contextManagers = contextStoreHelper.getOrCreateContextManagers(context);
 
-        // Get or create resource manager for this context
-        return contextManagers.computeIfAbsent(clusterContext, ctx -> {
-            LOGGER.info("Creating ResourceManager for context: {}", ctx);
+        // Get or create resource manager for this kubeContext
+        return contextManagers.computeIfAbsent(kubeContext, ctx -> {
+            LOGGER.info("Creating ResourceManager for kubeContext: {}", ctx);
 
             try {
                 // Create new ResourceManager instance
                 KubeResourceManager manager = KubeResourceManager.get();
 
-                // Switch to the specified context
+                // Switch to the specified kubeContext
                 AutoCloseable contextCloser = manager.useContext(ctx);
 
-                // Store the context closer for cleanup later
+                // Store the kubeContext closer for cleanup later
                 contextStoreHelper.putContextCloser(context, ctx, contextCloser);
 
-                // Set test context
+                // Set test kubeContext
                 manager.setTestContext(context);
 
                 // Configure YAML storage if enabled (inherit from main test config)
@@ -458,35 +459,35 @@ public class KubernetesTestExtension implements BeforeAllCallback, AfterAllCallb
                     String yamlPath = testConfig.yamlStorePath().isEmpty() ?
                         Paths.get("target", "test-yamls").toString() : testConfig.yamlStorePath();
                     manager.setStoreYamlPath(yamlPath);
-                    LOGGER.debug("Configured YAML storage for context '{}': {}", ctx, yamlPath);
+                    LOGGER.debug("Configured YAML storage for kubeContext '{}': {}", ctx, yamlPath);
                 }
 
                 return manager;
             } catch (Exception e) {
-                throw new RuntimeException("Failed to create ResourceManager for context: " + ctx, e);
+                throw new RuntimeException("Failed to create ResourceManager for kubeContext: " + ctx, e);
             }
         });
     }
 
     @Override
-    public void storeNamespaceObjectsForContext(ExtensionContext context, String clusterContext,
-                                                Map<String, Namespace> namespaceObjects) {
-        contextStoreHelper.putNamespaceObjectsForContext(context, clusterContext, namespaceObjects);
+    public void storeNamespaceObjectsForKubeContext(ExtensionContext context, String kubeContext,
+                                                    Map<String, Namespace> namespaceObjects) {
+        contextStoreHelper.putNamespaceObjectsForContext(context, kubeContext, namespaceObjects);
     }
 
     @Override
-    public List<String> getOrCreateCreatedNamespacesForContext(ExtensionContext context, String clusterContext) {
-        return contextStoreHelper.getOrCreateCreatedNamespacesForContext(context, clusterContext);
+    public List<String> getOrCreateCreatedNamespacesForKubeContext(ExtensionContext context, String kubeContext) {
+        return contextStoreHelper.getOrCreateCreatedNamespacesForContext(context, kubeContext);
     }
 
     @Override
-    public Map<String, Namespace> getOrCreateNamespaceObjectsForContext(ExtensionContext context,
-                                                                        String clusterContext) {
-        return contextStoreHelper.getOrCreateNamespaceObjectsForContext(context, clusterContext);
+    public Map<String, Namespace> getOrCreateNamespaceObjectsForKubeContext(ExtensionContext context,
+                                                                            String kubeContext) {
+        return contextStoreHelper.getOrCreateNamespaceObjectsForContext(context, kubeContext);
     }
 
     // ===============================
-    // LogCollectionManager.MultiContextProvider Implementation
+    // LogCollectionManager.MultiKubeContextProvider Implementation
     // ===============================
 
     @Override
@@ -495,7 +496,7 @@ public class KubernetesTestExtension implements BeforeAllCallback, AfterAllCallb
     }
 
     @Override
-    public Map<String, KubeResourceManager> getContextManagers(ExtensionContext context) {
+    public Map<String, KubeResourceManager> getKubeContextManagers(ExtensionContext context) {
         return contextStoreHelper.getContextManagers(context);
     }
 }

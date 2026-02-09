@@ -37,9 +37,9 @@ class DependencyInjector {
     private final ContextStoreHelper contextStoreHelper;
 
     /**
-     * Creates a new DependencyInjector with the given context store helper.
+     * Creates a new DependencyInjector with the given kubeContext store helper.
      *
-     * @param contextStoreHelper provides access to extension context storage
+     * @param contextStoreHelper provides access to extension kubeContext storage
      */
     DependencyInjector(ContextStoreHelper contextStoreHelper) {
         this.contextStoreHelper = contextStoreHelper;
@@ -161,7 +161,7 @@ class DependencyInjector {
 
         KubeResourceManager resourceManager = getResourceManagerForContext(context, clusterContext);
         if (resourceManager == null) {
-            throw new RuntimeException("KubeResourceManager not available for context: " +
+            throw new RuntimeException("KubeResourceManager not available for kubeContext: " +
                 (clusterContext.isEmpty() ? TestFrameConstants.DEFAULT_CONTEXT_NAME : clusterContext));
         }
         return resourceManager.kubeClient();
@@ -175,7 +175,7 @@ class DependencyInjector {
 
         KubeResourceManager resourceManager = getResourceManagerForContext(context, clusterContext);
         if (resourceManager == null) {
-            throw new RuntimeException("KubeResourceManager not available for context: " +
+            throw new RuntimeException("KubeResourceManager not available for kubeContext: " +
                 (clusterContext.isEmpty() ? TestFrameConstants.DEFAULT_CONTEXT_NAME : clusterContext));
         }
         return resourceManager.kubeCmdClient();
@@ -189,7 +189,7 @@ class DependencyInjector {
 
         KubeResourceManager resourceManager = getResourceManagerForContext(context, clusterContext);
         if (resourceManager == null) {
-            throw new RuntimeException("KubeResourceManager not available for context: " +
+            throw new RuntimeException("KubeResourceManager not available for kubeContext: " +
                 (clusterContext.isEmpty() ? TestFrameConstants.DEFAULT_CONTEXT_NAME : clusterContext));
         }
         return resourceManager;
@@ -206,7 +206,7 @@ class DependencyInjector {
             KubeResourceManager resourceManager = getResourceManagerForContext(context, clusterContext);
 
             if (resourceManager == null) {
-                throw new RuntimeException("KubeResourceManager not available for context: " +
+                throw new RuntimeException("KubeResourceManager not available for kubeContext: " +
                     (clusterContext.isEmpty() ? TestFrameConstants.DEFAULT_CONTEXT_NAME : clusterContext));
             }
 
@@ -245,7 +245,7 @@ class DependencyInjector {
 
         Map<String, Namespace> namespaceObjects = getNamespaceObjectsForContext(context, clusterContext);
         if (namespaceObjects == null) {
-            throw new RuntimeException("Namespace objects not available for context: " +
+            throw new RuntimeException("Namespace objects not available for kubeContext: " +
                 (clusterContext.isEmpty() ? TestFrameConstants.DEFAULT_CONTEXT_NAME : clusterContext));
         }
         return namespaceObjects;
@@ -260,13 +260,14 @@ class DependencyInjector {
 
         Map<String, Namespace> namespaceObjects = getNamespaceObjectsForContext(context, clusterContext);
         if (namespaceObjects == null) {
-            throw new RuntimeException("Namespace objects not available for context: " +
+            throw new RuntimeException("Namespace objects not available for kubeContext: " +
                 (clusterContext.isEmpty() ? TestFrameConstants.DEFAULT_CONTEXT_NAME : clusterContext));
         }
 
         Namespace namespace = namespaceObjects.get(namespaceName);
         if (namespace == null) {
-            throw new RuntimeException("Namespace '" + namespaceName + "' not found in test namespaces for context: " +
+            throw new RuntimeException("Namespace '" + namespaceName +
+                "' not found in test namespaces for kubeContext: " +
                 (clusterContext.isEmpty() ? TestFrameConstants.DEFAULT_CONTEXT_NAME : clusterContext) + ". " +
                 "Make sure it's defined in @KubernetesTest annotation.");
         }
@@ -279,7 +280,7 @@ class DependencyInjector {
 
     private KubeResourceManager getResourceManagerForContext(ExtensionContext context, String clusterContext) {
         if (clusterContext.isEmpty()) {
-            return contextStoreHelper.getResourceManager(context); // Primary context from beforeAll setup
+            return contextStoreHelper.getResourceManager(context); // Primary kubeContext from beforeAll setup
         } else {
             return contextStoreHelper.getContextManager(context, clusterContext);
         }

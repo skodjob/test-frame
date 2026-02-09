@@ -24,7 +24,7 @@ import java.util.Set;
 
 /**
  * Manages log collection operations for Kubernetes tests.
- * This class handles log collection setup, multi-context log gathering,
+ * This class handles log collection setup, multi-kubeContext log gathering,
  * and coordination with LogCollector instances across different cluster contexts.
  */
 class LogCollectionManager {
@@ -37,18 +37,18 @@ class LogCollectionManager {
 
     private final ContextStoreHelper contextStoreHelper;
     private final ConfigurationManager configurationManager;
-    private final MultiContextProvider contextProvider;
+    private final MultiKubeContextProvider contextProvider;
 
     /**
      * Creates a new LogCollectionManager with the given dependencies.
      *
-     * @param contextStoreHelper   provides access to extension context storage
+     * @param contextStoreHelper   provides access to extension kubeContext storage
      * @param configurationManager provides access to test configuration
-     * @param contextProvider      provides multi-context operations
+     * @param contextProvider      provides multi-kubeContext operations
      */
     LogCollectionManager(ContextStoreHelper contextStoreHelper,
                          ConfigurationManager configurationManager,
-                         MultiContextProvider contextProvider) {
+                         MultiKubeContextProvider contextProvider) {
         this.contextStoreHelper = contextStoreHelper;
         this.configurationManager = configurationManager;
         this.contextProvider = contextProvider;
@@ -70,7 +70,7 @@ class LogCollectionManager {
         LogCollectorBuilder builder = new LogCollectorBuilder()
             .withRootFolderPath(logPath)
             .withKubeClient(resourceManager.kubeClient())
-            .withKubeCmdClient(resourceManager.kubeCmdClient())  // Use context-aware KubeCmdClient
+            .withKubeCmdClient(resourceManager.kubeCmdClient())  // Use kubeContext-aware KubeCmdClient
             .withNamespacedResources(testConfig.collectNamespacedResources().toArray(new String[0]));
 
         if (!testConfig.collectClusterWideResources().isEmpty()) {
@@ -114,7 +114,7 @@ class LogCollectionManager {
             LOGGER.debug("Collecting from namespaces with label: {}={}", LOG_COLLECTION_LABEL_KEY,
                 LOG_COLLECTION_LABEL_VALUE);
 
-            // Collect logs from all contexts (primary + context mappings)
+            // Collect logs from all contexts (primary + kubeContext mappings)
             collectLogsFromAllContexts(context, testConfig, logCollectionSelector, logCollector);
 
             LOGGER.info("Log collection completed successfully");
@@ -124,50 +124,50 @@ class LogCollectionManager {
     }
 
     /**
-     * Collects logs from primary context and all additional contexts.
+     * Collects logs from primary kubeContext and all additional contexts.
      */
     private void collectLogsFromAllContexts(ExtensionContext context, TestConfig testConfig,
                                             LabelSelector logCollectionSelector, LogCollector primaryLogCollector) {
-        // Collect from primary context
+        // Collect from primary kubeContext
         KubeResourceManager primaryResourceManager = contextProvider.getResourceManager(context);
         List<String> primaryContextNamespaces = collectNamespacesWithLabel(
             primaryResourceManager, logCollectionSelector, TestFrameConstants.DEFAULT_CONTEXT_NAME);
 
-        // Add primary context test namespaces (includes existing ones that aren't labeled)
+        // Add primary kubeContext test namespaces (includes existing ones that aren't labeled)
         Set<String> primaryContextTestNamespaces = new HashSet<>(testConfig.namespaces());
         primaryContextTestNamespaces.addAll(primaryContextNamespaces);
 
         if (!primaryContextTestNamespaces.isEmpty()) {
-            LOGGER.info("Collecting logs from primary context namespaces: {}", primaryContextTestNamespaces);
+            LOGGER.info("Collecting logs from primary kubeContext namespaces: {}", primaryContextTestNamespaces);
             primaryLogCollector.collectFromNamespaces(primaryContextTestNamespaces.toArray(new String[0]));
             primaryLogCollector.collectClusterWideResources();
         }
 
-        // Collect from each additional context using context-specific LogCollectors
-        Map<String, KubeResourceManager> contextManagers = contextProvider.getContextManagers(context);
+        // Collect from each additional kubeContext using kubeContext-specific LogCollectors
+        Map<String, KubeResourceManager> contextManagers = contextProvider.getKubeContextManagers(context);
         for (Map.Entry<String, KubeResourceManager> entry : contextManagers.entrySet()) {
             String contextName = entry.getKey();
             KubeResourceManager contextManager = entry.getValue();
 
-            // Find labeled namespaces in this context
+            // Find labeled namespaces in this kubeContext
             List<String> contextLabeledNamespaces = collectNamespacesWithLabel(
                 contextManager, logCollectionSelector, contextName);
 
-            // Find test namespaces for this context
+            // Find test namespaces for this kubeContext
             Set<String> contextTestNamespaces = new HashSet<>();
-            for (TestConfig.ContextMappingConfig contextMapping : testConfig.contextMappings()) {
-                if (contextName.equals(contextMapping.context())) {
+            for (TestConfig.KubeContextMappingConfig contextMapping : testConfig.kubeContextMappings()) {
+                if (contextName.equals(contextMapping.kubeContext())) {
                     contextTestNamespaces.addAll(contextMapping.namespaces());
                 }
             }
 
-            // Combine labeled and test namespaces for this context
+            // Combine labeled and test namespaces for this kubeContext
             contextTestNamespaces.addAll(contextLabeledNamespaces);
 
             if (!contextTestNamespaces.isEmpty()) {
-                LOGGER.info("Collecting logs from context '{}' namespaces: {}", contextName, contextTestNamespaces);
+                LOGGER.info("Collecting logs from kubeContext '{}' namespaces: {}", contextName, contextTestNamespaces);
 
-                // Create context-specific LogCollector with proper KubeClient
+                // Create kubeContext-specific LogCollector with proper KubeClient
                 LogCollector contextLogCollector =
                     createLogCollectorForContext(testConfig, context, contextManager, contextName);
                 contextLogCollector.collectFromNamespaces(contextTestNamespaces.toArray(new String[0]));
@@ -175,12 +175,12 @@ class LogCollectionManager {
             }
         }
 
-        LOGGER.info("Multi-context log collection completed successfully");
+        LOGGER.info("Multi-kubeContext log collection completed successfully");
     }
 
     /**
-     * Creates a context-specific LogCollector configured with the appropriate KubeClient
-     * for the given context. This ensures log collection uses the correct kubeconfig.
+     * Creates a kubeContext-specific LogCollector configured with the appropriate KubeClient
+     * for the given kubeContext. This ensures log collection uses the correct kubeconfig.
      */
     private LogCollector createLogCollectorForContext(TestConfig testConfig,
                                                       ExtensionContext context,
@@ -188,12 +188,12 @@ class LogCollectionManager {
                                                       String contextName) {
         String logPath = getLogPath(context, testConfig, contextName);
 
-        LOGGER.debug("Creating LogCollector for context '{}' with path: {}", contextName, logPath);
+        LOGGER.debug("Creating LogCollector for kubeContext '{}' with path: {}", contextName, logPath);
 
         LogCollectorBuilder builder = new LogCollectorBuilder()
             .withRootFolderPath(logPath)
-            .withKubeClient(contextManager.kubeClient())  // Use context-specific KubeClient
-            .withKubeCmdClient(contextManager.kubeCmdClient())  // Use context-specific KubeCmdClient
+            .withKubeClient(contextManager.kubeClient())  // Use kubeContext-specific KubeClient
+            .withKubeCmdClient(contextManager.kubeCmdClient())  // Use kubeContext-specific KubeCmdClient
             .withNamespacedResources(testConfig.collectNamespacedResources().toArray(new String[0]));
 
         if (!testConfig.collectClusterWideResources().isEmpty()) {
@@ -208,7 +208,7 @@ class LogCollectionManager {
     }
 
     /**
-     * Collects namespaces that have the log collection label in the specified context.
+     * Collects namespaces that have the log collection label in the specified kubeContext.
      */
     private List<String> collectNamespacesWithLabel(KubeResourceManager resourceManager,
                                                     LabelSelector logCollectionSelector, String contextName) {
@@ -222,18 +222,18 @@ class LogCollectionManager {
                 .map(ns -> ns.getMetadata().getName())
                 .toList();
 
-            LOGGER.debug("Found {} namespaces with log collection label in context '{}': {}",
+            LOGGER.debug("Found {} namespaces with log collection label in kubeContext '{}': {}",
                 labeledNamespaces.size(), contextName, labeledNamespaces);
 
             return labeledNamespaces;
         } catch (Exception e) {
-            LOGGER.warn("Failed to query namespaces in context '{}': {}", contextName, e.getMessage());
+            LOGGER.warn("Failed to query namespaces in kubeContext '{}': {}", contextName, e.getMessage());
             return Collections.emptyList();
         }
     }
 
     /**
-     * Gets the stored LogCollector from the extension context.
+     * Gets the stored LogCollector from the extension kubeContext.
      */
     private LogCollector getLogCollector(ExtensionContext context) {
         return contextStoreHelper.getLogCollector(context);
@@ -252,25 +252,25 @@ class LogCollectionManager {
     // ===============================
 
     /**
-     * Interface to abstract context operations for dependency injection.
-     * This allows LogCollectionManager to work with multi-context functionality
+     * Interface to abstract kubeContext operations for dependency injection.
+     * This allows LogCollectionManager to work with multi-kubeContext functionality
      * without directly depending on specific implementation details.
      */
-    public interface MultiContextProvider {
+    public interface MultiKubeContextProvider {
         /**
-         * Gets the primary resource manager for the context.
+         * Gets the primary resource manager for the extension kubeContext.
          *
-         * @param context the extension context
+         * @param context the extension kubeContext
          * @return the primary resource manager
          */
         KubeResourceManager getResourceManager(ExtensionContext context);
 
         /**
-         * Gets all context managers for multi-context operations.
+         * Gets all Kubernetes kubeContext managers for multi-kubeContext operations.
          *
-         * @param context the extension context
-         * @return map of context names to resource managers
+         * @param context the extension kubeContext
+         * @return map of Kubernetes kubeContext names to resource managers
          */
-        Map<String, KubeResourceManager> getContextManagers(ExtensionContext context);
+        Map<String, KubeResourceManager> getKubeContextManagers(ExtensionContext context);
     }
 }

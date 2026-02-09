@@ -53,7 +53,7 @@ class LogCollectionManagerTest {
     private ConfigurationManager configurationManager;
 
     @Mock
-    private LogCollectionManager.MultiContextProvider contextProvider;
+    private LogCollectionManager.MultiKubeContextProvider contextProvider;
 
     @Mock
     private ExtensionContext extensionContext;
@@ -174,12 +174,12 @@ class LogCollectionManagerTest {
 
             // Then
             // Should not crash and should log a warning
-            // Verify no interactions with context provider since we return early
+            // Verify no interactions with kubeContext provider since we return early
             verifyNoInteractions(contextProvider);
         }
 
         @Test
-        @DisplayName("Should collect logs from primary context successfully")
+        @DisplayName("Should collect logs from primary kubeContext successfully")
         void shouldCollectLogsFromPrimaryContextSuccessfully() {
             // Given
             TestConfig testConfig = createTestConfig("/logs", LogCollectionStrategy.ON_FAILURE,
@@ -187,7 +187,7 @@ class LogCollectionManagerTest {
             when(configurationManager.getTestConfig(extensionContext)).thenReturn(testConfig);
             when(contextStoreHelper.getLogCollector(extensionContext)).thenReturn(logCollector);
             when(contextProvider.getResourceManager(extensionContext)).thenReturn(resourceManager);
-            when(contextProvider.getContextManagers(extensionContext)).thenReturn(Map.of());
+            when(contextProvider.getKubeContextManagers(extensionContext)).thenReturn(Map.of());
 
             // Mock namespace query
             NamespaceList namespaceList = mock(NamespaceList.class);
@@ -205,7 +205,7 @@ class LogCollectionManagerTest {
         @DisplayName("Should collect logs from multiple contexts")
         void shouldCollectLogsFromMultipleContexts() {
             // Given
-            TestConfig.ContextMappingConfig contextMapping = new TestConfig.ContextMappingConfig(
+            TestConfig.KubeContextMappingConfig contextMapping = new TestConfig.KubeContextMappingConfig(
                 "staging", List.of("stg-ns"), true, CleanupStrategy.AUTOMATIC, List.of(), List.of()
             );
             TestConfig testConfig = createTestConfigWithContexts("/logs", LogCollectionStrategy.ON_FAILURE,
@@ -215,7 +215,7 @@ class LogCollectionManagerTest {
             when(contextStoreHelper.getLogCollector(extensionContext)).thenReturn(logCollector);
             when(contextProvider.getResourceManager(extensionContext)).thenReturn(resourceManager);
 
-            // Mock additional context
+            // Mock additional kubeContext
             KubeResourceManager stagingManager = mock(KubeResourceManager.class);
             KubeClient stagingKubeClient = mock(KubeClient.class);
             KubeCmdClient stagingKubeCmdClient = mock(KubeCmdClient.class);
@@ -232,7 +232,7 @@ class LogCollectionManagerTest {
             when(stagingNamespaceOp.withLabelSelector(any(LabelSelector.class))).thenReturn(stagingLabelSelector);
 
             Map<String, KubeResourceManager> contextManagers = Map.of("staging", stagingManager);
-            when(contextProvider.getContextManagers(extensionContext)).thenReturn(contextManagers);
+            when(contextProvider.getKubeContextManagers(extensionContext)).thenReturn(contextManagers);
 
             // Mock namespace queries
             NamespaceList primaryNamespaceList = mock(NamespaceList.class);
@@ -246,11 +246,11 @@ class LogCollectionManagerTest {
             manager.collectLogs(extensionContext, "test-suffix");
 
             // Then
-            // Verify primary context log collection
+            // Verify primary kubeContext log collection
             verify(logCollector).collectFromNamespaces(any(String[].class));
-            // Additional context creates its own LogCollector, so we can't easily verify it
-            // but we can verify that the context managers were queried
-            verify(contextProvider).getContextManagers(extensionContext);
+            // Additional kubeContext creates its own LogCollector, so we can't easily verify it
+            // but we can verify that the kubeContext managers were queried
+            verify(contextProvider).getKubeContextManagers(extensionContext);
         }
 
         @Test
@@ -273,7 +273,7 @@ class LogCollectionManagerTest {
         }
 
         @Test
-        @DisplayName("Should collect labeled namespaces from context")
+        @DisplayName("Should collect labeled namespaces from kubeContext")
         void shouldCollectLabeledNamespacesFromContext() {
             // Given
             TestConfig testConfig = createTestConfig("/logs", LogCollectionStrategy.ON_FAILURE,
@@ -281,7 +281,7 @@ class LogCollectionManagerTest {
             when(configurationManager.getTestConfig(extensionContext)).thenReturn(testConfig);
             when(contextStoreHelper.getLogCollector(extensionContext)).thenReturn(logCollector);
             when(contextProvider.getResourceManager(extensionContext)).thenReturn(resourceManager);
-            when(contextProvider.getContextManagers(extensionContext)).thenReturn(Map.of());
+            when(contextProvider.getKubeContextManagers(extensionContext)).thenReturn(Map.of());
 
             // Mock labeled namespace
             Namespace labeledNamespace = new NamespaceBuilder()
@@ -317,7 +317,7 @@ class LogCollectionManagerTest {
             when(configurationManager.getTestConfig(extensionContext)).thenReturn(testConfig);
             when(contextStoreHelper.getLogCollector(extensionContext)).thenReturn(logCollector);
             when(contextProvider.getResourceManager(extensionContext)).thenReturn(resourceManager);
-            when(contextProvider.getContextManagers(extensionContext)).thenReturn(Map.of());
+            when(contextProvider.getKubeContextManagers(extensionContext)).thenReturn(Map.of());
 
             // Mock exception when querying namespaces
             when(labelSelector.list()).thenThrow(new RuntimeException("Kubernetes API error"));
@@ -339,7 +339,7 @@ class LogCollectionManagerTest {
             when(configurationManager.getTestConfig(extensionContext)).thenReturn(testConfig);
             when(contextStoreHelper.getLogCollector(extensionContext)).thenReturn(logCollector);
             when(contextProvider.getResourceManager(extensionContext)).thenReturn(resourceManager);
-            when(contextProvider.getContextManagers(extensionContext)).thenReturn(Map.of());
+            when(contextProvider.getKubeContextManagers(extensionContext)).thenReturn(Map.of());
 
             // Mock empty namespace list
             NamespaceList namespaceList = mock(NamespaceList.class);
@@ -383,7 +383,7 @@ class LogCollectionManagerTest {
     private TestConfig createTestConfigWithContexts(String logPath, LogCollectionStrategy strategy,
                                                    List<String> namespacedResources, List<String> clusterResources,
                                                    boolean collectPreviousLogs,
-                                                   List<TestConfig.ContextMappingConfig> contextMappings) {
+                                                   List<TestConfig.KubeContextMappingConfig> contextMappings) {
         return new TestConfig(
             List.of("test-namespace"),
             true,
