@@ -1,4 +1,10 @@
 # TEST-FRAME
+
+> **⚠️ REPOSITORY ARCHIVED**
+> This repository is archived and development continues under the new name **kubetest4j** at https://github.com/skodjob/kubetest4j/
+> Latest release of test-frame is **1.4.0**.
+> Users who want new API and features should migrate to **kubetest4j**, but be careful as API and naming have changed.
+
 Library for easy testing of Kubernetes deployments and operators using Fabric8 API.
 
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/skodjob/test-frame/badge)](https://scorecard.dev/viewer/?uri=github.com/skodjob/test-frame)
